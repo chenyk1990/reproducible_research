@@ -1,0 +1,98 @@
+from rsf.tex import*
+import os, sys
+os.environ['PSTEXPENOPTS']='color=y fat=3 fatmult=1.5 serifs=n'
+
+env=Environment()
+if sys.platform == 'darwin':
+    env['ENV']['PATH'] = ':'.join(['/opt/local/bin',env['ENV']['PATH']])
+
+Paper('figure2-6',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,lineno,amssymb,algorithm,algorithmic')
+
+Paper('db_old',lclass='IEEEtran',options='10pt,revised',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,lineno,amssymb,algorithm,algorithmic,ulem,comment')
+
+# SEG
+Paper('seg_db',lclass='segabs',use='amsmath,listings')
+env.Command('seg_db_final.pdf','seg_db_final.tex','pdflatex $SOURCE')
+
+# EAGE (change lclass)
+Paper('eage_db',lclass='cph18',use='listings, amsmath')
+
+# GEO first submission
+Paper('db',options='manuscript',use='amsmath,listings,amssymb')
+Paper('db2',options='manuscript',use='amsmath,listings,amssymb')
+Paper('figure_hyper',options='manuscript',use='amsmath,listings,amssymb')
+
+#C&G
+Paper('db_cg',lclass='elsarticle',options='preprint,amsmath,authoryear,12pt,manuscript',use='lineno,graphicx,subfigure,setspace,color,ulem,amsmath',
+    include=r'''
+\journal{Computers and Geosciences}
+\linenumbers
+\doublespacing
+''')
+
+#C&G2
+#Paper('db_cg',options='manuscript',use='amsmath,listings,lineno,graphicx,subfigure,setspace,color,ulem',
+#    include=r'''
+#\linenumbers
+#\doublespacing
+#''')
+
+# GEO first revision
+Paper('db_r1',options='manuscript,revised',use='amsmath,listings',include=r'''
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+Command('db_p1.tex','db_r1.tex','cp $SOURCE $TARGET')
+Paper('db_p1',options='manuscript',use='amsmath,listings',include=r'''
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+
+#for beamer
+Paper('slides',lclass='beamer',use='subfigure,amsmath,amsbsy,listings,overpic,color,multicol,amssymb,comment,verbatim', include=r'''
+      \mode<presentation>{\usetheme{beaver}}
+      \mode<presentation>{\usecolortheme{beaver}}
+      \newcommand{\TEXMF}{%s/texmf}
+      ''' % os.environ.get('HOME'))
+
+## IEEE first submission
+Paper('ieee',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath')
+Command('one.tex','ieee.tex','cp $SOURCE $TARGET')
+Paper('one',lclass='IEEEtran',options='12pt,journal,draftclsnofoot,onecolumn',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,epstopdf,newalg,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath')
+
+## IEEE first revision
+Paper('ieee_r1',lclass='IEEEtran',options='10pt',use='ulem,cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath',include=r'''
+\DeclareRobustCommand{\old}[1]{\color{blue}{\sout{#1}}\color{black}{}}
+\DeclareRobustCommand{\new}[1]{\color{red}{\textit{#1}}\color{black}{}} 
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+Command('ieee_p1.tex','ieee_r1.tex','cp $SOURCE $TARGET')
+Paper('ieee_p1',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath',include=r'''
+\DeclareRobustCommand{\old}[1]{}
+\DeclareRobustCommand{\new}[1]{#1}
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+
+Paper('one_r1',lclass='IEEEtran',options='12pt,journal,draftclsnofoot,onecolumn',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,epstopdf',include=r'''
+\DeclareRobustCommand{\old}[1]{}
+\DeclareRobustCommand{\new}[1]{#1}
+''')
+
+# reply
+Paper('r1',use='hyperref,listings,amsmath')
+
+## The following is used to automatically cp IEEE files
+## scons ieee & scons paper.pdf 
+env.Command(['ieee','IEEEtran.bst','IEEEtran.cls','newalg.sty'],[os.getenv('HOME')+'/chenyk.open/temp/ieee/IEEEtran.bst',os.getenv('HOME')+'/chenyk.open/temp/ieee/IEEEtran.cls',os.getenv('HOME')+'/chenyk.open/temp/newalg.sty'],'cp  ${SOURCES[0]}  ${TARGETS[1]} && cp  ${SOURCES[1]}  ${TARGETS[2]} &&cp  ${SOURCES[2]}  ${TARGETS[3]}')
+
+# The following is used to automatically cp beamerthemebeaver.sty
+# scons b
+env.Command(['b','beamerthemebeaver.sty'],[os.getenv('HOME')+'/chenyk.open/temp/beamer/beamerthemebeaver.sty'],'cp  ${SOURCES[0]}  ${TARGETS[1]}')     
+
+# The following is used to automatically cp firstbreak.bst
+# scons f
+env.Command(['f','firstbreak.bst'],[os.getenv('HOME')+'/chenyk.open/temp/eage/firstbreak.bst'],'cp  ${SOURCES[0]}  ${TARGETS[1]}')   
+ 
+End(options='manuscript',use='amsmath,subfigure,listings')

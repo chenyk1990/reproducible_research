@@ -1,0 +1,34 @@
+from rsf.tex import*
+env=Environment()
+if sys.platform == 'darwin':
+    env['ENV']['PATH'] = ':'.join(['/opt/local/bin',env['ENV']['PATH']])
+os.environ['PSTEXPENOPTS']='color=y fat=3 fatmult=1.5'
+
+
+Paper('demulemd',lclass='geophysics',use='amsmath')
+#Paper('dipssa',lclass='article',use='amsmath')
+#Paper('dipssa',options='manuscript',lclass='geophysics',use='amsmath')
+
+Paper('fpocsseiseage',lclass='mad15',use='listings, amsmath,subfigure')
+Paper('dblendmask',lclass='geophysics',options='manuscript',use='listings,amsmath,subfigure,natbib,amsmath,graphicx,color,lineno',
+          include=r'''
+          \linenumbers*[1]
+          ''')
+Paper('demulemdeage',lclass='paris17',use='listings, amsmath,subfigure')
+Paper('csddtf',lclass='ams14',use='listings, amsmath,subfigure')
+
+
+Paper('seg2016_mulemd',lclass='segabs',use='listings, amsmath,subfigure')
+env.Command('seg2016_mulemd_final.pdf','seg2016_mulemd_final.tex','pdflatex $SOURCE')
+
+env.Command(['ieee','IEEEtran.bst','IEEEtran.cls'],[os.getenv('HOME')+'/chenyk.open/temp/ieee/IEEEtran.bst',os.getenv('HOME')+'/chenyk.open/temp/ieee/IEEEtran.cls'],'cp  ${SOURCES[0]}  ${TARGETS[1]} && cp  ${SOURCES[1]}  ${TARGETS[2]} ')
+
+
+Paper('ieee_demul',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath')
+
+Paper('ieee_demul_r1',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath')
+
+Paper('reply1',use='hyperref,listings')
+
+
+End(use='listings,amsmath')

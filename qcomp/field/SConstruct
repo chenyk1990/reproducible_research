@@ -1,0 +1,226 @@
+from rsf.proj import *
+from math import *
+import os
+from rsf.prog import RSFROOT
+
+def Grey(data,other):
+    Result(data,'''
+    grey
+    label1=Time unit1=s color=g label2=Trace unit2=  clip=1.5 wanttitle=y wherexlabel=b wheretitle=t title= screenratio=1.2 color=g max1=3.2 labelsz=10 labelfat=4 titlefat=4 font=2
+    %s ''' % (other))
+
+def Greyz(data,other):
+    Result(data,'''
+    grey
+    label1=Time unit1=s color=g label2=Trace unit2=  clip=1.5 wanttitle=y wherexlabel=b wheretitle=t title= screenratio=1.2 color=g  labelsz=10 labelfat=4 titlefat=4 font=2
+    %s ''' % (other))
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Generate_Synth'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+
+n1=2001
+n2=501
+n3=1
+d1=0.002
+d2=1
+d3=1
+o1=0
+o2=0
+o3=0
+
+liter=10
+niter=3
+Q=50
+fdom=30 #dominant frequency
+verb=0
+ifthr=1
+perc=6
+
+put='n1=%d n2=%d n3=%d d1=%g d2=%g d3=%g o1=%g o2=%g o3=%g'%(n1,n2,n3,0.004,d2,d3,o1,o2,o3)
+
+############################################################
+## with parameter
+############################################################
+Flow('real-dn','../matfun/Qcdn_field.bin','bin2rsf n1=2001 n2=501 d1=0.004 d2=1 o1=0 o2=1 | scale axis=2')
+Grey('real-dn','title=Raw')
+
+matfun='Qcdn' #Q-compensated denoising
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1','real-d1-0','put %s'%put)
+Grey('real-d1','title="Proposed"')
+
+## FX
+Flow('real-d2','real-dn','fxdecon lenf=12 n2w=%d'%n2)
+Grey('real-d2','title="FX"')
+
+
+### zoom 
+# compare k-lrra-n and k-pwd-n
+# 
+## framebox A
+x=110
+y=0.25
+w=190
+w1=0.9
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph  min1=1 max1=501 min2=0 max2=3.2 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.2
+	''')
+Flow('real-dn-z1','real-dn','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-z1','real-d1','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d2-z1','real-d2','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+
+
+## framebox B
+x=130
+y=1.6
+w=200
+w1=1.3
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph  min1=1 max1=501 min2=0 max2=3.2 pad=n plotfat=15 plotcol=5 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.2
+	''')
+
+Flow('real-dn-z2','real-dn','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-z2','real-d1','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d2-z2','real-d2','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+
+
+Result('real-dn-0','Fig/real-dn.vpl frame1 frame2','Overlay')
+Result('real-d1-0','Fig/real-d1.vpl frame1 frame2','Overlay')
+Result('real-d2-0','Fig/real-d2.vpl frame1 frame2','Overlay')
+
+
+Greyz('real-dn-z1','title=Raw')
+Greyz('real-d1-z1','title="Proposed"')
+Greyz('real-d2-z1','title="FX"')
+Greyz('real-dn-z2','title=Raw')
+Greyz('real-d1-z2','title="Proposed"')
+Greyz('real-d2-z2','title="FX"')
+
+
+
+#### different Q
+matfun='Qcdn' #Q-compensated denoising
+Q=60 
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-q60-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1-q60','real-d1-q60-0','put %s'%put)
+Grey('real-d1-q60','title="Proposed (Q=60)"')
+
+Q=70 
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-q70-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1-q70','real-d1-q70-0','put %s'%put)
+Grey('real-d1-q70','title="Proposed (Q=70)"')
+
+Q=80 
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-q80-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1-q80','real-d1-q80-0','put %s'%put)
+Grey('real-d1-q80','title="Proposed (Q=80)"')
+
+
+Q=90 
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-q90-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1-q90','real-d1-q90-0','put %s'%put)
+Grey('real-d1-q90','title="Proposed (Q=90)"')
+
+
+Q=100 
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-q100-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1-q100','real-d1-q100-0','put %s'%put)
+Grey('real-d1-q100','title="Proposed (Q=100)"')
+
+
+Q=120 
+############################################################
+## with parameter
+############################################################
+Flow('real-d1-q120-0',[os.path.join(matROOT,matfun+'.m'),'real-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('real-d1-q120','real-d1-q120-0','put %s'%put)
+Grey('real-d1-q120','title="Proposed (Q=120)"')
+
+
+
+Result('real-d1-q60-0','Fig/real-d1-q60.vpl frame1','Overlay')
+Result('real-d1-q70-0','Fig/real-d1-q70.vpl frame1','Overlay')
+Result('real-d1-q80-0','Fig/real-d1-q80.vpl frame1','Overlay')
+Result('real-d1-q90-0','Fig/real-d1-q90.vpl frame1','Overlay')
+Result('real-d1-q100-0','Fig/real-d1-q100.vpl frame1','Overlay')
+Result('real-d1-q120-0','Fig/real-d1-q120.vpl frame1','Overlay')
+
+
+x=110
+y=0.25
+w=190
+w1=0.9
+
+Flow('real-d1-q60-z1','real-d1-q60','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-q70-z1','real-d1-q70','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-q80-z1','real-d1-q80','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-q90-z1','real-d1-q90','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-q100-z1','real-d1-q100','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('real-d1-q120-z1','real-d1-q120','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Greyz('real-d1-q60-z1','title="Proposed (Q=60)"')
+Greyz('real-d1-q70-z1','title="Proposed (Q=70)"')
+Greyz('real-d1-q80-z1','title="Proposed (Q=80)"')
+Greyz('real-d1-q90-z1','title="Proposed (Q=90)"')
+Greyz('real-d1-q100-z1','title="Proposed (Q=100)"')
+Greyz('real-d1-q120-z1','title="Proposed (Q=120)"')
+End()

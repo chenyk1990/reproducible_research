@@ -1,0 +1,160 @@
+from rsf.proj import*
+
+def Grey(data,other): 
+	Result(data,'grey label2=Trace unit2="" label1=Time unit1="s" title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4  wherexlabel=b screenratio=1.4 wheretitle=t color=g bartype=v clip=0.5 %s'%other)
+
+
+def Wig(data,other):
+	Result(data,'window j2=4 | wiggle transp=y yreverse=y poly=y clip=0.1 labelsz=10 labelfat=4 font=2  wanttitle=n')
+   
+def Graph(data,other):
+	Result(data,'graph label1="" label2="" unit1="" unit2=""  title="" labelsz=10 labelfat=4 font=2  wherexlabel=b wheretitle=t %s' %other)
+
+def Graphplot(data,other):
+	Plot(data,'graph label1="Noise variances" label2="SNR" unit2=dB labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t plotfat=10 %s' %other)
+
+
+Flow('bn1-t','../matfun/hyperdata_n1_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128|put o2=1')
+Flow('bnn1-t','../matfun/hyperdata_n1_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128 f2=128|put o2=1')
+Flow('bnn_dn1-t','../matfun/hyperdata_n1_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128 f2=256|put o2=1')
+
+Flow('n1','bnn1-t bn1-t','add scale=1,-1 ${SOURCES[1]}')
+
+Flow('bn1','bn1-t','cp')
+Flow('bnn1','bnn1-t n1','add scale=1,1 ${SOURCES[1]}')
+Flow('bnn_dn1','bnn_dn1-t','cp')
+Flow('bnn_rn1','bnn_dn1-t bnn1','add scale=-1,1 ${SOURCES[1]}')
+
+Flow('bnn_re1','bnn_dn1 bn1','add scale=-1,1 ${SOURCES[1]} | math output="input*0.5"')
+
+Grey('bn1','')
+Grey('bnn1','')
+Grey('bnn_dn1','')
+Grey('bnn_rn1','')
+Grey('bnn_re1','')
+
+Flow('H1','../matfun/hyperdata_H1_143_429.bin','bin2rsf bfile=${SOURCES[0]} n1=143 n2=429 d1=1 d2=1 o1=1 o2=1|window n2=143 |put o2=1')
+Flow('H0','../matfun/hyperdata_H1_143_429.bin','bin2rsf bfile=${SOURCES[0]} n1=143 n2=429 d1=1 d2=1 o1=1 o2=1|window n2=143 f2=143|put o2=1')
+Flow('H00','../matfun/hyperdata_H1_143_429.bin','bin2rsf bfile=${SOURCES[0]} n1=143 n2=429 d1=1 d2=1 o1=1 o2=1|window n2=143 f2=286|put o2=1')
+
+Grey('H1','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+Grey('H0','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+Grey('H00','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+
+# N3
+Flow('bn3-t','../matfun/hyperdata_n3_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128|put o2=1')
+Flow('bnn3-t','../matfun/hyperdata_n3_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128 f2=128|put o2=1')
+Flow('bnn_dn3-t','../matfun/hyperdata_n3_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128 f2=256|put o2=1')
+
+Flow('n3','bnn3-t bn3-t','add scale=1,-1 ${SOURCES[1]}')
+
+Flow('bn3','bn3-t','cp')
+Flow('bnn3','bnn3-t','cp')
+Flow('bnn_dn3','bnn_dn3-t','cp')
+Flow('bnn_rn3','bnn_dn3-t bnn3','add scale=-1,1 ${SOURCES[1]}')
+Flow('bnn_re3','bnn_dn3 bn3','add scale=-1,1 ${SOURCES[1]} | math output="input*0.25"')
+
+Grey('bn3','')
+Grey('bnn3','')
+Grey('bnn_dn3','')
+Grey('bnn_rn3','')
+Grey('bnn_re3','')
+
+Flow('H3','../matfun/hyperdata_H3_143_429.bin','bin2rsf bfile=${SOURCES[0]} n1=143 n2=429 d1=1 d2=1 o1=1 o2=1|window n2=143 |put o2=1')
+Grey('H3','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+
+# N4
+Flow('bn4-t','../matfun/hyperdata_n4_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128|put o2=1')
+Flow('bnn4-t','../matfun/hyperdata_n4_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128 f2=128|put o2=1')
+Flow('bnn_dn4-t','../matfun/hyperdata_n4_400_384.bin','bin2rsf bfile=${SOURCES[0]} n1=400 n2=384 d1=0.004 d2=1 o1=0 o2=1|window n2=128 f2=256|put o2=1')
+
+Flow('n4','bnn4-t bn4-t','add scale=1,-1 ${SOURCES[1]}')
+
+Flow('bn4','bn4-t','cp')
+Flow('bnn4','bnn4-t','cp')
+Flow('bnn_dn4','bnn_dn4-t','cp')
+Flow('bnn_rn4','bnn_dn4-t bnn4','add scale=-1,1 ${SOURCES[1]}')
+Flow('bnn_re4','bnn_dn4 bn4','add scale=-1,1 ${SOURCES[1]} | math output="input*0.25"')
+
+
+Grey('bn4','')
+Grey('bnn4','')
+Grey('bnn_dn4','')
+Grey('bnn_rn4','')
+Grey('bnn_re4','')
+
+
+
+Flow('H4','../matfun/hyperdata_H4_143_429.bin','bin2rsf bfile=${SOURCES[0]} n1=143 n2=429 d1=1 d2=1 o1=1 o2=1|window n2=143 |put o2=1')
+Grey('H4','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+
+
+
+
+
+
+
+	
+#Flow('sigma','../matfun/synth_irr_snrs.bin','bin2rsf n1=6 n2=3 d1=1 d2=1 o1=1 o2=1 | window n2=1')
+Flow('snr1','../matfun/hyperdata_snrs_10_2.bin','bin2rsf n1=10 n2=2 d1=0.1 d2=1 o1=0.1 o2=1 | window n2=1 f2=0')
+Flow('snr2','../matfun/hyperdata_snrs_10_2.bin','bin2rsf n1=10 n2=2 d1=0.1 d2=1 o1=0.1 o2=1 | window n2=1 f2=1')
+
+Flow('snr1s','snr1','cp')
+Flow('snr2s','snr2','cp')
+
+Flow('snr1st','snr1s','cp')
+Flow('snr2st','snr2s','cp')
+
+Graphplot('snr1s','min2=-15 max2=18 symbol="o" symbolsz=10 plotcol=3 ')
+Graphplot('snr2s','min2=-15 max2=18 symbol="v" symbolsz=10 plotcol=5 wantaxis=n')
+Graphplot('snr1st','min2=-15 max2=18   plotcol=3 wantaxis=n')
+Graphplot('snr2st','min2=-15 max2=18   plotcol=5 wantaxis=n')
+
+Result('snr-n','snr1s snr2s snr1st snr2st','Overlay')
+
+
+
+
+#labels
+Plot('label1',None,
+	'''
+	box x0=6.2 y0=3.35 label="Input SNR" xt=-0.5 yt=-0.5 length=1 
+	''')
+
+Plot('label2',None,
+	'''
+	box x0=6.2 y0=5.65 label="Output SNR" xt=0.5 yt=0.5 length=1 
+	''')
+Result('snr-n0','Fig/snr-n.vpl label1 label2','Overlay')
+	
+## Creating framebox
+x=53   #spatial
+y=53 #vertical
+w=38  #spatial
+w1=38#vertical
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=1 max1=143 min2=1 max2=143 pad=n plotfat=15 plotcol=2 
+	screenratio=1 wantaxis=n wanttitle=n yreverse=y 
+	''')	
+	
+##zooming H
+Flow('H0-z','H0','window n1=37 n2=37 f1=53 f2=53')
+Flow('H1-z','H1','window n1=37 n2=37 f1=53 f2=53')
+Flow('H3-z','H3','window n1=37 n2=37 f1=53 f2=53')
+Flow('H4-z','H4','window n1=37 n2=37 f1=53 f2=53')
+Grey('H0-z','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+Grey('H1-z','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+Grey('H3-z','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+Grey('H4-z','color=j screenratio=1 wantaxis=n wanttitle=n clip=0.5 bias=0.5')
+
+Result('H0-0','Fig/H0.vpl frame','Overlay')
+Result('H1-0','Fig/H1.vpl frame','Overlay')
+Result('H3-0','Fig/H3.vpl frame','Overlay')
+Result('H4-0','Fig/H4.vpl frame','Overlay')
+
+End()

@@ -1,0 +1,20 @@
+
+The University of Texas at Austin
+John A. and Katherine G. Jackson School of Geosciences
+Bureau of Economic Geology
+University Station, Box X
+Austin, TX 78713-8924
+
+Dear Editor,
+
+Please find enclosed a manuscript entitled: "Ground-roll noise attenuation using a simple and effective approach based
+ on local bandlimited orthogonalization" which I am submitting for exclusive consideration of publication as an article in IEEE, Geoscience and Remote Sensing Letters.
+
+In this paper, we propose a novel band-limited orthogonalization approach for removing ground-roll noise  without harming useful primary reflections. We orthogonalize the initially denoised signal via bandpass filtering with a relatively high low-bound-frequency (LBF), and the corresponding noise section that contains loss of primary reflections, using local signal-and-noise orthogonalization.  The local orthogonalization guarantees that the least coherent primary reflections are lost in the noise section. The procedure of the proposed approach is very convenient to implement because only a bandpass filtering and a regularized division between the initially denoised signal and initial noise are used. An open-source field dataset demonstrates a successful performance using the proposed approach. 
+
+Thank you for your consideration of our work! Please address all correspondence concerning this manuscript to me at The University of Texas at Austin and feel free to correspond with me by e-mail (ykchen@utexas.edu).
+
+Sincerely,
+Yangkang Chen
+Graduate Research Assistant at UT Austin
+

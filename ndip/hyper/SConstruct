@@ -1,0 +1,251 @@
+from rsf.proj import *
+from math import *
+import os
+#sys.path.append('../simple/')
+from radius2 import radius2
+
+## module defining
+def Grey(data,other): 
+	Result(data,'grey label2="Trace" label1="Time" unit1=s unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t clip=0.2 screenratio=1.2 labelfat=4 font=2 color=g %s'%other)
+
+def Greyr(data,data1,other): 
+	Result(data,data1,'grey label2="Trace" label1="Time" unit1=s unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t screenratio=1.2 labelfat=4 font=2  mean=y scalebar=y barlabel=Radius barunit=samples %s'%other)
+
+
+
+wf = 2*pi
+nt = 501
+dt = 0.004
+ot = 0
+nx = 501
+dx = 0.01
+ox = 0
+nw = 200
+dw = 0.0005
+ow = 0
+
+
+for eve in (1,2,3,4):
+    spike='spike%d' % eve
+    tpara='tpara%d'   % eve
+    para='para%d'     % eve
+    Flow(spike,None,
+        '''
+        spike n1=%d d1=%g o1=%g n2=%d d2=%g o2=%g nsp=1 k1=%d mag=1  p2=0| 
+        ricker1 frequency=15 | put unit2=km label2=Distance
+        ''' % (nt,dt,ot,nx,dx,ox,eve*80-30))
+
+    Flow(tpara,spike,
+        '''
+        window n1=1 | math output="-sqrt(%g*%g+(x1-2.5)*(x1-2.5)/%g/%g)+%g"
+        ''' % (0.004*(eve*80-30),0.004*(eve*80-30),2,2,0.004*(eve*80-30)))
+
+    Flow(para,[spike, tpara],
+        'datstretch datum=${SOURCES[1]} ')
+
+Flow('hyper','para1 para2 para3 para4','add ${SOURCES[1]} ${SOURCES[2]} ${SOURCES[3]} | window f2=128 n2=256 |put d2=1 o2=1 | scale axis=2 | window n1=400 | window j2=2')
+
+Flow('n','hyper','noise seed=202021 var=0.1 rep=y | bandpass fhi=50')
+Flow('hyper-n','hyper n','add scale=1,1 ${SOURCES[1]}')
+
+Grey('hyper','')
+Grey('n','')
+Grey('hyper-n','')
+
+
+
+
+## Stationary (Traditional way)
+Flow('hyper-smo','hyper-n','smooth rect1=5 ')
+Flow('hyper-smo-n','hyper-smo hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-smo','')
+Grey('hyper-smo-n','')
+
+
+## Stationary and Non-stationary (sfnsmooth)
+Flow('rect1-c','hyper-n','math output=5')
+Flow('rect2-c','hyper-n','math output=1')
+Flow('hyper-sm','hyper-n rect1-c rect2-c','smoothn rect1=${SOURCES[1]} rect2=${SOURCES[2]}')
+Flow('hyper-sm-n','hyper-sm hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-sm','')
+Grey('hyper-sm-n','')
+
+#
+Flow('rect1-n','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float  |math output="5-input*4"')
+#Flow('rect1-n','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float |math output="1"')
+Flow('rect2-n','hyper','math output=1')
+
+Flow('hyper-nsm','hyper-n rect1-n rect2-n','smoothn rect1=${SOURCES[1]} rect2=${SOURCES[2]}')
+Flow('hyper-nsm-1','hyper-n rect1-n rect2-n','nsmooth1 rect=${SOURCES[1]} rect2=${SOURCES[2]}')
+
+Flow('hyper-nsm-n','hyper-nsm hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-nsm','')
+Grey('hyper-nsm-1','')
+Grey('hyper-nsm-n','')
+
+#Grey('rect1-n','color=j scalebar=y clip=6')
+
+
+## Orthogonalization
+Flow('hyper-fx','hyper-n','fxdecon lenf=6 n2w=128')
+Flow('hyper-fx-n','hyper-fx hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-fx','')
+Grey('hyper-fx-n','')
+
+Flow('hyper-ortho-n hyper-ortho','hyper-fx-n hyper-fx','ortho niter=100 rect1=30 rect2=30 sig=${SOURCES[1]} sig2=${TARGETS[1]} eps=0.00')
+Grey('hyper-ortho','')
+Grey('hyper-ortho-n','')
+
+## Constant radius, benchmark with stationary ortho (exactly the same)
+#Flow('rect1','hyper','math output="10"')
+#Flow('rect2','hyper','math output="10"')
+
+# Flow('rect1','rect1-n','cp | math output="input*3"')
+# Flow('rect2','rect1-n','cp | math output="input*3"')
+# Grey('rect1','color=j scalebar=y clip=6')
+# Grey('rect2','color=j scalebar=y clip=6')
+
+
+Flow('high','hyper-n','cp')
+Flow('low','hyper-n','bandpass fhi=10')
+#Flow('low','hyper-fx','cp')
+Grey('high','')
+Grey('low','')
+
+# Flow('high','hyper-fx','cp | noise var=0.05 seed=202021')
+# Flow('low','high','bandpass fhi=20')
+# Grey('high','')
+# Grey('low','')
+#sfpen Fig/high-smooth-spec00.vpl Fig/high-smooth-spec10.vpl Fig/high-smooth-spec20.vpl Fig/high-smooth-spec30.vpl Fig/high-smooth-spec40.vpl Fig/high-smooth-spec50.vpl
+
+radius2('high','low', 
+                niter=5, 
+#                 c=[0.7,0.45,0.35,0.35,0.5], #works fine
+                c=[0.7,0.4,0.2,0.1,0.05], #works fine
+                bias=-20, clip=30, 
+                rect1=30, rect2=20, 
+                theor=False, initial=1, 
+                minval=-20, maxval=20, 
+                titlehigh='High', titlelow='Low',
+                it=0 )
+               
+Flow('rect1','rect50','math output="input"')
+Flow('rect2','rect50','math output="input"')
+Greyr('hyper-rect10','rect10','color=j scalebar=y')
+Greyr('hyper-rect20','rect20','color=j scalebar=y')
+Greyr('hyper-rect30','rect30','color=j scalebar=y')
+Greyr('hyper-rect40','rect40','color=j scalebar=y')
+Greyr('hyper-rect50','rect50','color=j scalebar=y')
+
+Flow('hyper-orthon-n hyper-orthon','hyper-fx-n hyper-fx rect1 rect2','orthon niter=100 sig=${SOURCES[1]} sig2=${TARGETS[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} eps=0.00')
+Grey('hyper-orthon','')
+Grey('hyper-orthon-n','')
+
+#local similarity
+Flow('hyper-fx-s','hyper-fx-n hyper-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('hyper-ortho-s','hyper-ortho-n hyper-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('hyper-orthon-s','hyper-orthon-n hyper-orthon','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Grey('hyper-fx-s','clip=1 maxval=1 minval=0 color=j scalebar=y')
+Grey('hyper-ortho-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+Grey('hyper-orthon-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+
+# compute SNR (may differ in different computers)
+Flow('h-diff1','hyper hyper-n','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr1','hyper h-diff1','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff2','hyper hyper-fx','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr2','hyper h-diff2','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff3','hyper hyper-ortho','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr3','hyper h-diff3','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff4','hyper hyper-orthon','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr4','hyper h-diff4','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff1','hyper hyper-n','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr1','hyper h-diff1','snr2 noise=${SOURCES[1]}')
+
+
+
+
+## FOLLOWING NONSTATIONARY ORTHO
+### stationary dip estimation
+Flow('hyper-dip','hyper','dip rect1=5 rect2=5 order=2')
+Flow('hypern-dip','hyper-n','dip rect1=8 rect2=8 order=2 ')
+Flow('hypern-dip2','hyper-n','dip rect1=50 rect2=50 order=2 ')
+
+Grey('hyper-dip','color=j clip=2 scalebar=y')
+Grey('hypern-dip','color=j clip=2 scalebar=y')
+Grey('hypern-dip2','color=j clip=2 scalebar=y')
+
+### non-stationary dip estimation
+Flow('rect1-nn','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float  |math output="30-input*25"')
+Flow('rect2-nn','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float  |math output="30-input*25"')
+Greyr('rect1-nn','rect1-nn','color=j scalebar=y')
+Greyr('rect2-nn','rect2-nn','color=j scalebar=y')
+
+Flow('rectdip1','rect1','math output="(input-10)*10+2"')
+Flow('rectdip2','rect2','math output="(input-10)*10+2"')
+Greyr('rectdip1','rectdip1','color=j scalebar=y')
+Greyr('rectdip2','rectdip2','color=j scalebar=y')
+
+# Flow('rectdip1','rect1-n','math output="input"')
+# Flow('rectdip2','rect2-n','math output="input"')
+
+Flow('hypern-dip3','hyper-n rectdip1 rectdip2','dipn rect1=${SOURCES[1]} rect2=${SOURCES[2]} order=2 verb=y')
+Grey('hypern-dip3','color=j clip=2 scalebar=y')
+
+
+Flow('hypern-sm1','hyper-n hyper-dip','pwsmooth dip=${SOURCES[1]} eps=0.1 ns=10 order=2')
+Flow('hypern-sm2','hyper-n hypern-dip','pwsmooth dip=${SOURCES[1]} eps=0.1 ns=10 order=2')
+Flow('hypern-sm3','hyper-n hypern-dip2','pwsmooth dip=${SOURCES[1]} eps=0.1 ns=10 order=2')
+Flow('hypern-sm4','hyper-n hypern-dip3','pwsmooth dip=${SOURCES[1]} eps=0.1 ns=10 order=2')
+
+Flow('hypern-sm1-n','hyper-n hypern-sm1','add scale=1,-1 ${SOURCES[1]} ')
+Flow('hypern-sm2-n','hyper-n hypern-sm2','add scale=1,-1 ${SOURCES[1]} ')
+Flow('hypern-sm3-n','hyper-n hypern-sm3','add scale=1,-1 ${SOURCES[1]} ')
+Flow('hypern-sm4-n','hyper-n hypern-sm4','add scale=1,-1 ${SOURCES[1]} ')
+
+Grey('hyper-n','clip=0.8')
+Grey('hypern-sm1','clip=0.8')
+Grey('hypern-sm2','clip=0.8')
+Grey('hypern-sm3','clip=0.8')
+Grey('hypern-sm4','clip=0.8')
+
+Grey('hypern-sm1-n','clip=0.8')
+Grey('hypern-sm2-n','clip=0.8')
+Grey('hypern-sm3-n','clip=0.8')
+Grey('hypern-sm4-n','clip=0.8')
+
+Flow('h-sm-diff1','hyper hyper-n','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-sm-snr1','hyper h-sm-diff1','snr2 noise=${SOURCES[1]}')
+
+Flow('h-sm-diff2','hyper hypern-sm1','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-sm-snr2','hyper h-sm-diff2','snr2 noise=${SOURCES[1]}')
+
+Flow('h-sm-diff3','hyper hypern-sm2','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-sm-snr3','hyper h-sm-diff3','snr2 noise=${SOURCES[1]}')
+
+Flow('h-sm-diff4','hyper hypern-sm3','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-sm-snr4','hyper h-sm-diff4','snr2 noise=${SOURCES[1]}')
+
+Flow('h-sm-diff5','hyper hypern-sm4','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-sm-snr5','hyper h-sm-diff5','snr2 noise=${SOURCES[1]}')
+
+
+
+Flow('h-dip-diff1','hyper-dip hypern-dip','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-dip-snr1','hyper-dip h-dip-diff1','snr2 noise=${SOURCES[1]}')
+
+Flow('h-dip-diff2','hyper-dip hypern-dip2','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-dip-snr2','hyper-dip h-dip-diff2','snr2 noise=${SOURCES[1]}')
+
+Flow('h-dip-diff3','hyper-dip hypern-dip3','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-dip-snr3','hyper-dip h-dip-diff3','snr2 noise=${SOURCES[1]}')
+
+
+End()

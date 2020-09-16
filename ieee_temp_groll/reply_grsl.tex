@@ -1,0 +1,68 @@
+\begin{center}
+Reply to the reviews  of manuscript \\
+\textbf{"Ground-roll noise attenuation using a simple and effective approach based on local bandlimited orthogonalization"} \\
+by Yangkang Chen, Shebao Jiao, Jianwei Ma, Hanming Chen, Yatong Zhou, and Shuwei Gan
+\end{center}
+
+We thank the two referees for constructive suggestions. We have taken into account all the recommendations and have changed the paper accordingly. 
+
+\section{Referee 1}
+\begin{enumerate}
+\item \emph{line 14 page 2, please delete ‘only’ as it has already appeared in line 13.}\\
+\textbf{Reply: We have removed "only".}
+
+\item \emph{Please change ‘LFB’ in the workflow from figure 1 to ‘LBF’.}\\
+\textbf{Reply: Thanks for pointing out the typo. We have corrected it in the workflow.}
+
+\item \emph{How would you determine the LBF to find out if the fl (e.g. 25 Hz in this article) is enough to
+remove all the ground rolls? Is it by trial and error or is there other ways to do it?}\\
+\textbf{Reply: We determined the LBF by trials. Fortunately it is convenient to implement, and can obtain much more superior performance than simple bandpass filtering.}
+
+\item \emph{In this article, you choose to use 25 Hz as the LBF. Will other values of LBF affect the
+performance?}\\
+\textbf{Reply: We have tried several different values of the LBF, and found out that the 25 Hz can obtain the best performance.}
+
+\item \emph{It looks like you haven’t explain figure 3c and figure 3d in the first place, although they are then
+used for the comparisons for several times.}\\
+\textbf{Reply: Figures 3c and 3d denote the denoised and noise sections when $fl=10$ Hz. We have added an extra explanation for Figures 3c and 3d.}
+
+\item \emph{Please further check grammar problems.}\\
+\textbf{Reply: We have rechecked the grammar to minimize the inappropriate wording.}
+\end{enumerate}
+
+
+
+\section{Referee 2}
+\begin{enumerate}
+\item\emph{I noted that the principle author has just published a paper in Geophysics demonstrating this same technique applied to random noise. Because of the existence of this paper, I would like to see you refer to it more heavily, particularly in your introduction, and in the theory section, where you present the mathematics in a rather abbreviated form. If you're not going to go into more detail, then you should reference the Geophysics paper, particularly Appendix A, so that readers can satisfy themselves about the theoretical soundness of your work.}\\
+\textbf{Reply: We have added the introduction about the previously published work and also significance of this paper. Since the page limit of the IEEE geosciences and remote sensing letters, we are not possible for going into detail the mathematical principles, but we do refer to the previously published methodology more heavily. For example: "The local orthogonalization algorithm was initially proposed to compensate for the useful energy loss during a traditional random noise attenuation process. The basic principle of the local orthogonalization methodology is to assume that the useful signal and noise should be orthogonal to each other and then orthogonalize the two components by formulating a regularized inverse problem. We bring the same strategy to this paper to compensate for the energy loss in a simple bandpass filtering based ground-roll noise attenuation approach." "A more detailed mathematical description about the local orthogonalization methodology can be found in [12] and a demonstration about the physical meaning of orthogonalization can be found in the Appendix A in [12]." Other unfamiliar nomenclatures are also given brief introduction.}
+
+\item\emph{I have supplied an annotated pdf for your use. In most cases, I am suggesting alternate words or phrases to improve the style and the clarity for general readers.}\\
+\textbf{Reply:  Thanks very much for your patient check. We have followed all the suggestions from you and have modified the paper accordingly. Besides, we recheck the paper in order to minimize the grammar mistakes and to make the paper more understandable to general readers. }
+
+\item\emph{Your abstract needs to be completely rewritten to make it understandable by a general reader...I have supplied a possible alternative.}\\
+\textbf{Reply:  We have rewritten the abstract following your suggestions.}
+
+\item\emph{Your Figure 7 needs to be redone with much heavier lines and more visible colors. Also, it is not necessary to use different line types, if you use different colors for each plot line...that just confuses the issue. As an alternative, you could use black for all spectra and use different line types to distinguish them...}\\
+\textbf{Reply: We have replotted Figure 7 to make the lines heavier and color more visible. We have made all the line types the same and re-describe each lines. }
+
+\item\emph{When you talk about high-bound and low-bound frequencies here, you imply a sharp frequency cutoff, or 'boxcar' filter, whereas most actual filters have filter slopes, and thus need two 'high-bound' frequencies and two 'low-bound' frequencies. For a low-bound frequency cutoff, you would typically specify the lowest frequency for which the filter response is unity, as well as the even lower frequency for which the filter response is zero. This defines the filter taper zone.}\\
+\textbf{Reply: The bandpass filtering algorithm used in the paper is the Butterworth algorithm. The desired bandwidth is specified by low and high frequencies. The actual filtering is implemented by recursive  (Infinite Impulse Response) convolution in the time domain. The frequency domain response is like a boxcar filter. The description of the bandpass filtering algorithm can also be found in}\\
+\begin{url}
+http://ahay.org/rsflog/index.php?/archives/313-Program-of-the-month-sfbandpass.html
+\end{url}.\textbf{We also add some details in the main context.}
+
+
+\item\emph{It's not clear to me what you mean here. The amplitude range of the reflections should not affect the noise separation}\\
+\textbf{Reply: We have removed the sentence in order to avoid misunderstanding.}
+
+\item\emph{It's not obvious to me what you mean by nonstationary, in this context. The usual meaning is that reflection amplitude and bandwidth diminishes with recording time. Variation of reflection amplitude with offset is not normally considered an aspect of stationarity.}\\
+\textbf{Reply: Here, the "nonstationary" simply means that the seismic energy varies a lot for different parts of the data.}
+
+
+\end{enumerate}
+
+
+%\bibliographystyle{seg}
+%\bibliography{halfthr}
+

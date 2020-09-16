@@ -1,0 +1,140 @@
+from rsf.proj import *
+from rsf.recipes.beg import server
+def Grey3(data1,data,other):
+	Result(data1,data,
+       '''
+       byte gainpanal=e clip=2 |put d1=0.004 d2=1 d3=1|
+       grey3 flat=n frame1=250 frame2=32 frame3=16 
+       point1=0.8 point2=0.8 label2=Inline label3=Xline label1="Time" unit1=s title= color=g
+       screenratio=0.75 %s'''%other)
+def Grey3d(data1,other):
+	Result(data1,
+       '''
+       byte gainpanal=e clip=2 bar=bar.rsf|put d1=0.004 d2=1 d3=1|
+       grey3 flat=n frame1=250 frame2=32 frame3=16 
+       point1=0.8 point2=0.8 label2=Inline label3=Xline label1="Time" unit1=s title= color=j
+       screenratio=0.75 scalebar=y %s'''%other) 
+
+def Grey3r(data1,other):
+	Result(data1,
+       '''
+       byte allpos=y bias=3 clip=20 bar=bar.rsf|put d1=0.004 d2=1 d3=1|
+       grey3 flat=n frame1=250 frame2=32 frame3=16 
+       point1=0.8 point2=0.8 label2=Inline label3=Xline label1="Time" unit1=s title= color=j
+       screenratio=0.75 scalebar=y %s'''%other) 
+def Grey3s(data,other):
+	Result(data,
+       '''
+       byte allpos=y clip=0.2 bar=bar.rsf|put d1=0.004 d2=1 d3=1|
+       grey3 flat=n frame1=250 frame2=32 frame3=16 
+       point1=0.8 point2=0.8 label2=Inline label3=Xline label1="Time" unit1=s title=  scalebar=y screenratio=0.75 %s'''%other)
+
+Flow('data','ndip_real3d','cp')
+Grey3('real','data','')
+
+
+
+## A priori information (initial denoising)
+Flow('init','data','fxynpre n1win=256 n2win=64 n3win=32 mode=1 nsx=3 nsy=3 rect2=3 rect3=2 niter=20 verb=y')
+Flow('init-n','init data','add scale=-1,1 ${SOURCES[1]}')
+Grey3('init','init','')
+Grey3('init-n','init-n','')
+
+r1_max=20
+r1_ref=2
+r2_max=20
+r2_ref=2
+r3_max=20
+r3_ref=2
+
+# Option 1
+Flow('real-s1dip','data','dip rect1=%g rect2=%g rect3=%g verb=y'%(r1_max,r2_max,r3_max))
+Flow('real-s1dip1','real-s1dip','window n4=1 f4=0')
+Flow('real-s1dip2','real-s1dip','window n4=1 f4=1')
+Grey3d('real-s1dip1','')
+Grey3d('real-s1dip2','')
+
+# Option 2
+Flow('real-s2dip','data','dip rect1=%g rect2=%g rect3=%g verb=y'%(r1_ref,r2_ref,r3_ref))
+Flow('real-s2dip1','real-s2dip','window n4=1 f4=0')
+Flow('real-s2dip2','real-s2dip','window n4=1 f4=1')
+Grey3d('real-s2dip1','')
+Grey3d('real-s2dip2','')
+
+# Dip
+Flow('rect1','init','math output="input*input"|scale axis=3 |clip clip=0.02|smooth rect1=5 rect2=5 rect3=5 | scale axis=3| dd type=float|math output="-%g*input+%g"'%(r1_max-r1_ref,r1_max))
+Flow('rect2','init','math output="input*input"|scale axis=3 |clip clip=0.02|smooth rect1=5 rect2=5 rect3=5 |scale axis=3 | dd type=float|math output="-%g*input+%g"'%(r2_max-r2_ref,r2_max))
+Flow('rect3','init','math output="input*input"|scale axis=3 |clip clip=0.02|smooth rect1=5 rect2=5 rect3=5 |scale axis=3 | dd type=float|math output="-%g*input+%g"'%(r3_max-r3_ref,r3_max))
+Grey3r('rect1','')    
+Grey3r('rect2','') 
+Grey3r('rect3','') 
+
+# Non-stationary dip
+Flow('real-ndip','data rect1 rect2 rect3','dipn rect1=${SOURCES[1]} rect2=${SOURCES[2]} rect3=${SOURCES[3]} verb=y')
+Flow('real-ndip1','real-ndip','window n4=1 f4=0')
+Flow('real-ndip2','real-ndip','window n4=1 f4=1')
+Grey3d('real-ndip1','')
+Grey3d('real-ndip2','')
+
+## denoise
+ns2=2
+ns3=2
+Flow('real-pws1','data real-s1dip',
+     '''
+     pwspray2 ns2=%d ns3=%d dip=${SOURCES[1]} order=1 verb=y eps=0.1|
+     stack axis=2
+     '''% (ns2,ns3))
+Flow('real-pws1-n','real-pws1 data','add scale=-1,1 ${SOURCES[1]}')
+
+Flow('real-pws2','data real-s2dip',
+     '''
+     pwspray2 ns2=%d ns3=%d dip=${SOURCES[1]} order=1 verb=y eps=0.1|
+     stack axis=2
+     '''% (ns2,ns3))
+Flow('real-pws2-n','real-pws2 data','add scale=-1,1 ${SOURCES[1]}')
+
+Flow('real-pws3','data real-ndip',
+     '''
+     pwspray2 ns2=%d ns3=%d dip=${SOURCES[1]} order=1 verb=y eps=0.1|
+     stack axis=2
+     '''% (ns2,ns3))
+Flow('real-pws3-n','real-pws3 data','add scale=-1,1 ${SOURCES[1]}')
+
+
+Grey3('real-pws1','real-pws1','')
+Grey3('real-pws1-n','real-pws1-n','')
+Grey3('real-pws2','real-pws2','')
+Grey3('real-pws2-n','real-pws2-n','')
+Grey3('real-pws3','real-pws3','')
+Grey3('real-pws3-n','real-pws3-n','')
+
+Plot('label1',None,
+	'''
+	box x0=10.5 y0=7.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label2',None,
+	'''
+	box x0=11.3 y0=8.4 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label3',None,
+	'''
+	box x0=12 y0=8.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label4',None,
+	'''
+	box x0=8 y0=7.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label5',None,
+	'''
+	box x0=7.8 y0=5.4 label="" xt=0 yt=0.5 length=0.5 
+	''')
+Result('real-pws1-0','Fig/real-pws1.vpl label1 label2 label3 label4','Overlay')
+Result('real-pws2-0','Fig/real-pws2.vpl label1 label2 label3 label4','Overlay')
+Result('real-pws3-0','Fig/real-pws3.vpl label1 label2 label3 label4','Overlay')
+
+Result('real-pws1-n-0','Fig/real-pws1-n.vpl label5','Overlay')
+Result('real-pws2-n-0','Fig/real-pws2-n.vpl label5','Overlay')
+Result('real-pws3-n-0','Fig/real-pws3-n.vpl label5','Overlay')
+
+End()
+

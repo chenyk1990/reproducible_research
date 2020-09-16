@@ -1,0 +1,122 @@
+from rsf.proj import *
+from math import *
+import os
+from rsf.prog import RSFROOT
+
+def Grey(data,other):
+    Result(data,'''
+    grey
+    label1=Time unit1=s label2=Trace unit2= wherexlabel=b wheretitle=t clip=0.01 wanttitle=y title= labelsz=10 labelfat=4 titlefat=4 font=2 scalebar=y screenratio=1.2
+    %s ''' % (other))
+    
+def Wig(data,other):
+	Result(data,'wiggle label1=Time unit1=s label2=Trace unit2= transp=y yreverse=y poly=y labelsz=10 labelfat=4 titlefat=4 font=2 screenratio=1.2 wanttitle=y clip=0.01 %s'%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 max2=0.03 min2=-0.03 %s' %other)
+
+def Graph2(data,data1,other):
+	Result(data,data1,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5  max2=0.03 min2=-0.03 %s' %other)
+
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Generate_Synth'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+
+n1=1001
+n2=12
+n3=1
+d1=0.002
+d2=1
+d3=1
+o1=0
+o2=0
+o3=0
+
+liter=10
+niter=10
+Q=50
+fdom=30 #dominant frequency
+verb=0
+ifthr=0
+perc=6
+
+put='n1=%d n2=%d n3=%d d1=%g d2=%g d3=%g o1=%g o2=%g o3=%g'%(n1,n2,n3,d1,d2,d3,o1,o2,o3)
+
+############################################################
+## with parameter
+############################################################
+Flow('syn-dc0 syn-da0 syn-dn0',[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}');quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('syn-dc','syn-dc0','put %s'%put)
+Flow('syn-da','syn-da0','put %s'%put)
+Flow('syn-dn','syn-dn0','put %s'%put)
+
+Wig('syn-dc','title="Clean"')
+Wig('syn-da','title="Attenuated"')
+Wig('syn-dn','title="Noisy"')
+
+matfun='Qcdn' #Q-compensated denoising
+############################################################
+## with parameter
+############################################################
+Flow('syn-d1-0',[os.path.join(matROOT,matfun+'.m'),'syn-dn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(fdom)g,%(liter)d,%(niter)d,%(Q)g,%(verb)d,%(ifthr)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('syn-d1','syn-d1-0','put %s'%put)
+Wig('syn-d1','title="Proposed"')
+
+
+## FX
+Flow('syn-d2','syn-dn','fxdecon lenf=12 n2w=12')
+Wig('syn-d2','title="FX"')
+
+
+Flow('s-dc','syn-dc','window n2=1 n3=1 f2=2 f3=4')
+Flow('s-da','syn-da','window n2=1 n3=1 f2=2 f3=4')
+Flow('s-dn','syn-dn','window n2=1 n3=1 f2=2 f3=4')
+Flow('s-fx','syn-d2','window n2=1 n3=1 f2=2 f3=4')
+Flow('s-qcdn','syn-d1','window n2=1 n3=1 f2=2 f3=4')
+
+Flow('syn-ss','s-dc s-qcdn s-da s-dn s-fx','cat axis=2 ${SOURCES[1:5]}')
+Graph('syn-ss','plotfat=10 plotcol="7,3,5,4,6" dash=0,1,2,3,4 min1=0.0 max1=2.0')
+Graph2('syn-ss-z','syn-ss','plotfat=10 plotcol="7,3,5,4,6" dash=0,1,2,3,4 min1=0.7 max1=0.9')
+
+
+x=0.7
+y=-0.03
+w=0.2
+w1=0.06
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph max2=0.03 min2=-0.03 min1=0 max1=2.0 pad=n plotfat=15 plotcol=2 screenratio=0.5 wantaxis=n wanttitle=n yreverse=n 
+	''')
+Result('syn-ss0','Fig/syn-ss.vpl frame','Overlay')
+
+Flow('syn-da-simi','syn-dc syn-da','similarity other=${SOURCES[1]} rect1=5 rect2=3')
+Flow('syn-dn-simi','syn-dc syn-dn','similarity other=${SOURCES[1]} rect1=5 rect2=3')
+Flow('syn-d1-simi','syn-dc syn-d1','similarity other=${SOURCES[1]} rect1=5 rect2=3')
+Flow('syn-d2-simi','syn-dc syn-d2','similarity other=${SOURCES[1]} rect1=5 rect2=3')
+
+Grey('syn-da-simi','title=Attenuated clip=1.0 color=j')
+Grey('syn-dn-simi','title=Noisy clip=1.0 color=j')
+Grey('syn-d1-simi','title=Proposed clip=1.0 color=j')
+Grey('syn-d2-simi','title=FX clip=1.0 color=j')
+
+
+End()

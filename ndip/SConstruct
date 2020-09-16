@@ -1,0 +1,83 @@
+from rsf.tex import*
+import os, sys
+os.environ['PSTEXPENOPTS']='color=y fat=3 fatmult=1.5 serifs=n'
+
+env=Environment()
+if sys.platform == 'darwin':
+    env['ENV']['PATH'] = ':'.join(['/opt/local/bin',env['ENV']['PATH']])
+
+Paper('fist',lclass='segabs',use='amsmath')
+
+Paper('sum',use='amsmath')
+Paper('som',use='amsmath')
+#Paper('dipfcm',use='amsmath')
+
+Paper('dip',lclass='geophysics',options='manuscript',use='amsmath')
+
+Paper('fpocsseiseage',lclass='mad15',use='listings, amsmath,subfigure')
+#Paper('dip',lclass='geophysics',options='manuscript',use='listings,amsmath,natbib,amsmath,graphicx,color,lineno',
+#          include=r'''
+#          \linenumbers*[1]
+#         ''')
+
+ 
+Paper('dip2',lclass='geophysics',options='manuscript',use='listings,amsmath,natbib,amsmath,graphicx,color,lineno,newalg')
+                 
+Paper('dip_r1',lclass='geophysics',options='manuscript,revised',use='listings,amsmath,natbib,amsmath,graphicx,color,lineno,newalg',
+          include=r'''
+          \linenumbers*[1]
+         ''')
+Command('dip_p1.tex','dip_r1.tex','cp $SOURCE $TARGET')
+Paper('dip_p1',lclass='geophysics',options='manuscript',use='listings,amsmath,natbib,amsmath,graphicx,color,lineno,newalg',
+          include=r'''
+          \linenumbers*[1]
+         ''')
+
+Paper('dip_r2',lclass='geophysics',options='manuscript,revised',use='listings,amsmath,natbib,amsmath,graphicx,color,lineno,newalg',
+          include=r'''
+          \linenumbers*[1]
+         ''')
+Command('dip_p2.tex','dip_r2.tex','cp $SOURCE $TARGET')
+Paper('dip_p2',lclass='geophysics',options='manuscript',use='listings,amsmath,natbib,amsmath,graphicx,color,lineno,newalg',
+          include=r'''
+          \linenumbers*[1]
+         ''')
+         
+
+## IEEE first submission
+Paper('ieee',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath')
+Command('one.tex','ieee.tex','cp $SOURCE $TARGET')
+Paper('one',lclass='IEEEtran',options='12pt,journal,draftclsnofoot,onecolumn',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,epstopdf,newalg,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath')
+
+## IEEE first revision
+Paper('ieee_r1',lclass='IEEEtran',options='10pt',use='ulem,cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath',include=r'''
+\DeclareRobustCommand{\old}[1]{\color{blue}{\sout{#1}}\color{black}{}}
+\DeclareRobustCommand{\new}[1]{\color{red}{\textit{#1}}\color{black}{}} 
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+Command('ieee_p1.tex','ieee_r1.tex','cp $SOURCE $TARGET')
+Paper('ieee_p1',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath',include=r'''
+\DeclareRobustCommand{\old}[1]{}
+\DeclareRobustCommand{\new}[1]{#1}
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+
+Paper('one_r1',lclass='IEEEtran',options='12pt,journal,draftclsnofoot,onecolumn',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,epstopdf',include=r'''
+\DeclareRobustCommand{\old}[1]{}
+\DeclareRobustCommand{\new}[1]{#1}
+''')
+
+# reply
+Paper('r1',use='hyperref,listings')
+
+  
+Paper('csddtf',lclass='ams14',use='listings, amsmath,subfigure')
+
+## The following is used to automatically cp IEEE files
+## scons ieee & scons paper.pdf 
+env.Command(['ieee','IEEEtran.bst','IEEEtran.cls','newalg.sty'],[os.getenv('HOME')+'/chenyk.open/temp/ieee/IEEEtran.bst',os.getenv('HOME')+'/chenyk.open/temp/ieee/IEEEtran.cls',os.getenv('HOME')+'/chenyk.open/temp/newalg.sty'],'cp  ${SOURCES[0]}  ${TARGETS[1]} && cp  ${SOURCES[1]}  ${TARGETS[2]} &&cp  ${SOURCES[2]}  ${TARGETS[3]}')
+
+
+End(use='listings,amsmath')
