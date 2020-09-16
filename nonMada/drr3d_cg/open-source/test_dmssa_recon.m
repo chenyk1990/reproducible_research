@@ -1,6 +1,4 @@
-% Demonstration script for 
-% simultaneous seismic data denoising and reconstruction via
-% damped multichannel singular spectrum analysis
+% Demonstration script for simultaneous seismic data denoising and reconstruction via damped rank-reduction (DRR) method
 %
 %  Copyright (C) 2015 The University of Texas at Austin
 %  Copyright (C) 2015 Yangkang Chen
