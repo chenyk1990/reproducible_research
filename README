@@ -2,7 +2,7 @@ Web versions of these reproducible papers (mostly based on the Madagascar platfo
 
 http://www.ahay.org/wiki/Reproducible_Documents.
 
-One can access the contents of the papers quickly by searching for the title name of each paper in this website.
+One can access the contents of the papers quickly by searching for the title and author names of each paper in this website.
 
 If you are interested in a particular paper, for example, reproducible_research/drr3d, you can use the following command (first install subversion in a Linux computer) to download it:
 
