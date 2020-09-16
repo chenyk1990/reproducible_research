@@ -8,9 +8,9 @@ If you are interested in a particular paper, for example, reproducible_research/
 
 svn co https://github.com/chenyk1990/reproducible_research/trunk/drr3d ./drr3d
 
-All sub-directories except for "nonMask" correspond to the reproducible packages (for each paper) based on Madagascar, which means that you can use one command "sftour scons lock && scons paper.pdf" in these sub-directories to reproducible the whole paper in the PDF format.
+All sub-directories except for "nonMada" correspond to the reproducible packages (for each paper) based on Madagascar, which means that you can use one command "sftour scons lock && scons paper.pdf" in these sub-directories to reproducible the whole paper in the PDF format.
 
-The "nonMask" sub-directory contains reproducible packages that are not based on Madagascar, e.g., based on Matlab, python, etc. 
+The "nonMada" sub-directory contains reproducible packages that are not based on Madagascar, e.g., based on Matlab, python, etc. 
 
 
 
