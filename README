@@ -13,6 +13,16 @@ All sub-directories except for "nonMada" correspond to the reproducible packages
 The "nonMada" sub-directory contains reproducible packages that are not based on Madagascar, e.g., based on Matlab, python, etc. 
 
 
+NOTES
+* sub-directories containing "matfun" require the Matlab-Madagascar interface (to do that, try ./configure API=c++,matlab --prefix=~/RSFROOT; scons install -k; add "~/RSFROOT/lib" into the Matlab path directories by "addpath(genpath('~/RSFROOT/lib')); savepath;". 
+
+* Other sub-directories not containing "matfun" are all based on Madagascar commands and are reproducible after Madagascar is installed successfully.
+
+* These compact reproducible packages only include the python (named as "SConstruct") scripts that wrap up all the Linux/Madagascar commands, and necessary datasets. Most synthetic data are generated automatically from either "python or matlab scripts". Small field datasets are also attached with these packages.
+
+* All C programs that are used to compile the Madagascar commands can be found at "~/RSFSRC/user/chenyk", "~/RSFSRC/user", "~/RSFSRC/system". All Madagascar Application programming interface (API) (written in C programs) can be found at "~/RSFSRC/api/c". 
+
+
 
  
 
