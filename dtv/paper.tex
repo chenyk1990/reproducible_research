@@ -1,12 +1,4 @@
-%\documentclass[manuscript]{geophysics}
-%	\usepackage{amsmath}
-%	\usepackage{amssymb}
-%	\usepackage{graphicx}
-%	\usepackage{indentfirst}
-%	\usepackage{lineno}
-%	\usepackage{algorithm,algorithmic}
-%	\usepackage{float}
-%\begin{document}
+\published{Geophysics, 84, no. 2, (2019)}
 
 \title{Full waveform inversion and joint migration inversion with an automatic directional total variation constraint}
 
@@ -26,11 +18,6 @@ Zhejiang University\\
 \righthead{Directional TV}
 
 \maketitle
-
-%\begin{center}
-%\huge{\textbf{Full waveform inversion and joint migration inversion with an automatic directional total variation constraint}} 
-%\end{center}
-
 
 \begin{abstract}
 \old{As full waveform inversion (FWI) is a non-unique and typically ill-posed inversion problem, it needs proper regularization. To reduce the non-linearity of FWI, Joint Migration Inversion (JMI) is proposed as an alternative, explaining the data with decoupled velocity and reflectivity parameters, however, the velocity update may also suffer from being trapped in local minima. To optimally include geologic information, we propose FWI/JMI with directional total variation as an L1-norm regularization on the velocity. We design the directional total variation (TV) operator based on the local dip field, instead of ignoring the local structural direction and only using horizontal/vertical gradients in the traditional TV. With two complex synthetic examples, based on the Marmousi model, we demonstrate that the proposed method is much more effective compared to both FWI/JMI without regularization and FWI/JMI with the conventional TV regularization. In the JMI-based example, we also show that L1 directional TV works better than L2 directional Laplacian smoothing.}
@@ -196,13 +183,11 @@ S. Qu and E. Verschuur thank the sponsors of the Delphi consortium for their sup
 
 \plot{JMI_fig2}{width=0.9\textwidth}{JMI \new{example}: The inverted reflectivity using (a) regular JMI without any regularization, (b) JMI with conventional TV, (c) JMI with directional TV, and (d) JMI with L2 directional laplacian smoothing.}
 
-
 \new{\plot{JMI_shots-01}{width=0.9\textwidth}{JMI example: the modeled data generated at $X = 2000$ m and the corresponding difference with the observed data based on the inverted velocity and reflectivity using (a, b) regular JMI without any regularization, (c, d) regular JMI with conventional TV , and (e, f) regular JMI with directional TV.}}
 
 %\append{The source of the bibliography}
 %\verbatiminput{2016_seg.bib}
 
 \bibliographystyle{seg}  % style file is seg.bst
-\bibliography{2017_seg}
+\bibliography{dtv}
 
-%\end{document}
