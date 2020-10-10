@@ -1,0 +1,177 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import pi
+# data directory
+# /media/CHENYK2/SeismicDataYangkang/irr5d/data/
+
+# Data size: 300*100*10
+
+def Grey3(data,other):
+	Result(data,
+       '''
+       byte clip=0.3 |
+       grey3 flat=n frame1=25 frame2=5 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.6 color=g %s'''%other)
+
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=25 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.5 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+
+#615.79, 5932.01, 5806.21, 
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Field'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=20
+niter=5
+nniter=10
+K=128
+ll1=4
+ll2=4
+ll3=4
+ss1=2
+ss2=2
+ss3=2
+perc=6
+
+put='d1=0.004 o1=0 n2=100 d2=1 o2=1 n3=10 d3=1 o3=1'
+############################################################
+## with parameter
+############################################################
+
+Flow(['f-clean-0','f-noisy-0','f-obs-0','f-sgk-0','f-ksvd-0','f-ddtf-0','f-mssa-0','f-mssasgk-0'],[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}','${TARGETS[6]}','${TARGETS[7]}',%(T)d,%(niter)d,%(nniter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+## Load data
+Flow('f-clean','f-clean-0','put %s'%put)
+Flow('f-noisy','f-noisy-0','put %s'%put)
+Flow('f-obs','f-obs-0','put %s'%put)
+Flow('f-sgk','f-sgk-0','put %s'%put)
+Flow('f-ksvd','f-ksvd-0','put %s'%put)
+Flow('f-ddtf','f-ddtf-0','put %s'%put)
+Flow('f-mssa','f-mssa-0','put %s'%put)
+Flow('f-mssasgk','f-mssasgk-0','put %s'%put)
+
+
+Grey3('f-clean','title=Clean')
+Grey3('f-noisy','title=Noisy')
+Grey3('f-obs','title=Observed')
+Grey3('f-sgk','title=SGK')
+Grey3('f-ksvd','title="KSVD"')
+Grey3('f-ddtf','title="DDTF"')
+Grey3('f-mssa','title="MSSA"')
+Grey3('f-mssasgk','title="SGK"')
+
+# Xline=4
+Flow('f-s-clean','f-clean','window n3=1 f3=4')
+Flow('f-s-noisy','f-noisy','window n3=1 f3=4')
+Flow('f-s-obs','f-obs','window n3=1 f3=4')
+Flow('f-s-sgk','f-sgk','window n3=1 f3=4')
+Flow('f-s-ksvd','f-ksvd','window n3=1 f3=4')
+Flow('f-s-ddtf','f-ddtf','window n3=1 f3=4')
+Flow('f-s-mssa','f-mssa','window n3=1 f3=4')
+Flow('f-s-mssasgk','f-mssasgk','window n3=1 f3=4')
+
+# Inline=4
+Flow('f-s-clean-i','f-clean','window n2=1 f2=4')
+Flow('f-s-noisy-i','f-noisy','window n2=1 f2=4')
+Flow('f-s-obs-i','f-obs','window n2=1 f2=4')
+Flow('f-s-sgk-i','f-sgk','window n2=1 f2=4')
+Flow('f-s-ksvd-i','f-ksvd','window n2=1 f2=4')
+Flow('f-s-ddtf-i','f-ddtf','window n2=1 f2=4')
+Flow('f-s-mssa-i','f-mssa','window n2=1 f2=4')
+Flow('f-s-mssasgk-i','f-mssasgk','window n2=1 f2=4')
+
+Grey('f-s-clean','title=Clean')
+Grey('f-s-noisy','title=Noisy')
+Grey('f-s-obs','title=Observed')
+Grey('f-s-sgk','title=SGK')
+Grey('f-s-ksvd','title="KSVD"')
+Grey('f-s-ddtf','title="DDTF"')
+Grey('f-s-mssa','title="MSSA"')
+Grey('f-s-mssasgk','title="SGK"')
+
+Grey('f-s-clean-i','title=Clean')
+Grey('f-s-noisy-i','title=Noisy')
+Grey('f-s-obs-i','title=Observed')
+Grey('f-s-sgk-i','title=SGK')
+Grey('f-s-ksvd-i','title="KSVD)"')
+Grey('f-s-ddtf-i','title="DDTF"')
+Grey('f-s-mssa-i','title="MSSA"')
+Grey('f-s-mssasgk-i','title="SGK"')
+
+
+Flow('f-noisy-simi','f-clean f-noisy','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('f-obs-simi','f-clean f-obs','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('f-sgk-simi','f-clean f-sgk','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('f-ksvd-simi','f-clean f-ksvd','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('f-ddtf-simi','f-clean f-ddtf','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+
+Grey3s('f-noisy-simi','title=Noisy',1.0)
+Grey3s('f-obs-simi','title=Observed',1.0)
+Grey3s('f-sgk-simi','title=SGK',1.0)
+Grey3s('f-ksvd-simi','title=KSVD',1.0) 
+Grey3s('f-ddtf-simi','title=DDTF',1.0) 
+
+
+Flow('f-ss','f-s-clean f-s-noisy f-s-sgk f-s-ksvd f-s-ddtf','cat axis=3 ${SOURCES[1:5]} | window n2=1 f2=10')
+Graph('f-ss','plotfat=10 plotcol="7,3,5,4,6"')
+
+## Creating framebox
+x=10
+y=0.05
+w=30
+w1=0.3
+
+Flow('fz-obs','f-s-obs','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('fz-ksvd','f-s-ksvd','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('fz-ddtf','f-s-ddtf','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+Flow('fz-sgk','f-s-sgk','window min2=%g max2=%g min1=%g max1=%g'%(x,x+w,y,y+w1))
+
+Grey('fz-obs','title=Observed clip=0.25 screenratio=1.4')
+Grey('fz-ksvd','title=KSVD clip=0.25 screenratio=1.4')
+Grey('fz-ddtf','title=DDTF clip=0.25 screenratio=1.4')
+Grey('fz-sgk','title=SGK clip=0.25 screenratio=1.4')
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=1 max1=100 min2=0 max2=1.2 pad=n plotfat=15 plotcol=4 screenratio=1.4
+	wantaxis=n wanttitle=n yreverse=y 
+	''')
+
+Result('f-s-obs0','Fig/f-s-obs.vpl frame','Overlay')
+Result('f-s-ksvd0','Fig/f-s-ksvd.vpl frame','Overlay')
+Result('f-s-ddtf0','Fig/f-s-ddtf.vpl frame','Overlay')
+Result('f-s-sgk0','Fig/f-s-sgk.vpl frame','Overlay')
+
+
+
+
+End()

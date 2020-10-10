@@ -1,0 +1,152 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import pi
+# data directory
+# /media/CHENYK2/SeismicDataYangkang/irr5d/data/
+
+# Data size: 50*32*32
+
+def Grey3(data,other):
+	Result(data,
+       '''
+       byte clip=0.3 |
+       grey3 flat=n frame1=25 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.6 color=g %s'''%other)
+
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=25 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.9 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Wig(data,other):
+	Result(data,
+       '''
+       wiggle poly=y transp=y yreverse=y label2=Trace label1="Time" unit1=s clip=0.4 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Hyper'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=30
+niter=10
+nniter=10
+K=128
+ll1=4
+ll2=4
+ll3=4
+ss1=2
+ss2=2
+ss3=2
+perc=6
+
+put='d1=0.004 o1=0 n2=32 d2=1 o2=1 n3=32 d3=1 o3=1'
+############################################################
+## with parameter
+############################################################
+
+Flow(['hyper-clean-0','hyper-noisy-0','hyper-obs-0','hyper-sgk-0','hyper-ksvd-0','hyper-ddtf-0','hyper-mssa-0','hyper-mssasgk-0'],[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}','${TARGETS[6]}','${TARGETS[7]}',%(T)d,%(niter)d,%(nniter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+## Load data
+Flow('hyper-clean','hyper-clean-0','put %s'%put)
+Flow('hyper-noisy','hyper-noisy-0','put %s'%put)
+Flow('hyper-obs','hyper-obs-0','put %s'%put)
+Flow('hyper-sgk','hyper-sgk-0','put %s'%put)
+Flow('hyper-ksvd','hyper-ksvd-0','put %s'%put)
+Flow('hyper-ddtf','hyper-ddtf-0','put %s'%put)
+Flow('hyper-mssa','hyper-mssa-0','put %s'%put)
+Flow('hyper-mssasgk','hyper-mssasgk-0','put %s'%put)
+
+
+Grey3('hyper-clean','title=Clean')
+Grey3('hyper-noisy','title=Noisy')
+Grey3('hyper-obs','title=Observed')
+Grey3('hyper-sgk','title=SGK')
+Grey3('hyper-ksvd','title="KSVD"')
+Grey3('hyper-ddtf','title="DDTF"')
+Grey3('hyper-mssa','title="MSSA"')
+Grey3('hyper-mssasgk','title="SGK"')
+
+# Xline=4
+Flow('hyper-s-clean','hyper-clean','window n3=1 f3=4')
+Flow('hyper-s-noisy','hyper-noisy','window n3=1 f3=4')
+Flow('hyper-s-obs','hyper-obs','window n3=1 f3=4')
+Flow('hyper-s-sgk','hyper-sgk','window n3=1 f3=4')
+Flow('hyper-s-ksvd','hyper-ksvd','window n3=1 f3=4')
+Flow('hyper-s-ddtf','hyper-ddtf','window n3=1 f3=4')
+Flow('hyper-s-mssa','hyper-mssa','window n3=1 f3=4')
+Flow('hyper-s-mssasgk','hyper-mssasgk','window n3=1 f3=4')
+
+# Inline=4
+Flow('hyper-s-clean-i','hyper-clean','window n2=1 f2=4')
+Flow('hyper-s-noisy-i','hyper-noisy','window n2=1 f2=4')
+Flow('hyper-s-obs-i','hyper-obs','window n2=1 f2=4')
+Flow('hyper-s-sgk-i','hyper-sgk','window n2=1 f2=4')
+Flow('hyper-s-ksvd-i','hyper-ksvd','window n2=1 f2=4')
+Flow('hyper-s-ddtf-i','hyper-ddtf','window n2=1 f2=4')
+Flow('hyper-s-mssa-i','hyper-mssa','window n2=1 f2=4')
+Flow('hyper-s-mssasgk-i','hyper-mssasgk','window n2=1 f2=4')
+
+Wig('hyper-s-clean','title=Clean')
+Wig('hyper-s-noisy','title=Noisy')
+Wig('hyper-s-obs','title=Observed')
+Wig('hyper-s-sgk','title=SGK')
+Wig('hyper-s-ksvd','title="KSVD"')
+Wig('hyper-s-ddtf','title="DDTF"')
+Wig('hyper-s-mssa','title="MSSA"')
+Wig('hyper-s-mssasgk','title="SGK"')
+
+Wig('hyper-s-clean-i','title=Clean')
+Wig('hyper-s-noisy-i','title=Noisy')
+Wig('hyper-s-obs-i','title=Observed')
+Wig('hyper-s-sgk-i','title=SGK')
+Wig('hyper-s-ksvd-i','title="KSVD)"')
+Wig('hyper-s-ddtf-i','title="DDTF"')
+Wig('hyper-s-mssa-i','title="MSSA"')
+Wig('hyper-s-mssasgk-i','title="SGK"')
+
+
+Flow('hyper-noisy-simi','hyper-clean hyper-noisy','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('hyper-obs-simi','hyper-clean hyper-obs','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('hyper-sgk-simi','hyper-clean hyper-sgk','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('hyper-ksvd-simi','hyper-clean hyper-ksvd','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+Flow('hyper-ddtf-simi','hyper-clean hyper-ddtf','similarity other=${SOURCES[1]} rect1=3 rect2=3 rect3=3 verb=n')
+
+Grey3s('hyper-noisy-simi','title=Noisy',1.0)
+Grey3s('hyper-obs-simi','title=Observed',1.0)
+Grey3s('hyper-sgk-simi','title=SGK',1.0)
+Grey3s('hyper-ksvd-simi','title=KSVD',1.0) 
+Grey3s('hyper-ddtf-simi','title=DDTF',1.0) 
+
+
+Flow('hyper-ss','hyper-s-clean hyper-s-noisy hyper-s-sgk hyper-s-ksvd hyper-s-ddtf','cat axis=3 ${SOURCES[1:5]} | window n2=1 f2=10')
+Graph('hyper-ss','plotfat=10 plotcol="7,3,5,4,6"')
+
+
+
+
+End()

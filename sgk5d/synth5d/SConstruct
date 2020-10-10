@@ -1,0 +1,106 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import pi
+# data directory
+# /media/CHENYK2/SeismicDataYangkang/irr5d/data/
+
+# Data size: 301*61*61
+
+def Grey3(data,data0,other):
+	Result(data,data0,
+       '''
+       window n4=1 n5=1 f4=8 f5=8|byte clip=0.3 |
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.6 color=g %s'''%other)
+
+def Grey3i(data,data0,other):
+	Result(data,data0,
+       '''
+       window n2=1 n3=1 f2=5 f3=5|byte clip=0.3 |
+       grey3 flat=n frame1=40 frame2=8 frame3=8 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.6 color=g %s'''%other)
+       
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.9 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Wig(data,other):
+	Result(data,
+       '''
+       wiggle poly=y transp=y yreverse=y label2=Trace label1="Time" unit1=s clip=0.4 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Synth5d'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=3
+niter=12
+nniter=10
+K=64
+ll1=6
+ll2=4
+ll3=4
+ss1=2
+ss2=2
+ss3=2
+perc=4
+
+put='d1=0.004 o1=0 n2=10 d2=1 o2=1 n3=10 d3=1 o3=1 n4=10 d4=1 o4=1 n5=10 d5=1 o5=1 '
+############################################################
+## with parameter
+############################################################
+
+Flow(['syn5d-clean-0','syn5d-noisy-0','syn5d-obs-0','syn5d-sgk-0','syn5d-ksvd-0','syn5d-ddtf-0'],[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}',%(T)d,%(niter)d,%(nniter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+
+## Load data
+Flow('syn5d-clean','syn5d-clean-0','put %s'%put)
+Flow('syn5d-noisy','syn5d-noisy-0','put %s'%put)
+Flow('syn5d-obs','syn5d-obs-0','put %s'%put)
+Flow('syn5d-sgk','syn5d-sgk-0','put %s'%put)
+Flow('syn5d-ksvd','syn5d-ksvd-0','put %s'%put)
+Flow('syn5d-ddtf','syn5d-ddtf-0','put %s'%put)
+
+Grey3('syn5d-clean','syn5d-clean','title=Clean')
+Grey3('syn5d-noisy','syn5d-noisy','title=Noisy')
+Grey3('syn5d-obs','syn5d-obs','title=Observed')
+Grey3('syn5d-sgk','syn5d-sgk','title=SGK')
+Grey3('syn5d-ksvd','syn5d-ksvd','title="KSVD"')
+Grey3('syn5d-ddtf','syn5d-ddtf','title="DDTF"')
+
+Grey3i('syn5d-clean2','syn5d-clean','title=Clean')
+Grey3i('syn5d-noisy2','syn5d-noisy','title=Noisy')
+Grey3i('syn5d-obs2','syn5d-obs','title=Observed')
+Grey3i('syn5d-sgk2','syn5d-sgk','title=SGK')
+Grey3i('syn5d-ksvd2','syn5d-ksvd','title="KSVD"')
+Grey3i('syn5d-ddtf2','syn5d-ddtf','title="DDTF"')
+
+
+End()

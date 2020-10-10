@@ -1,0 +1,154 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import pi
+# data directory
+# /media/CHENYK2/SeismicDataYangkang/irr5d/data/
+
+# Data size: 301*61*61
+       
+def Grey3(data,other):
+	Result(data,
+       '''
+       byte clip=0.3 |
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.6 color=g %s'''%other)
+
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.9 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Wig(data,other):
+	Result(data,
+       '''
+       wiggle poly=y transp=y yreverse=y label2=Trace label1="Time" unit1=s clip=0.4 title=
+       screenratio=1.4 color=g %s'''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Synth'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=3
+niter=12
+nniter=10
+K=64
+ll1=6
+ll2=4
+ll3=4
+ss1=2
+ss2=2
+ss3=2
+perc=4
+
+put='d1=0.004 o1=0 n2=20 d2=1 o2=1 n3=20 d3=1 o3=1'
+############################################################
+## with parameter
+############################################################
+
+Flow(['synth-clean-0','synth-noisy-0','synth-obs-0','synth-sgk-0','synth-ksvd-0','synth-ddtf-0','synth-mssa-0','synth-mssasgk-0'],[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}','${TARGETS[6]}','${TARGETS[7]}',%(T)d,%(niter)d,%(nniter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+#Synth(clean,noisy,obs,sgk,ksvd,ddtf,mssa,sgkmssa,T,niter,nniter,K,ll1,ll2,ll3,ss1,ss2,ss3,perc)
+
+
+
+## Load data
+Flow('synth-clean','synth-clean-0','put %s'%put)
+Flow('synth-noisy','synth-noisy-0','put %s'%put)
+Flow('synth-obs','synth-obs-0','put %s'%put)
+Flow('synth-sgk','synth-sgk-0','put %s'%put)
+Flow('synth-ksvd','synth-ksvd-0','put %s'%put)
+Flow('synth-ddtf','synth-ddtf-0','put %s'%put)
+Flow('synth-mssa','synth-mssa-0','put %s'%put)
+Flow('synth-mssasgk','synth-mssasgk-0','put %s'%put)
+
+
+Grey3('synth-clean','title=Clean')
+Grey3('synth-noisy','title=Noisy')
+Grey3('synth-obs','title=Observed')
+Grey3('synth-sgk','title=SGK')
+Grey3('synth-ksvd','title="KSVD"')
+Grey3('synth-ddtf','title="DDTF"')
+Grey3('synth-mssa','title="MSSA"')
+Grey3('synth-mssasgk','title="SGK"')
+
+# Xline=4
+Flow('synth-s-clean','synth-clean','window n3=1 f3=4')
+Flow('synth-s-noisy','synth-noisy','window n3=1 f3=4')
+Flow('synth-s-obs','synth-obs','window n3=1 f3=4')
+Flow('synth-s-sgk','synth-sgk','window n3=1 f3=4')
+Flow('synth-s-ksvd','synth-ksvd','window n3=1 f3=4')
+Flow('synth-s-ddtf','synth-ddtf','window n3=1 f3=4')
+Flow('synth-s-mssa','synth-mssa','window n3=1 f3=4')
+Flow('synth-s-mssasgk','synth-mssasgk','window n3=1 f3=4')
+
+# Inline=4
+Flow('synth-s-clean-i','synth-clean','window n2=1 f2=4')
+Flow('synth-s-noisy-i','synth-noisy','window n2=1 f2=4')
+Flow('synth-s-obs-i','synth-obs','window n2=1 f2=4')
+Flow('synth-s-sgk-i','synth-sgk','window n2=1 f2=4')
+Flow('synth-s-ksvd-i','synth-ksvd','window n2=1 f2=4')
+Flow('synth-s-ddtf-i','synth-ddtf','window n2=1 f2=4')
+Flow('synth-s-mssa-i','synth-mssa','window n2=1 f2=4')
+Flow('synth-s-mssasgk-i','synth-mssasgk','window n2=1 f2=4')
+
+Wig('synth-s-clean','title=Clean')
+Wig('synth-s-noisy','title=Noisy')
+Wig('synth-s-obs','title=Observed')
+Wig('synth-s-sgk','title=SGK')
+Wig('synth-s-ksvd','title="KSVD"')
+Wig('synth-s-ddtf','title="DDTF"')
+Wig('synth-s-mssa','title="MSSA"')
+Wig('synth-s-mssasgk','title="SGK"')
+
+Wig('synth-s-clean-i','title=Clean')
+Wig('synth-s-noisy-i','title=Noisy')
+Wig('synth-s-obs-i','title=Observed')
+Wig('synth-s-sgk-i','title=SGK')
+Wig('synth-s-ksvd-i','title="KSVD)"')
+Wig('synth-s-ddtf-i','title="DDTF"')
+Wig('synth-s-mssa-i','title="MSSA"')
+Wig('synth-s-mssasgk-i','title="SGK"')
+
+
+Flow('synth-noisy-simi','synth-clean synth-noisy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('synth-obs-simi','synth-clean synth-obs','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('synth-sgk-simi','synth-clean synth-sgk','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('synth-ksvd-simi','synth-clean synth-ksvd','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('synth-ddtf-simi','synth-clean synth-ddtf','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+
+Grey3s('synth-noisy-simi','title=Noisy',1.0)
+Grey3s('synth-obs-simi','title=Observed',1.0)
+Grey3s('synth-sgk-simi','title=SGK',1.0)
+Grey3s('synth-ksvd-simi','title=KSVD',1.0) 
+Grey3s('synth-ddtf-simi','title=DDTF',1.0) 
+
+
+Flow('synth-ss','synth-s-clean synth-s-noisy synth-s-sgk synth-s-ksvd synth-s-ddtf','cat axis=3 ${SOURCES[1:5]} | window n2=1 f2=10')
+Graph('synth-ss','plotfat=10 plotcol="7,3,5,4,6"')
+
+
+
+End()
