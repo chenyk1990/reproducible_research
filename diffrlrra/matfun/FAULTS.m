@@ -20,6 +20,9 @@ function FAULTS(din,dout)
 %  You should have received a copy of the GNU General Public License
 %  along with this program; if not, write to the Free Software
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
+%
+%  REFERENCES
+%  Wang et al., 2020, Separation and imaging of seismic diffractions using a localized rank-reduction method with adaptively selected ranks, doi: 10.1190/geo2020-0215.1.
 
 
 d=zeros(1000,250);
