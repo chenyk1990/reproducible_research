@@ -97,24 +97,25 @@ where $\Lambda$ and $\mathbf{R}$ represent scaling matrix and rotation matrix, r
 
 Please note that if we assume $\alpha_1 = \alpha_2 = 1$ and $\theta = 0^o$, then $\Lambda$ turns into \new{an}\old{a} identity matrix, which means the same weights are put on both directions, and $\mathbf{R}$ also becomes \new{an}\old{a} identity matrix, indicating that the target directions are horizontal and vertical. Therefore, we can see that the conventional TV is actually a special case of \new{the} directional TV, and in turn, \new{the} directional TV is a more general version of \new{the conventional} TV and more suitable to a model with complex geologic structures. In this paper, we solve both FWI/JMI with \new{the} conventional TV and FWI/JMI with \new{the} directional TV effectively using the split-Bregman iterative algorithm \citep{goldstein2009split}. We only show the framework of solving FWI with \new{the} directional TV in Algorithm 1, because, as mentioned before, we treat \new{the} conventional TV as a special case of directional \new{the} TV, and JMI with \new{the conventional} TV/directional TV will follow a similar algorithm.
 
-\begin{algorithm}
-\caption{FWI with directional total variation}
-\begin{algorithmic}[1]
-  \scriptsize
-  \STATE Initialize: $\mathbf{m}^0=\mathbf{m}_0$, and $\mathbf{a}_1^0=\mathbf{a}_2^0=\mathbf{b}_1^0=\mathbf{b}_2^0=0$\\
-  \STATE While Iter $<$ MaxIter \\
-  ~$\mathbf{m}^{k+1}=\min\limits_\mathbf{m} \mu || \mathbf{d} - f\left(\mathbf{m}\right) ||_2^2 + \lambda|| \mathbf{a}_1^k-\nabla_1 \mathbf{m}-\mathbf{b}_1^k||_2^2 + \lambda|| \mathbf{a}_2^k-\nabla_2 \mathbf{m}-\mathbf{b}_2^k||_2^2$  \\
-  ~~~~~(Hint: we solve this subproblem using gradient method, and the gradient is: \\
-  ~~~~~~~~$\mu f^{*} \left( f\left(\mathbf{m}^{k}\right) - \mathbf{d} \right) - \lambda \nabla^{T}_1 \left( \mathbf{a}_1^k-\nabla_1 \mathbf{m}^{k}-\mathbf{b}_1^k \right) - \lambda \nabla^{T}_2 \left( \mathbf{a}_2^k-\nabla_2 \mathbf{m}^{k}-\mathbf{b}_2^k \right)$) \\
-  ~$\mathbf{a}_1^{k+1}=shrink\left(\nabla_1 \mathbf{m}^{k+1}+\mathbf{b}_1^k, \frac{1}{\lambda}\right)$ \\
-  \new{~~~~~($shrink\left(x, \gamma\right) = \frac{x}{|x|} * max\left(|x| - \gamma, 0\right)$, a soft-thresholding operator \citep{donoho1995noising})} \\
-  
-  ~$\mathbf{a}_2^{k+1}=shrink\left(\nabla_2 \mathbf{m}^{k+1}+\mathbf{b}_2^k, \frac{1}{\lambda}\right)$ \\
-  ~$\mathbf{b}_1^{k+1}=\mathbf{b}_1^{k} + \left(\nabla_1 \mathbf{m}^{k+1}-\mathbf{a}_1^{k+1}\right)$  \\
-  ~$\mathbf{b}_2^{k+1}=\mathbf{b}_2^{k} + \left(\nabla_2 \mathbf{m}^{k+1}-\mathbf{a}_2^{k+1}\right)$  \\
-  end
-\end{algorithmic}
-\end{algorithm}
+% Algorithm is not available in Madagascar online version (please refer to the journal version)
+%\begin{algorithm}
+%\caption{FWI with directional total variation}
+%\begin{algorithmic}[1]
+%  \scriptsize
+%  \STATE Initialize: $\mathbf{m}^0=\mathbf{m}_0$, and $\mathbf{a}_1^0=\mathbf{a}_2^0=\mathbf{b}_1^0=\mathbf{b}_2^0=0$\\
+%  \STATE While Iter $<$ MaxIter \\
+%  ~$\mathbf{m}^{k+1}=\min\limits_\mathbf{m} \mu || \mathbf{d} - f\left(\mathbf{m}\right) ||_2^2 + \lambda|| \mathbf{a}_1^k-\nabla_1 \mathbf{m}-\mathbf{b}_1^k||_2^2 + \lambda|| \mathbf{a}_2^k-\nabla_2 \mathbf{m}-\mathbf{b}_2^k||_2^2$  \\
+%  ~~~~~(Hint: we solve this subproblem using gradient method, and the gradient is: \\
+%  ~~~~~~~~$\mu f^{*} \left( f\left(\mathbf{m}^{k}\right) - \mathbf{d} \right) - \lambda \nabla^{T}_1 \left( \mathbf{a}_1^k-\nabla_1 \mathbf{m}^{k}-\mathbf{b}_1^k \right) - \lambda \nabla^{T}_2 \left( \mathbf{a}_2^k-\nabla_2 \mathbf{m}^{k}-\mathbf{b}_2^k \right)$) \\
+%  ~$\mathbf{a}_1^{k+1}=shrink\left(\nabla_1 \mathbf{m}^{k+1}+\mathbf{b}_1^k, \frac{1}{\lambda}\right)$ \\
+%  \new{~~~~~($shrink\left(x, \gamma\right) = \frac{x}{|x|} * max\left(|x| - \gamma, 0\right)$, a soft-thresholding operator \citep{donoho1995noising})} \\
+%  
+%  ~$\mathbf{a}_2^{k+1}=shrink\left(\nabla_2 \mathbf{m}^{k+1}+\mathbf{b}_2^k, \frac{1}{\lambda}\right)$ \\
+%  ~$\mathbf{b}_1^{k+1}=\mathbf{b}_1^{k} + \left(\nabla_1 \mathbf{m}^{k+1}-\mathbf{a}_1^{k+1}\right)$  \\
+%  ~$\mathbf{b}_2^{k+1}=\mathbf{b}_2^{k} + \left(\nabla_2 \mathbf{m}^{k+1}-\mathbf{a}_2^{k+1}\right)$  \\
+%  end
+%\end{algorithmic}
+%\end{algorithm}
 
 \section{FWI Example}
 In order to demonstrate the effectiveness of FWI with directional TV, we consider the velocity model shown in \new{Figure}\old{figure}~\ref{fig:FWI_fig1-01}a, which is scaled from the top half of the Marmousi model. \new{To avoid cycle-skipping, a}\old{A} Ricker wavelet with a dominant frequency of \new{$14$ Hz}\old{$14 Hz$} is used as the source wavelet. Using a \new{constant-density}\old{constant density} acoustic \new{finite-difference modeling}\old{finite difference modelling}, we generated 23 shots with 334 receivers for each shot. The shot spacing is \new{$180$ m}\old{$180 m$} and \new{the} receiver spacing is \new{$12$ m}\old{$12 m$}. \new{The horizontal and vertical grid size are $12$ m}. In addition, some random noise with $SNR = 10$ is added to the \new{modeled}\old{modelled} data. The middle shot gather is shown in \new{Figure}\old{figure}~\ref{fig:shots_orig}. The initial velocity \new{model} is shown in \new{Figure}\old{figure}~\ref{fig:FWI_fig1-01}b, which is a smoothed version of \new{the model in Figure}\old{figure}~\ref{fig:FWI_fig1-01}a.

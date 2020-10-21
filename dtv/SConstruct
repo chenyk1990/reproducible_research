@@ -8,4 +8,5 @@ if sys.platform == 'darwin':
     env['ENV']['PATH'] = ':'.join(['/opt/local/bin',env['ENV']['PATH']])
 
 
-End(use='listings,amsmath,algorithm,algorithmic')
+# End(use='listings,amsmath,algorithm,algorithmic')
+End(use='listings,amsmath',color='ALL')

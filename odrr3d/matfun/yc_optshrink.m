@@ -14,7 +14,7 @@ function [dout] = yc_optshrink(din,N)
 % test_odrr_denoise.m
 %
 % REFERENCE
-% Bai et al., 2020, Seismic signal enhancement based on the lowrank methods, Geophysical Prospecting.
+% Bai et al., 2020, Seismic signal enhancement based on the lowrank methods, Geophysical Prospecting, 68, 2783-2807.
 % Chen et al., 2020, Five-dimensional seismic data reconstruction using the optimally damped rank-reduction method, Geophysical Journal International, 222, 1824-1845.
 % Nadakuditi, R. R., 2013, Optshrink: An algorithm for improved low-rank signal matrix denoising by optimal, data-driven singular value shrinkage: IEEE Transactions on Information Theory, 60, 3002?3018.
 % 

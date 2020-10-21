@@ -1,3 +1,4 @@
+\published{Geophysical Prospecting, 68, 2783-2807, (2020)}
 
 \title{Seismic signal enhancement based on the lowrank methods}
 \author{Min Bai\footnotemark[1]\footnotemark[2], Guangtan Huang\footnotemark[1], Hang Wang\footnotemark[1], and Yangkang Chen\footnotemark[1]}
@@ -111,7 +112,7 @@ where $\mathbf{U}$ and $\mathbf{V}$ are referred to as the left and right singul
 \label{eq:tsvd}
 \hat{\mathbf{S}} = \mathbf{U}_N\boldsymbol{\Sigma}_N\mathbf{V}_N^H,
 \end{equation}
-which is a solution to equation \ref{eq:regu2} according to the Eckart-Young-Mirsky theorem \cite[]{eckart1936approximation}. $\hat{\mathbf{S}}$ denotes the denoised signal. $\mathbf{U}_N$ and $\mathbf{V}_N$ are matrices composed of the left $N$ singular vectors in $\mathbf{U}$ and $\mathbf{V}$, respectively. $\boldsymbol{\Sigma}_N$ is the truncated singular value matrix with the first $N$ singular values preserved.  Although theoretically $N$ equals to the number of distinct dipping components, it is practically defined as a relatively large number considering data complexity, otherwise signal energy can be damaged. The algorithm workflow for the traditional rank-reduction method (RR) is outlined in Algorithm \ref{alg:alg1}. $\mathcal{A}$ in the algorithm workflow denotes an averaging operator along anti-diagonals.}
+which is a solution to equation \ref{eq:regu2} according to the Eckart-Young-Mirsky theorem \cite[]{eckart1936approximation}. $\hat{\mathbf{S}}$ denotes the denoised signal. $\mathbf{U}_N$ and $\mathbf{V}_N$ are matrices composed of the left $N$ singular vectors in $\mathbf{U}$ and $\mathbf{V}$, respectively. $\boldsymbol{\Sigma}_N$ is the truncated singular value matrix with the first $N$ singular values preserved.  Although theoretically $N$ equals to the number of distinct dipping components, it is practically defined as a relatively large number considering data complexity, otherwise signal energy can be damaged. The algorithm workflow for the traditional rank-reduction method (RR) is outlined in Algorithm 1. $\mathcal{A}$ in the algorithm workflow denotes an averaging operator along anti-diagonals.}
 
 \wen{\subsection{Damped rank-reduction method}
 The estimated signal using the TSVD method, however, \dlo{is still containing}\wen{still contains} non-negligible residual noise components, as explained in \cite{weilin2016dmssa}. The problem of residual noise can be solved to some extent by further applying a thresholding operator to the singular value matrix according to the nuclear-norm minimization model \cite[]{yatong2017nuclear}:
@@ -131,7 +132,7 @@ where $\mathbf{P}$ is called the damping matrix, $\mathbf{I}$ is an identity mat
 \label{eq:drr}
 \hat{\mathbf{S}} = \mathbf{U}_N\mathbf{P}\boldsymbol{\Sigma}_N\mathbf{V}_N^H.
 \end{equation}
-Compared with the thresholding method in equation \ref{eq:nuclear}, where a rigid threshold $\tau$ is used to shrinkage the singular values, the damping operator applies variable thresholds to different singular values. According to equation \ref{eq:damp}, the threshold decreases as the residual noise becomes less dominant, i.e., the singular value becomes larger. The algorithm workflow for the damped rank-reduction method (DRR) is outlined in Algorithm \ref{alg:alg2}.}
+Compared with the thresholding method in equation \ref{eq:nuclear}, where a rigid threshold $\tau$ is used to shrinkage the singular values, the damping operator applies variable thresholds to different singular values. According to equation \ref{eq:damp}, the threshold decreases as the residual noise becomes less dominant, i.e., the singular value becomes larger. The algorithm workflow for the damped rank-reduction method (DRR) is outlined in Algorithm 2.}
 
 \wen{\subsection{Optimally damped rank-reduction method}
 A shortcoming of the traditional rank-eduction and damped rank-reduction methods is that the output perfomance is quite sensitive to the input parameter $N$. The rank parameter varies greatly for different datasets, especially for field datasets. In order to alleviate the influence of the rank parameter, we take advantage of an adaptive singular-value weighting algorithm developed by \cite{Benaych2012The} and \cite{optshrink2013}. An adaptive singular-value weighting matrix can be obtained by solving the following problem:
@@ -197,7 +198,7 @@ where the subscript $N$ denotes a sufficiently large rank parameter, as required
 \label{eq:odrr}
 \hat{\mathbf{S}} = \mathbf{U}_N\mathbf{P}\hat{\mathbf{W}}\boldsymbol{\Sigma}_N\mathbf{V}_N^H.
 \end{equation}
-The algorithm workflow for the optimally damped rank-reduction method (ODRR) is outlined in Algorithm \ref{alg:alg3}. Due to the existence of a weighting matrix in the proposed method, it is more convenient to choose the input rank parameter $N$ empirically in practice. As mentioned previously, the rank parameter $N$ is in practice set to a relatively large value to forestall damaging the signal. But in the proposed algorithm, even if a large $N$ is used, the algorithm can adaptively shrink the singular-values. Thus, \dlo{the}\wen{its} performance is not sensitive to the input rank parameter, in contrast to other related approaches \cite[]{mssa}. Because of the insensitivity, one can use a sufficiently large $N$ in processing complicated datasets without leaving strong residual noise in the result. The convenience in tuning parameters makes the rank-reduction related methods more computationally feasible in large-scale data processing, e.g., the 5D reconstruction problem \cite[]{yangkang2019gji5d}, since one no longer needs to tune the parameters many times while one trial is already computationally demanding.  A glossary describing the main mathematical notations are presented in Table \ref{tbl:glo}. The three methods are all variations of how the singular-values are thresholded. Simply speaking, the DRR method improves the RR method by introducing a damping operation and the ODRR method improves DRR method by further introducing a weighting operation.}
+The algorithm workflow for the optimally damped rank-reduction method (ODRR) is outlined in Algorithm 3. Due to the existence of a weighting matrix in the proposed method, it is more convenient to choose the input rank parameter $N$ empirically in practice. As mentioned previously, the rank parameter $N$ is in practice set to a relatively large value to forestall damaging the signal. But in the proposed algorithm, even if a large $N$ is used, the algorithm can adaptively shrink the singular-values. Thus, \dlo{the}\wen{its} performance is not sensitive to the input rank parameter, in contrast to other related approaches \cite[]{mssa}. Because of the insensitivity, one can use a sufficiently large $N$ in processing complicated datasets without leaving strong residual noise in the result. The convenience in tuning parameters makes the rank-reduction related methods more computationally feasible in large-scale data processing, e.g., the 5D reconstruction problem \cite[]{yangkang2019gji5d}, since one no longer needs to tune the parameters many times while one trial is already computationally demanding.  A glossary describing the main mathematical notations are presented in Table \ref{tbl:glo}. The three methods are all variations of how the singular-values are thresholded. Simply speaking, the DRR method improves the RR method by introducing a damping operation and the ODRR method improves DRR method by further introducing a weighting operation.}
 
 \AtEndDocument{
 \begin{table}[ht!]
@@ -263,52 +264,53 @@ The algorithm workflow for the optimally damped rank-reduction method (ODRR) is 
 \end{table}
 }
 
-\wen{
-  \begin{algorithm}
-   \caption{Seismic denoising \dlo{seismic data via}\wen{based on} rank-reduction method. }
-   \textbf{Require:} Input \dlo{seismic }data $\mathbf{D}(t,x,y)$ and predefined rank $N$.
-    \begin{algorithmic}[1]
-    \State \textbf{Fourier transform along the time axis}: $\text{FFT}\left(\mathbf{D}(t,x,y)\right)\rightarrow \mathbf{D}(\omega,x,y)$, \wen{for a frequency slice $\omega$}
-        \For{$w$ = $1,\cdots,N_{\omega}$}
-     \State \textbf{Construct block Hankel matrix}: $\mathcal{H}(\mathbf{D}(\omega))\rightarrow \mathbf{M}$
-     \State \textbf{Singular value decomposition}: $\text{SVD}(\mathbf{M},N)\rightarrow [\mathbf{U},\boldsymbol{\Sigma},\mathbf{V}]$
-     \State \textbf{Rank reduction}: $\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T\rightarrow \hat{\mathbf{S}}$
-     \State \textbf{Averaging}: $\mathcal{A}(\hat{\mathbf{S}})\rightarrow \hat{\mathbf{D}}(\omega)$
-        \EndFor 
-         \State \textbf{Inverse Fourier transform}: $\text{IFFT}\left(\hat{\mathbf{D}}(\omega,x,y)\right)\rightarrow \hat{\mathbf{D}}(t,x,y)$
-\end{algorithmic}
-\label{alg:alg1}
-\end{algorithm}
-  \begin{algorithm}
-   \caption{Seismic denoising based on the damped rank-reduction method. }
-   \textbf{Require:} \wen{Input seismic data $\mathbf{D}(t,x,y)$, predefined rank $N$, and damping factor $K$.}
-    \begin{algorithmic}[1]
-    \State \textbf{Fourier transform along the time axis}: $\text{FFT}\left(\mathbf{D}(t,x,y)\right)\rightarrow \mathbf{D}(\omega,x,y)$, \wen{for a frequency slice $\omega$}
-        \For{$w$ = $1,\cdots,N_{\omega}$}
-     \State \textbf{Construct block Hankel matrix}: $\mathcal{H}(\mathbf{D}(\omega))\rightarrow \mathbf{M}$
-     \State \textbf{Singular value decomposition}: $\text{SVD}(\mathbf{M},N)\rightarrow [\mathbf{U},\boldsymbol{\Sigma},\mathbf{V}]$
-     \State \textbf{Rank reduction with the damping operation}: $\mathbf{U}\mathbf{P}\boldsymbol{\Sigma}\mathbf{V}^T\rightarrow \hat{\mathbf{S}}$
-     \State \textbf{Averaging}: $\mathcal{A}(\hat{\mathbf{S}})\rightarrow \hat{\mathbf{D}}(\omega)$
-        \EndFor 
-         \State \textbf{Inverse Fourier transform}: $\text{IFFT}\left(\hat{\mathbf{D}}(\omega,x,y)\right)\rightarrow \hat{\mathbf{D}}(t,x,y)$
-\end{algorithmic}
-\label{alg:alg2}
-\end{algorithm}
-  \begin{algorithm}
-   \caption{Seismic denoising based on the optimally damped rank-reduction method. }
-   \textbf{Require:} \wen{Input seismic data $\mathbf{D}(t,x,y)$, predefined rank $N$, and damping factor $K$.}
-    \begin{algorithmic}[1]
-    \State \textbf{Fourier transform along the time axis}: $\text{FFT}\left(\mathbf{D}(t,x,y)\right)\rightarrow \mathbf{D}(\omega,x,y)$, \wen{for a frequency slice $\omega$}
-        \For{$w$ = $1,\cdots,N_{\omega}$}
-     \State \textbf{Construct block Hankel matrix}: $\mathcal{H}(\mathbf{D}(\omega))\rightarrow \mathbf{M}$
-     \State \textbf{Singular value decomposition}: $\text{SVD}(\mathbf{M},N)\rightarrow [\mathbf{U},\boldsymbol{\Sigma},\mathbf{V}]$
-     \State \textbf{Rank reduction with both weighting and damping operations}: $\mathbf{U}\mathbf{P}\hat{\mathbf{W}}\boldsymbol{\Sigma}\mathbf{V}^T\rightarrow \hat{\mathbf{S}}$
-     \State \textbf{Averaging}: $\mathcal{A}(\hat{\mathbf{S}})\rightarrow \hat{\mathbf{D}}(\omega)$
-        \EndFor 
-         \State \textbf{Inverse Fourier transform}: $\text{IFFT}\left(\hat{\mathbf{D}}(\omega,x,y)\right)\rightarrow \hat{\mathbf{D}}(t,x,y)$
-\end{algorithmic}
-\label{alg:alg3}
-\end{algorithm}}
+% Algorithm is not available in Madagascar online version (please refer to the journal version)
+%\wen{
+%  \begin{algorithm}
+%   \caption{Seismic denoising \dlo{seismic data via}\wen{based on} rank-reduction method. }
+%   \textbf{Require:} Input \dlo{seismic }data $\mathbf{D}(t,x,y)$ and predefined rank $N$.
+%    \begin{algorithmic}[1]
+%    \State \textbf{Fourier transform along the time axis}: $\text{FFT}\left(\mathbf{D}(t,x,y)\right)\rightarrow \mathbf{D}(\omega,x,y)$, \wen{for a frequency slice $\omega$}
+%        \For{$w$ = $1,\cdots,N_{\omega}$}
+%     \State \textbf{Construct block Hankel matrix}: $\mathcal{H}(\mathbf{D}(\omega))\rightarrow \mathbf{M}$
+%     \State \textbf{Singular value decomposition}: $\text{SVD}(\mathbf{M},N)\rightarrow [\mathbf{U},\boldsymbol{\Sigma},\mathbf{V}]$
+%     \State \textbf{Rank reduction}: $\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T\rightarrow \hat{\mathbf{S}}$
+%     \State \textbf{Averaging}: $\mathcal{A}(\hat{\mathbf{S}})\rightarrow \hat{\mathbf{D}}(\omega)$
+%        \EndFor 
+%         \State \textbf{Inverse Fourier transform}: $\text{IFFT}\left(\hat{\mathbf{D}}(\omega,x,y)\right)\rightarrow \hat{\mathbf{D}}(t,x,y)$
+%\end{algorithmic}
+%\label{alg:alg1}
+%\end{algorithm}
+%  \begin{algorithm}
+%   \caption{Seismic denoising based on the damped rank-reduction method. }
+%   \textbf{Require:} \wen{Input seismic data $\mathbf{D}(t,x,y)$, predefined rank $N$, and damping factor $K$.}
+%    \begin{algorithmic}[1]
+%    \State \textbf{Fourier transform along the time axis}: $\text{FFT}\left(\mathbf{D}(t,x,y)\right)\rightarrow \mathbf{D}(\omega,x,y)$, \wen{for a frequency slice $\omega$}
+%        \For{$w$ = $1,\cdots,N_{\omega}$}
+%     \State \textbf{Construct block Hankel matrix}: $\mathcal{H}(\mathbf{D}(\omega))\rightarrow \mathbf{M}$
+%     \State \textbf{Singular value decomposition}: $\text{SVD}(\mathbf{M},N)\rightarrow [\mathbf{U},\boldsymbol{\Sigma},\mathbf{V}]$
+%     \State \textbf{Rank reduction with the damping operation}: $\mathbf{U}\mathbf{P}\boldsymbol{\Sigma}\mathbf{V}^T\rightarrow \hat{\mathbf{S}}$
+%     \State \textbf{Averaging}: $\mathcal{A}(\hat{\mathbf{S}})\rightarrow \hat{\mathbf{D}}(\omega)$
+%        \EndFor 
+%         \State \textbf{Inverse Fourier transform}: $\text{IFFT}\left(\hat{\mathbf{D}}(\omega,x,y)\right)\rightarrow \hat{\mathbf{D}}(t,x,y)$
+%\end{algorithmic}
+%\label{alg:alg2}
+%\end{algorithm}
+%  \begin{algorithm}
+%   \caption{Seismic denoising based on the optimally damped rank-reduction method. }
+%   \textbf{Require:} \wen{Input seismic data $\mathbf{D}(t,x,y)$, predefined rank $N$, and damping factor $K$.}
+%    \begin{algorithmic}[1]
+%    \State \textbf{Fourier transform along the time axis}: $\text{FFT}\left(\mathbf{D}(t,x,y)\right)\rightarrow \mathbf{D}(\omega,x,y)$, \wen{for a frequency slice $\omega$}
+%        \For{$w$ = $1,\cdots,N_{\omega}$}
+%     \State \textbf{Construct block Hankel matrix}: $\mathcal{H}(\mathbf{D}(\omega))\rightarrow \mathbf{M}$
+%     \State \textbf{Singular value decomposition}: $\text{SVD}(\mathbf{M},N)\rightarrow [\mathbf{U},\boldsymbol{\Sigma},\mathbf{V}]$
+%     \State \textbf{Rank reduction with both weighting and damping operations}: $\mathbf{U}\mathbf{P}\hat{\mathbf{W}}\boldsymbol{\Sigma}\mathbf{V}^T\rightarrow \hat{\mathbf{S}}$
+%     \State \textbf{Averaging}: $\mathcal{A}(\hat{\mathbf{S}})\rightarrow \hat{\mathbf{D}}(\omega)$
+%        \EndFor 
+%         \State \textbf{Inverse Fourier transform}: $\text{IFFT}\left(\hat{\mathbf{D}}(\omega,x,y)\right)\rightarrow \hat{\mathbf{D}}(t,x,y)$
+%\end{algorithmic}
+%\label{alg:alg3}
+%\end{algorithm}}
 
 
 
