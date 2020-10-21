@@ -282,7 +282,7 @@ Grey('s-pwd-n','title="Separated reflections (PWD)"')
 # INITIALIZATION
 ########################################################################
 matlab         = WhereIs('matlab')
-matROOT = '/Users/chenyk/chenyk/matlibcyk/Mada_matlab/'
+matROOT = '../matfun'
 matfun = 'FXY_MSSA_WIN'
 matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
 
@@ -431,7 +431,8 @@ Flow('s-mig-true','s-diffr vtrue','kirchnew velocity=${SOURCES[1]}')
 Flow('s-mig0','s-data vtrue','kirchnew velocity=${SOURCES[1]}')
 Flow('s-mig','s-lrra-n vtrue','kirchnew velocity=${SOURCES[1]}')
 Flow('s-mig-tra','s-pwd-n vtrue','kirchnew velocity=${SOURCES[1]}')
-Grey('s-mig0','title="Conventional" clip=5')
+Grey('s-mig0','title="Conventional" 
+=5')
 Grey('s-mig','title="LRRA" clip=5')
 Grey('s-mig-tra','title="PWD" clip=5')
 Grey('s-mig-true','title="True" clip=5')
