@@ -70,7 +70,7 @@ def plot3d(title,min1=5.5,max1=8.0,fr1=frame1,fr2=frame2,fr3=frame3):
 
 ####### Download data
 
-#Fetch('Nshots.su','nankai')
+Fetch('Nshots.su','nankai')
 
 ####### Convert to RSF
 
