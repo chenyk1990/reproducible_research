@@ -1,6 +1,6 @@
-function [ D1 ] = drr5d_lb_recon(D,MASK,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a)
-%  DRR5D_LB_RECON: Damped rank-reduction method for 5D simultaneous denoising and reconstruction
-%        with Lanczos bidiagonalization
+function [ D1,H,H0,H1,H2] = drr5d_lb_recon_H(D,D_true,MASK,flow,fhigh,Hf,dt,N,NN,Niter,eps,verb,mode,iflb,a)
+%  DRR5D_LB_RECON_H: Damped rank-reduction method for 5D simultaneous denoising and reconstruction
+%        with Lanczos bidiagonalization, OUTPUT Hankel matrices version
 %
 %  IN   D:   	intput 5D data
 %       MASK:   sampling mask (consistent with the POCS based approaches)
@@ -34,8 +34,9 @@ function [ D1 ] = drr5d_lb_recon(D,MASK,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,i
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details: http://www.gnu.org/licenses/
 %
-%  Reference:   Chen et al, 2016; Chen et al, 2020
+%  Reference:   Chen et al, 2016;Chen et al, 2020. 
 %
+% Example: test_lr_5d_recon_H.m
 
 if nargin==0
     error('Input data must be provided!');
@@ -66,10 +67,14 @@ nf=2^nextpow2(nt);
 
 % Transform into F-X domain
 DATA_FX=fft(D,nf,1);
+DATA_FX_true=fft(D_true,nf,1);
+
 DATA_FX0=zeros(nf,nx,ny,nhx,nhy);
 
 % First and last nts of the DFT.
 ilow  = floor(flow*dt*nf)+1;
+
+iH=floor(Hf*dt*nf)+1;
 
 if ilow<1;
     ilow=1;
@@ -96,13 +101,15 @@ for k=ilow:ihigh
     
     S_obs=squeeze(squeeze(DATA_FX(k,:,:,:,:)));
     Sn_1=S_obs;
+    if k==iH
+        H=P_H(squeeze(squeeze(DATA_FX_true(k,:,:,:,:))),lx,ly,lhx,lhy);
+        H0=P_H(squeeze(squeeze(DATA_FX(k,:,:,:,:))),lx,ly,lhx,lhy);
+    end
+    
     for iter=1:Niter
         M=P_H(Sn_1,lx,ly,lhx,lhy);
-        if iflb~=1
-            M=P_R(M,N,iflb,NN);
-        else
-            M=P_R(M,N,iflb);
-        end
+        
+        M=P_R(M,N,iflb,NN);
         
         if 1==0 %for outputing the Hankel matrix for comparison
             if iter==1 && k==floor(ihigh/3);
@@ -112,6 +119,12 @@ for k=ilow:ihigh
             end
         end
         
+        if k==iH && iter==1
+            H1=M;
+        end
+        if k==iH && iter==Niter
+            H2=M;
+        end
         
         Sn=P_A(M,nx,ny,nhx,nhy,lx,ly,lhx,lhy);
         
@@ -192,31 +205,31 @@ function [dout]=P_R(din,N,iflb,NN)
 [n1,n2]=size(din);
 switch iflb
     case 0
+        
         if NN~=Inf
-%         [U,B,V]=svds(din,N+1); % a little bit slower for small matrix
-        [U,B,V]=svd(din); % a little bit slower for small matrix
-
-        for j=1:N
-            B(j,j)=B(j,j)*(1-B(N+1,N+1)^NN/B(j,j)^NN);
-        end
-        
-        %              dout=U*D*V';
-        % %
-        %         [U,B,V]=svd(din);
-        
-        dout=U(:,1:N)*B(1:N,1:N)*(V(:,1:N)');
+            [U,B,V]=svds(din,N+1); % a little bit slower for small matrix
+            for j=1:N
+                B(j,j)=B(j,j)*(1-B(N+1,N+1)^NN/B(j,j)^NN);
+            end
+            %              dout=U*D*V';
+            % %
+            %         [U,B,V]=svd(din);
+            
+            dout=U(:,1:N)*B(1:N,1:N)*(V(:,1:N)');
         else
-%           [U,B,V]=svds(din,N);
-          [U,B,V]=svd(din);
-          dout=U(:,1:N)*B(1:N,1:N)*(V(:,1:N)');
+            [U,B,V]=svds(din,N);
+            dout=U(:,1:N)*B(1:N,1:N)*(V(:,1:N)');
         end
+        
     case 1 %LB
-        [U,B,V]=yc_lb(din,randn(n1,1),N,1);
+        [U,B,V]=lbcyk(din,randn(n1,1),N,1);
         dout=U(:,1:N)*B(1:N,1:N)*(V(:,1:N)');
     case 2 % use damped optshrink
         dout=yc_optshrink_damp(din,N,NN);
     case 3 % use optshrink
+        
         dout=yc_optshrink(din,N);
+        
     otherwise
         error('Invalid argument value.');
 end

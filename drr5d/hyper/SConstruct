@@ -3,7 +3,7 @@ from rsf.prog import RSFROOT
 from math import pi
 
 # data place:
-# /media/CHENYK2/SeismicDataYangkang/irr5d/data/
+# /media/CHENYK2/SeismicDataYangkang/drr5d/data/
 
 # Data size: 101*32*32*5*5
 
@@ -52,61 +52,61 @@ Flow('hyper-clean','hyper-clean-0','put n2=32 n3=32 n4=5 n5=5 d1=0.004 d2=1 d3=1
 Flow('hyper-noisy','hyper-noisy-0','put n2=32 n3=32 n4=5 n5=5 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
 Flow('hyper-obs','hyper-obs-0','put n2=32 n3=32 n4=5 n5=5 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
 Flow('hyper-rr','hyper-rr-0','put n2=32 n3=32 n4=5 n5=5 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
-Flow('hyper-irr','hyper-irr-0','put n2=32 n3=32 n4=5 n5=5 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('hyper-drr','hyper-drr-0','put n2=32 n3=32 n4=5 n5=5 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
 
 Flow('hyper-clean-xy','hyper-clean','window n2=1 n3=1 f2=16 f3=16')
 Flow('hyper-noisy-xy','hyper-noisy','window n2=1 n3=1 f2=16 f3=16')
 Flow('hyper-obs-xy','hyper-obs','window n2=1 n3=1 f2=16 f3=16')
 Flow('hyper-rr-xy','hyper-rr','window n2=1 n3=1 f2=16 f3=16')
-Flow('hyper-irr-xy','hyper-irr','window n2=1 n3=1 f2=16 f3=16')
+Flow('hyper-drr-xy','hyper-drr','window n2=1 n3=1 f2=16 f3=16')
 
 Grey3('hyper-clean-xy','title=Clean')
 Grey3('hyper-noisy-xy','title=Noisy')
 Grey3('hyper-obs-xy','title=Observed ')
 Grey3('hyper-rr-xy','title=Traditional')
-Grey3('hyper-irr-xy','title=Proposed')
+Grey3('hyper-drr-xy','title=Proposed')
 
 Flow('hyper-clean-hxhy','hyper-noisy','window n4=1 n5=1 f4=3 f5=3')
 Flow('hyper-noisy-hxhy','hyper-noisy','window n4=1 n5=1 f4=3 f5=3')
 Flow('hyper-obs-hxhy','hyper-obs','window n4=1 n5=1 f4=3 f5=3')
 Flow('hyper-rr-hxhy','hyper-rr','window n4=1 n5=1 f4=3 f5=3')
-Flow('hyper-irr-hxhy','hyper-irr','window n4=1 n5=1 f4=3 f5=3')
+Flow('hyper-drr-hxhy','hyper-drr','window n4=1 n5=1 f4=3 f5=3')
 
 Grey3('hyper-clean-hxhy','title=Noisy frame1=50')
 Grey3('hyper-noisy-hxhy','title=Noisy frame1=50')
 Grey3('hyper-obs-hxhy','title=Observed frame1=50')
 Grey3('hyper-rr-hxhy','title=Traditional frame1=50')
-Grey3('hyper-irr-hxhy','title=Proposed frame1=50')
+Grey3('hyper-drr-hxhy','title=Proposed frame1=50')
 
 
 Flow('hyper-clean2d','hyper-clean','window n4=1 n5=1 f4=3 f5=3| put n2=1024 n3=1')
 Flow('hyper-noisy2d','hyper-noisy','window n4=1 n5=1 f4=3 f5=3| put n2=1024 n3=1')
 Flow('hyper-obs2d','hyper-obs','window n4=1 n5=1 f4=3 f5=3| put n2=1024 n3=1')
 Flow('hyper-rr2d','hyper-rr','window n4=1 n5=1 f4=3 f5=3| put n2=1024 n3=1')
-Flow('hyper-irr2d','hyper-irr','window n4=1 n5=1 f4=3 f5=3| put n2=1024 n3=1')
+Flow('hyper-drr2d','hyper-drr','window n4=1 n5=1 f4=3 f5=3| put n2=1024 n3=1')
 Grey('hyper-clean2d','title=Clean')
 Grey('hyper-noisy2d','title=Noisy')
 Grey('hyper-obs2d','title=Observed')
 Grey('hyper-rr2d','title=Traditional')
-Grey('hyper-irr2d','title=Proposed')
+Grey('hyper-drr2d','title=Proposed')
 
 Flow('hyper-z-clean','hyper-clean2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Flow('hyper-z-obs','hyper-obs2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Flow('hyper-z-rr','hyper-rr2d','window f2=384 n2=256 min1=0.05 max2=0.15')
-Flow('hyper-z-irr','hyper-irr2d','window f2=384 n2=256 min1=0.05 max2=0.15')
+Flow('hyper-z-drr','hyper-drr2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Grey('hyper-z-clean','title=Observed screenratio=0.75')
 Grey('hyper-z-obs','title=Observed screenratio=0.75')
 Grey('hyper-z-rr','title=Traditional  screenratio=0.75')
-Grey('hyper-z-irr','title=Proposed screenratio=0.75')
+Grey('hyper-z-drr','title=Proposed screenratio=0.75')
 
 Flow('hyper-z1-clean','hyper-clean2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Flow('hyper-z1-obs','hyper-obs2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Flow('hyper-z1-rr','hyper-rr2d','window f2=1 n2=150 min1=0.02 max2=0.25')
-Flow('hyper-z1-irr','hyper-irr2d','window f2=1 n2=150 min1=0.02 max2=0.25')
+Flow('hyper-z1-drr','hyper-drr2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Grey('hyper-z1-clean','title=Observed screenratio=0.75')
 Grey('hyper-z1-obs','title=Observed screenratio=0.75')
 Grey('hyper-z1-rr','title=Traditional  screenratio=0.75')
-Grey('hyper-z1-irr','title=Proposed screenratio=0.75')
+Grey('hyper-z1-drr','title=Proposed screenratio=0.75')
 
 
 ## Creating framebox
@@ -141,22 +141,22 @@ Plot('frame1','frame1.asc',
 		
 Result('hyper-clean2d-0','Fig/hyper-clean2d.vpl frame','Overlay')	
 Result('hyper-rr2d-0','Fig/hyper-rr2d.vpl frame','Overlay')
-Result('hyper-irr2d-0','Fig/hyper-irr2d.vpl frame','Overlay')
+Result('hyper-drr2d-0','Fig/hyper-drr2d.vpl frame','Overlay')
 Result('hyper-obs2d-0','Fig/hyper-obs2d.vpl frame','Overlay')
 
 Result('hyper-clean2d-1','Fig/hyper-clean2d.vpl frame frame1','Overlay')	
 Result('hyper-rr2d-1','Fig/hyper-rr2d.vpl frame frame1','Overlay')
-Result('hyper-irr2d-1','Fig/hyper-irr2d.vpl frame frame1','Overlay')
+Result('hyper-drr2d-1','Fig/hyper-drr2d.vpl frame frame1','Overlay')
 Result('hyper-obs2d-1','Fig/hyper-obs2d.vpl frame frame1','Overlay')
 
 
 Flow('hyper-noisy-simi','hyper-clean2d hyper-noisy2d','similarity other=${SOURCES[1]} rect1=3 rect2=1')
 Flow('hyper-obs-simi','hyper-clean2d hyper-obs2d','similarity other=${SOURCES[1]} rect1=3 rect2=1')
 Flow('hyper-rr-simi','hyper-clean2d hyper-rr2d','similarity other=${SOURCES[1]} rect1=3 rect2=1')
-Flow('hyper-irr-simi','hyper-clean2d hyper-irr2d','similarity other=${SOURCES[1]} rect1=3 rect2=1')
+Flow('hyper-drr-simi','hyper-clean2d hyper-drr2d','similarity other=${SOURCES[1]} rect1=3 rect2=1')
 
 Greys('hyper-noisy-simi','title=Noisy')
 Greys('hyper-obs-simi','title=Observed')
 Greys('hyper-rr-simi','title=Traditional')
-Greys('hyper-irr-simi','title=Proposed')
+Greys('hyper-drr-simi','title=Proposed')
 End()
