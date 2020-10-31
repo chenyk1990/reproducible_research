@@ -43,12 +43,12 @@ d0=dn.*mask;
 % RR
 flow=0;fhigh=100;dt=0.004;N=6;Niter=10;mode=1;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-d1=mssa5d_lb_recon(d0,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,iflb,a);
+d1=rr5d_lb_recon(d0,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,iflb,a);
 
 
 % DRR
 NN=2; %or N=3;NN=3; the SNR is even higher
-d2=mssa5d_lb_recon_dmssa(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
+d2=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
 
 yc_snr(d(:),d0(:))
 yc_snr(d(:),d1(:))
