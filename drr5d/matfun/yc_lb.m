@@ -42,10 +42,6 @@ function [U,B_k,V] = lbcyk(A,p,k,reorth)
 % Reference:    G. H. Golub & C. F. Van Loan, "Matrix Computations", 3. Ed., 
 %               Johns Hopkins, 1996.  Section 9.3.4.
 %               Referred to as "bidiag1" by Paige and Saunders.
-%               Gao, J., M.D. Sacchi, and X. Chen, 2013,
-%               A fast reduced-rank interpolation method for prestack
-%               seismic volumes that depend on four spatial dimensions, 
-%               Geophysics, 78, V21-V30.  
 
 % Initialization.
 if (k<1), error('Number of steps k must be positive'), end

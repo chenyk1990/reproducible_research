@@ -6,25 +6,5 @@ env=Environment()
 if sys.platform == 'darwin':
     env['ENV']['PATH'] = ':'.join(['/opt/local/bin',env['ENV']['PATH']])
     
-#Paper('irr5d',use='amsmath',options='manuscript',color='field-obs2d field-rr2d field-irr2d',hires='field-obs2d field-rr2d field-irr2d')
-Paper('irr5d',use='amsmath,listings,newalg',options='manuscript')
-
-Paper('seg2016_drr5d',lclass='segabs',use='listings, amsmath,subfigure')
-env.Command('seg2016_drr5d_final.pdf','seg2016_drr5d_final.tex','pdflatex $SOURCE')
-
-
-Paper('irr5d_revise1',use='amsmath,listings,newalg',options='manuscript,revised')
-Paper('reply1',use='hyperref,listings')
-
-Command('irr5d_revise_plain1.tex','irr5d_revise1.tex','cp $SOURCE $TARGET')
-Paper('irr5d_revise_plain1',use='amsmath,listings,newalg',options='manuscript')
-
-
-Paper('seg2016',lclass='beamer',use='subfigure,amsmath,amsbsy,listings,overpic,color,multicol,amssymb,comment,verbatim', include=r'''
-      \mode<presentation>{\usetheme{beaver}}
-      \mode<presentation>{\usecolortheme{beaver}}
-      \newcommand{\TEXMF}{%s/texmf}
-      ''' % os.environ.get('HOME'))
-     
-     
-End()
+   
+End(use='amsmath,listings,newalg')

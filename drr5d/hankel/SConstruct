@@ -55,7 +55,7 @@ Grey('H-z-obs','title=Observed')
 Grey('H-z-rr10','title="Traditional (10 iterations)"')
 Grey('H-z-drr10','title="Proposed (10 iterations)"')
 Grey('H-z-rr1','title="Traditional (1 iteration)"')
-Grey('H-z-drr1','title="Traditional (1 iteration)"')
+Grey('H-z-drr1','title="Proposed (1 iteration)"')
 
 ## Creating framebox
 x=0

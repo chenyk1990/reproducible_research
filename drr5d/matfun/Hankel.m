@@ -58,22 +58,22 @@ toc
 
 %% from Matlab to Madagascar
 rsf_create(H_clean,size(M_c)');
-rsf_write(M_c,H_clean);
+rsf_write(abs(M_c),H_clean);
 
 rsf_create(H_obs,size(M_obs)');
-rsf_write(M_obs,H_obs);
+rsf_write(abs(M_obs),H_obs);
 
 rsf_create(H_rr,size(M_rr)');
-rsf_write(M_rr,H_rr);
+rsf_write(abs(M_rr),H_rr);
 
 rsf_create(H_drr,size(M_drr)');
-rsf_write(M_drr,H_drr);
+rsf_write(abs(M_drr),H_drr);
 
 rsf_create(H_rr10,size(M_rr10)');
-rsf_write(M_rr10,H_rr10);
+rsf_write(abs(M_rr10),H_rr10);
 
 rsf_create(H_drr10,size(M_drr10)');
-rsf_write(M_drr10,H_drr10);
+rsf_write(abs(M_drr10),H_drr10);
 
 
 

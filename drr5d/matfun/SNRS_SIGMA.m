@@ -131,6 +131,7 @@ snrs2=[snr1_2 snr2_2 snr3_2 snr4_2 snr5_2 snr6_2];
 %plot(vars,snrs2,'bv');
 
 %% from Matlab to Madagascar
+snrs=[vars',snrs1',snrs2'];
 rsf_create(synth_drr_snrs,size(snrs)');
 rsf_write(snrs,synth_drr_snrs);
 
