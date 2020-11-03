@@ -27,6 +27,14 @@ def Greys(data,other):
        grey gainpanel=all allpos=y label2=Trace label1="Time" unit1=s clip=1.2 title=
        screenratio=0.3 color=j max1=0.4 scalebar=y %s minval=0 maxval=1.2'''%other)
 
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
+       
 ## Load data
 ########################################################################
 # INITIALIZATION
@@ -78,6 +86,26 @@ Grey3('hyper-odrr-xy','title=ORR')
 Grey3('hyper-rr2-xy','title=RR')
 Grey3('hyper-drr2-xy','title=DRR')
 Grey3('hyper-odrr2-xy','title=ORR')
+
+
+Flow('hyper-noisy-xy-simi','hyper-clean-xy hyper-noisy-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-obs-xy-simi','hyper-clean-xy hyper-obs-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-rr-xy-simi','hyper-clean-xy hyper-rr-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-drr-xy-simi','hyper-clean-xy hyper-drr-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-odrr-xy-simi','hyper-clean-xy hyper-odrr-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-rr2-xy-simi','hyper-clean-xy hyper-rr2-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-drr2-xy-simi','hyper-clean-xy hyper-drr2-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('hyper-odrr2-xy-simi','hyper-clean-xy hyper-odrr2-xy','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+
+Grey3s('hyper-noisy-xy-simi','title=Noisy',1.0)
+Grey3s('hyper-obs-xy-simi','title=Observed',1.0)
+Grey3s('hyper-rr-xy-simi','title=RR',1.0)
+Grey3s('hyper-drr-xy-simi','title=DRR',1.0) 
+Grey3s('hyper-odrr-xy-simi','title=ORR',1.0) 
+Grey3s('hyper-rr2-xy-simi','title=RR',1.0)
+Grey3s('hyper-drr2-xy-simi','title=DRR',1.0) 
+Grey3s('hyper-odrr2-xy-simi','title=ORR',1.0) 
+
 
 Flow('hyper-clean-hxhy','hyper-noisy','window n4=1 n5=1 f4=3 f5=3')
 Flow('hyper-noisy-hxhy','hyper-noisy','window n4=1 n5=1 f4=3 f5=3')

@@ -361,113 +361,35 @@ where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ deno
 \plot{figure10}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=5$. }
 \plot{figure11}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstruction error using the RR method. (b) Reconstruction error using the DRR method. (c) Reconstruction error using the ORR method. In this case, $rank=5$. }
 
-\inputdir{snrs_sigma}
-\plot{snr-n}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the noise level (variance value). Note that the proposed approach outperforms the traditional methods more and more as the noise level increases.}
-
-\inputdir{snrs_ratio}
-
-\plot{snr-r}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the sampling ratio (in percent). \new{It is obvious that the difference between the ORR method and the DRR method becomes larger as the sampling ratio increases. The ORR method always outperforms the other methods for all sampling ratios. }}
-
-
-
-\inputdir{snrs_rank}
-\plot{snr-rank}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}
-
-
-%\begin{figure}
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d_3v}
-%    \label{fig:hyper_d_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_dn_3v}
-%    \label{fig:hyper_dn_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d0_3v}
-%    \label{fig:hyper_d0_3v}} \\   
-%	\caption{Common midpoint gather comparison for the synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) Incomplete data. \new{The blanks in (c) indicate where there are missing traces.} }
-%	\label{fig:hyper_N12}
-%\end{figure}
+%\inputdir{snrs_sigma}
+%\plot{snr-n}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the noise level (variance value). Note that the proposed approach outperforms the traditional methods more and more as the noise level increases.}
+%
+%\inputdir{snrs_ratio}
+%
+%\plot{snr-r}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the sampling ratio (in percent). \new{It is obvious that the difference between the ORR method and the DRR method becomes larger as the sampling ratio increases. The ORR method always outperforms the other methods for all sampling ratios. }}
 %
 %
-%\begin{figure}
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d1_N12_3v}
-%    \label{fig:hyper_d1_N12_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d2_N12_3v}
-%    \label{fig:hyper_d2_N12_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d3_N12_3v}
-%    \label{fig:hyper_d3_N12_3v}} \\ 
-%	\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d1_N24_3v}
-%    \label{fig:hyper_d1_N24_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d2_N24_3v}
-%    \label{fig:hyper_d2_N24_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d3_N24_3v}
-%    \label{fig:hyper_d3_N24_3v}} \\    
-%	\caption{Common midpoint gather comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The SNR comparisons are shown in Table \ref{tbl:hyper}.}
-%	\label{fig:hyper_dn_N12}
-%\end{figure}
+
+%\inputdir{snrs_rank}
+%\plot{snr-rank}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}}
 %
-%\begin{figure}
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d1_simi_N12_3v}
-%    \label{fig:hyper_d1_simi_N12_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d2_simi_N12_3v}
-%    \label{fig:hyper_d2_simi_N12_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d3_simi_N12_3v}
-%    \label{fig:hyper_d3_simi_N12_3v}} \\ 
-%	\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d1_simi_N24_3v}
-%    \label{fig:hyper_d1_simi_N24_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d2_simi_N24_3v}
-%    \label{fig:hyper_d2_simi_N24_3v}}
-%    \subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/hyper_d3_simi_N24_3v}
-%    \label{fig:hyper_d3_simi_N24_3v}} \\    
-%	\caption{Local similarity comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The introduction of local similarity is given in \cite{yangkang2015ortho}. }
-%	\label{fig:hyper_simi_N12}
-%\end{figure}
+%
+%\inputdir{hyper}
+%\multiplot{3}{hyper-clean-xy,hyper-noisy-xy,hyper-obs-xy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) Incomplete data. The blanks in (c) indicate where there are missing traces. }
+%\multiplot{6}{hyper-rr-xy,hyper-drr-xy,hyper-odrr-xy,hyper-rr2-xy,hyper-drr2-xy,hyper-odrr2-xy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The SNR comparisons are shown in Table \ref{tbl:hyper}. }
+%
+%\multiplot{6}{hyper-rr-xy-simi,hyper-drr-xy-simi,hyper-odrr-xy-simi,hyper-rr2-xy-simi,hyper-drr2-xy-simi,hyper-odrr2-xy-simi}{width=0.3\textwidth}{Local similarity comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The introduction of local similarity is given in \cite{yangkang2015ortho}. }
 
 
 
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/field_d0_0}
-%	\caption{Real data example \new{with a lot of missing traces}. \new{Because of the difficulty in display a 5D dataset, only one common midpoint gather is extracted and rearranged into a 2D matrix, and is plotted here. The two transparent colored windows denote two zooming areas for an amplified comparison.}}
-%	\label{fig:field_d0_0}
-%\end{figure}
+%\inputdir{./}
+%\plot{field_d0_0}{width=0.8\textwidth}{Real data example \new{with a lot of missing traces}. \new{Because of the difficulty in display a 5D dataset, only one common midpoint gather is extracted and rearranged into a 2D matrix, and is plotted here. The two transparent colored windows denote two zooming areas for an amplified comparison.}}
 %
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.9\textwidth]{Fig/field_dn_N12_0}
-%	\caption{Real data example. (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=20$. \new{It is obvious that all three methods obtain dramatic improvement from the raw data. The ORR method obtains cleaner and spatially more coherent seismic events compared with other two methods.}}
-%	\label{fig:field_dn_N12_0}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/field_dn_N12_z1}
-%	\caption{Zoomed comparison for the field data example (the blue frame box). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method. }
-%	\label{fig:field_dn_N12_z1}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/field_dn_N12_z2}
-%	\caption{Zoomed comparison for the field data example (the red frame box). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method. }
-%	\label{fig:field_dn_N12_z2}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/field_dn_N12_t80}
-%	\caption{Comparison for constant time slice for the field data example ($t=0.32$s). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method. }
-%	\label{fig:field_dn_N12_t80}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/field_dn_N12_t160}
-%	\caption{Comparison for constant time slice for the field data example ($t=0.64$s). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method. }
-%	\label{fig:field_dn_N12_t160}
-%\end{figure}
-
+%\plot{field_dn_N12_0}{width=0.8\textwidth}{Real data example. (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=20$. \new{It is obvious that all three methods obtain dramatic improvement from the raw data. The ORR method obtains cleaner and spatially more coherent seismic events compared with other two methods.}}
+%\plot{field_dn_N12_z1}{width=0.8\textwidth}{Zoomed comparison for the field data example (the blue frame box). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method.}
+%\plot{field_dn_N12_z2}{width=0.8\textwidth}{Zoomed comparison for the field data example (the red frame box). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method.}
+%\plot{field_dn_N12_t80}{width=0.8\textwidth}{Comparison for constant time slice for the field data example ($t=0.32$s). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method.}
+%\plot{field_dn_N12_t160}{width=0.8\textwidth}{Comparison for constant time slice for the field data example ($t=0.64$s). (a) Incomplete data. (b) Reconstructed data using the RR method. (c) Reconstructed data using the DRR method. (d) Reconstructed data using the ORR method. }
 }
 
 
@@ -479,7 +401,7 @@ To test the sensitivities of different methods to the input parameter, i.e., the
 
 To compare the computational cost of different methods, we measure the computing time for the synthetic example with linear events. The computation is done on a MacBook Pro laptop equipped with an Intel Core i7 CPU clocked at 2.5 GHz and 16 GB of RAM. The detailed computing time comparison is shown in Table \ref{tbl:time}. It shows that the computational cost of the ORR method is higher than the other two methods.  The RR and DRR methods have almost the same computational cost while the proposed method costs 2-5 times more than the other two methods. 
 
-In order to test the effectiveness of the three methods on data containing curved events and to compare the performances of different methods in this case, we then use the second example to show the performance.  Figure \ref{fig:hyper_N12} shows the clean data, noisy data, and incomplete data with 70\% traces randonly missing in a common midpoint gather. Figure \ref{fig:hyper_dn_N12} shows the reconstructed data using different methods. Because this dataset no longer meet the linear-event assumption of the rank-reduction based methods, we use a relatively higher rank in this example. The top row in Figure \ref{fig:hyper_dn_N12} shows results when $rank = 12$. The bottom row in Figure \ref{fig:hyper_dn_N12} shows results when $rank = 24$. It is clear that the three methods also work when there are curving events. The proposed method obtains obviously cleaner result than the other two methods. The SNRs of the incomplete data, data from the RR method, DRR method, and ORR method are 0.59, 14.11, 16.46, and 16.86 dB when $rank=12$ and are 0.59, 13.88, 16.01, and 16.83 dB when $rank=24$. We also calculate the local similarity between the exact solution shown in Figure \ref{fig:hyper_d_3v} and each reconstructed data and show the similarity cubes in Figure \ref{fig:hyper_simi_N12}. The local similarity corresponding to the proposed method is obviously higher than those from the  other two methods, indicating a more accurate reconstruction result using the proposed method. 
+In order to test the effectiveness of the three methods on data containing curved events and to compare the performances of different methods in this case, we then use the second example to show the performance.  Figure \ref{fig:hyper-clean-xy,hyper-noisy-xy,hyper-obs-xy} shows the clean data, noisy data, and incomplete data with 70\% traces randonly missing in a common midpoint gather. Figure \ref{fig:hyper-rr-xy,hyper-drr-xy,hyper-odrr-xy,hyper-rr2-xy,hyper-drr2-xy,hyper-odrr2-xy} shows the reconstructed data using different methods. Because this dataset no longer meet the linear-event assumption of the rank-reduction based methods, we use a relatively higher rank in this example. The top row in Figure \ref{fig:hyper-rr-xy,hyper-drr-xy,hyper-odrr-xy,hyper-rr2-xy,hyper-drr2-xy,hyper-odrr2-xy} shows results when $rank = 12$. The bottom row in Figure \ref{fig:hyper-rr-xy,hyper-drr-xy,hyper-odrr-xy,hyper-rr2-xy,hyper-drr2-xy,hyper-odrr2-xy} shows results when $rank = 24$. It is clear that the three methods also work when there are curving events. The proposed method obtains obviously cleaner result than the other two methods. The SNRs of the incomplete data, data from the RR method, DRR method, and ORR method are 0.59, 14.11, 16.46, and 16.86 dB when $rank=12$ and are 0.59, 13.88, 16.01, and 16.83 dB when $rank=24$. We also calculate the local similarity between the exact solution shown in Figure \ref{fig:hyper-clean-xy} and each reconstructed data and show the similarity cubes in Figure \ref{fig:hyper-rr-xy-simi,hyper-drr-xy-simi,hyper-odrr-xy-simi,hyper-rr2-xy-simi,hyper-drr2-xy-simi,hyper-odrr2-xy-simi}. The local similarity corresponding to the proposed method is obviously higher than those from the  other two methods, indicating a more accurate reconstruction result using the proposed method. 
 
 Finally, we apply the three methods to a 5D field data. We use the data previously used in \cite{yangkang2016irr5d}.  The data have been binned onto a regular grid and a common offset gather of the field data is shown in Figure \ref{fig:field_d0_0}. \new{In Figure \ref{fig:field_d0_0}, the colored stripes are the recorded seismic traces. The white blanks denote the missing traces, which means that we do not observe seismic data in these positions. Because of the difficulty in displaying a 5D dataset, we only show a common midpoint gather here. The 3D common midpoint gather is rearranged into a 2D matrix for a better view. The two transparent colored windows denote two zooming areas for an amplified comparison. } %Although we are only allowed to show a small portion of the field data and to give a limited discussion based on the performance, the comparison between traditional and proposed rank-reduction methods is adequate to show the superior performance of our proposed method. 
 In this example, roughly 80\% traces are missing from the regular grids. \new{Because of the high ratio of missing traces, the observed seismic traces do not show any spatial coherency. It is difficult to see the waveforms from the raw data. }

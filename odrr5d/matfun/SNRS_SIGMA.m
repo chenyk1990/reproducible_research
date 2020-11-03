@@ -78,7 +78,7 @@ end
 
 
 %% from Matlab to Madagascar
-snrs=[vars',snrs1',snrs2',snrs3'];
+snrs=[vars(:),snrs1,snrs2,snrs3];
 rsf_create(synth_drr_snrs,size(snrs)');
 rsf_write(snrs,synth_drr_snrs);
 

@@ -79,7 +79,7 @@ fprintf('rank=%g is done\n',ranks(i));
 end
 
 %% from Matlab to Madagascar
-snrs=[ranks',snrs1',snrs2',snrs3'];
+snrs=[ranks(:),snrs1,snrs2,snrs3];
 rsf_create(synth_drr_ranks,size(snrs)');
 rsf_write(snrs,synth_drr_ranks);
 
