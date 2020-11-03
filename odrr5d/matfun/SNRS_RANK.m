@@ -1,4 +1,4 @@
-function Hankel(H_clean,H_obs,H_rr,H_drr,H_odrr,H_rr10,H_drr10,H_odrr10)
+function SNRS_RANK(synth_drr_ranks)
 % Author      : Yangkang Chen
 % Date        : Oct, 2020
 % 
@@ -28,56 +28,59 @@ function Hankel(H_clean,H_obs,H_rr,H_drr,H_odrr,H_rr10,H_drr10,H_odrr10)
 load yc_synth5d.mat
 d=data5d;d=d/max(max(max(max(max(d)))));
 [nt,nhx,nhy,nx,ny]=size(d);
-
 %% simultaneous denoising and reconstruction
 randn('state',201314);
 var=0.25;
-dn=d+var*randn(size(d));
+n=randn(size(d));
+
 
 %% decimate
-[nt,nhx,nhy,nx,ny]=size(d);
+ranks=4:1:15;
+
+snrs0=zeros(length(ranks),1);
+snrs1=zeros(length(ranks),1);
+snrs2=zeros(length(ranks),1);
+snrs3=zeros(length(ranks),1);
+
 ratio=0.3;
+var=0.25;
+dn=d+var*n;
 mask=yc_genmask(reshape(d,nt,nhx*nhy*nx*ny),ratio,'c',201415);
 mask=reshape(mask,nt,nhx,nhy,nx,ny);
 d0=dn.*mask;
 
-%% reconstruct
-flow=0;fhigh=100;dt=0.004;N=10;NN=4;Niter=10;mode=1;verb=1;iflb=0;
+fprintf('N_ranks is %d\n',length(ranks));
+for i=1:length(ranks)
+
+N=ranks(i);
+
+%% parameters
+flow=5;fhigh=100;dt=0.004;Niter=10;mode=1;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-tic
-[d1,M_c,M_obs,M_rr,M_rr10]=drr5d_lb_recon_H(d0,d,mask,flow,fhigh,30,dt,N,Inf,Niter,eps,verb,mode,iflb,a);
-toc
 
-tic
-[d2,M_c,M_obs,M_drr,M_drr10]=drr5d_lb_recon_H(d0,d,mask,flow,fhigh,30,dt,N,NN,Niter,eps,verb,mode,iflb,a);
-toc
+%% reconstruct (RR)
+NN=Inf;
+d1=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
 
-tic
-[d3,M_c,M_obs,M_odrr,M_odrr10]=drr5d_lb_recon_H(d0,d,mask,flow,fhigh,30,dt,N,NN,Niter,eps,verb,mode,2,a);
-toc
+%% reconstruct (DRR)
+NN=4;
+d2=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
+
+%% reconstruct (ODRR)
+iflb=2;
+d3=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
+
+snrs0(i)=yc_snr(d(:),d0(:));
+snrs1(i)=yc_snr(d(:),d1(:));
+snrs2(i)=yc_snr(d(:),d2(:));
+snrs3(i)=yc_snr(d(:),d3(:));
+
+fprintf('rank=%g is done\n',ranks(i));
+end
 
 %% from Matlab to Madagascar
-rsf_create(H_clean,size(M_c)');
-rsf_write(abs(M_c),H_clean);
+snrs=[ranks',snrs1',snrs2',snrs3'];
+rsf_create(synth_drr_ranks,size(snrs)');
+rsf_write(snrs,synth_drr_ranks);
 
-rsf_create(H_obs,size(M_obs)');
-rsf_write(abs(M_obs),H_obs);
-
-rsf_create(H_rr,size(M_rr)');
-rsf_write(abs(M_rr),H_rr);
-
-rsf_create(H_drr,size(M_drr)');
-rsf_write(abs(M_drr),H_drr);
-
-rsf_create(H_odrr,size(M_odrr)');
-rsf_write(abs(M_odrr),H_odrr);
-
-rsf_create(H_rr10,size(M_rr10)');
-rsf_write(abs(M_rr10),H_rr10);
-
-rsf_create(H_drr10,size(M_drr10)');
-rsf_write(abs(M_drr10),H_drr10);
-
-rsf_create(H_odrr10,size(M_odrr10)');
-rsf_write(abs(M_odrr10),H_odrr10);
 

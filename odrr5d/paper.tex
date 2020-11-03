@@ -361,31 +361,17 @@ where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ deno
 \plot{figure10}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=5$. }
 \plot{figure11}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstruction error using the RR method. (b) Reconstruction error using the DRR method. (c) Reconstruction error using the ORR method. In this case, $rank=5$. }
 
+\inputdir{snrs_sigma}
+\plot{snr-n}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the noise level (variance value). Note that the proposed approach outperforms the traditional methods more and more as the noise level increases.}
+
+\inputdir{snrs_ratio}
+
+\plot{snr-r}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the sampling ratio (in percent). \new{It is obvious that the difference between the ORR method and the DRR method becomes larger as the sampling ratio increases. The ORR method always outperforms the other methods for all sampling ratios. }}
 
 
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/synth_vars}
-%	\caption{SNR diagrams of the different approaches with respect to the noise level (variance value). Note that the proposed approach outperforms the traditional methods more and more as the noise level increases.}
-%	\label{fig:synth_vars}
-%\end{figure}
-%
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/synth_ratios}
-%	\caption{SNR diagrams of the different approaches with respect to the sampling ratio (in percent). \new{It is obvious that the difference between the ORR method and the DRR method becomes larger as the sampling ratio increases. The ORR method always outperforms the other methods for all sampling ratios. }}
-%	\label{fig:synth_ratios}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=\textwidth]{Fig/synth_ranks}
-%	\caption{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}}
-%	\label{fig:synth_ranks}
-%\end{figure}
 
-
+\inputdir{snrs_rank}
+\plot{snr-rank}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}
 
 
 %\begin{figure}
@@ -485,11 +471,11 @@ where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ deno
 }
 
 
-To test the sensitivities of each method to input noise level, we vary the variance of the additive random noise from 0.1 to 0.9 and calculate the output SNRs corresponding to different methods and draw the diagrams in Figure \ref{fig:synth_vars}. The black line corresponds to the input SNR curve. The blue, red, and green lines correspond to the RR, DRR, and ORR methods, respectively. As the noise variance increases, the input SNR decreases, and so do the output SNRs of the three methods. However, the proposed method always outperforms the other two methods. It is worth noting that as the noise variance becomes larger, the differences between the proposed method and the other methods are also larger, which indicates that the proposed method is more effective for stronger noise.
+To test the sensitivities of each method to input noise level, we vary the variance of the additive random noise from 0.1 to 0.9 and calculate the output SNRs corresponding to different methods and draw the diagrams in Figure \ref{fig:snr-n}. The black line corresponds to the input SNR curve. The blue, red, and green lines correspond to the RR, DRR, and ORR methods, respectively. As the noise variance increases, the input SNR decreases, and so do the output SNRs of the three methods. However, the proposed method always outperforms the other two methods. It is worth noting that as the noise variance becomes larger, the differences between the proposed method and the other methods are also larger, which indicates that the proposed method is more effective for stronger noise.
 
-To test the effectiveness of each method in situations with different sampling ratios, we vary the sampling ratio from 10\% to 90\%, and draw the input and output SNR curves in Figure \ref{fig:synth_ratios}. The colorful lines have the same meaning in this case. As we can see from Figure \ref{fig:synth_ratios}, the input SNR decreases with increasing sampling ratio. The output SNRs increase with increasing sampling ratios. It is clear that the output SNR curve of the proposed method is always above the other curves. The proposed method outperforms other two methods more when sampling ratio is higher. 
+To test the effectiveness of each method in situations with different sampling ratios, we vary the sampling ratio from 10\% to 90\%, and draw the input and output SNR curves in Figure \ref{fig:snr-r}. The colorful lines have the same meaning in this case. As we can see from Figure \ref{fig:snr-r}, the input SNR decreases with increasing sampling ratio. The output SNRs increase with increasing sampling ratios. It is clear that the output SNR curve of the proposed method is always above the other curves. The proposed method outperforms other two methods more when sampling ratio is higher. 
 
-To test the sensitivities of different methods to the input parameter, i.e., the predefined \old{appealing rank}\new{rank}, we vary the rank from 4 to 15 and draw the SNR curves in Figure \ref{fig:synth_ranks}. Both RR and DRR methods decrease fast as the predefined rank increases while the SNR curve of the proposed ORR method is almost flat and is also above the other two curves. This test indicates that while the RR and DRR are more or less sensitive to the predefined rank, the proposed method is almost parameter-free, which makes the ORR method convenient to use in realistic situations. 
+To test the sensitivities of different methods to the input parameter, i.e., the predefined \old{appealing rank}\new{rank}, we vary the rank from 4 to 15 and draw the SNR curves in Figure \ref{fig:snr-rank}. Both RR and DRR methods decrease fast as the predefined rank increases while the SNR curve of the proposed ORR method is almost flat and is also above the other two curves. This test indicates that while the RR and DRR are more or less sensitive to the predefined rank, the proposed method is almost parameter-free, which makes the ORR method convenient to use in realistic situations. 
 
 To compare the computational cost of different methods, we measure the computing time for the synthetic example with linear events. The computation is done on a MacBook Pro laptop equipped with an Intel Core i7 CPU clocked at 2.5 GHz and 16 GB of RAM. The detailed computing time comparison is shown in Table \ref{tbl:time}. It shows that the computational cost of the ORR method is higher than the other two methods.  The RR and DRR methods have almost the same computational cost while the proposed method costs 2-5 times more than the other two methods. 
 
@@ -506,7 +492,7 @@ We have introduced a new rank-reduction (RR) method for interpolating and denois
 
 
 \section{Acknowledgements}
-We would like to thank Dong Zhang and Weilin Huang for inspiring discussions. \new{We also thank Frederik Simons and two anonymous reviewers for constructive suggestions that greatly improved the manuscript.} The research is supported by the starting fund from Zhejiang University and the ``Thousand Youth Talents Plan of China''.
+We would like to thank Dong Zhang and Weilin Huang for inspiring discussions. \new{We also thank Frederik Simons and two anonymous reviewers for constructive suggestions that greatly improved the manuscript.} The research is supported by the starting fund from Zhejiang University.
 
 
 %\subsection{Appendix: local similarity}
@@ -532,7 +518,7 @@ We would like to thank Dong Zhang and Weilin Huang for inspiring discussions. \n
 %where $\mathbf{T}$ is a smoothing operator and $\lambda_1$ and $\lambda_2$ are two parameters controlling the physical dimensionality and enabling fast convergence when inversion is implemented iteratively. These two parameters can be chosen as $\lambda_1  = \Arrowvert\mathbf{B}^T\mathbf{B}\Arrowvert_2$ and $\lambda_2  = \Arrowvert\mathbf{A}^T\mathbf{A}\Arrowvert_2$.
 %
 \bibliographystyle{seg}
-\bibliography{dos5d}
+\bibliography{odrr}
 
 
 \newpage
