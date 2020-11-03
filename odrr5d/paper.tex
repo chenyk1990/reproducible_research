@@ -328,14 +328,14 @@ We first apply the proposed optimal rank-reduction method to a 5D synthetic data
 
 To examine the amplitude recovery quality, we select the 22nd traces from the clean data in Figure \ref{fig:figure1}(a) and from the three reconstructed data in Figure \ref{fig:figure2}, and draw them in Figure \ref{fig:figure4}. Figure \ref{fig:figure4}(a) shows the trace-by-trace comparison in the range of the whole trace and Figure \ref{fig:figure4}(b) shows the zoomed trade-by-trace comparison. The zooming part is highlighted by the red transparent rectangle shown in Figure \ref{fig:figure4}(a). From Figure \ref{fig:figure4} we can see that both RR and DRR methods (blue and red lines) cause strong fluctuations in the front part of the trace, while the proposed method obtains a result (the green line) that is the closest to the exact solution (the black line). The observation is even clearer in the zoomed comparison shown in Figure \ref{fig:figure4}(b). Figure \ref{fig:figure5} shows the comparison of reconstruction error. The reconstruction error is calculated as the difference between the exact solution (Figure \ref{fig:figure1}(a)) and each reconstructed data shown in Figure \ref{fig:figure2}. From Figure \ref{fig:figure5} we can observe that both RR and DRR cause significant error and the proposed ORR method causes negligible reconstruction error except for some observable signal energy. The reconstruction error of RR method is higher than the DRR method, mostly because of the stronger residual noise caused by the RR method. Since the reconstruction error for the proposed method is mostly negligible, the error caused by the leakage signal energy becomes more apparent. To compare the leakage signal energy among three methods, we calculate the extra noise section of the RR and DRR methods. The extra noise section refers to the extra noise compared with the reference noise section from the ORR method (Figure \ref{fig:figure5}(c)), thus is calculated as the difference between the error from either RR or DRR method and the error from the ORR method. The extra noise sections corresponding to the RR and DRR methods are shown in Figure \ref{fig:figure6}. It is obvious that by calculating the extra error sections, the leakage useful energy from RR/DRR method and ORR method counteract each other and the resulting sections are mostly random noise. This observation indicates that the energy of the leakage signal for the three methods are nearly the same. We conclude from this test that despite the same damage to useful signals, the proposed method causes the least residual noise and thus obtains the cleanest reconstruction result.
 
-We also compare the level-four block Hankel matrices of different methods. Figures \ref{fig:H} and \ref{fig:H0} shows the Hankel matrices for the clean and incomplete data for the frequency slice of 30Hz. Figures \ref{fig:H_z} and \ref{fig:H0_z} show the zoomed Hankel matrices for the clean and incomplete data. The zooming areas are highlighted by the red rectangles shown in Figures \ref{fig:H} and \ref{fig:H0}. Because of the missing traces, the Hankel matrix contains a number of blank areas. Figure \ref{fig:Hs} shows the Hankel matrices for different methods. The left column correspond to the Hankel matrices after 1 iteration. The right column correspond to the Hankel matrices after 10 iterations. We only conclude from Figure \ref{fig:Hs} that after 10 iterations all three methods obtain similar Hankel matrices as the exact solution shown in Figure \ref{fig:H} but we cannot see the difference between different methods clearly. The differences between different methods can be clearly observed from the zoomed Hankel matrices, as shown in Figure \ref{fig:Hsz}. It is clear that from the top to bottom in Figure \ref{fig:Hsz}, the Hankel matrix becomes smoother and smoother and is closer to the exact solution shown in Figure \ref{fig:H_z}. 
+We also compare the level-four block Hankel matrices of different methods. Figures \ref{fig:H_clean} and \ref{fig:H_obs} shows the Hankel matrices for the clean and incomplete data for the frequency slice of 30Hz. Figures \ref{fig:H-z-clean} and \ref{fig:H-z-obs} show the zoomed Hankel matrices for the clean and incomplete data. The zooming areas are highlighted by the red rectangles shown in Figures \ref{fig:H_clean} and \ref{fig:H_obs}. Because of the missing traces, the Hankel matrix contains a number of blank areas. Figure \ref{fig:H_rr1,H_rr10,H_drr1,H_drr10,H_odrr1,H_odrr10} shows the Hankel matrices for different methods. The left column correspond to the Hankel matrices after 1 iteration. The right column correspond to the Hankel matrices after 10 iterations. We only conclude from Figure \ref{fig:H_rr1,H_rr10,H_drr1,H_drr10,H_odrr1,H_odrr10} that after 10 iterations all three methods obtain similar Hankel matrices as the exact solution shown in Figure \ref{fig:H_clean} but we cannot see the difference between different methods clearly. The differences between different methods can be clearly observed from the zoomed Hankel matrices, as shown in Figure \ref{fig:H-z-rr1,H-z-rr10,H-z-drr1,H-z-drr10,H-z-odrr1,H-z-odrr10}. It is clear that from the top to bottom in Figure \ref{fig:H-z-rr1,H-z-rr10,H-z-drr1,H-z-drr10,H-z-odrr1,H-z-odrr10}, the Hankel matrix becomes smoother and smoother and is closer to the exact solution shown in Figure \ref{fig:H-z-clean}. 
 
 In addition to the local similarity mentioned above, we also use the signal-to-noise ratio (SNR) defined as follows to quantitatively measure the performance \cite[]{weilin2016,yangkang2017sgk,weilin2017gji}:
 \begin{equation}
 \label{eq:dsnr}
 SNR=10\log_{10}\frac{\Arrowvert \mathbf{s} \Arrowvert_2^2}{\Arrowvert \mathbf{s} -\hat{\mathbf{s}}\Arrowvert_2^2}.
 \end{equation}
-where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ denotes the vectorized reconstructed data. In this example, the SNRs of the observed data, the reconstructed results via the RR method, the DRR method, and ORR method are -4.59 dB, 5.51 dB, 9.54 dB, and 11.83 dB, respectively. In this test, we use $rank=10$, assuming that we do not have a prior information about the structural complexity of the data and thus needing to set a relatively high rank. We then test the performance when the rank is chosen smaller. The reconstructed data when $rank=5$ are shown in Figure \ref{fig:syn_dn_N5}. Their corresponding error sections are shown in Figure \ref{fig:syn_e_N5}. From Figures \ref{fig:syn_dn_N5} and \ref{fig:syn_e_N5}, we can reach almost the same conclusion as the last test. In this case, the SNRs of the reconstructed results via the RR method, the DRR method, and ORR method are 8.01 dB, 10.87 dB, and 11.97 dB, respectively. The detailed SNR comparison is shown in Table \ref{tbl:plane}, including the case when $rank=3$. 
+where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ denotes the vectorized reconstructed data. In this example, the SNRs of the observed data, the reconstructed results via the RR method, the DRR method, and ORR method are -4.59 dB, 5.51 dB, 9.54 dB, and 11.83 dB, respectively. In this test, we use $rank=10$, assuming that we do not have a prior information about the structural complexity of the data and thus needing to set a relatively high rank. We then test the performance when the rank is chosen smaller. The reconstructed data when $rank=5$ are shown in Figure \ref{fig:figure10}. Their corresponding error sections are shown in Figure \ref{fig:figure11}. From Figures \ref{fig:figure10} and \ref{fig:figure11}, we can reach almost the same conclusion as the last test. In this case, the SNRs of the reconstructed results via the RR method, the DRR method, and ORR method are 8.01 dB, 10.87 dB, and 11.97 dB, respectively. The detailed SNR comparison is shown in Table \ref{tbl:plane}, including the case when $rank=3$. 
 
 
 \AtEndDocument{
@@ -349,70 +349,17 @@ where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ deno
 \plot{figure6}{width=0.8\textwidth}{Extra error comparison compared with the ORR method for the synthetic example (reshaped into a 2-D matrix) when $rank=10$. (a) Extra error caused by RR method (the difference between \ref{fig:figure5}(a) and \ref{fig:figure5}(c)). (b) Extra error caused by RR method (the difference between \ref{fig:figure5}(b) and \ref{fig:figure5}(c)). }
 
 
-%
-%\begin{figure}
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/H}
-%    \label{fig:H}}
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/H0}
-%    \label{fig:H0}}\\
-%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/H_z}
-%    \label{fig:H_z}}
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/H0_z}
-%    \label{fig:H0_z}}
-%	\caption{Hankel matrices for the clean and observed data for frequency slice of 30Hz. (a) Hankel matrix of the clean data. (b) Hankel matrix of the observed data. (c) \& (d) Zoomed Hankel matrices of (a) \& (b). The zooming area is highlighted by the red rectangles.}
-%	\label{fig:HH}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H1_1}
-%    \label{fig:H1_1}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H2_1}
-%    \label{fig:H2_1}}\\
-%	\subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H1_2}
-%    \label{fig:H1_2}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H2_2}
-%    \label{fig:H2_2}}\\
-%	\subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H1_3}
-%    \label{fig:H1_3}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H2_3}
-%    \label{fig:H2_3}}
-%	\caption{Hankel matrices for different methods for frequency slice of 30Hz. Left column: Hankel matrix after 1 iteration. Right: Hankel matrix after 10 iterations. Top row: Hankel matrices for the RR method. Middle row: Hankel matrix for the DRR method. Bottom row: Hankel matrix for the ORR method.}
-%	\label{fig:Hs}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H1_1_z}
-%    \label{fig:H1_1_z}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H2_1_z}
-%    \label{fig:H2_1_z}}\\
-%	\subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H1_2_z}
-%    \label{fig:H1_2_z}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H2_2_z}
-%    \label{fig:H2_2_z}}\\
-%	\subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H1_3_z}
-%    \label{fig:H1_3_z}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{Fig/H2_3_z}
-%    \label{fig:H2_3_z}}
-%	\caption{Zoomed Hankel matrices for different methods for frequency slice of 30Hz. Left column: Hankel matrix after 1 iteration. Right: Hankel matrix after 10 iterations. Top row: Hankel matrices for the RR method. Middle row: Hankel matrix for the DRR method. Bottom row: Hankel matrix for the ORR method.}
-%	\label{fig:Hsz}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.8\textwidth]{Fig/syn_dn_N5}
-%	\caption{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=5$.}
-%	\label{fig:syn_dn_N5}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.8\textwidth]{Fig/syn_e_N5}
-%	\caption{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstruction error using the RR method. (b) Reconstruction error using the DRR method. (c) Reconstruction error using the ORR method. In this case, $rank=5$. }
-%	\label{fig:syn_e_N5}
-%\end{figure}
+\inputdir{hankel}
+\multiplot{4}{H_clean,H_obs,H-z-clean,H-z-obs}{width=0.45\textwidth}{Hankel matrices for the clean and observed data for frequency slice of 30Hz. (a) Hankel matrix of the clean data. (b) Hankel matrix of the observed data. (c) \& (d) Zoomed Hankel matrices of (a) \& (b). The zooming area is highlighted by the red rectangles.}
+
+\multiplot{6}{H_rr1,H_rr10,H_drr1,H_drr10,H_odrr1,H_odrr10}{width=0.35\textwidth}{Hankel matrices for different methods for frequency slice of 30Hz. Left column: Hankel matrix after 1 iteration. Right: Hankel matrix after 10 iterations. Top row: Hankel matrices for the RR method. Middle row: Hankel matrix for the DRR method. Bottom row: Hankel matrix for the ORR method.}
+
+\multiplot{6}{H-z-rr1,H-z-rr10,H-z-drr1,H-z-drr10,H-z-odrr1,H-z-odrr10}{width=0.35\textwidth}{Zoomed Hankel matrices for different methods for frequency slice of 30Hz. Left column: Hankel matrix after 1 iteration. Right: Hankel matrix after 10 iterations. Top row: Hankel matrices for the RR method. Middle row: Hankel matrix for the DRR method. Bottom row: Hankel matrix for the ORR method.}
+
+
+\inputdir{synth2}
+\plot{figure10}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=5$. }
+\plot{figure11}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstruction error using the RR method. (b) Reconstruction error using the DRR method. (c) Reconstruction error using the ORR method. In this case, $rank=5$. }
 
 
 
