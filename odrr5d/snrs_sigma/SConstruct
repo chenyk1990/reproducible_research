@@ -2,10 +2,10 @@ from rsf.proj import*
 from rsf.prog import RSFROOT
 
 def Graph(data,other):
-	Result(data,'graph label1="Noise variances" label2="SNR (dB)" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t plotfat=10 %s' %other)
+	Result(data,'graph label1="Noise variance" label2="SNR (dB)" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t plotfat=10 %s' %other)
 	
 def Graphplot(data,other):
-	Plot(data,'graph label1="Noise variances" label2="SNR" unit2=dB labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t plotfat=10 %s' %other)
+	Plot(data,'graph label1="Noise variance" label2="SNR" unit2=dB labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t plotfat=10 %s' %other)
 	
 
 ########################################################################
@@ -50,13 +50,13 @@ Graphplot('snr3st','min2=-6 max2=20   plotcol=6 wantaxis=n')
 
 Plot('label1',None,
 	'''
-	box x0=6.7 y0=3.95 label="RR" xt=-0.5 yt=-0.5 length=1 
+	box x0=5.4 y0=3.95 label="RR" xt=-0.5 yt=-0.5 length=1 
 	''')
 Plot('label2',None,
 	'''
-	box x0=8 y0=4.8 label="DRR" xt=0.5 yt=0.5 length=1 
+	box x0=8.7 y0=3.8 label="DRR" xt=0.5 yt=0.5 length=1 
 	''')
-Plot('label2',None,
+Plot('label3',None,
 	'''
 	box x0=8.5 y0=4.8 label="ORR" xt=0.5 yt=0.5 length=1 
 	''')

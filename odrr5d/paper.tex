@@ -361,18 +361,18 @@ where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ deno
 \plot{figure10}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstructed data using the RR method. (b) Reconstructed data using the DRR method. (c) Reconstructed data using the ORR method.  In this case, $rank=5$. }
 \plot{figure11}{width=0.8\textwidth}{Common offset gather comparison for the synthetic example (reshaped into a 2-D matrix). (a) Reconstruction error using the RR method. (b) Reconstruction error using the DRR method. (c) Reconstruction error using the ORR method. In this case, $rank=5$. }
 
-%\inputdir{snrs_sigma}
-%\plot{snr-n}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the noise level (variance value). Note that the proposed approach outperforms the traditional methods more and more as the noise level increases.}
-%
-%\inputdir{snrs_ratio}
-%
-%\plot{snr-r}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the sampling ratio (in percent). \new{It is obvious that the difference between the ORR method and the DRR method becomes larger as the sampling ratio increases. The ORR method always outperforms the other methods for all sampling ratios. }}
-%
-%
+\inputdir{snrs_sigma}
+\plot{snr-n}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the noise level (variance value). Note that the proposed approach outperforms the traditional methods more and more as the noise level increases.}
 
-%\inputdir{snrs_rank}
-%\plot{snr-rank}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}}
-%
+\inputdir{snrs_ratio}
+
+\plot{snr-r}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the sampling ratio (in percent). \new{It is obvious that the difference between the ORR method and the DRR method becomes larger as the sampling ratio increases. The ORR method always outperforms the other methods for all sampling ratios. }}
+
+
+
+\inputdir{snrs_rank}
+\plot{snr-rank}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}}
+
 %
 %\inputdir{hyper}
 %\multiplot{3}{hyper-clean-xy,hyper-noisy-xy,hyper-obs-xy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) Incomplete data. The blanks in (c) indicate where there are missing traces. }

@@ -47,19 +47,19 @@ Graphplot('snr3s','min2=0 max2=20 symbol="*" symbolsz=10 plotcol=6 wantaxis=n')
 
 Graphplot('snr1st','min2=0 max2=20   plotcol=3 wantaxis=n')
 Graphplot('snr2st','min2=0 max2=20   plotcol=5 wantaxis=n')
-Graphplot('snr3st','min2=0 max2=20   plotcol=5 wantaxis=n')
+Graphplot('snr3st','min2=0 max2=20   plotcol=6 wantaxis=n')
 
 Plot('label1',None,
 	'''
-	box x0=8.7 y0=5.1 label="RR" xt=0.5 yt=-0.5 length=1 
+	box x0=8.5 y0=4.1 label="RR" xt=0.5 yt=-0.5 length=1 
 	''')
 Plot('label2',None,
 	'''
-	box x0=5.1 y0=6 label="DRR" xt=-0.5 yt=0.5 length=1 
+	box x0=5.1 y0=5 label="DRR" xt=-0.5 yt=0.5 length=1 
 	''')
-Plot('label2',None,
+Plot('label3',None,
 	'''
-	box x0=5.5 y0=6 label="ORR" xt=-0.5 yt=0.5 length=1 
+	box x0=6.5 y0=6.8 label="ORR" xt=-0.5 yt=0.5 length=1 
 	''')
 			
 Result('snr-r','snr1s snr2s snr3s snr1st snr2st snr3st label1 label2 label3','Overlay')
