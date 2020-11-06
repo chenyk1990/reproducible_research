@@ -30,7 +30,7 @@ def Greys(data,other):
 def Grey3s(data,other,clip):
 	Result(data,
        '''
-       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       byte clip=%g  gainpanel=all  bias=0.4 bar=bar.rsf|
        grey3 flat=n frame1=40 frame2=2 frame3=5 
        point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
        screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
@@ -106,6 +106,25 @@ Grey3s('hyper-rr2-xy-simi','title=RR',1.0)
 Grey3s('hyper-drr2-xy-simi','title=DRR',1.0) 
 Grey3s('hyper-odrr2-xy-simi','title=ORR',1.0) 
 
+Flow('hyper-noisy-hxhy-simi','hyper-clean-hxhy hyper-noisy-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-obs-hxhy-simi','hyper-clean-hxhy hyper-obs-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-rr-hxhy-simi','hyper-clean-hxhy hyper-rr-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-drr-hxhy-simi','hyper-clean-hxhy hyper-drr-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-odrr-hxhy-simi','hyper-clean-hxhy hyper-odrr-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-rr2-hxhy-simi','hyper-clean-hxhy hyper-rr2-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-drr2-hxhy-simi','hyper-clean-hxhy hyper-drr2-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+Flow('hyper-odrr2-hxhy-simi','hyper-clean-hxhy hyper-odrr2-hxhy','similarity other=${SOURCES[1]} rect1=2 rect2=2 rect3=2')
+
+Grey3s('hyper-noisy-hxhy-simi','title=Noisy',0.60)
+Grey3s('hyper-obs-hxhy-simi','title=Observed',0.60)
+Grey3s('hyper-rr-hxhy-simi','title=RR',0.60)
+Grey3s('hyper-drr-hxhy-simi','title=DRR',0.60) 
+Grey3s('hyper-odrr-hxhy-simi','title=ORR',0.60) 
+Grey3s('hyper-rr2-hxhy-simi','title=RR',0.60)
+Grey3s('hyper-drr2-hxhy-simi','title=DRR',0.60) 
+Grey3s('hyper-odrr2-hxhy-simi','title=ORR',0.60) 
+
+
 
 Flow('hyper-clean-hxhy','hyper-noisy','window n4=1 n5=1 f4=3 f5=3')
 Flow('hyper-noisy-hxhy','hyper-noisy','window n4=1 n5=1 f4=3 f5=3')
@@ -145,6 +164,7 @@ Flow('hyper-z-clean','hyper-clean2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Flow('hyper-z-obs','hyper-obs2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Flow('hyper-z-rr','hyper-rr2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Flow('hyper-z-drr','hyper-drr2d','window f2=384 n2=256 min1=0.05 max2=0.15')
+Flow('hyper-z-odrr','hyper-odrr2d','window f2=384 n2=256 min1=0.05 max2=0.15')
 Grey('hyper-z-clean','title=Observed screenratio=0.75')
 Grey('hyper-z-obs','title=Observed screenratio=0.75')
 Grey('hyper-z-rr','title=RR  screenratio=0.75')
@@ -155,6 +175,7 @@ Flow('hyper-z1-clean','hyper-clean2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Flow('hyper-z1-obs','hyper-obs2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Flow('hyper-z1-rr','hyper-rr2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Flow('hyper-z1-drr','hyper-drr2d','window f2=1 n2=150 min1=0.02 max2=0.25')
+Flow('hyper-z1-odrr','hyper-odrr2d','window f2=1 n2=150 min1=0.02 max2=0.25')
 Grey('hyper-z1-clean','title=Observed screenratio=0.75')
 Grey('hyper-z1-obs','title=Observed screenratio=0.75')
 Grey('hyper-z1-rr','title=RR  screenratio=0.75')

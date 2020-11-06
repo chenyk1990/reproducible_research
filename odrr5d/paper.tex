@@ -373,12 +373,12 @@ where $\mathbf{s}$ denotes the vectorized clean data and $\hat{\mathbf{s}}$ deno
 \inputdir{snrs_rank}
 \plot{snr-rank}{width=0.8\textwidth}{SNR diagrams of the different approaches with respect to the selected rank. \new{The ORR method is obviously much less sensitive to the rank compared with other two methods. This phenomenon indicates that the ORR method can be applied as an adaptive method by setting a relatively large rank.}}
 
-%
-%\inputdir{hyper}
-%\multiplot{3}{hyper-clean-xy,hyper-noisy-xy,hyper-obs-xy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) Incomplete data. The blanks in (c) indicate where there are missing traces. }
-%\multiplot{6}{hyper-rr-xy,hyper-drr-xy,hyper-odrr-xy,hyper-rr2-xy,hyper-drr2-xy,hyper-odrr2-xy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The SNR comparisons are shown in Table \ref{tbl:hyper}. }
-%
-%\multiplot{6}{hyper-rr-xy-simi,hyper-drr-xy-simi,hyper-odrr-xy-simi,hyper-rr2-xy-simi,hyper-drr2-xy-simi,hyper-odrr2-xy-simi}{width=0.3\textwidth}{Local similarity comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The introduction of local similarity is given in \cite{yangkang2015ortho}. }
+
+\inputdir{hyper}
+\multiplot{3}{hyper-clean-hxhy,hyper-noisy-hxhy,hyper-obs-hxhy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) Incomplete data. The blanks in (c) indicate where there are missing traces. }
+\multiplot{6}{hyper-rr-hxhy,hyper-drr-hxhy,hyper-odrr-hxhy,hyper-rr2-hxhy,hyper-drr2-hxhy,hyper-odrr2-hxhy}{width=0.3\textwidth}{Common midpoint gather comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The SNR comparisons are shown in Table \ref{tbl:hyper}. }
+
+\multiplot{6}{hyper-rr-hxhy-simi,hyper-drr-hxhy-simi,hyper-odrr-hxhy-simi,hyper-rr2-hxhy-simi,hyper-drr2-hxhy-simi,hyper-odrr2-hxhy-simi}{width=0.3\textwidth}{Local similarity comparison for the synthetic example with hyperbolic events. Top row shows results when $rank=12$. Bottom row shows results when $rank=24$. Left: Reconstructed data using the RR method. Middle: Reconstructed data using the DRR method. Right Reconstructed data using the ORR method. The introduction of local similarity is given in \cite{yangkang2015ortho}. }
 
 
 
