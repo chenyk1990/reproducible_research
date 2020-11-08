@@ -39,7 +39,9 @@ function [dout]=yc_sgk_recon5d(d0,mask,mode,l,s,perc,niter,a,param)
 % test/test_yc_sgk_recon5d.m
 % 
 % References:
-% Wang et al., 2020, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, % Chen, Y., 2020, Fast dictionary learning for noise attenuation of multidimensional seismic data, Geophysical Journal International, 222, 1717-1727.
+% Wang et al., 2020, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, 
+% Chen, Y., 2020, Fast dictionary learning for noise attenuation of multidimensional seismic data, Geophysical Journal International, 222, 1717-1727.
+
 [n1,n2,n3,n4,n5]=size(d0);
 d1=d0;
 
