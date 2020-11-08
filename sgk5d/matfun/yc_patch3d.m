@@ -1,23 +1,25 @@
-function [ X ] = yc_patch( A,mode,l1,l2,o1,o2 )
-%decompose the image into patches:
-%  
-% by Yangkang Chen
-% Oct, 2017
+function [ X ] = yc_patch3d( A,mode,l1,l2,l3,s1,s2,s3)
+%decompose 3D data into patches:
 %
-% Input: 
+% by Yangkang Chen
+% March, 2020
+%
+% Input:
 %   D: input image
 %   mode: patching mode
 %   l1: first patch size
 %   l2: second patch size
-%   o1: first shifting size
-%   o2: second shifting size
-%   
+%   l3: third patch size
+%   s1: first shifting size
+%   s2: second shifting size
+%   s3: third shifting size
+%
 % Output:
 %   X: patches
-% 
+%
 % Modified on Dec 12, 2018 (the edge issue, arbitrary size for the matrix)
-% 		      Dec 31, 2018 (tmp1=mod(n1,l1) -> tmp1=mod(n1-l1,o1))
-% 
+% 		      Dec 31, 2018 (tmp1=mod(n1,l1) -> tmp1=mod(n1-l1,s1))
+%
 % References:
 % Wang et al., 2020, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, doi: 10.1109/TGRS.2020.3030740
 % Siahsar, M. A. N., Gholtashi, S., Kahoo, A. R., W. Chen, and Y. Chen, 2017, Data-driven multi-task sparse dictionary learning for noise attenuation of 3D seismic data, Geophysics, 82, V385-V396.
@@ -30,43 +32,55 @@ function [ X ] = yc_patch( A,mode,l1,l2,o1,o2 )
 % Chen, Y., J. Ma, and S. Fomel, 2016, Double-sparsity dictionary for seismic noise attenuation, Geophysics, 81, V17-V30.
 % Zu, S., H. Zhou, R. Wu, M. Jiang, and Y. Chen, 2019, Dictionary learning based on dip patch selection training for random noise attenuation, Geophysics, 84, V169?V183.
 % Zu, S., H. Zhou, R. Wu, and Y. Chen, 2019, Hybrid-sparsity constrained dictionary learning for iterative deblending of extremely noisy simultaneous-source data, IEEE Transactions on Geoscience and Remote Sensing, 57, 2249-2262.
+% 
+% etc. 
+% 
+% Examples:
+%    ~/test/test_yc_ksvd_denoise3d.m
 
-
-%% patch size l1*l2
-%l1=8;l2=8;
+%% patch size l1*l2*l3
+%l1=4;l2=4;l3=4;
 %
 
-[n1,n2]=size(A);
+[n1,n2,n3]=size(A);
 
 if mode==1 %possible for other patching options
-
-if nargin==2
-   l1=8;l2=8;o1=4;o2=4; 
-end
-
-if nargin==4
-   o1=round(l1/2);o2=round(l2/2);
-end
-
-tmp=mod(n1-l1,o1);
-if tmp~=0
-   A=[A;zeros(o1-tmp,n2)]; 
-end
-tmp=mod(n2-l2,o2);
-if tmp~=0
-   A=[A,zeros(size(A,1),o2-tmp)]; 
-end
-
-
-
-[N1,N2]=size(A);
- X=[];
-for i1=1:o1:N1-l1+1
-    for i2=1:o2:N2-l2+1
-        tmp=reshape(A(i1:i1+l1-1,i2:i2+l2-1),l1*l2,1);
-        X=[X,tmp];  
+    
+    if nargin==2
+        l1=4;l2=4;l3=4;s1=4;s2=4;s3=4;
     end
-end   
+    
+    if nargin==4
+        s1=round(l1/2);s2=round(l2/2);s3=round(l3/2);
+    end
+    
+    tmp=mod(n1-l1,s1);
+    if tmp~=0
+        A=[A;zeros(s1-tmp,n2,n3)];
+    end
+    
+    tmp=mod(n2-l2,s2);
+    if tmp~=0
+        A=[A,zeros(size(A,1),s2-tmp,n3)];
+    end
+    
+    tmp=mod(n3-l3,s3);
+    if tmp~=0
+        A=cat(3,A,zeros(size(A,1),size(A,2),s3-tmp));%concatenate along the third dimension
+    end
+    
+    
+    
+    [N1,N2,N3]=size(A);
+    X=[];
+    for i1=1:s1:N1-l1+1
+        for i2=1:s2:N2-l2+1
+            for i3=1:s3:N3-l3+1
+                tmp=reshape(A(i1:i1+l1-1,i2:i2+l2-1,i3:i3+l3-1),l1*l2*l3,1);
+                X=[X,tmp];
+            end
+        end
+    end
     
 end
 

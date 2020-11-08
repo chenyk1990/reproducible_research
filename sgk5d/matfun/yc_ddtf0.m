@@ -1,6 +1,6 @@
 function [D,G]=yc_ddtf0(X,param)
 %yc_ddtf0: DDTF algorithm
-% BY Yangkang Chen
+% BY Yangkang Chen and Hang Wang
 % Jan, 2020
 %
 % INPUT
@@ -21,6 +21,9 @@ function [D,G]=yc_ddtf0(X,param)
 % size of G: KxN
 %
 % DEMO: test/test_yc_ddtf.m
+%
+% References:
+% Wang et al., 2020, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, % Chen, Y., 2020, Fast dictionary learning for noise attenuation of multidimensional seismic data, Geophysical Journal International, 222, 1717-1727.
 
 T=param.T;
 niter=param.niter;

@@ -1,6 +1,5 @@
 function [D,G]=yc_sgk(X,param)
-% ~/chenyk.data2/various/packages/SGK_v2/
-%yc_ksvd: K-SVD algorithm
+% yc_ksvd: K-SVD algorithm
 % BY Yangkang Chen
 % Jan, 2020
 %
@@ -22,6 +21,9 @@ function [D,G]=yc_sgk(X,param)
 % size of G: KxN
 %
 % DEMO: test/test_yc_sgk.m
+%
+% References:
+% Wang et al., 2020, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, % Chen, Y., 2020, Fast dictionary learning for noise attenuation of multidimensional seismic data, Geophysical Journal International, 222, 1717-1727.
 
 T=param.T;%T=1; %requred by SGK
 niter=param.niter;
