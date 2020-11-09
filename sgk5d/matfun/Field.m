@@ -1,4 +1,4 @@
-function Field(clean,noisy,obs,sgk,ksvd,ddtf,mssa,mssasgk,T,niter,nniter,K,ll1,ll2,ll3,ss1,ss2,ss3,perc)
+function Field(obs,sgk,ksvd,ddtf,mssa,mssasgk,T,niter,nniter,K,ll1,ll2,ll3,ss1,ss2,ss3,perc)
 % Author      : Hang Wang and Yangkang Chen
 %               Zhejiang University
 %         
@@ -28,26 +28,7 @@ function Field(clean,noisy,obs,sgk,ksvd,ddtf,mssa,mssasgk,T,niter,nniter,K,ll1,l
 %  Chen, 2020, Fast dictionary learning for noise attenuation of multidimensional seismic data, GJI, 222, 1717??1727.
 
 %% create data
-fid=fopen('./real3d.bin','r');
-dc=fread(fid,[300,1000],'float');
-dc=reshape(dc,300,100,10);
-
-%% without noise
-dn=dc;
-
-%% decimate
-[nt,nx,ny]=size(dc);
-ratio=0.5;
-mask=yc_genmask(reshape(dc,nt,nx*ny),ratio,'c',201415);
-mask=reshape(mask,nt,nx,ny);
-d0=dn.*mask;
-
-%% simultaneous denoising and reconstruction
-% adding noise
-randn('state',201314);
-var=0.1;
-dn=dc+var*reshape(bpn(nt,nx*ny,0.004,0,1,35,36,201920),nt,nx,ny);
-d0=dn.*mask;
+load real3d.mat
 
 %benchmark with FXYMSSA
 flow=0;fhigh=125;dt=0.004;N=10;Niter=10;mode=1;verb=1;
@@ -62,20 +43,16 @@ param.d0=d4;%param=rmfield(param,'d0');
 tic;
 d1=yc_sgk_recon(d0,mask,mode,[l1,l2,l3],[s1,s2,s3],perc,Niter,a,param);
 toc;
-yc_snr(dc,d1,2)
-%figure;imagesc([dc(:,:,10),dn(:,:,10),d0(:,:,10),d1(:,:,10)]);colormap(seis);
 
 %% KSVD
 tic;
 d2=yc_ksvd_recon(d0,mask,mode,[l1,l2,l3],[s1,s2,s3],perc,Niter,a,param);
 toc;
-yc_snr(dc,d2,2)
 
 %% DDTF
 tic;
 d3=yc_ddtf_recon(d0,mask,mode,[l1,l2,l3],[s1,s2,s3],perc,Niter,a,param);
 toc;
-yc_snr(dc,d3,2)
 
 %% using d4 as initial model
 param=struct('T',10,'niter',10,'mode',1,'K',128);
@@ -84,22 +61,6 @@ param.d0=d4;%param=rmfield(param,'d0');
 tic;
 d5=yc_sgk_recon(d0,mask,mode,[l1,l2,l3],[s1,s2,s3],perc,Niter,a,param);
 toc;
-yc_snr(dc,d5,2)
-
-yc_snr(dc,dn,2) 
-yc_snr(dc,d0,2) 
-yc_snr(dc,d1,2) 
-yc_snr(dc,d2,2) 
-yc_snr(dc,d3,2) 
-yc_snr(dc,d4,2) 
-yc_snr(dc,d5,2) 
-
-
-rsf_create(clean,size(dc)');
-rsf_write(dc,clean);
-
-rsf_create(noisy,size(dn)');
-rsf_write(dn,noisy);
 
 rsf_create(obs,size(d0)');
 rsf_write(d0,obs);
