@@ -82,7 +82,7 @@ OMP algorithm can provide an optimal linear combination of the selected atoms to
 
 \multiplot{6}{synth-s-clean,synth-s-noisy,synth-s-obs,synth-s-ksvd,synth-s-ddtf,synth-s-sgk}{width=0.3\columnwidth}{\new{2D slice comparison of the synthetic example. (a) Clean data. (b) Noisy data. (c) Observed data. (d) Reconstructed data using KSVD. (e) Reconstructed data using DDTF. (f) Reconstructed data using SGK.}}
 
-\plot{synth-ss}{width=\columnwidth}{width=0.3\columnwidth}{Single-trace comparison. The black line corresponds to the ground-truth solution. The green line corresponds to the noisy data. The pink line corresponds to the proposed method, which is closest to the black line. The red line corresponds to the KSVD method. The blue line corresponds to the DDTF method.}
+\plot{synth-ss}{width=\columnwidth}{Single-trace comparison. The black line corresponds to the ground-truth solution. The green line corresponds to the noisy data. The pink line corresponds to the proposed method, which is closest to the black line. The red line corresponds to the KSVD method. The blue line corresponds to the DDTF method.}
 
 \multiplot{2}{synth-mssa,synth-mssasgk}{width=0.30\columnwidth}{Reconstructed data using (a) MSSA (SNR=9.51 dB), and (b) SGK with (a) as the initialization model (SNR=12.22 dB).}
 
@@ -247,7 +247,7 @@ where $\alpha_m$ is a relaxing parameter that linearly decreases from 1 to 0 thr
 \inputdir{hyper}
 \multiplot{3}{hyper-clean,hyper-noisy,hyper-obs}{width=0.30\columnwidth}{Synthetic example with hyperboloid events. (a) Clean data. (b) Noisy data (SNR=6.93 dB). (c) Observed data with 50\% randomly missing traces (SNR=2.21 dB).}
 
-\multiplot{4}{hyper-mssa,hyper-ksvd,hyper-ddtf,hyper-sgk}{width=0.30\columnwidth}{Reconstructed data using (a) Rank-reduction method (SNR=9.68 dB), (b) KSVD (SNR=10.84 dB), (c) DDTF (SNR=11.45 dB), and (d) SGK (SNR=11.00 dB). All DL based methods use the result from the rank-reduction method as the initial model.}
+\multiplot{4}{hyper-mssa,hyper-ksvd,hyper-ddtf,hyper-sgk}{width=0.40\columnwidth}{Reconstructed data using (a) Rank-reduction method (SNR=9.68 dB), (b) KSVD (SNR=10.84 dB), (c) DDTF (SNR=11.45 dB), and (d) SGK (SNR=11.00 dB). All DL based methods use the result from the rank-reduction method as the initial model.}
 
 \multiplot{3}{hyper-ksvd-simi,hyper-ddtf-simi,hyper-sgk-simi}{width=0.30\columnwidth}{Similarity comparison of reconstructed data using (a) KSVD, (b) DDTF, and (c) SGK.}
 
@@ -283,10 +283,10 @@ We first test the performance of different algorithms to a 3D synthetic data wit
 
 
 \inputdir{field}
-\multiplot{4}{f-obs,f-ksvd,f-ddtf,f-sgk}}{width=0.30\columnwidth}{\new{3D Field data example. (a) Observed data. Reconstructed data using (b) KSVD, (c) DDTF, and (d) SGK.}}
-\multiplot{4}{f-s-obs0,f-s-ksvd0,f-s-ddtf0,f-s-sgk0}{width=0.30\columnwidth}{2D slice comparison of the field data example. (a) Observed data. (b) Reconstructed data using KSVD. (c) Reconstructed data using DDTF. (d) Reconstructed data using SGK. The frame boxes are zoomed and shown in Figure \ref{fig:fz-obs,fz-ksvd,fz-ddtf,fz-sgk}.}
+\multiplot{4}{f-obs,f-ksvd,f-ddtf,f-sgk}{width=0.40\columnwidth}{\new{3D Field data example. (a) Observed data. Reconstructed data using (b) KSVD, (c) DDTF, and (d) SGK.}}
+\multiplot{4}{f-s-obs0,f-s-ksvd0,f-s-ddtf0,f-s-sgk0}{width=0.40\columnwidth}{2D slice comparison of the field data example. (a) Observed data. (b) Reconstructed data using KSVD. (c) Reconstructed data using DDTF. (d) Reconstructed data using SGK. The frame boxes are zoomed and shown in Figure \ref{fig:fz-obs,fz-ksvd,fz-ddtf,fz-sgk}.}
 
-\multiplot{4}{fz-obs,fz-ksvd,fz-ddtf,fz-sgk}{width=0.30\columnwidth}{Zoomed 2D slice comparison of the field data example. (a) Observed data. (b) Reconstructed data using KSVD. (c) Reconstructed data using DDTF. (d) Reconstructed data using SGK. }
+\multiplot{4}{fz-obs,fz-ksvd,fz-ddtf,fz-sgk}{width=0.40\columnwidth}{Zoomed 2D slice comparison of the field data example. (a) Observed data. (b) Reconstructed data using KSVD. (c) Reconstructed data using DDTF. (d) Reconstructed data using SGK. }
 
 \inputdir{./}
 \multiplot{4}{f5d-obs,f5d-ksvd,f5d-ddtf,f5d-sgk}{width=0.45\columnwidth}{5D seismic reconstruction example. A common offset gather is displayed for comparison. The 3D common offset gather has been reformulated as 2D matrix. (a) Observed data with approximately 70\% missing traces. (b) Reconstructed data using KSVD. (c) Reconstructed data using DDTF. (d) Reconstructed data using SGK. }
