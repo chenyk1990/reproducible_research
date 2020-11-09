@@ -1,10 +1,6 @@
 from rsf.proj import*
 from rsf.prog import RSFROOT
 from math import pi
-# data directory
-# /media/CHENYK2/SeismicDataYangkang/irr5d/data/
-
-# Data size: 300*100*10
 
 def Grey3(data,other):
 	Result(data,
