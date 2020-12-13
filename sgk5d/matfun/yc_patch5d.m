@@ -32,6 +32,8 @@ function [ X ] = yc_patch5d( A,mode,l1,l2,l3,l4,l5,s1,s2,s3,s4,s5)
 % 
 % References:
 % Wang et al., 2020, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, doi: 10.1109/TGRS.2020.3030740
+% Zhou et al., 2020, Statistics-guided dictionary learning for automatic coherent noise suppression, IEEE Transactions on Geoscience and Remote Sensing, in press
+% Saad, O. and Y. Chen, 2020, PATCHUNET: A fully-unsupervised and highly-generalized deep learning approach for random noise suppression, Geophysical Prospecting. 
 % Siahsar, M. A. N., Gholtashi, S., Kahoo, A. R., W. Chen, and Y. Chen, 2017, Data-driven multi-task sparse dictionary learning for noise attenuation of 3D seismic data, Geophysics, 82, V385-V396.
 % Siahsar, M. A. N., V. Abolghasemi, and Y. Chen, 2017, Simultaneous denoising and interpolation of 2D seismic data using data-driven non-negative dictionary learning, Signal Processing, 141, 309-321.
 % Chen, Y., 2020, Fast dictionary learning for noise attenuation of multidimensional seismic data, Geophysical Journal International, 222, 1717-1727.
