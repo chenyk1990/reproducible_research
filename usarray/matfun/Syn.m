@@ -67,10 +67,9 @@ r1=0.5;r2=0.5;r3=0.5;
 d1=win3d_mask(@localfxymssa_recon, dm, param, d0, n1win, n2win, n3win, r1, r2, r3);
 
 %% global RR
-flow=0;fhigh=100;dt=0.004;N=9;Niter=10;mode=1;verb=1;
+flow=0;fhigh=100;dt=0.004;N=9;mode=1;verb=1;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
 d2=fxymssa_recon(d0,dm,flow,fhigh,dt,N,Niter,eps,verb,mode,a);
-
 yc_snr(d,d1,2)	%21.0808
 yc_snr(d,d2,2)	%17.1526
 

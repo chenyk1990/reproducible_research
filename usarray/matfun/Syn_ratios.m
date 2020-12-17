@@ -42,6 +42,7 @@ snrs0=zeros(nr,1);
 snrs1=zeros(nr,1);
 snrs2=zeros(nr,1);
 
+[nt,nx,ny]=size(d);
 for ir=1:nr;
 ratio=ratios(ir);
 mask=yc_genmask(reshape(d,nt,nx*ny),ratio,'c',2014151617);
@@ -70,12 +71,8 @@ n1win=50;n2win=50;n3win=50;
 r1=0.5;r2=0.5;r3=0.5;
 %% Main program goes here !
 D1_win=win3d_mask(@localfxymssa_recon, mask, param, d0, n1win, n2win, n3win, r1, r2, r3);
-% D1_win=win3d_mask(@localfxydmssa_recon, mask, param, dn, n1win, n2win, n3win, r1, r2, r3);
-figure;imagesc([d(:,:,9),d0(:,:,9),D1_win(:,:,9),d(:,:,9)-D1_win(:,:,9)]);
 yc_snr(d,D1_win,2)
 
-snrs0(ir)=yc_snr(d(40:100,:,:),d0(40:100,:,:),2);
-snrs1(ir)=yc_snr(d(40:100,:,:),D1_win(40:100,:,:),2);
 
 % 
 %% global processing
@@ -83,69 +80,14 @@ flow=0;fhigh=12.5;dt=0.04;N=30;Niter=10;mode=1;verb=0;
 N=10;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
 D1=fxymssa_recon(d0,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,a);
-figure;imagesc([d(:,:,9),d0(:,:,9),D1(:,:,9),d(:,:,9)-D1(:,:,9)]);
 yc_snr(d,D1,2)
 
+%% think about why?
+snrs0(ir)=yc_snr(d(40:100,:,:),d0(40:100,:,:),2);
+snrs1(ir)=yc_snr(d(40:100,:,:),D1_win(40:100,:,:),2);
 snrs2(ir)=yc_snr(d(40:100,:,:),D1(40:100,:,:),2);
 
 fprintf('Ratio=%g is done, snr0=%g,snr1=%g,snr2=%g\n',ratios(ir),snrs0(ir),snrs1(ir),snrs2(ir));
-
-% 
-% NN=3;
-% D2=fxydmssa_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,a);
-% figure;imagesc([d(:,:,9),d0(:,:,9),D2(:,:,9),d(:,:,9)-D2(:,:,9)]);
-% yc_snr(d,dn,2)
-% yc_snr(d,d0,2)
-% yc_snr(d,D2,2)
-% figure;imagesc([d(:,:,5),d0(:,:,5),D2(:,:,5),d(:,:,5)-D2(:,:,5)]);
-% 
-% %% linear interpolation
-% [lon2,lat2]=meshgrid(lon,lat);
-% 
-% rf2d=reshape(d0,nt,nx*ny);
-% mask2d=reshape(mask,nt,nx*ny);
-% indexmask=find(mask2d(1,:)~=0);
-% rf2d=rf2d(:,indexmask);
-% lon1_2d=reshape(lon2,1,nx*ny);
-% lat1_2d=reshape(lat2,1,nx*ny);
-% lon1=lon1_2d(indexmask);
-% lat1=lat1_2d(indexmask);
-% 
-% d1=2.8;
-% d2=5.6;
-% 
-% irf2d_yk=zeros(nt,nx*ny);
-% nx0=size(rf2d,2);
-% %% inter by YKC using the same method
-% for ix=1:nx*ny
-%    r=sqrt(sum(([lat1-lat2(ix);lon1-lon2(ix)]).^2,1));
-% %    [max(r),min(r)]
-%    
-%    index1=find(r<=d1); 
-%    index2=find(r>d1 & r<d2);
-%    
-%    nw1=length(index1);
-%    nw2=length(index2);
-% 
-%    w=zeros(1,nx0);
-%    
-%    w(index1)=ones(1,nw1);
-%    w(index2)=(r(index2)-d1)/(d1-d2)+1;
-%    
-%    irf2d_yk(:,ix)=sum((ones(nt,1)*w).*rf2d,2)/sum(w);
-% end
-% irf2d_yk3d=reshape(irf2d_yk,nt,nx,ny);
-% 
-% figure;imagesc([d(:,:,9),d0(:,:,9),irf2d_yk3d(:,:,9),d(:,:,9)-irf2d_yk3d(:,:,9)]);
-% 
-% figure;imagesc([d(:,:,20),d0(:,:,20),irf2d_yk3d(:,:,20),d(:,:,20)-irf2d_yk3d(:,:,20)]);
-% 
-% yc_snr(d,irf2d_yk3d,2)
-% 
-% 
-% 
-% 
-% 
 
 end
 

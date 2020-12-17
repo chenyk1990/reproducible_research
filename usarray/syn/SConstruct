@@ -84,16 +84,10 @@ if not matlab:
 ############################################################
 ## generate and process synthetic data
 ############################################################
-Flow('d-0 dn-0 d0-0 d1-0 d2-0',[os.path.join(matROOT,matfun+'.m')],
+Flow('d-0 dn-0 d0-0 dm-0 d1-0 d2-0',[os.path.join(matROOT,matfun+'.m')],
     '''MATLABPATH=%(matlabpath)s %(matlab)s 
-    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}');quit"
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}');quit"
     '''%vars(),stdin=0,stdout=-1)
-
-Flow('synth-clean','synth-clean-0',' put n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
-Flow('synth-noisy','synth-noisy-0','put n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
-Flow('synth-obs','synth-obs-0','put n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
-Flow('synth-rr','synth-rr-0','put n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
-Flow('synth-drr','synth-drr-0','put n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
 
 ## Load data
 Flow('syn-us-mask','dm-0','put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
@@ -103,17 +97,17 @@ Flow('syn-us-obs','d0-0','put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
 Flow('syn-us-rr','d2-0','put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
 Flow('syn-us-lrr','d1-0','put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
 
-# Flow('syn-us-mask','../matfun/jw/syn_us_dm_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
-# Flow('syn-us-clean','../matfun/jw/syn_us_d_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
-# Flow('syn-us-noisy','../matfun/jw/syn_us_dn_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
-# Flow('syn-us-obs','../matfun/jw/syn_us_d0_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
-# Flow('syn-us-rr','../matfun/jw/syn_us_d2_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
-# Flow('syn-us-lrr','../matfun/jw/syn_us_d1_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
+# Flow('syn-us-mask','../matfun/syn_us_dm_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
+# Flow('syn-us-clean','../matfun/syn_us_d_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
+# Flow('syn-us-noisy','../matfun/syn_us_dn_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
+# Flow('syn-us-obs','../matfun/syn_us_d0_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
+# Flow('syn-us-rr','../matfun/syn_us_d2_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
+# Flow('syn-us-lrr','../matfun/syn_us_d1_200_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=200 n2=10000 | put n2=100 n3=100 d1=0.5 d2=3 d3=3 o1=0 o2=0 o3=0')
 
 #X-Y-Z -> Z-X-Y
-Flow('syn-us-vp','../matfun/jw/syn_us_vp_100_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=100 n2=10000 | put n2=100 n3=100 |transp plane=23 |transp plane=12  | put d1=1 d2=3 d3=3 o1=0 o2=0 o3=0')
-Flow('syn-us-vs','../matfun/jw/syn_us_vs_100_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=100 n2=10000 | put n2=100 n3=100 |transp plane=23 |transp plane=12  | put d1=1 d2=3 d3=3 o1=0 o2=0 o3=0')
-Flow('syn-us-rho','../matfun/jw/syn_us_rho_100_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=100 n2=10000 | put n2=100 n3=100 |transp plane=23 |transp plane=12  | put d1=1 d2=3 d3=3 o1=0 o2=0 o3=0')
+Flow('syn-us-vp','../matfun/syn_us_vp_100_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=100 n2=10000 | put n2=100 n3=100 |transp plane=23 |transp plane=12  | put d1=1 d2=3 d3=3 o1=0 o2=0 o3=0')
+Flow('syn-us-vs','../matfun/syn_us_vs_100_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=100 n2=10000 | put n2=100 n3=100 |transp plane=23 |transp plane=12  | put d1=1 d2=3 d3=3 o1=0 o2=0 o3=0')
+Flow('syn-us-rho','../matfun/syn_us_rho_100_100_100.bin','bin2rsf bfile=${SOURCES[0]} n1=100 n2=10000 | put n2=100 n3=100 |transp plane=23 |transp plane=12  | put d1=1 d2=3 d3=3 o1=0 o2=0 o3=0')
 
 Grey3v('syn-us-vp','allpos=y bias=4.2 clip=5.0','title=Vp title= color=j scalebar=y label1=Depth unit1=km minval=6.0 maxval=8.0 wantbarlabel=y barlabel="P-wave Velocity" barunit="km/s"')
 Grey3v('syn-us-vs','allpos=y bias=2.2 clip=5.0','title=Vs title= color=j allpos=y scalebar=y label1=Depth unit1=km minval=3.5 maxval=4.5 wantbarlabel=y barlabel="S-wave Velocity" barunit="km/s"')
@@ -187,7 +181,7 @@ matfun = 'Syn_ratios'
 ############################################################
 Flow('dsnrs-0',[os.path.join(matROOT,matfun+'.m')],
     '''MATLABPATH=%(matlabpath)s %(matlab)s 
-    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}');quit"
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}');quit"
     '''%vars(),stdin=0,stdout=-1)
     
     

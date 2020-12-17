@@ -1,0 +1,398 @@
+
+%\documentclass[fleqn,10pt]{wlscirep}
+%\usepackage{amsmath,timet,bm,subfigure,graphicx,epstopdf,amsfonts,amssymb,mathrsfs,algorithm,algpseudocode,multirow,cite,color}
+%\usepackage[normalem]{ulem}
+%\usepackage{lineno}
+
+%\begin{document}
+%Paper('sr',lclass='wlscirep',options='fleqn,10pt',use='amsmath,timet,bm,subfigure,graphicx,epstopdf,amsfonts,amssymb,mathrsfs,algorithm,algpseudocode,multirow,cite')
+
+%\newcommand{\old}[1]{\color{blue}{\sout{#1}}\color{black}{}}
+%\newcommand{\new}[1]{\color{red}{\textit{#1}}\color{black}{}}
+
+\newcommand{\dlo}[1]{}
+\newcommand{\wen}[1]{#1}
+
+%\newcommand{\old}[1]{}
+%\newcommand{\new}[1]{#1}
+
+\published{Nature Communications, 10, 4434, (2019)}
+
+
+\title{Obtaining free USArray data by multi-dimensional seismic reconstruction}
+
+\author{Yangkang Chen\footnotemark[1], Min Bai\footnotemark[2], and Yunfeng Chen\footnotemark[3]}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\ms{NC-2019} %\ms{GJI-2018}
+
+\address{
+\footnotemark[1]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+yangkang.chen@zju.edu.cn \\
+%908352517@qq.com (hang)
+\footnotemark[2]
+Key Laboratory of Exploration Technology for Oil\\
+and Gas Resources of Ministry of Education\\
+Yangtze University, Wuhan\\
+Hubei Province, 430100, China\\
+\footnotemark[3]Deep Earth Imaging\\
+Future Science Platform\\
+CSIRO, Kensington\\
+WA, Australia, 6151
+}
+
+\lefthead{Chen et al., 2019}
+\righthead{LRR}
+
+
+%\author[1,*]{Yangkang Chen}
+%\author[2,1]{Min Bai}
+%\author[3]{Yunfeng Chen}
+%%\affil[1]{Modeling and Imaging Laboratory, Earth and Planetary Sciences, University of California, Santa Cruz, CA, USA, 95064}
+%\affil[1]{School of Earth Sciences, Zhejiang University, Hangzhou, Zhejiang Province, 310027, China}
+%\affil[2]{\new{Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education, Yangtze University, Wuhan, Hubei Province, 430100, China}}
+%\affil[3]{Deep Earth Imaging, Future Science Platform, CSIRO, Kensington, WA, Australia, 6151}
+%\affil[*]{chenyk2016@gmail.com}
+
+%\affil[+]{these authors contributed equally to this work}
+
+%\keywords{USArray data, earthquake data, reconstruction}
+
+\begin{abstract}
+% Microseismic signal is typically weak, compared with the strong background noise. This is an issue, because weak signal detection is necessary in microseismic data processing. Classic approaches such as frequency filtering are limited, or even invalid when the signal and noise share the same frequency band. In order to effectively detect the weak signal in microseismic data, we propose a mathematical morphology based approach. 
+\dlo{The emergence of large seismic networks equipped with dense broadband seismometers has opened a new chapter for the acquisition of earthquake data. One of the pioneering examples is USArray of EarthScope project that provides a semi-uniform sampling of the seismic wavefield beneath its footprint and greatly advances the understanding of the structure and dynamics of Earth. Despite the continuing effort in improving the network design, the station deployment of USArray is still irregular and unbalanced due to concerns such as logistics.  As a result, the spatial sampling alias and contaminating noise from the incomplete data impose great challenges in array-based data analysis and seismic imaging.  Here we utilize an iterative rank-reduction method to simultaneously reconstruct the missing traces and suppress the noise in the array data, i.e., obtaining free USArray recordings as well as enhancing the existing data. This method exploits the spatial coherency of the three-dimensional data in the frequency domain and extracts the principal components from the incomplete data, which enables  recovering the missing elements in an iterative manner. The application of a localized rank-reduction scheme is critical to preserve the small-scale and weak-amplitude phases that are otherwise severely damped by the traditional methods. We demonstrate the merits of our method using synthetic data and teleseismic earthquake recordings from USArray. The reconstructed data improves the quality of P-wave travel time measurements as demonstrated by 1) a better spatial correlation of the travel time pattern with the velocity structures and 2) a significantly reduced travel time measurement uncertainty. This study provides a new tool to reconstruct the irregular seismic wavefield recorded by the large-aperture array and demonstrates great potential to improve the array-based seismic imaging techniques.}
+\wen{USArray, a pioneering project for dense acquisition of earthquake data, provides a semi-uniform sampling of the seismic wavefield beneath its footprint and greatly advances the understanding of the structure and dynamics of Earth.  Despite continuing efforts in improving the acquisition design, network irregularity still causes spatial sampling alias and incomplete, noisy data, which imposes great challenges in array-based data analysis and seismic imaging.  Here we employ an iterative rank-reduction method to simultaneously reconstruct the missing traces and suppress noise, i.e., obtaining free USArray recordings as well as enhancing the existing data.  This method exploits the spatial coherency of three-dimensional data and recover the missing elements via the principal components of the incomplete data.  We examine its merits using simulated and teleseismic earthquake recordings.  The reconstructed P wavefield enhances the spatial coherency and accuracy of tomographic travel time measurements, which demonstrates great potential to benefit seismic investigations based on array techniques.}
+\end{abstract}
+
+%\flushbottom
+\maketitle
+% * <john.hammersley@gmail.com> 2015-02-09T12:07:31.197Z:
+%
+%  Click the title above to edit the author information and abstract
+%
+%\thispagestyle{empty}
+
+%\noindent Please note: Abbreviations should be introduced at the first mention in the main text – no abbreviations lists. Suggested structure of main text (not enforced) is provided below.
+
+\section*{Introduction}
+
+The past two decades have witnessed a major proliferation of broadband seismic arrays around the globe.  One excellent example is USAarry, the seismology component of the national Earth science program EarthScope, that \dlo{had been migrating}\wen{migrated} continuously across the North American continent (year 2004-2013\wen{; now deployed in Alaska and northwestern Canada}), providing a dense sampling of the seismic wavefield beneath its footprint. The availability of a large amount \wen{of} high-quality \dlo{array }data offers unique opportunities for \dlo{conducting }high-resolution seismic imaging, which leads to \wen{a} \dlo{much improved}\wen{much-improved} understanding of \wen{the} Earth's structure at various scales \cite{van2005surface,moschetti2007surface,yang2008structure,lin2009eikonal,yuan2010lithospheric,sigloch2011mantle,porritt2014seismic,schaeffer2014imaging,schmandt2014p,bao2016imaging,burdick2017model}. The relatively even-spaced sensors, with an average spacing of $ \sim $70 km, form an ideal network configuration for \dlo{applying the} \wen{the application of} array-based \dlo{method}\wen{methods} \cite{rost2002array,gu2010arrays}. While the quantity of array data is continuously growing, \dlo{its quality is still limited}\wen{the improvement of data quality is hampered} by the presence of noise and a biased spatial sampling \dlo{resulting}\wen{that results} from \dlo{the }unevenly distributed earthquake sources and stations. Both factors (i.e., quantity and quality) play an important role in exploiting the \dlo{information from the }data and achieving robust imaging outputs. Most \dlo{resolution}\wen{data} improvement efforts have been focusing on increasing the data volume whereas generally less attention was paid to improve the quality of \dlo{the }existing \dlo{data}\wen{recordings}. The high-quality data with a regular spatial sampling can greatly benefit data analysis, processing and visualization, and also improve the numerical stability and accuracy for grid-based seismic imaging techniques (e.g., Eikonal \cite{lin2009eikonal} and Helmholtz tomography \cite{lin2011helmholtz}). As a result, \dlo{the }regularization approach\wen{es} that suppress\dlo{es} the noise and interpolate\dlo{s} the missing traces of array data \dlo{is}\wen{are} highly demanded \cite{mostafa2016geo,mostafa2016bssa,schneider2017improvement}. 
+
+\dlo{There are some}\wen{Some} effective methods for seismic data reconstruction \dlo{from}\wen{have been proposed in} the exploration seismology community. One type of the most widely used methods is based on \wen{a} sparse transform that maps the seismic signals to certain domains (e.g., Fourier \cite{abma2006}, curvelet \cite{yu2017mapping}, \wen{slant stacklet \cite{ventosa2015extraction}, }and seislet domains \cite{fomel2010seislet}), where the useful information can be sparsely represented and separated from the missing data and random noise. Another type of mainstream \wen{methods} is based on the Cadzow filtering or the Singular Spectrum Analysis (SSA) \cite{ssa}, which is a rank-reduction based method that transforms the data to frequency-wavenumber or frequency-space domains to extract the spatial coherency of the entire data set for reconstructing the missing information. Oropeza and Sacchi (2011) \cite{mssa} extended the SSA method to multi-channel version to tackle the 3-D seismic data reconstruction challenge and later on Kreimer et al. (2013) \cite{kreimer2013} formulated the high-dimensional reconstruction as a nuclear-norm constrained tensor completion problem in the frequency-space domain. More recently, Chen et al. (2016) \cite{yangkang2016irr5d} improved the traditional truncated singular value decomposition (TSVD) method by deriving a new rank-reduction formula\dlo{, which}\wen{ that} better decomposes the data space into signal and noise subspaces. All aforementioned reconstruction methods are commonly applied to seismic data from exploration-scale surveys, while their applications to earthquake data, especially the multidimensional data recorded by large-scale seismic \dlo{array}\wen{arrays}, have been seldom reported.
+
+In global seismology community, several methods have been proposed to interpolate the irregularly sampled seismic data. Most earlier studies have been concentrating on interpolating the receiver functions \cite{langston1977effect} that consist of P to S converted waves based on a certain form of spatial smoothing \dlo{such as}\wen{, including, for example,} weighted stacking with either linear \cite{chengping2015}, gaussian \cite{neal1999imaging, song2017moho} or cubic spline functions \cite{sheldrake2002regional, zhang2014receiver}. Also implemented are methods based on high-resolution Radon transform \cite{wilson2007teleseismic}, \dlo{sigular}\wen{singular} spectrum analysis \cite{gu2015sharp, dokht2016singular} and, more recently, non-linear waveform stretching-and-squeezing \cite{hu2018wavefield}.  Aside from interpolating the receiver functions, Schneider et al. (2017) \cite{schneider2017improvement} reconstruct\wen{ed} the weak-amplitude under-side reflections from the mantle transition zone (i.e., PP precursors) while utilizing a compressive sensing based approach that seeks the sparsity of dominating \dlo{energies}\wen{energy} in the frequency-wavenumber domain.  A recent study also \dlo{applies}\wen{applied} the idea of compressive sensing to reconstruct the synthetic surface wavefields via a sparse representation using a plane wave basis \cite{zhan2018application}.  These earlier studies represent \dlo{continuous}\wen{continuing} efforts of the global seismology community in improving the earthquake data towards a regularly sampled wavefield\dlo{, yet}\wen{. However,} challenge still exists in view that 1) only a specific type of data (e.g, receiver functions, PP precursors), which is typically structurally simple, is reconstructed, and 2) the energy of useful signals tends \wen{to} be excessively smoothed by the ad hoc interpolation schemes, which limits the data resolution thereby the resolvability of small-scale structures.  
+
+In this study, we \dlo{intend to }develop an effective framework to reconstruct the three-dimensional (3D) \dlo{full wavefields}\wen{data} of \wen{an} earthquake \dlo{from USArray data}\wen{recorded by USArray}. We propose a localized rank-reduction method to simultaneously reconstruct the missing traces and improve the weak-amplitude phase arrivals. Compared with the regular global rank-reduction method, our localized approach is superior at preserving the small-scale features in the array data, which is critical for high-resolution imaging of subsurface structures. We \dlo{investigate}\wen{demonstrate} \dlo{this}\wen{its} \dlo{amplitude-preserving}\wen{signal-improvement} capability via a synthetic dataset and then apply the proposed method to \dlo{the }January 18, 2009, Kermadec Islands Mw 6.4  earthquake recorded by USArray\dlo{ (Figure \ref{fig:station_earthquake})}, where a significant portion of the recordings is \dlo{the }missing due to deployment limitations.  The  reconstructed earthquake wavefield provides the virtual recordings at the missing locations as if they had been acquired by the actual stations during the earthquake. We demonstrate the merits of the proposed method and data improvement by conducting cross-correlation measurements of  P-wave \dlo{travel}\wen{arrival} times, a fundamental step in \wen{body-wave} travel time tomography. 
+
+\section*{Results}
+\subsection*{Synthetic test}
+We first conduct a synthetic test to demonstrate the performance of the proposed methodology. The model is designed to honor  the complex Moho structure in central US \cite{schmandt2015distinct} that is characterized by \dlo{a large depth variation}\wen{large depth variations} by as much as 20 km (Figure \ref{fig:syn}).  The elastic properties (velocity and density) of the crust and upper mantle are obtained from the average values of AK135 continental model\cite{kennett1995constraints} (Figures 1a-1c).  We synthesize the recorded wavefield by solving the 3D elastic wave equation based on a finite-difference method\dlo{ with a GPU implementation}\old{ (see Supplementary material for mathematical detail)}. We simulate plane-wave incidence of teleseismic earthquake by simultaneously injecting energy from multiple point sources located on a plane in the upper mantle (Figure \ref{fig:obs}). %\wen{The direction of wavefront is determined from the epicenter distance and azimuth of the earthquake investigated in this study. The stacked P-wave of actual earthquake recordings is employed as the effective source-time function to ensure a similar frequency content and signal energy of the synthetics. The frequency band  of the synthetic data as revealed by the spectrum plots in the Supplementary material is 0-0.3 Hz.}
+\wen{The physical parameters of an earthquake (e.g., epicenter and magnitude) are implicitly considered in our simulation. The direction of wavefront is determined from the epicenter distance and azimuth of the earthquake investigated in this study. The stacked P-wave of actual earthquake recordings is employed as the effective source-time function to honor the actual earthquake source parameters and ensure a similar frequency content and signal energy of the synthetics. }
+
+The 3D seismic data consists of 200 time samples with a sampling rate of 0.5 sec and 100 equally spaced spatial samples in both longitudinal \new{(X) and  latitudinal (Y)} directions (Figure \ref{fig:syn-clean}).  The simulated wavefield shows clear P and Moho converted phases (Ps) (Figure \ref{fig:syn-clean}). To mimic the realistic signal-to-noise ratio (SNR), we add real noise that \dlo{proceeds}\wen{precedes} the first arrivals (i.e., P waves) from the USArray data to the synthetics (Figure \ref{fig:syn-noisy}). The missing traces are generated by applying the sampling matrix (Figure \ref{fig:syn-mask}) to the noisy data. The final simulated data contains 30\% missing traces (Figure \ref{fig:syn-obs}). To quantitatively evaluate the data quality, we use a SNR criterion defined as follows: $\text{SNR}=10\log_{10}\frac{\Arrowvert \mathbf{s} \Arrowvert_2^2}{\Arrowvert \mathbf{s} -\hat{\mathbf{s}}\Arrowvert_2^2}$, where $\mathbf{s}$ denotes the exact solution (i.e., the clean data), and $\hat{\mathbf{s}}$ is the noise contaminated or incomplete data. The respective data quality \dlo{factors}\wen{metrics} (SNR) for the noisy and  incomplete data are \dlo{7.51}\wen{10.12} and \dlo{4.64}\wen{4.35} dB, suggesting a significantly decreased data quality caused by missing traces. \wen{This criterion is also applied to assess the quality of reconstruction, where $\hat{\mathbf{s}}$ represents the recovered data using the global or local reconstruction algorithms. Thus, the SNR measures the deviation of an estimated data from its true solution.}
+
+%The maximum amplitude of the second event varies at different coordinates $(X,Y)$. We generate the second event by shifting a flat event according to the shift-time table, shown in Figures \ref{fig:syn_how}(a) and \ref{fig:syn_how}(b). The values in the shift-time table denote the corresponding time shifts of the second event in the synthetic data example. The amplitude variation of the second event is shown in Figures \ref{fig:syn_how}(c) and \ref{fig:syn_how}(d). The left column in Figure \ref{fig:syn_how} shows the ``SURF" plots while the right column in Figure \ref{fig:syn_how} shows the ``GREY" plots. ``SURF" and ``GREY" correspond to the two different plotting functions in the MATLAB software platform. From Figure \ref{fig:syn_how} we can see that the maximum and minimum time shifts differ by a bout 15 seconds. The curvature becomes the largest when the time shifts become largest or smallest. It is also clear that the amplitude of the second event decreases from about 1.5 at the four corners to about 0.6 in the center.  Figures \ref{fig:syn-rr} and \ref{fig:syn-rr-e} show the reconstructed data and its corresponding reconstruction error using the global rank-reduction method. Figures \ref{fig:syn-lrr} and \ref{fig:syn-lrr-e} plot the reconstructed data using the localized rank-reduction method and its corresponding reconstruction error.
+The global rank-reduction method assumes that the seismic data are composed of several plane waves, \dlo{while}\wen{however,} this assumption is often violated due to the presence of  non-planar wavefield\wen{s} in realistic models (see Figure \ref{fig:syn}). Thus, we improve the global rank-reduction \dlo{based MSSA}\wen{method} using a localized scheme. This method divides the data cube into several smaller volumes to minimize the curvature of seismic waves, which essentially imposes a local plane-wave constraint to alleviate the non-planar effect\wen{s}.  More sophisticated methods based on non-plane-wave assumption\wen{s} (e.g.,  non-stationary principal component analysis \cite{zhao2016principal}) may offer better solutions to the curved wavefronts. To implement the localized rank-reduction method, we apply a 3D moving window with \wen{a} size of $50\times 50\times 50$ to the data volume. We \dlo{also }\dlo{allows}\wen{allow} \dlo{an}\wen{a} 25-points \wen{(i.e., 50\%)} overlap in each direction between successive windows to suppress the edge effects. For each subset of the data volume within the moving window, we use a \wen{reference} rank of three to \dlo{synthesize}\wen{compute} the trajectory matrix \wen{(see Methods)}, \dlo{whereas the rank used in the global rank-reduction method is nine.}\wen{whereas a reference value of nine is adopted in global rank-reduction method.}  In the global case, the two plane waves are well reconstructed (Figure \ref{fig:syn-rr}), but the curved wavefront exhibits significant reconstruction errors, particularly in \dlo{the }areas with large curvatures (Figure \ref{fig:syn-rr-e}). \dlo{On the other hand}\wen{In comparison}, the localized rank-reduction method does not cause obvious damages to the signal (Figure \ref{fig:syn-lrr}) and the reconstruction error is almost zero everywhere (Figure \ref{fig:syn-lrr-e}). Based on SNR metric, the respective quality \dlo{factors}\wen{metrics} for the global and localized reconstructions are \dlo{7.51 dB and 14.38 dB}\wen{17.34 dB and 21.53 dB}, suggesting a better performance of \dlo{localized reconstruction than the global algorithm}\wen{the latter approach}. We extract a single trace at \dlo{the}\wen{a} location where large curvature exists (Figure \ref{fig:syn-trace}). \dlo{It is clear that the}\wen{The} reconstructed trace using localized rank-reduction method (green) almost fully recovers the input (black; Figure \ref{fig:syn-ss-z}), whereas an obvious time shift is present in the trace obtained from the global method (blue; see Figure \ref{fig:syn-ss-z}).
+
+We also use local similarity \cite{fomel2007localattr}, which measures the similarity between two signals in a local sense, to evaluate the reconstruction performance. A mathematical introduction of the local similarity metric is provided in the Supplementary \old{material}\new{Note 2}. In our case, we intend to obtain a reconstruction result that is as close to the clean data as possible.  The local similarity between the clean and the reconstructed data using the global rank-reduction method shows obvious low values along the curved wavefront (Figure \ref{fig:syn-rr-simi}). \dlo{The}\wen{In comparison, the} local similarity of localized reconstruction is high throughout the data volume regardless of the shape of the wavefront (Figure \ref{fig:syn-lrr-simi}). We \dlo{also}\wen{further} investigate the effects of sampling ratios (i.e., the percentage of missing data) on the reconstruction.  To this end, we vary the sampling ratios from 90\% to 10\% and randomly remove the traces. The test results show that 1) the reconstruction performance, \wen{which is defined as SNR using equation 8,} improves with an increasing sampling ratio, 2) the proposed algorithm is robust even at the low end \wen{(30-40\%)} of the sampling range, and 3) the localized rank-reduction implementation always achieves superior reconstruction performance than the global method \wen{(Figure \ref{fig:snr-n})}.
+
+The parameters for both strategies are fine-adjusted to achieve the best reconstruction results. The only parameter for the global rank-reduction method is the rank. To determine the optimal value, we linearly increase the rank and select the one that maximizes the SNR of the reconstructed data.  On the other hand, a two-step process is adopted to determine a pair of parameters (i.e., rank and window size) for the localized rank-reduction method.  As a first step, we optimize the window size while considering a relatively large reference rank (e.g., five). The exact choice of reference rank is not critical at this stage since the rank selection will be further optimized by the automatic rank selection\dlo{ method}\wen{ process}. We fix the overlapping between two neighboring windows to \dlo{be }half of the window size. The length of window in each dimension \dlo{should be chosen so as to segment the data}\wen{needs to be determined properly such that the data is segmented} into patches with the smallest extension. For example, for a dimension of length 100, the recommended window sizes are 10, 20, 50 or 100, since other choices will all cause an extension of dimension. With all possible combinations of the window sizes considering all three dimensions, we select the best window size leading to the largest SNR. In the second step, we further optimize the reference rank for the selected window size.  We decrease the reference rank and adopt the new value if \dlo{it can further improve the SNR}\wen{SNR can be further improved}. In real data processing, we use the same strategy except for the criterion to evaluate the output performance, which is prohibited by a lack of \dlo{ground truth}\wen{ground-truth} solution (i.e., term $\mathbf{s}$ in the equation of SNR). Instead, we define the maximum cross-correlation value between a reconstructed missing trace and its nearest observed trace as the criterion. 
+
+
+To investigate the influence of frequency content to the reconstruction performance of the presented methodology, we extract different frequency contents of the incomplete synthetic data for the reconstruction. \dlo{The bandwidth of the simulated seismic data is mainly confined between 0 and 0.3 Hz (Supplementary Figure \color{blue}{9}\color{black}{}), similar to that of the observed teleseismic P wave.} We linearly increase the frequency band from 0.05 to 0.4 Hz at an interval of 0.05 Hz and perform reconstruction at each frequency slice (Supplementary Figure \color{blue}{10}\color{black}{}). The seismic signals are well recovered in the reconstructed data for frequencies up to 0.3 Hz, showing more coherent P and Ps arrivals. The reconstruction performance degrades at higher frequencies ($>$0.3 Hz) with a lower degree of recovery of the missing traces.  The performance of reconstruction is mainly limited by the weak high-frequency seismic signals with energy that is close to (or below) the noise level (see Supplementary Figures 10g and 10h). We further perform a quantitative assessment of the reconstruction quality by computing the SNR of the output signal at each frequency (Supplementary Figure \color{blue}{11}\color{black}{}). Compared with the raw data, the reconstruction improves the SNRs by a factor of two at all frequencies except for the \dlo{higher}\wen{high} end ($>$0.3 Hz) of the frequency spectrum, where the SNRs fall below the level of input values. In summary, our test results suggest that the frequency content of the signal largely controls the performance of reconstruction, and high-quality results are achievable within the \dlo{dominating frequency band of signal}\wen{dominant frequency band (0-0.3 Hz) of the signal (Supplementary Figure \color{blue}{9}\color{black}{})}.  As a result, a careful frequency analysis of the data is recommended prior to applying the reconstruction algorithm.
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-vp}
+%    \label{fig:syn-jw-vp}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-vs}
+%    \label{fig:syn-jw-vs}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-rho}
+%    \label{fig:syn-jw-rho}}\\
+%    \subfigure[]{\includegraphics[width=0.6\textwidth]{Fig/observation}
+%    \label{fig:obs}}
+%	\caption{Wavefield simulation of plane-wave incidence beneath a regional array. The synthetic model is constructed using real Moho constraints\cite{schmandt2015distinct} and\dlo{ and} elastic parameters of (a) P-wave velocities, (b) S-wave velocities and (c) densities from a 1D reference model\cite{kennett1995constraints}. The blue lines mark the location of horizontal and vertical slices, where the values of model parameters are demonstrated and projected onto the corresponding sides of the model cube. (d) Observation system demonstrating the positions of planar source and receivers. The stars at the surface denote the evenly distributed receivers and symbols on the dipping plane denote the injected source positions. }
+%	\label{fig:syn}
+%\end{figure*}
+%
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-clean}
+%    \label{fig:syn-clean}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-noisy}
+%    \label{fig:syn-noisy}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-mask}
+%    \label{fig:syn-mask}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-obs}
+%    \label{fig:syn-obs}}
+%	\caption{The \dlo{input synthetic}\wen{synthesized} data. (a) The clean data \dlo{containing two main seismic phases. The colors at zero time slice indicate the relative time perturbations of the second phase arrivals.  The cross-hair marks the location of the sample trace shown in Figure 6.}\wen{obtained from elastic wave simulation.} (b) The noisy data with \old{SNR=}\new{signal-to-noise ratio equals to} 10.12 dB. (c) The sampling matrix with a sampling ratio of \dlo{80}\wen{70}\% (d) The final data after applying the sampling matrix to noisy data in (b). The SNR of the \wen{input} data is \dlo{4.64}\wen{4.35} dB.}
+%	\label{fig:syns}
+%\end{figure*}
+%
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-rr}
+%    \label{fig:syn-rr}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-lrr}
+%    \label{fig:syn-lrr}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-rr-e}
+%    \label{fig:syn-rr-e}}
+%    \subfigure[]{\includegraphics[width=0.22\textwidth]{Fig/syn-jw-lrr-e}
+%    \label{fig:syn-lrr-e}}
+%	\caption{Synthetic test results. (a) Reconstructed data using the global rank-reduction method.  The \old{SNR}\new{signal-to-noise ratio} of the reconstructed data is 17.34 dB. (b) Reconstructed data using the localized rank-reduction method (\old{SNR=}\new{signal-to-noise ratio is }21.53 dB). (c) and (d) Reconstruction errors corresponding to (a) and (b). }
+%	\label{fig:syns-rn}
+%\end{figure*}
+%
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.4\textwidth]{Fig/syn-jw-ss-0}
+%    \label{fig:syn-ss-0}}
+%    \subfigure[]{\includegraphics[width=0.4\textwidth]{Fig/syn-jw-ss-z}
+%    \label{fig:syn-ss-z}}
+%	\caption{Comparison of the single trace amplitude (X=225,Y=225) in \new{different scales.}\old{ (a) original and (b) zoomed-in scales .} \new{(a) Comparison in the original scale. (b) Comparison in the zoomed-in scale.} The black and pink lines represent \dlo{the }clean and noisy data, respectively. The trace processed using global and localized rank-reduction methods are shown by the blue and green lines, respectively. The black line (localized reconstruction) is almost completely overlapped with the green line (true solution), indicating that the error of reconstruction is \dlo{very small}\wen{minimal} for the proposed approach.}
+%	\label{fig:syn-trace}
+%\end{figure*}
+%
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.25\textwidth]{Fig/syn-jw-rr-simi}
+%    \label{fig:syn-rr-simi}}
+%    \subfigure[]{\includegraphics[width=0.25\textwidth]{Fig/syn-jw-lrr-simi}
+%    \label{fig:syn-lrr-simi}}
+%	\caption{\old{Reconstruction performance comparison between (a) global and (b) localized rank-reduction methods using local similarity matrix.}\new{A comparison of reconstruction performance in terms of local similarity metric. (a) Local similarity using the global rank-reduction method. (b) Local similarity using the localized rank-reduction method.} Note that local similarity around curved wavefronts is noticeably lower in the global reconstruction results.}
+%	\label{fig:syn-simi}
+%\end{figure*}
+%
+%\begin{figure*}[ht!]
+%	\centering
+%	\includegraphics[width=0.4\textwidth]{Fig/snr-jw-n}
+%	\caption{Reconstruction results at different sampling ratios. The reconstruction performance (SNR) improves with the increasing sampling ratio. The localized rank-reduction method always outperforms the global algorithm.}
+%	\label{fig:snr-n}
+%\end{figure*}
+
+
+
+
+
+
+\subsection*{USArray data test} A more challenging test is performed using the real data from January 18, 2009, Kermadec Islands, Newzealand, Mw 6.4 earthquake recorded by the Transportable Array (TA) component of USArray (\dlo{see }Figure \ref{fig:station_earthquake}). Despite the best effort in acquisition design, earthquake data is rarely recorded on a perfectly even-spaced seismic array. Similar to earlier  interpolation methods \cite{neal1999imaging,dokht2016singular,schneider2017improvement}, the first step of our reconstruction algorithm is to bin the data onto a regular grid. To this end, we use a weighted interpolation method for the binning process. At each node location, the waveforms from nearby stations that are located within one grid distance are stacked and subsequently assigned to the node, whereas the node remains empty if no neighboring stations \dlo{is}\wen{are} available.  We use a grid \dlo{size of $ \sim $70 km}\wen{with respective dimensions of 1.0 deg and 0.5 deg in latitude and longitude directions}, which is comparable to the station spacing of USArray, to minimize the effect of spatial smoothing while preserving small-scale features \wen{(Supplementary Figure \color{blue}{1}\color{black}{})}. Future study would focus on interpolating an arbitrary geometry given a randomly distributed data set. \wen{The degree of data completeness after the binning process is demonstrated by the sampling matrix (Supplementary Figure \color{blue}{2}\color{black}{}), where empty and data-filled grid points are indicated by zero and one, respectively.} We obtain a regular grid with \wen{a} dimension of $16\times 28$ (longitude $\times$  latitude) that comprises a total of 448 sampling points.  Among them 253 nodes are filled with the recorded earthquake data while the remaining 164 points \dlo{are required to be reconstructed}\wen{require to be reconstructed} by the proposed algorithm, resulting in a sampling rate (i.e., data completeness) of 56.5\% in the data.
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\includegraphics[width=\textwidth]{Fig/station_earthquake}
+%	\caption{The distribution of USArray stations in this study. The lateral dimension of the reconstructed data volume is highlighted by the rectangle. A large portion of the data is missing due to relatively spare station coverage in the southwest.   The inset shows the location of the earthquake (red star) relative to the recording array (blue triangles).}
+%	\label{fig:station_earthquake}
+%\end{figure*}
+
+\plot{station_earthquake}{width=\textwidth}{The distribution of USArray stations in this study. The lateral dimension of the reconstructed data volume is highlighted by the rectangle. A large portion of the data is missing due to relatively spare station coverage in the southwest.   The inset shows the location of the earthquake (red star) relative to the recording array (blue triangles).}
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.4\textwidth]{Fig/test0}
+%    \label{fig:test0}}
+%    \subfigure[]{\includegraphics[width=0.4\textwidth]{Fig/test1}
+%    \label{fig:test1}}\\
+%    \subfigure[]{\includegraphics[width=0.4\textwidth]{Fig/test2}
+%    \label{fig:test2}}
+%	\caption{A 3D view of the earthquake data recorded \dlo{from the}\wen{by} USArray analyzed in our study. (a) Observed data on a regular grid. The circled area shows the region with\dlo{ a} poor spatial sampling.  The red arrows indicate the weak-amplitude P-wave arrivals contaminated by the noise. (b) Reconstructed data using \wen{the} global rank-reduction method. (c) Reconstructed data using \wen{the} localized rank-reduction method.   }
+%	\label{fig:comp}
+%\end{figure*}
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\includegraphics[width=0.8\textwidth]{Fig/Figure9}
+%	\caption{A comparison \new{of reconstruction results} between different time slices. \old{(a) The time slice corresponding to $t=1200$ s of observed (left) and reconstructed (right) USArray data.  (b) The same as (a) but for time slice at $2100$ s.  The clear phase arrivals are reconstructed in the SW corner of the seismic array.}\new{(a) The time slice corresponding to $t=1200$ s of observed USArray data. (b) The time slice corresponding to $t=1200$ s of reconstructed USArray data. (c)-(d) The same as (a)-(b) but for time slice at $2100$ s.  The clear phase arrivals are reconstructed in the SW corner of the seismic array.  }}
+%	\label{fig:comp}
+%\end{figure*}
+
+\multiplot{3}{test0,test1,test2}{width=0.4\textwidth}{A 3D view of the earthquake data recorded \dlo{from the}\wen{by} USArray analyzed in our study. (a) Observed data on a regular grid. The circled area shows the region with\dlo{ a} poor spatial sampling.  The red arrows indicate the weak-amplitude P-wave arrivals contaminated by the noise. (b) Reconstructed data using \wen{the} global rank-reduction method. (c) Reconstructed data using \wen{the} localized rank-reduction method.}
+
+\plot{comp}{width=0.8\textwidth}{A comparison \new{of reconstruction results} between different time slices. \old{(a) The time slice corresponding to $t=1200$ s of observed (left) and reconstructed (right) USArray data.  (b) The same as (a) but for time slice at $2100$ s.  The clear phase arrivals are reconstructed in the SW corner of the seismic array.}\new{(a) The time slice corresponding to $t=1200$ s of observed USArray data. (b) The time slice corresponding to $t=1200$ s of reconstructed USArray data. (c)-(d) The same as (a)-(b) but for time slice at $2100$ s.  The clear phase arrivals are reconstructed in the SW corner of the seismic array. }}
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.39\textwidth]{Fig/Figure10a}
+%    \label{fig:us_lon1}}
+%    \subfigure[]{\includegraphics[width=0.39\textwidth]{Fig/Figure10b}
+%    \label{fig:us_lon2}}\\
+%	\subfigure[]{\includegraphics[width=0.39\textwidth]{Fig/us_lon1_z}
+%    \label{fig:us_lon1_z}}
+%    \subfigure[]{\includegraphics[width=0.39\textwidth]{Fig/us_lon22_z}
+%    \label{fig:us_lon2_z}}\\
+%    \subfigure[]{\includegraphics[width=0.39\textwidth]{Fig/us_uncertainty}
+%    \label{fig:us_uncert}}
+%	\caption{A detailed comparison of reconstruction performance along with a longitudinal slice (longitude = 107.6$^o$ W). \old{comparison of waveforms (a) before and (b) after the reconstructions .}\new{(a) Raw waveforms before reconstruction. (b) Reconstructed waveforms.} The main phase arrivals are marked by the red lines and labeled. The missing traces have been reconstructed and the signal-to-noise ratio of the main phases are significantly improved in (b). \new{(c)-(d) Detailed comparison of the weak amplitude phases (P and PP) that are highlighted by the green rectangles in (a)-(b).} \old{The green rectangles highlight the weak amplitude phases (P and PP) that are examined in detail in (c) and (d).  }(e)The reconstruction uncertainty for the longitudinal slice.}
+%	\label{fig:lons}
+%\end{figure*}
+
+
+\multiplot{5}{us_lon1,us_lon2,us_lon1_z,us_lon2_z,us_uncert}{width=0.39\textwidth}{A detailed comparison of reconstruction performance along with a longitudinal slice (longitude = 107.6$^o$ W). \old{comparison of waveforms (a) before and (b) after the reconstructions .}\new{(a) Raw waveforms before reconstruction. (b) Reconstructed waveforms.} The main phase arrivals are marked by the red lines and labeled. The missing traces have been reconstructed and the signal-to-noise ratio of the main phases are significantly improved in (b). \new{(c)-(d) Detailed comparison of the weak amplitude phases (P and PP) that are highlighted by the green rectangles in (a)-(b).} \old{The green rectangles highlight the weak amplitude phases (P and PP) that are examined in detail in (c) and (d).  }(e)The reconstruction uncertainty for the longitudinal slice.}
+
+During the earthquake, TA was deployed in western US covering the Basin and Range Province and the Great Plains, which marks a transition region from the active western US to the relatively stable eastern part.  This diverse tectonic environment provides an ideal \dlo{natural laboratory}\wen{dataset} to test the robustness and accuracy of our reconstruction algorithm.  We aim to create a complete data volume using the vertical component seismograms acquired at 625 stations. The same method can be applied to reconstruct the other two horizontal components. As a first step, the original traces are subject to a sequence of preprocessing including instrument response removal, integration to displacement, and binning onto a regular grid \wen{(Supplementary Note 1)}. The processed data forms a 3D cube with a dimension of $5400\times 16\times 28$ along time, longitude and latitude axes \wen{(Figure \ref{fig:test0})}.  The quality of this dataset is mainly limited by 1) the missing traces that account for a significant portion of the data volume and 2) strong noises that interfere with \dlo{the} phase arrivals.  The former constraining factor leads to \dlo{the} reduced resolution in regions with incomplete data sampling (e.g., the circled area on Figure \ref{fig:test0}) and the presence of noise \dlo{could }\wen{can} mask relatively low\wen{-}amplitude arrivals such as the P waves (see Figure \ref{fig:test0}).
+
+We apply the two rank-reduction methods to the preprocessed data.  Figure \ref{fig:test1} shows the reconstructed data using the global rank-reduction method. In global reconstruction, we treat the whole 3D data cube as the input and set the  rank to eight, which is determined carefully by our tests. The reconstruction results show an improved data coherency compared to the input, as demonstrated by a more detailed wavefield variation in the \dlo{same }time slice at 2600 sec (Figures \ref{fig:test0} and \ref{fig:test1}). However, a major issue with the global method is that it tends to smooth small-scale arrivals (e.g., \dlo{see }P waves indicated by red arrows in Figure \ref{fig:test1}).  In this example, because of the \dlo{weak amplitude}\wen{relatively weak energy} of the first arrivals, they cannot be robustly distinguished from the noise using the global rank-reduction algorithm.  This issue is largely resolved \dlo{using}\wen{by} the localized rank-reduction method, where both time \dlo{slide}\wen{slices} and the first arrivals are well recovered\wen{ (Figure \ref{fig:test2})}. 
+
+%In this test, because the seismic events are relatively planar, and the data structure is not very complicated (as compared with the previously discussed synthetic example), we use a relatively larger local window of size $1000\times 16\times 28$, which means we do not segment the data in both longitude and latitude dimensions.\\ REMOVE SINCE IT WEAKENS OUR ARGUMENT
+We \dlo{then }compare two time slices that contain weak phase arrivals between the original and the reconstructed data.  The first time slice shows the energy related to \dlo{P-wave coda}\wen{PP phase} \new{(Figures \ref{fig:comp}(a) and \ref{fig:comp}(b))}, the free surface multiple of P wave. This weak phase is severely contaminated by the \dlo{scattering}\wen{scattered} energy associated with the P-wave codas.  As a result, the wavefield pattern of PP is largely incoherent across the recording array, even in the center and northeastern portions where station coverage is high. The second time slice focuses on the wavefield around the excepted arrival time of SS phase, which is the shear wave reflected off the surface at the midpoint of source-station \wen{path}, showing much coherent \dlo{energies}\wen{energy} compared to the scattered wavefield \new{(Figures \ref{fig:comp}(c) and \ref{fig:comp}(d))}. The reconstructed time slice successfully fills the data gap and captures the detailed variation in wavefield energy. We demonstrate the reconstruction performance on full seismogram in Figure \ref{fig:lons}, where nine traces are missing in this longitude slice. The quality of various phase arrivals \dlo{are}\wen{is} severely degraded by noise.  After reconstruction, these phases are clearly identifiable from both pre-existing and reconstructed traces. \wen{A more detailed examination of weak amplitude phases shows that 1) the waveform characteristics (e.g., phase and amplitude) of the existing traces are well preserved by the reconstruction algorithm without excessive smoothing and 2) the reconstructed traces well capture the coherent energy of the data, showing similar waveform quality to the nearby (observed) traces (Figures \ref{fig:us_lon1_z} and \ref{fig:us_lon2_z}).} 
+
+We conduct a bootstrapping test\cite{bootstrap1991} to estimate the effect of spatial sampling of wavefield on reconstruction. We randomly select 40\% of the observed seismograms to reconstruct the 3D data cube and repeat this step 20 times. We calculate the standard deviation of the 20 reconstructed datasets and use the normalized deviation as an estimate of uncertainty. The reconstruction uncertainty is low for body-wave phases (e.g., P and S) even in \wen{the} presence of intermediate (~200 km) data gap  (Figure \ref{fig:us_uncert}), whereas the uncertainty is slightly higher in time ranges with weak arrivals (e.g., body wave codas), especially in regions with poor \dlo{spatial distribution of stations}\wen{station coverage} (e.g., big recording gaps).  \dlo{On the other hand, a relatively large uncertainty is observed in surface waves (see Figure \ref{fig:us_uncert}).  This increased uncertainty is mainly caused by the waveform complexity of surface wave, which is characterized by a dispersive wave train rather than a distinct (linear) phase arrival (e.g., body waves).}\wen{Compared to the well-recovered body wave phases, the surface wave portion shows relatively large uncertainties in amplitude recovery (see Figure 10(e)). The degraded reconstruction performance is mainly challenged by the waveform complexity of surface wave, which is characterized by a dispersive wave train rather than a distinct (linear) phase arrival (e.g., body waves). To alleviate these effects, a frequency-dependent, instead of a linear, time window may be required to better isolate the surface wave energy. For example, one may consider a Gaussian window with varying center frequencies as widely adopted in dispersion analysis \cite{dziewonski1969technique}. As importantly, a more careful examination (and selection) of surface wave related rank values is also essential to better capture the surface wave energy. Both aspects are critical to an improved reconstruction performance of surface waves and are worth future investigations.}  The lateral distribution of uncertainty is relatively constant across the study area except at the southwest corner (Supplementary Figure \color{blue}{12}\color{black}{}), where uncertainty is about 3 times higher due to highly insufficient data sampling. \dlo{Overall, the comparisons suggest the effectiveness of}\wen{Through waveform comparisons and uncertainty analysis, we are confident to suggest that} the proposed localized rank-reduction method \dlo{in reconstructing}\wen{enables a robust reconstruction of} the incomplete earthquake recordings\wen{, in particular, body wave phases}, which provides useful data constraints to the regions where no seismometers were placed.\\
+
+\section*{Discussions}
+The synthetic and real data examples demonstrate the ability of localized rank-reduction method in reconstructing the missing traces. The complete dataset, with improved quality and spatial sampling, is critical for improving array-based seismic imaging methods \cite{rost2002array, gu2010arrays}.  In this section, we demonstrate the accuracy of our method and its  application in seismic imaging using the cross-correlation travel time measurement, a widely used technique in travel time tomography.
+
+Seismic tomography is one of the most commonly applied seismic imaging techniques that greatly \dlo{improves}\wen{improve} the understanding of the internal structure of Earth. Seismic tomography can be broadly classified based on the types of data (travel time or waveform) and the approximation of wave propagation theory (ray or finite frequency) \cite{liu2012seismic}. One classical method of \wen{the} tomographic family is regional travel time tomography \cite{aki1977determination} that utilizes the travel time difference between nearby stations to resolve the subsurface velocity structure. The density of the station and \wen{the} accuracy of travel time measurements are critical factors for high-resolution imaging. We provide an example of travel time measurements to demonstrate the \dlo{accuracy}\wen{capability} of the proposed reconstruction \dlo{method}\wen{method in improving P wavefield}.
+
+The relative travel times between stations in a recording array are measured using multi-channel cross-correlation \cite{vandecar1990determination}.  For a pair of stations, the\dlo{ir} optimal relative travel time is determined by the time delay that leads to the maximum correlation coefficient between the two traces containing the phase of interest (e.g., P wave). To ensure the consistency of travel time measurements among all recording stations, the relative travel time between each station pair is optimized through a least-squares inversion. This optimization process also imposes a zero average constraint to the travel times.  \dlo{As a final step}\wen{Finally}, the demeaned theoretical arrival times (based on a reference Earth model) are subtracted from the optimized values to obtain the relative travel time residuals that can be inverted for velocity perturbations underlying the recording array.
+
+The travel time measurement is first performed on the original data. We filter the seismic traces between 0.03 and 0.125 Hz to enhance the useful signal and utilize a 100 sec \dlo{time}\wen{cross-correlation} window starting 50 sec prior to the \dlo{predicated}\wen{predicted} P-wave arrival time based on AK135 model \cite{kennett1995constraints}. The resulting travel time pattern is similar to the predictions (i.e., theoretical arrival times from AK135) because the time perturbations induced by structural variation is much smaller than the move-out (Supplementary Figure \color{blue}{13}\color{black}{}). After correcting for the move-out effect, the remaining values (i.e., relative travel time residuals) are considered to be mainly caused by \dlo{velocity anomalies near the stations}\wen{the receiver-side velocity anomalies}. The measured residuals from the original data generally \dlo{shows}\wen{show} a dichotomy of \dlo{travel time pattern}\wen{travel times}: delay in the SW and advance in the NE (Figure \ref{fig:ttres_vel}\color{blue}{(a)}\color{black}{}), suggesting distinctive mantle structures in these two regions.  Some \dlo{local scale}\wen{local-scale} variations are also observable in the travel \dlo{times}\wen{times (e.g., time delay related to Yellowstone hotspot)}. We then conduct travel time measurements on the reconstructed data using identical parameters (\dlo{e.g.}\wen{i.e.,} frequency and window length).   The resulting travel time variation is more coherent compared to that from the original data (Figure \ref{fig:ttres_vel}\color{blue}{(b)}\color{black}{}). A major difference is \dlo{the}\wen{a} significant time advance in the \dlo{center}\wen{central} part of the array, which \dlo{transition}\wen{transitions} sharply to the regime of time delay in the SW.   In comparison, the travel time advance in the original data appears to be more scattered and the transition\dlo{ to time delay} is much smoother. 
+
+Seismic travel time is sensitive to velocity anomalies within the Fresnel zone around the ray path \cite{dahlen2000frechet}, thus the consistency of the travel time pattern with the velocity structures can be used as an effective metric to evaluate the robustness of the travel time measurements. For a plane wave from a teleseismic source, it illuminates the upper mantle portion of the Earth structure beneath the recording array from the direction of back-azimuth  at a steep incidence angle. The presence of negative (i.e., slow\dlo{er}) and positive (i.e., fast\dlo{er}) velocity anomalies respectively causes the delay and advance of the P-wave arrivals. The availability of high-resolution seismic velocity models in \wen{the} western US enables a detailed examination of the travel time accuracy. We utilize a recent \wen{high-resolution} tomographic model of the upper mantle of continental US \cite{schmandt2014p}, which is constructed using 516,668 P-wave travel time residuals measured within multi-frequency bands in combination with a finite-frequency kernel \cite{dahlen2000frechet}. \dlo{Besides}\wen{In addition to} the high model resolution, the choice of this model is prompted by the same travel time type (i.e., relative residuals) that permits a direct comparison with our measurements. Since travel time residual reflects an integrated effect of velocity anomalies in the upper mantle, in particular the heterogeneous mantle lithosphere, we \dlo{compute velocity anomalies}\wen{consider velocity structures} between 50-250 km and compute the average amplitude (i.e., perturbation) of the seismic velocity anomaly (Figure \ref{fig:ttres_vel}\color{blue}{(c)}\color{black}{}). The resulting velocity perturbation agrees well with the reconstructed travel time pattern, whereas its correlation with the travel times from original data is less apparent. In particular, the high-velocity zone beneath the southern Wyoming craton is in excellent agreement with the coherent travel time advance in the reconstructed data, while the original data shows \dlo{much a}\wen{a much} scattered travel time pattern. \wen{Furthermore}, the sharp velocity transition to the \wen{low-velocity} Cordillera is clearly delineated by the travel time variation from the reconstructed data, while this travel time contrast is largely smeared in the original data. In addition, some small-scale structure variations (e.g., the SE corner of the array \wen{and the Yellowstone anomaly}) are captured by the travel times from the reconstructed data.  More importantly, in the regions with large data gaps, the accuracy of the reconstructed travel times are supported by the \dlo{velocity}\wen{velocities}.  For example, in the western part of the array between 36-43$^o$  N, the travel time shows an overall delay pattern that corresponds to \dlo{the }below than average seismic \wen{velocities}, and the smaller data gap at the NE corner also exhibits a reasonable agreement between \wen{the} two variables.
+
+We further evaluate the uncertainty of travel time measurements from both datasets. For each station, we compute its travel time errors with respect to other stations defined as the difference between the least-squares optimized and cross-correlation determined travel times. The standard deviation of all measurement errors is then used as an estimate of the measurement uncertainty at this station. The respective average uncertainties of the original (Figure \ref{fig:raw_ssa_tt}\color{blue}{(a)}\color{black}{}) and the reconstructed data (Figure \ref{fig:raw_ssa_tt}\color{blue}{(b)}\color{black}{}) are 0.50 sec and 0.41 sec, respectively. We notice that the uncertainty of the reconstructed data is in fact dominated by a few large outliers at \dlo{relatively }poorly constrained nodes (see Figure \ref{fig:raw_ssa_tt}\color{blue}{(b)}\color{black}{}), where the absolute value of travel time residual is on average greater than 2.0 sec. Most of these nodes are located in the regions with the largest data gap or near the edges of the data volume (e.g., SW corner). These anomalously large measurements are typically caused by cycle-skipping or poor data quality\dlo{ hence}\wen{, and thus} are removed from the inversion process in regional tomographic study \cite{chen2017finite}. After removing the outliers, which accounts for 4.5\% of the total measurements, the \dlo{overall}\wen{average} uncertainty decreases to 0.35 sec and is significantly smaller than that \dlo{from}\wen{of} the original data, suggesting \dlo{the improvement in}\wen{an improved} \dlo{phase}\wen{P-wave} consistency in the reconstructed data.
+
+The travel time example demonstrates the improved resolving power of the complete dataset to small-scale structure variations.  Thanks to the rapid development of dense seismic \wen{arrays} around the \dlo{global}\wen{globe}, new seismic imaging techniques have been focusing on simultaneous processing of recordings from nearby sensors on a uniform/semi-uniform grid. One of the rapidly advancing fields is seismic surface tomography that utilizes either the travel time \cite{lin2009eikonal, jin2015surface} or the shape of the wavefield \cite{lin2011helmholtz, langston2007wave} recorded at \dlo{the }dense arrays to infer the elastic properties of the subsurface. These methods typically require the calculation of spatial derivatives with \dlo{respective}\wen{respect} to a certain parameter such as \dlo{traveltime}\wen{the travel time} (e.g., Eikonal tomography \cite{lin2009eikonal}) or amplitude of \wen{the} surface wave (e.g., Helmholtz tomography \cite{lin2011helmholtz} and gradiometry \cite{langston2007wave}), which is best performed on a regular grid to ensure the numerical stability and accuracy.  The compressive-sensing based reconstruction approach proposed by Zhan et al. (2018) \cite{zhan2018application} has demonstrated the improvement in \dlo{velocity estimates}\wen{resolving velocities} using the reconstructed wavefields.  Similarly, we \dlo{except}\wen{expect} an improved imaging performance of these gradient-based tomographic approaches when applied to the reconstructed data.  The validation of this argument is beyond the scope of this paper and will be investigated in future studies. Finally, the improvement in sensor technology as exemplified in several large N array experiments \cite{lin2013high,schmandt2013analysis,hansen2015automated,ward2018high} has permitted a higher-density sampling that is close to \wen{an} exploration-scale survey. The development of imaging technology, such as the \wen{one} proposed in our study, should work hand-in-hand with the improvement in data acquisition to achieve the ultimate goal of having a better understanding of the Earth's structure.
+
+
+%Seismic array data can suffer from high noise level and incomplete spatial sampling despite the best efforts in improving the acquisition design. To alleviate these data related issues, we develop an effective iterative localized rank-reduction algorithm to simultaneously suppress the noise and reconstruct the missing traces. The proposed method, when compared with the traditional global rank-reduction based method, shows superior performance in preserving small-scale features such as the curved wavefront and weak-amplitude arrivals. The application of our method to both synthetic data and real earthquake recordings demonstrate greatly improved quality and coherency of the reconstructed data.  Finally, we compare the relative travel time residuals, the input for travel time tomography, measured from original and reconstructed data.   The travel times from the latter dataset shows 1) a better match with the velocity structures revealed from recent tomographic model and 2) a reduced uncertainty in the cross-correlation measurements. Overall, our study provides a useful tool for improving the quality of array data and compensating the deployment limitation of seismic arrays. Since our method is fully compatible with the higher-density seismic survey that start building momentum in global seismology community, we can expect its great potential in improving the existing and motivating new array-based seismic imaging techniques.
+
+%\begin{figure*}[ht!]
+%	\centering
+%%	\includegraphics[width=0.7\textwidth]{Fig/ttres_vel}
+%	\includegraphics[width=0.7\textwidth]{Fig/Figure11}
+%	\caption{\old{P-wave relative travel time residuals across the recording array measured from (a) the original and (b) the reconstructed data.}\new{A comparison of P-wave travel time measurements between the original and reconstructed data. (a) Relative travel time residuals across the recording array measured from the original data. (b) Relative travel time residuals measured from the reconstructed data.} Measurements with uncertainties larger than one standard deviation of the cross-correlation error are \dlo{shaded in gray}\wen{represented by gray circles} in (b). The brown lines indicate the boundaries of major tectonic domains in \wen{the} western US. (c) Average P-wave velocity perturbations between 50-250 km depths from \wen{Schmandt and Lin (2014)} \cite{schmandt2014p}.}
+%	\label{fig:ttres_vel}
+%\end{figure*}
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{Fig/raw_ssa_tt}
+%	\caption{ \new{A comparison of travel time measurement uncertainties.}\old{Travel time measurement uncertainties of (a) the original and (b) the reconstructed data.}\new{ (a) Travel time plot of the original data. (b) Travel time plot of the reconstructed data.} Both measured and predicted travel times are demeaned to emphasize the perturbations. The blue data points in (b) represent measurement outliers differing by more than 2 sec from the predictions, which are excluded from tomographic inversion in real practice.}
+%	\label{fig:raw_ssa_tt}
+%\end{figure*}
+%
+
+\plot{ttres_vel}{width=0.7\textwidth}{\old{P-wave relative travel time residuals across the recording array measured from (a) the original and (b) the reconstructed data.}\new{A comparison of P-wave travel time measurements between the original and reconstructed data. (a) Relative travel time residuals across the recording array measured from the original data. (b) Relative travel time residuals measured from the reconstructed data.} Measurements with uncertainties larger than one standard deviation of the cross-correlation error are \dlo{shaded in gray}\wen{represented by gray circles} in (b). The brown lines indicate the boundaries of major tectonic domains in \wen{the} western US. (c) Average P-wave velocity perturbations between 50-250 km depths from \wen{Schmandt and Lin (2014)} \cite{schmandt2014p}.}
+
+\plot{raw_ssa_tt}{width=0.7\textwidth}{ \new{A comparison of travel time measurement uncertainties.}\old{Travel time measurement uncertainties of (a) the original and (b) the reconstructed data.}\new{ (a) Travel time plot of the original data. (b) Travel time plot of the reconstructed data.} Both measured and predicted travel times are demeaned to emphasize the perturbations. The blue data points in (b) represent measurement outliers differing by more than 2 sec from the predictions, which are excluded from tomographic inversion in real practice.}
+
+
+%\section*{Conclusions}
+%Seismic array data can suffer from high noise level and incomplete spatial sampling despite the best efforts in improving the acquisition design. To alleviate these data related issues, we develop an effective iterative localized rank-reduction algorithm to simultaneously suppress the noise and reconstruct the missing traces. The proposed method, when compared with the traditional global rank-reduction based method, shows superior performance in preserving small-scale features such as the curved wavefront and weak-amplitude arrivals. The application of our method to both synthetic data and real earthquake recordings demonstrate greatly improved quality and coherency of the reconstructed data.  Finally, we compare the relative travel time residuals, the input for travel time tomography, measured from original and reconstructed data.   The travel times from the latter dataset shows 1) a better match with the velocity structures revealed from recent tomographic model and 2) a reduced uncertainty in the cross-correlation measurements. Overall, our study provides a useful tool for improving the quality of array data and compensating the deployment limitation of seismic arrays. Since our method is fully compatible with the higher-density seismic survey that start building momentum in global seismology community, we can expect its great potential in improving the existing and motivating new array-based seismic imaging techniques.
+
+\section*{Methods}
+\subsection*{Iterative rank-reduction method} The incomplete earthquake data on \wen{a} regular grid\dlo{s} can be expressed simply as
+\begin{equation}
+\label{eq:dsamp}
+\mathbf{u}=\mathbf{S}\mathbf{v},
+\end{equation}
+where $\mathbf{v}$ denotes the complete earthquake data, $\mathbf{u}$ denotes the observed incomplete data, and $\mathbf{S}$ is the sampling operator. \wen{Both $\mathbf{u}$ and $\mathbf{v}$ denote vectors of size $N_tN_xN_y\times 1$. $N_t,N_x,N_y$ denote the lengths of the $t,x,y$ axes, respectively.} The sampling \dlo{matrix}\wen{operator} is a diagonal \dlo{operator}\wen{matrix} \wen{of size $N_tN_xN_y\times N_tN_xN_y$.}\dlo{, where the diagonal entries correspond to each entry in the sampling matrix, which is of the same size of the data matrix. Here, both $\mathbf{u}$ and $\mathbf{v}$ denote vectorized data.} In the sampling operator, each ``zero'' diagonal entry corresponds to a missing sample and ``one'' diagonal entry denotes a sampling point. The sampling matrix will be presented when analyzing the results of data \dlo{restoration}\wen{reconstruction}. 
+
+Given a reconstruction filter $\mathbf{P}$, we follow the weighted projection-onto-convex sets (POCS)-like scheme to iterative\wen{ly} reconstruct the missing earthquake data and suppress the strong random noise that downgrades the quality of the data. The weighted POCS-like method is expressed as
+\begin{equation}
+\label{eq:wpocs}
+\mathbf{v}_n  = \alpha_n\mathbf{u} + (1-\alpha_n\mathbf{S}) \mathbf{P} \mathbf{v}_{n-1},
+\end{equation}
+where $\alpha_n$ is an iteration-dependent relaxation factor to control the suppression of the random ambient noise. Here, we follow the linear-decreasing strategy used in \wen{Chen et al. (2016)} \cite{yangkang2016irr5d} for iteratively suppressing the noise while restoring the noisy data with newly interpolated data. 
+
+In the rank-reduction method \cite{mssa}, the filtering is conducted in the frequency-space domain of the multi-channel earthquake data. When rewriting $\mathbf{v}$ in a \dlo{matrix}\wen{tensor} form $V(x,y,t)$, the rank-reduction method first transforms the data from $t-x-y$ domain to $f-x-y$ domain, i.e., $V(x,y,f)$. The frequency domain data \dlo{matrix }is then rearranged into a multiple of \wen{block} Hankel matrices for each frequency slice. The Hankel matrix $\mathbf{R}_i$ for row $i$ of the matrix $V(x,y,f)$ constructed from the frequency slice of $f$ is
+\begin{equation}
+\label{eq:mssa3d}
+\mathcal{R}_i(f)=\left(\begin{array}{cccc}
+V(i,1,f) & V(i,2,f) & \cdots &V(i,M_x,f) \\
+V(i,2,f) & V(i,3,f)  &\cdots &V(i,M_x+1,f) \\
+\vdots & \vdots &\ddots &\vdots \\
+V(i,L_x,f)&V(i,L_x+1,f) &\cdots&V(i,N_x,f)
+\end{array}
+\right).
+\end{equation}
+By omitting $f$, equation \ref{eq:mssa3d} is then inserted into a block Hankel matrix by
+\begin{equation}
+\label{eq:mssa3d2}
+\mathcal{H}=\left(\begin{array}{cccc}
+\mathcal{R}_1 & \mathcal{R}_2 & \cdots &\mathcal{R}_{M_y}\\
+\mathcal{R}_2 & \mathcal{R}_3  &\cdots &\mathcal{R}_{M_y}\\
+\vdots & \vdots &\ddots &\vdots \\
+\mathcal{R}_{L_y} &\mathcal{R}_{L_y+1} &\cdots&\mathcal{R}_{N_y}
+\end{array}
+\right),
+\end{equation}
+where the Hankel matrix $\mathcal{H}$ is assumed to be of low rank. $N_x$ \wen{and $N_y$} denote the number of channels in \wen{the $x$ and $y$ dimension of }the data. $L_x=\lfloor N_x/2 \rfloor+1$ and $M_x=N_x-L_x+1$, where $\lfloor \cdot \rfloor$ is the operator to calculate the integer part. \wen{Similarly, $L_y=\lfloor N_y/2 \rfloor+1$ and $M_y=N_y-L_y+1$.} The low-rank extraction of the key information from the Hankel matrix is equivalent to the principal component analysis of the Hankel matrix. To optimally extract the principal components, i.e., the signals, from the Hankel matrix of an updated data, we aim at solving the following optimization problem
+\begin{equation}
+\label{eq:E}
+\begin{split}
+\min &\parallel \mathcal{E} \parallel_F^2 \\
+\text{s.t.} \quad \text{rank}(\mathcal{S}) & =K, \text{and}, \mathcal{E}=\mathcal{H}-\mathcal{S},
+\end{split}
+\end{equation}
+\wen{where $\mathcal{S}$ denotes a low-rank matrix and $\mathcal{E}$ denotes small random perturbations. }
+Problem \ref{eq:E} can be conveniently solved via the singular value decomposition (SVD) algorithm. \dlo{$[\mathcal{P},\Sigma,\mathcal{Q}]=\text{SVD}(\mathcal{H})$,}
+
+\dlo{The decomposed value matrices are used to reconstruct a rank-reduced matrix by selecting only the first $K$ singular vectors and singular values $\hat{\mathcal{H}} = [\mathcal{P}(1:K,:),\Sigma(1:K,1:K),\mathcal{Q}(:,1:K)]$.}
+\wen{
+The SVD of $\mathcal{H}$ can be expressed as 
+\begin{equation}
+\label{eq:svd}
+\mathcal{H} = \mathcal{P}\Sigma\mathcal{Q}^T,
+\end{equation}
+where $[\cdot]^T$ denotes transpose, and 
+\begin{equation}
+\begin{split}
+\mathcal{P} &= [\mathbf{p}_1,\mathbf{p}_2,\cdots,\mathbf{p}_N], \\
+\Sigma &= [\sigma_1,\sigma_2,\cdots,\sigma_N],\\
+\mathcal{Q} &= [\mathbf{q}_1,\mathbf{q}_2,\cdots,\mathbf{q}_N].
+\end{split}
+\end{equation}
+$\mathbf{p}_i$ and $\mathbf{q}_i$ ($1\le i \le N$) are $i$th left and right singular \wen{vectors} of SVD. $\sigma_i$ denotes the $i$th singular value. $N$ denotes the number of columns in matrix $\mathcal{H}$. The decomposed value matrices are used to reconstruct a rank-reduced matrix by selecting only the first $K$ singular vectors and singular values
+\begin{equation}
+\label{eq:svd}
+\hat{\mathcal{H}} = \sum_{i=1}^{K}\sigma_i\mathbf{p}_i\mathbf{q}_i^T.
+\end{equation}
+}
+The rank-reduced Hankel matrix is then remapped back to a 1D vector by averaging along the anti-diagonals. The mapping from each frequency slice to the Hankel matrix is referred to as the Hankelization step and the averaging along anti-diagonals is called the inverse Hankelization process. The overall process including the Hankelization, principal component extraction, and inverse Hankelization can be denoted by the restoration filtering operator $\mathbf{P}$ expressed previously in equation \ref{eq:wpocs}. \wen{Note that similar strategies are commonly used in the subspace separation methods, e.g., defining the log-likelihood of each eigenvalue to be related to signal subspace to estimate the signal component.}
+
+\subsection*{Automatic rank selection} In the rank-reduction filtering introduced above, the predefined rank parameter $K$ plays a significant role in \dlo{the }obtaining satisfactory performance. It has been documented that an appropriate selection of $K$ can be the number of seismic events that have distinct slownesses \cite{mssa}. However, the real earthquake data is never a simple composition of several wave types with clear arrivals. Instead, the earthquake data can be much more complicated, e.g., the seismic arrivals are buried  in the strong noise or the weak phases are hidden in the more dominant strong codas. Besides, the events in the earthquake record can be curving when the range of epicentral distance is large. 
+
+Thus, \dlo{to select}\wen{the selection} the optimal rank is a non-trivial task. Generally speaking, if the rank is chosen too large, the rank-reduction filter tends to preserve all subtle features in the data, including the random noise and missing seismograms, thus the \dlo{resulted}\wen{resulting} data will contain strong residual noise and not be able to reconstruct the true-amplitude of the missing data. If the rank is chosen too small, the rank-reduction filter can remove most useful signal components and only leave the most dominant energy in the seismic record, e.g., the coda waves or the PP phases with strong amplitude. The rank parameter is highly correlated with the structural complexity of the data, and traditionally the optimal rank requires a lot of human \dlo{effort}\wen{efforts} and \dlo{priori}\wen{prior} knowledge. 
+
+Thus, we introduce an adaptive method to optimally select the rank parameter for the rank-reduction filtering. We utilize the difference of the singular values between signals and noise in the singular spectrum to define the rank. We first define a singular value ratio sequence
+\begin{equation}
+\label{eq:ratio}
+r_i = \frac{\sigma_i}{\sigma_{i+1}}, i=1,2,3,\cdots,N-1,
+\end{equation}
+where $\sigma_i$ is the $i$th singular value of the Hankel matrix $\mathcal{H}$ and $\{r_i\}$ denotes the singular value ratio sequence. $N$ denotes the size of the singular spectrum. The optimal rank $K$ is obtained when the sequence $r_i$ reaches the maximum
+\begin{equation}
+\label{eq:r}
+\hat{K} = \arg \max_{i} r_i.
+\end{equation} 
+The principles of the adaptive rank selection method introduced in equations \ref{eq:ratio} and \ref{eq:r} are based on the\dlo{ detecting}\wen{ detection of} the cut-off rank in the singular value spectrum which indicates the separation between signal and noise energy.
+
+\subsection*{Data availability}
+All broadband seismic waveforms are retrieved from IRIS-DMC (Incorporated Research Institutions for Seismology, Data Management Center) (http://ds.iris.edu/ds/nodes/dmc/). Results obtained in this study are available upon requested from the corresponding author.
+
+\new{\subsection*{Code availability}
+The codes of 3D seismic reconstruction are available from the corresponding author upon reasonable request.}
+
+\bibliography{us}
+%\bibliographystyle{naturemag-doi}
+\bibliographystyle{seg}
+
+%\noindent LaTeX formats citations and references automatically using the bibliography records in your .bib file, which you can edit via the project menu. Use the cite command for an inline citation, e.g.  \cite{Figueredo:2009dg}.
+
+\section*{Acknowledgements}
+The earthquake data used in this study is requested from Incorporated Research Institutions for Seismology (IRIS). The authors are grateful to \wen{Jinwei Fang,} Wei Chen, Shaohuan Zu, Mi Zhang, Yatong Zhou, and Sergey Fomel for insightful discussions. The research is partially supported by the “Thousand Youth Talents Plan”, and the Starting Funds from Zhejiang University. 
+
+
+\section*{Author contributions}
+Y.C. designed the project.
+Y.C. and M.B. processed the field data. Y.C. and Y.C. analyzed the results.
+Y.C., M.B., and Y.C. wrote the manuscript. All authors reviewed the manuscript. 
+
+\section*{\old{Additional information}\new{Competing Interests Statement}}
+The authors declare no competing \old{financial }interests.
+
+
+%\end{document}
+
