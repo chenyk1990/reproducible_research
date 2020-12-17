@@ -21,7 +21,7 @@ function Syn_ratio(dsnrs)
 %  along with this program; if not, write to the Free Software
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
 % 
-%  Reference:   Chen et al., NC, 2019
+%  Reference:   Chen et al., 2019, Obtaining free USArray data by multi-dimensional seismic reconstruction, Nature Communications, 10:4434.
 
 %% load data
 

@@ -21,7 +21,7 @@ function Syn(clean,noisy,obs,mask,rr,drr)
 %  along with this program; if not, write to the Free Software
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
 % 
-%  Reference:   Chen et al., NC, 2019
+%  Reference:   Chen et al., 2019, Obtaining free USArray data by multi-dimensional seismic reconstruction, Nature Communications, 10:4434.
 
 %% load data
 
@@ -65,6 +65,8 @@ n1win=50;n2win=50;n3win=50;
 r1=0.5;r2=0.5;r3=0.5;
 %% Main program goes here !
 d1=win3d_mask(@localfxymssa_recon, dm, param, d0, n1win, n2win, n3win, r1, r2, r3);
+%or
+%d1=win3d_mask(@localfxymssa_recon_auto, dm, param, d0, n1win, n2win, n3win, r1, r2, r3);
 
 %% global RR
 flow=0;fhigh=100;dt=0.004;N=9;mode=1;verb=1;
