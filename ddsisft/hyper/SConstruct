@@ -1,0 +1,134 @@
+from rsf.proj import *
+from rsf.prog import RSFROOT
+
+#compile for c
+proj = Project()
+prog=proj.Program('isft',['../field/Misft.c'],
+								CPPPATH=os.path.join(RSFROOT,'include'),
+								LIBPATH=[os.path.join(RSFROOT,'lib')],
+								LIBS=['rsfpwd','rsf','m'])
+
+
+def Grey(data,other): 
+	Result(data,'put d2=10 | grey label2=Trace unit2="" clip=0.5 label1=Time unit1="s" title="" wherexlabel=b wanttitle=n  %s '%other)
+def Graph(data,other):
+	Result(data,'graph label1="Iter #no" label2="Misfit" unit1="" unit2="" title="" wherexlabel=b wheretitle=t %s' %other)
+
+Flow('vrms',None,
+     'math d1=0.004 n1=1001 o1=0 output="x1*125+2500+50*sin(9*x1)" ')
+
+Flow('synt',None,
+     '''
+     spike d1=0.004 n1=1001 |
+     noise rep=y seed=2006 |
+     cut n1=100 | 
+     bandpass flo=4 fhi=20 |
+     spray axis=2 n=400 d=25 o=-5000 label=Offset unit=m 
+     ''')
+
+Flow('hyper','synt vrms',
+     'inmo velocity=${SOURCES[1]} half=y | noise seed=2007 var=1e-10 | scale axis=2 | put o2=0 d2=1 | window n1=501')
+Grey('hyper','')
+     
+# synthesize a blended shot
+Flow('hyper-shot1','hyper','dd form=native | pad n2=512')
+Flow('hyper-shot2','hyper-shot1','matlr')
+Flow('hypers','hyper-shot1 hyper-shot2','add scale=1,1 ${SOURCES[1]}')
+Flow('hypers-t','hypers','cut n2=200 | cut f2=310')
+Flow('hypers-tt','hypers hypers-t','add scale=1,-1 ${SOURCES[1]}')
+Flow('hypers-ttt','hypers','window f2=200 n2=128')
+
+Grey('hyper-shot1','')
+Grey('hyper-shot2','')
+Grey('hypers','')
+Grey('hypers-t','')
+Grey('hypers-tt','')
+Grey('hypers-ttt','')
+
+Flow('hyper-pq','hypers-t',
+	'''
+	twodip2 order=2 verb=y gauss=n niter=5 eps=2 lam=2
+	''')
+
+Flow('hyper-dip1','hyper-pq','window n3=1')
+Flow('hyper-dip2','hyper-pq','window f3=1')
+Grey('hyper-dip1','color=j scalebar=y clip=4')
+Grey('hyper-dip2','color=j scalebar=y clip=4')
+
+
+
+Flow('hyper-rec hyper-misfit','hypers-t hyper-pq %s'%(prog[0]),
+     	'''
+     	./${SOURCES[2]} dips=${SOURCES[1]} verb=y order=2 type=b eps=0.01 niter=20 ps=3 pthr=50 misfit=${TARGETS[1]}
+     	''')
+
+Graph('hyper-misfit','')
+
+Flow('hyper-rec1-t','hyper-rec','window n3=1 | window n3=1 | cut f2=300')
+Flow('hyper-rec2-t','hyper-rec','window f3=1 | window f3=1 | cut n2=210')
+Grey('hyper-rec1-t','')
+Grey('hyper-rec2-t','')
+
+Flow('hyper-rec1','hypers-tt hyper-rec2-t','cut n2=200 | add scale=1,1 ${SOURCES[1]}')
+Flow('hyper-rec2','hypers-tt hyper-rec1-t','cut f2=310 | add scale=1,1 ${SOURCES[1]}')
+Grey('hyper-rec1','')
+Grey('hyper-rec2','')
+
+## Mute 
+Flow('hyper-lap','hypers','mutter half=n x0=255 t0=1.0 v0=50')
+Grey('hyper-lap','')
+
+Flow('hypers-clean','hypers hyper-lap','add scale=1,-1 ${SOURCES[1]}')
+Grey('hypers-clean','')
+
+Flow('hyper-shot1-clean','hypers-clean','cut f2=255')
+Flow('hyper-shot2-clean','hypers-clean hyper-shot1-clean','add scale=1,-1 ${SOURCES[1]}')
+Grey('hyper-shot1-clean','')
+Grey('hyper-shot2-clean','')
+
+Flow('hyper-lap-zoom','hyper-lap','window f1=250 f2=200 n2=128')
+Grey('hyper-lap-zoom','')
+
+Flow('hyper-lap-pq','hyper-lap-zoom',
+	'''
+	twodip2 order=2 verb=y gauss=n niter=5 eps=5 lam=5
+	''')
+Flow('hyper-lap-dip1','hyper-lap-pq','window n3=1')
+Flow('hyper-lap-dip2','hyper-lap-pq','window f3=1')
+Grey('hyper-lap-dip1','color=j scalebar=y clip=4')
+Grey('hyper-lap-dip2','color=j scalebar=y clip=4')
+
+Flow('hyper-lap-rec hyper-lap-misfit','hyper-lap-zoom hyper-lap-pq %s'%(prog[0]),
+     	'''
+     	./${SOURCES[2]} dips=${SOURCES[1]} verb=y order=2 type=b eps=0.01 niter=20 ps=3 pthr=50 misfit=${TARGETS[1]}
+     	''')
+Flow('hyper-lap-misfit-norm','hyper-lap-misfit','scale axis=1')
+Graph('hyper-lap-misfit-norm','')     	
+
+
+
+Flow('hyper-lap-rec1-t','hyper-lap-rec','window n3=1 | window n3=1')
+Flow('hyper-lap-rec2-t','hyper-lap-rec','window f3=1 | window f3=1')
+Grey('hyper-lap-rec1-t','')
+Grey('hyper-lap-rec2-t','')
+
+Flow('hyper-lap-rec1','hyper-lap-rec1-t','pad beg1=250 beg2=200 n2=512 | mutter half=n x0=255 t0=1.0 v0=50')
+Flow('hyper-lap-rec2','hyper-lap-rec2-t','pad beg1=250 beg2=200 n2=512 | mutter half=n x0=255 t0=1.0 v0=50')
+
+### FK
+Flow('hyper-lap-fk1','hyper-lap-zoom','fft1 | fft3 axis=2 pad=1 | cut f2=63 |fft3 inv=y axis=2 pad=1 |fft1 inv=y')
+Flow('hyper-lap-fk2','hyper-lap-zoom hyper-lap-fk1','add scale=1,-1 ${SOURCES[1]}')
+
+Grey('hyper-lap-fk1','')
+Grey('hyper-lap-fk2','')
+
+Grey('hyper-lap-rec1','')
+Grey('hyper-lap-rec2','')
+
+Flow('hyper-shot1-sep','hyper-shot1-clean hyper-lap-rec1','add scale=1,1 ${SOURCES[1]}')
+Flow('hyper-shot2-sep','hyper-shot2-clean hyper-lap-rec2','add scale=1,1 ${SOURCES[1]}')
+Grey('hyper-shot1-sep','')
+Grey('hyper-shot2-sep','')
+
+End()
+

@@ -1,0 +1,231 @@
+\published{IEEE Geoscience and Remote Sensing Letters, 13, 197-201, (2016)}
+
+\title{Simultaneous source separation using iterative seislet-frame thresholding}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\author{Shuwei Gan\footnotemark[1], Shoudong Wang\footnotemark[2], Yangkang Chen\footnotemark[3], and Xiaohong Chen\footnotemark[2]}
+\address{
+\footnotemark[1] State Key Laboratory of Petroleum Resources and Prospecting \\
+China University of Petroleum \\
+Fuxue Road 18th\\
+Beijing, China, 102200 \\
+\footnotemark[2]Bureau of Economic Geology \\
+John A. and Katherine G. Jackson School of Geosciences \\
+The University of Texas at Austin \\
+University Station, Box X \\
+Austin, TX 78713-8924 \\
+Email: ykchen@utexas.edu \\
+}
+
+\lefthead{GRSL - Gan et al.}
+\righthead{Simultaneous source separation}
+
+\maketitle
+
+\begin{abstract}
+The distance-separated simultaneous sourcing technique can make the smallest interference between different sources. In a distance-separated simultaneous-source acquisition with two sources, we propose the use of a novel iterative seislet-frame thresholding approach to separate the blended data. Because the separation is implemented in common shot gathers (CSGs), there is no need for the random scheduling that is used in conventional simultaneous-source acquisition, where random scheduling is applied to ensure the incoherent property of blending noise in common midpoint, common receiver, or common offset gathers. Thus, distance-separated simultaneous sourcing becomes more flexible. The separation is based on the assumption that the local dips of the data from different sources are different. We can use plane-wave destruction (PWD) algorithm to simultaneously estimate the conflicting dips and then use seislet frames with two corresponding local dips to sparsify each signal component. Then the different signal components can be easily separated. Compared with the FK-based approach, the proposed seislet frames based approach has the potential to obtain better separated components with less artifacts because the seislet frames are local transforms while the Fourier transform is a global transform. Both simulated synthetic and field data examples show very successful performance of the proposed approach.
+\end{abstract}
+
+\section{keywords}
+Deblending, distance-separated simultaneous-source data, seislet transform, seislet frame, iterative inversion
+
+
+\section{Introduction}
+The principal purpose of simultaneous source acquisition is to speed up the acquisition of seismic data with a denser spatial sampling, which saves huge on acquisition cost and increases data quality. The benefits are compromised by the intense interference between different shots \cite{berkhout2008}. One way of solving the problem caused by interference is first by separating and second by processing strategy \cite{mahdad2011,yangkang20142,yangkang2014svmf,yangkang2015pnmo}, which is also called deblending. Another way is by direct imaging and inversion of the blended data by attenuating the interference during inversion \cite{verschuur2011,zhiguang2014,yangkang2015image,shuwei2015vel}. Currently, deblending is still the dominant way of dealing with simultaneous-source data.
+
+%There are generally two types of deblending approaches that have been reported in the literature: (1) treating deblending as a noise attenuation approach \cite{mediandeblend,yangkang2014svmf,yangkang2015ortho}, (2) treating deblending as an inversion problem \cite{sep,abma2010,yangkang20142}.  For the filtering based approaches, most of the approaches are based on median filter. \cite{yangkang2014nmo} proposed to use common midpoint domain for deblending, because of the better coherency of useful signals and also because the near-offset useful events follow the hyperbolic assumption and thus can be flattened using normal moveout (NMO) correction. A simple median filtering (MF) can be applied to the NMO corrected common-midpoint (CMP) gathers to attenuate blending noise. \cite{yangkang2014svmf} proposed a type of MF with spatially varying window length. The space-varying median filter (SVMF) does not require the events to be flattened and is also better applied in midpoint domain. \cite{mediandeblend} used a multidirectional vector median filter  after resorting the data into common midpoint gathers. For inversion based approaches, because of the ill-posed property of the inversion problem, there should be some constraint to regularize the inversion problem. \cite{akerberg2008} used sparsity constraint in the Radon domain to regularize the inversion. A sparsity constraint was also used by \cite{abma2010} to minimize the energy of incoherent events present in blended data. \cite{lin2009} connected a curvelet-based sparse inversion algorithm with the emerging field of compressive sensing. \cite{bagaini2012} compared two separation techniques for the dithered slip-sweep (DSS) data using the sparse inversion method \cite{moore2010} and f-x predictive filtering \cite{canales1984}, and pointed out the advantage of the inversion methods over the filtering based approaches. In order to deal with the aliasing problem, \cite{proj} proposed the alternating projection method (APM), which chooses corrective projections to exploit data characteristics and is claimed to be less sensitive to aliasing than alternative approaches. \cite{mahdad2010} proposed a coherence-based inversion approach to deblend the simultaneous-source data. The convergence properties and the algorithmic aspects of the method were discussed by \cite{panagiotis20122} and \cite{araz2012}, respectively.
+
+Most simultaneous-source surveys utilize a random scheduling strategy, which aims at making each shot in a source array shot with a random schedule to create the incoherent property of interference in common midpoint gathers (CMGs), common receiver gathers (CRGs), and common offset gathers (COGs), and the separation quality heavily depends on the source scheduling \cite{abma2014,yangkang2015dbortho}. When source scheduling is not optimally operated, those assumptions for applying different constraints when solving the under-determined deblending problem cannot be satisfied.
+
+There are other limitations for the random firing acquisition. For example, when the poor source sampling causes spatial aliasing, deblending fails to give satisfying results, in which case no coherency filter can distinguish the direction of wave propagation to successfully remove the interference. This further limits the acquisition design with respect to the source spacing. A new blended acquisition design that uses shot repetition was proposed in \cite{sixuethesis}; and this avoids
+the dense source-sampling restriction. The design of this acquisition is aimed at separating blended shots in the shot domain so that there are no restrictions on the source-sampling interval. A novel configuration of simultaneous-source acquisition called \emph{distance-separated simultaneous sourcing} (DSSS) was also proposed \cite{bouska2009}; and this does not enforce a random scheduling and thus can be more flexible. The basic principle of DSSS is by using simultaneous sources with a large separated distance to minimize the interference between different sources. Because of a large ratio of clean energy to overlapped energy, the interference can be directly muted without separation. This new simultaneous sourcing approach offers more flexibility and motivation to push the development of simultaneous source technique.
+
+In this paper, we propose a novel iterative separation approach designed specifically for the DSSS acquisition. The clean region can be directly preserved before separation and the overlapped data are selected for iterative separation. Our approach is based on the assumption that the interference in a DSSS acquisition has conflicting dips. Thus, when the two sources are not far from each other, indicating a more complicated slope overlap, the separation performance will be significantly affected. We use seislet frames \cite{seislet,shuwei20153} as the basis for sparsifying each dip component. The two local slopes of the two dip components can be obtained using the plane-wave destruction (PWD) algorithm \cite{fomel2002pwd}. The proposed iterative approach is called \emph{iterative seislet frame thresholding}. We demonstrate superior performance using the proposed approach over the commonly used FK-based approach in obtaining artifacts-free separated components. We use both simulated synthetic and field data examples to demonstrate the successful performance of the proposed approach. The proposed approach can also be used in any simultaneous-source configuration that will cause dip-conflicting seismic events.
+
+\section{Theory}
+\subsection{Numerical blending and iterative deblending using seislet frames in the shot domain}
+Suppose the distance-separated simultaneous-source data can be acquired by directly summing up two independent common shot gathers:
+\begin{equation}
+\label{eq:sum}
+\tilde{\mathbf{d}}=\sum_{i=1}^{2}\mathbf{d}_i,
+\end{equation}
+where $\tilde{\mathbf{d}}$ is the blended data, and $\mathbf{d}_1$ and $\mathbf{d}_2$ denote the first and second independent sources, respectively.
+
+In the case of least-squares misfit, we need to solve the following minimization problem:
+\begin{equation}
+\label{eq:mini1}
+\min_{\mathbf{d}_1,\mathbf{d}_2}  \parallel\tilde{\mathbf{d}} - \sum_{i=1}^{2}\mathbf{d}_i \parallel_2^2.
+\end{equation}
+
+To solve the problem as shown in equation \ref{eq:mini1}, a regularization term should be added such that
+\begin{equation}
+\label{eq:mini2}
+\{\mathbf{d}_1,\mathbf{d}_2\} = \arg \min_{\mathbf{d}_1,\mathbf{d}_2} \parallel\tilde{\mathbf{d}} - \sum_{i=1}^{2}\mathbf{d}_i \parallel_2^2 + \lambda\mathbf{R}(\mathbf{d}_1,\mathbf{d}_2).
+\end{equation}
+Here, $\lambda$ is a controlling parameter, and $\mathbf{R}$ is the regularization operator.
+
+An appropriate regularization is needed to ensure the least summation of $L_1$ norm of the sparse transform domain coefficients:
+\begin{equation}
+\label{eq:mini2}
+\{\mathbf{d}_1,\mathbf{d}_2\} = \arg \min_{\mathbf{d}_1,\mathbf{d}_2} \parallel\tilde{\mathbf{d}} - \sum_{i=1}^{2}\mathbf{d}_i \parallel_2^2 + \lambda\sum_{i=1}^{2} \parallel \mathbf{A}_i^{-1}\mathbf{d}_i\parallel_1,
+\end{equation}
+where $\mathbf{A}_i$ denotes the seislet frame for the $i$th source.
+
+%\subsection{Iterative deblending using seislet frames in the shot domain}
+We propose the following iterative approach for solving equation \ref{eq:mini2}:
+\begin{equation}
+\label{eq:iter}
+\mathbf{d}_{i}^{n+1} = \mathbf{S}_i [\mathbf{d}_{i}^{n} + \mathbf{B}[\tilde{\mathbf{d}} - \sum_{i=1}^{2}\mathbf{d}_i^n ] ],
+\end{equation}
+where $\mathbf{S}_i$ is the shaping operator, which iteratively shapes the model into its more admissible model space, and $\mathbf{B}$ is a backward operator, which gives an approximate inverse mapping from data to model space. In this paper, we propose the use of a transformed domain soft-thresholding operator as the shaping operator:
+\begin{equation}
+\label{eq:shape}
+ \mathbf{S}_i = \mathbf{A}_i \mathbf{T}_{\alpha} \mathbf{A}_i^{-1},
+\end{equation}
+and $\mathbf{B}$ as a scaled identity operator: $\mathbf{B}=\gamma\mathbf{I}$. The sparsity-promoting transforms for two sources are selected as a pair of seislet frames. To make the algorithm more robust, we only apply the algorithm to the overlapped part to preserve the clean energy.
+
+The traditional iterative seislet thresholding based deblending approach \cite{yangkang20142} used a similar framework as equation \ref{eq:iter} to separate the simultaneous sources. However, there are two significant differences between the traditional seislet thresholding approach and the proposed approach. First, the traditional seislet thresholding approach is applied in domains other than the shot domain and is based on the random shot scheduling assumption, while the proposed approach is applied in the shot domain and does not require the shot schedules to be random. Secondly, the traditional seislet thresholding requires only one slope map to compress the coherent seismic events while the proposed approach requires several slope maps that have smoothly variable local slope to compress different coherent events. The traditional seislet thresholding can be considered as a special case of the proposed approach where only one seislet frame is used.
+
+\subsection{Two-slope estimation and a review of the plane-wave destruction algorithm}
+The key factor affecting the sparsity of the seislet frame $\mathbf{A}_i$ shown in equation \ref{eq:mini2} is the local slope. The local slope, $\sigma$, of the seismic profile can be related to the plane wave using the following differential equation:
+\begin{equation}
+\label{eq:plane}
+\frac{\partial P}{\partial x} + \sigma \frac{\partial P}{\partial t} = 0,
+\end{equation}
+for local plane wave propagation in the $x$ direction.
+
+The wavefield propagation along the space direction can also be expressed as:
+\begin{equation}
+\label{eq:shift}
+P(x,t)=P(x+\Delta x,t+\sigma\Delta t).
+\end{equation}
+
+In the Z transform formulation, equation \ref{eq:shift} corresponds to the following equation:
+\begin{equation}
+\label{eq:zt}
+(1-Z_xZ_t^p)P(Z_x,Z_t)=0,
+\end{equation}
+where $P(Z_x,Z_t)$ denotes the Z transform of $P$. $Z_t$ is the unit time-shift operator, and $Z_x$ is the unit space-shift operator.
+The term $1-Z_xZ_t^p$ is referred to as the plane-wave destructor operator and can be approximated by
+\begin{equation}
+\label{eq:pwd}
+1-Z_xZ_t^p = 1- Z_x \frac{B(Z_t)}{B(1/Z_t)},
+\end{equation}
+where $\frac{B(Z_t)}{B(1/Z_t)}$ is an all-pass filter to approximate $Z_t^{\sigma}=e^{iw\sigma}$.
+Thus, the plane wave can be predicted using the 2-D prediction filter:
+\begin{equation}
+\label{eq:pred}
+A(Z_t,Z_x) = 1- Z_x\frac{B(Z_t)}{B(1/Z_t)}.
+\end{equation}
+To avoid polynomial division, multiplying both sides of equation \ref{eq:pred} by $B(1/Z_t)$, then we obtain a more stable 2D prediction filter:
+\begin{equation}
+\label{eq:pred2}
+C(Z_t,Z_x) = B(1/Z_t)- Z_xB(Z_t).
+\end{equation}
+The formulation of $B(Z)$ can be determined using an implicit finite difference scheme \cite{fomel2002pwd}.
+
+If we apply $C$ onto the seismic data, given the known local slope $\sigma$, we can destruct the local plane waves and obtain a zero section.
+To estimate the local slope, we can turn to solving the following equation:
+\begin{equation}
+\label{eq:zero}
+C(\sigma)P(Z_x,Z_t) \approx 0.
+\end{equation}
+Because of the non-linear relation between $C$ and $\sigma$, we use Gauss-Newton's method to solve it by first linearizing equation \ref{eq:zero}:
+\begin{equation}
+\label{eq:linear}
+C'(\sigma)P(Z_x,Z_t)\Delta \sigma  + C(\sigma)P(Z_x,Z_t) \approx 0.
+\end{equation}
+where $C'$ is the derivative of $C$ at $\sigma$.
+
+When there is more than one slope in the data, we can still use equation \ref{eq:linear} to solve them, just by substituting the $C(\sigma)$ with $C(\sigma_1)C(\sigma_2)$,
+and correspondingly equation \ref{eq:linear} becomes
+\begin{equation}
+\label{eq:double}
+\begin{split}
+C'(\sigma_1)C(\sigma_2)\Delta\sigma_1P(Z_x,Z_t)  &+C(\sigma_1)C'(\sigma_2)\Delta\sigma_2P(Z_x,Z_t)  + \\
+&C(\sigma_1)C(\sigma_2)P(Z_x,Z_t) \approx 0.
+\end{split}
+\end{equation}
+We start from an initial pair of $\sigma_1$ and $\sigma_2$, and by iteratively solving equation \ref{eq:double} we can obtain the converged $\sigma_1$ and $\sigma_2$.
+%When transformed equation \ref{eq:plane} into frequency domain assuming $\sigma$ does not change with $t$,
+%\begin{equation}
+%\label{eq:freq}
+%\frac{d \hat{P}}{d x} + iw\sigma \hat{P}= 0.
+%\end{equation}
+%It is obvious that equation \ref{eq:freq} has the following solution:
+%\begin{equation}
+%\label{eq:general}
+%\hat{P}(x) = \hat{P}(0)e^{iw\sigma}.
+%\end{equation}
+%It's obviously that
+
+\subsection{Deblending workflow for the DSSS blended data}
+The overlapped data in the DSSS acquisition is relatively small compared with the whole data size. Conventionally, we simply mute the overlapped part or simply overlook it, and the final migration result will not differ too much compared with the single-shot shooting case. Based on the previous sections, we have designed a specific deblending approach for removing the overlapped part from the blended data by iterative inversion with a sparsity constraint in the seislet frame transformed domain. To fully utilize the clean signals, and not affect their energy, we suggest applying the proposed approach only to the overlapped part. Both slope estimation and iterative inversion are applied to the overlapped part. The proposed workflow is shown in Fig. \ref{fig:flowchart}.  Note that the proposed approach can only be used to separate simultaneous source data that contain distinct slope conflicts. The proposed approach also highly depends on the estimation accuracy of the local slope. The PWD algorithm is robust and can generally obtain accurate slope estimation. As long as the two sources are shot with a significantly large distance in field deployment, the basic assumption of dip conflicts can be easily met.
+
+\inputdir{./}
+\plot{flowchart}{width=\columnwidth}{Flowchart for deblending the DSSS data using the proposed approach.}
+
+
+\section{Simulated data example}
+We used a pair of two common shot gathers (CSG) to simulate the distance-separated blended data. Fig. \ref{fig:demo1,demo2,demo3} shows a demonstration of the simulated acquisition geometry. Figs. \ref{fig:demo1} and \ref{fig:demo2} show conventional acquisitions with a single source. We needed to cover the target regions showed by first shooting the regions in Fig \ref{fig:demo1} (red dots) and secondly, by shooting the regions in Fig \ref{fig:demo2} (green dots), continuously. However,  the conventional acquisition had low efficiency. Figs. \ref{fig:demo3} shows
+the DSSS acquisition system. Two sources (denoted by the red and green dots) shoot simultaneously with a large distance between them. It is obvious that the acquisition efficiency has increased twice and because of the overlap between the seismic rays of two sources, there is interference in the recorded data.
+
+\multiplot{3}{demo1,demo2,demo3}{width=0.45\columnwidth}{DSSS geometry demonstration. (a) Single source on the left side (red dots). (b) Single source on the right side (green dots). (c) Double sources with long separated distance.}
+
+
+The first example is based on simulated synthetic example. The two clean synthetic data for simulation are shown in Figs. \ref{fig:hyper-shot1} and \ref{fig:hyper-shot2}. The distance-separated blended data are shown in Fig \ref{fig:hypers}. By fully utilizing the clean data, we muted the data such that the overlapped and the clean data are separated, as shown in Figs. \ref{fig:hyper-lap} and \ref{fig:hypers-clean}. After muting, we applied the proposed iterative seislet frame thresholding to the overlapped data, as shown in Fig \ref{fig:hyper-lap-zoom}. By applying the PWD algorithm as introduced in \cite{fomel2002pwd} and reviewed in the previous section, we obtained two dominant slopes, as shown in Figs. \ref{fig:hyper-lap-dip1} and \ref{fig:hyper-lap-dip2}. The two seislet frames that utilize the two dominant slopes can help to sparsify each dip component and treat the other slope component as unpredictable noise. After iterative separation using equation \ref{eq:iter}, we obtained two well-separated dip components, as shown in Figs. \ref{fig:hyper-lap-rec1-t} and \ref{fig:hyper-lap-rec2-t}. The normalized misfit during the iterative inversion (difference between the simulated data and observed blended data) is shown in Fig \ref{fig:hyper-lap-misfit-norm}. We also compared the performance using the proposed approach with that using the FK-based approach. The FK-based approach refers to the simple dip filter that uses 2D FFT transform \cite{sanyi2015} to separate the positive and negative wavenumber components . The two separated components using the FK-based approach are shown in Figs. \ref{fig:hyper-lap-fk1} and \ref{fig:hyper-lap-fk2}, respectively. It is obvious that the FK-based approach causes some artifacts in the separated components while the proposed approach might obtain nearly perfect artifacts-free components. The superior performance using the proposed approach results from the fact that the seislet frames are local transforms while the Fourier transform is a global transform, which will sometimes result in local artifacts in the filtered images. Note that if some random noise in the data exists, some pre-processing steps should be used to remove the random noise without harming the coherent events \cite{yangkang2015ortho} to ensure a good separation performance of the proposed approach. Putting the separated component to the original clean data results in the separated profiles. The separated components in the original scale and the clean components are shown in Figs. \ref{fig:hyper-lap-rec1}, \ref{fig:hyper-shot1-clean}, \ref{fig:hyper-lap-rec2} and \ref{fig:hyper-shot2-clean}.  Figs. \ref{fig:hyper-shot1-sep} and \ref{fig:hyper-shot2-sep} show the two deblended CSG. They are nearly the same as the unblended data, as shown in Figs. \ref{fig:hyper-shot1} and \ref{fig:hyper-shot2}.
+
+\inputdir{hyper}
+\multiplot{3}{hyper-shot1,hyper-shot2,hypers}{width=0.45\columnwidth}{Synthetic example. (a) Unblended source 1. (b) Unblended source 2. (c) Blended data using DSSS.}
+
+\multiplot{2}{hyper-lap,hypers-clean}{width=0.45\columnwidth}{Synthetic example. Separated interference (a) and clean data (b).}
+
+\multiplot{3}{hyper-lap-zoom,hyper-lap-dip1,hyper-lap-dip2}{width=0.45\columnwidth}{Synthetic example. (a) Zoomed interference. (b) Dip estimation for the first component. (c) Dip estimation for the second component. }
+
+\multiplot{5}{hyper-lap-zoom,hyper-lap-rec1-t,hyper-lap-rec2-t,hyper-lap-fk1,hyper-lap-fk2}{width=0.3\columnwidth}{Synthetic example. (a) Zoomed interference. (b) Separated first component using the proposed approach. (c) Separated second component using the proposed approach. (d) Separated first component using the FK-based approach. (e) Separated second component using the FK-based approach. }
+
+\multiplot{6}{hyper-lap-rec1,hyper-shot1-clean,hyper-shot1-sep,hyper-lap-rec2,hyper-shot2-clean,hyper-shot2-sep}{width=0.3\columnwidth}{Synthetic example. (a) Separated first component.  (b) Separated clean data for the first source.   (c) Separated first source (combining (a) and (b)).  (d) Separated second component. (e) Separated clean data for the second source.   (f) Separated second source (combining (d) and (e)).}
+
+\plot{hyper-lap-misfit-norm}{width=0.8\columnwidth}{Convergence diagram (misfit function) for the synthetic example.}
+
+
+\inputdir{field}
+\multiplot{3}{field-shot1-0,field-shot2,fields-0}{width=0.45\columnwidth}{Field data example. (a) Unblended source 1. (b) Unblended source 2. (c) Blended data using DSSS.}
+
+\multiplot{2}{field-lap,fields-clean}{width=0.45\columnwidth}{Field data example. Separated interference (a) and clean data (b).}
+
+\multiplot{3}{field-lap-zoom,field-lap-dip1,field-lap-dip2}{width=0.45\columnwidth}{Field data example. (a) Zoomed interference. (b) Dip estimation for the first component. (c) Dip estimation for the second component.}
+
+\multiplot{3}{field-lap-zoom,field-lap-rec1-t,field-lap-rec2-t}{width=0.45\columnwidth}{Field data example. (a) Zoomed interference. (b) Separated first component. (c) Separated second component.}
+
+\multiplot{6}{field-lap-rec1,field-shot1-clean,field-shot1-sep-0,field-lap-rec2,field-shot2-clean,field-shot2-sep}{width=0.3\columnwidth}{Field data example. (a) Separated first component.  (b) Separated clean data for the first source.   (c) Separated first source (combining (a) and (b)).  (d) Separated second component. (e) Separated clean data for the second source.   (f) Separated second source (combining (d) and (e)).}
+
+\plot{field-trace-comp}{width=\columnwidth}{Comparison of the amplitude between 1s and 2s of the 75th trace in the simulated field data example. The black solid line denotes the unblended trace (true trace). The green dashed line corresponds to blended data. The red dot-dashed line corresponds to deblended data. Note the removal of interference as indicated by the amplitude difference between the green dashed line and red dot-dashed line.}
+
+
+The second example is based on a simulated field data example. The two clean field data for simulation are shown in Figs. \ref{fig:field-shot1-0} and \ref{fig:field-shot2}. The distance-separated blended data are shown in Fig \ref{fig:fields-0}. We followed the same procedures as the first example, and first muted the data such that the overlapped and the clean data are separated, as shown in Figs. \ref{fig:field-lap} and \ref{fig:fields-clean}. After muting, we applied the proposed iterative seislet frame thresholding to the overlapped data, as shown in Fig \ref{fig:field-lap-zoom}. The two dominant slopes calculated using PWD algorithms are shown in Figs. \ref{fig:field-lap-dip1} and \ref{fig:field-lap-dip2}.  After iterative separation using equation \ref{eq:iter}, we obtained two well-separated dip components, as shown in Figs. \ref{fig:field-lap-rec1-t} and \ref{fig:field-lap-rec2-t}. The separated components in the original scale and the clean components are shown in Figs. \ref{fig:field-lap-rec1}, \ref{fig:field-shot1-clean}, \ref{fig:field-lap-rec2} and \ref{fig:field-shot2-clean}.  Figs. \ref{fig:field-shot1-sep-0} and \ref{fig:field-shot2-sep} show the two deblended CSG. We also compared the amplitude between 1s and 2s of the 75th trace in the simulated field data example, shown in Fig \ref{fig:field-trace-comp}. The selected trace is highlighted by the dashed lines in Figs. \ref{fig:field-shot1-0}, \ref{fig:fields-0}, and \ref{fig:field-shot1-sep-0}. The black solid line denotes the unblended trace (true trace). The green dashed line corresponds to blended data. We can see the big difference between green dashed line and the other two lines. The red dot-dashed line corresponds to the deblended data. Note the removal of blending interference as indicated by the amplitude difference between the green dashed line and red dot-dashed line. Although the deblended trace is not exactly the same as the blended trace, they are close to each other, which indicates a successful deblending performance.
+
+\section{Conclusions}
+We proposed an iterative seislet frame thresholding approach for deblending of the distance-separated simultaneous-source data. Instead of directly muting the overlapped area, we iteratively separate the dip-conflicting overlapped data. The whole processing steps include: muting the whole CSG into clean part and overlapped part, conflicting dips estimation using PWD, iterative seislet frame thresholding on the overlapped data, and combining the clean and separated data to form the final deblended data. The DSSS acquisition does not require random scheduling, and can be pre-processed in the common shot domain. The presented simulated synthetic and field data examples both show nearly perfect deblending performances. Compared with the FK-based approach, the proposed approach can obtain artifacts-free and more accurate separated components since the FK-based approach uses a global 2D FFT transform while the proposed approach uses a local seislet frame transform. Our ongoing project is to compare the migrated results of the DSSS data using the traditional approach (simply muting the interference) and the proposed iterative inversion approach.
+
+\section{Acknowledgements}
+We would like to thank Shan Qu, Shaohuan Zu, Zhaoyu Jin, Jiang Yuan, and five anonymous reviewers for discussions and suggestions that improved the manuscript greatly. This research is supported by the National Natural Science Foundation of China (Grant No.41274137), the National Science and Technology of Major Projects of China (Grant No. 2011ZX05019-006), and the National Engineering Laboratory of Offshore Oil Exploration.
+
+
+
+
+\bibliographystyle{seg}
+\bibliography{ddsisft}
+
+
+
+
+
+
+
+
+
+
+
+
+

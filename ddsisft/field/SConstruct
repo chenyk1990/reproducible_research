@@ -1,0 +1,118 @@
+from rsf.proj import*
+import os
+from rsf.prog import RSFROOT
+
+#compile for c
+proj = Project()
+prog=proj.Program('isft',['Misft.c'],
+								CPPPATH=os.path.join(RSFROOT,'include'),
+								LIBPATH=[os.path.join(RSFROOT,'lib')],
+								LIBS=['rsfpwd','rsf','m'])
+								
+from math import pi
+
+# Data size: 301*61*61
+
+def Grey(data,other): 
+	Result(data,'put d2=10 |grey label2=Trace unit2="" clip=0.5 max1=2.0 label1=Time unit1="s" title="" wherexlabel=b wanttitle=n  %s '%other)
+def Graph(data,other):
+	Result(data,'graph label1="Iter #no" label2="Misfit" unit1="" unit2="" title="" wherexlabel=b wheretitle=t %s' %other)
+
+Flow('field','field0','cp')
+Grey('field','')
+
+Flow('field-shot1','field','pad beg2=32 end2=64 | put o2=0')
+
+# synthesize a blended shot
+Flow('field-shot2','field-shot1','matlr')
+Flow('fields','field-shot1 field-shot2','add scale=1,1 ${SOURCES[1]}')
+Flow('fields-t','fields','cut n2=64 | cut f2=98')
+Flow('fields-tt','fields fields-t','add scale=1,-1 ${SOURCES[1]}')
+Flow('fields-ttt','fields','window f2=64 n2=34')
+
+Grey('field-shot1','')
+Grey('field-shot2','')
+Grey('fields','')
+Grey('fields-t','')
+Grey('fields-tt','')
+Grey('fields-ttt','')
+
+Flow('field-pq','fields-t',
+	'''
+	twodip2 order=2 verb=y gauss=n niter=5 eps=2 lam=2
+	''')
+
+Flow('field-dip1','field-pq','window n3=1')
+Flow('field-dip2','field-pq','window f3=1')
+Grey('field-dip1','color=j scalebar=y clip=3.48')
+Grey('field-dip2','color=j scalebar=y clip=3.48')
+
+## Mute 
+Flow('field-lap','fields','mutter half=n x0=80 t0=0.8 v0=18')
+Grey('field-lap','')
+
+Flow('fields-clean','fields field-lap','add scale=1,-1 ${SOURCES[1]}')
+Grey('fields-clean','')
+
+Flow('field-shot1-clean','fields-clean','cut f2=80')
+Flow('field-shot2-clean','fields-clean field-shot1-clean','add scale=1,-1 ${SOURCES[1]}')
+Grey('field-shot1-clean','')
+Grey('field-shot2-clean','')
+
+Flow('field-lap-zoom','field-lap','window f1=40 f2=64 n2=32')
+Grey('field-lap-zoom','')
+
+Flow('field-lap-pq','field-lap-zoom',
+	'''
+	twodip2 order=2 verb=y gauss=n niter=5 eps=5 lam=5
+	''')
+Flow('field-lap-dip1','field-lap-pq','window n3=1')
+Flow('field-lap-dip2','field-lap-pq','window f3=1')
+Grey('field-lap-dip1','color=j scalebar=y clip=3.48')
+Grey('field-lap-dip2','color=j scalebar=y clip=3.48')
+
+# Seislet-based deblending 1:
+Flow('field-lap-rec field-lap-misfit','field-lap-zoom field-lap-pq %s'%(prog[0]),
+     	'''
+     	./${SOURCES[2]} dips=${SOURCES[1]} verb=y order=2 type=b eps=0.01 niter=20 ps=3 pthr=50 misfit=${TARGETS[1]}
+     	''')
+Flow('field-lap-misfit-norm','field-lap-misfit','scale axis=1')
+Graph('field-lap-misfit-norm','')
+
+Flow('field-lap-rec1-t','field-lap-rec','window n3=1 | window n3=1')
+Flow('field-lap-rec2-t','field-lap-rec','window f3=1 | window f3=1')
+Grey('field-lap-rec1-t','')
+Grey('field-lap-rec2-t','')
+
+Flow('field-lap-rec1','field-lap-rec1-t','pad beg1=40 beg2=64 n2=160 |mutter half=n x0=80 t0=0.8 v0=18')
+Flow('field-lap-rec2','field-lap-rec2-t','pad beg1=40 beg2=64 n2=160 |mutter half=n x0=80 t0=0.8 v0=18')
+
+Grey('field-lap-rec1','')
+Grey('field-lap-rec2','')
+
+Flow('field-shot1-sep','field-shot1-clean field-lap-rec1','add scale=1,1 ${SOURCES[1]}')
+Flow('field-shot2-sep','field-shot2-clean field-lap-rec2','add scale=1,1 ${SOURCES[1]}')
+Grey('field-shot1-sep','')
+Grey('field-shot2-sep','')
+
+
+# adding reference trace
+Flow('trace.asc',None,
+         '''
+         echo %d 0 %d 1 n1=4 in=$TARGET data_format=ascii_float
+         ''' % (76,76)) #81 is the trace number
+Plot('trace','trace.asc',
+         '''
+         dd form=native type=complex | 
+         graph min1=1 max1=160 min2=0 title="" wantaxis=n scalebar=n pad=n plotfat=8 dash=2 
+         ''') #250 is the number of traces
+         
+Result('field-shot1-sep-0','Fig/field-shot1-sep.vpl trace','Overlay')        
+Result('field-shot1-0','Fig/field-shot1.vpl trace','Overlay')        
+Result('fields-0','Fig/fields.vpl trace','Overlay') 
+
+
+Flow('field-trace-comp','field-shot1 fields field-shot1-sep','cat axis=3 ${SOURCES[1:3]} | window n2=1 f2=76 min1=1 max1=2')
+Graph('field-trace-comp','label2=Amplitude unit2= label1=Time unit1=s screenratio=0.6 dash=0,3,5 plotcol="7,3,5" symbolsz=10 max2=0.5 min2=-0.5 title="Amplitude Comparison"')
+       
+End()
