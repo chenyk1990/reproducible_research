@@ -1,0 +1,208 @@
+%\title{Deblending using a structural-oriented median filter in the flattened domain }
+\title{Separation of simultaneous sources using a structural-oriented median filter in the flattened dimension}
+\author{Shuwei Gan\footnotemark[1] , Shoudong Wang\footnotemark[1], Yangkang Chen\footnotemark[2], Xiaohong Chen\footnotemark[1], and Kui Xiang\footnotemark[1]}
+
+\address{
+\footnotemark[1]State Key Laboratory of Petroleum Resources and Prospecting \\
+China University of Petroleum \\
+Fuxue Road 18th\\
+Beijing, China, 102200 \\
+gsw19900128@126.com \& wangshoudong@163.com \& chenxh@cup.edu.cn \& xiangkui15@126.com \\
+\footnotemark[2]Bureau of Economic Geology, \\
+Jackson School of Geosciences \\
+The University of Texas at Austin \\
+University Station, Box X \\
+Austin, TX 78713-8924 \\
+USA \\
+%+1-5125478899 \\
+%ykchen@utexas.edu \\
+}
+
+\lefthead{Gan et al.}
+\righthead{Structural-oriented median filter}
+
+\maketitle
+
+\begin{abstract}
+Simultaneous-source shooting can help tremendously shorten the acquisition period and improve the quality of seismic data for better subsalt seismic imaging, but at the expense of introducing strong interference (blending noise) to the acquired seismic data. We propose to use a structural-oriented median filter to attenuate the blending noise along the structural direction of seismic profiles. The principle of the proposed approach is to first flatten the seismic record in local spatial windows and then to apply a traditional median filter (MF) to the third flattened dimension. The key component of the proposed approach is the estimation of the local slope, which can be calculated by first scanning the NMO velocity and then transferring the velocity to the local slope. Both synthetic and field data examples show that the proposed approach can successfully separate the simultaneous-source data into individual sources. We provide an open-source toy example to \new{better} demonstrate \old{better} the proposed methodology. 
+\end{abstract}
+
+\section{Keywords}
+Simultaneous sources, structural-oriented median filter, plane-wave destruction, velocity slope transformation
+
+\section{Introduction}
+\new{Wide-azimuth acquisition geometry can improve the illumination of subsalt structures, which helps improve the quality of seismic imaging. However, wide-azimuth acquisition suffers from the low-efficiency problem, resulting from the large temporal shooting interval between two consecutive shots. The large temporal shooting interval is needed to ensure that no interference exists between adjacent shots. } The principal purpose of simultaneous source acquisition is to faster the acquisition of a larger-density seismic dataset \new{that allows the temporal or spatial overlap between different shots}, which saves numerous acquisition cost and increases data quality. The improved seismic data with denser spatial sampling can \new{also} help improve the seismic imaging quality of the subsalt structure. The benefits of the new technique are compromised by the intense interference between different shots \cite[]{berkhout2008}. One way for solving the problem caused by interference is by first-separating and second-processing strategy \cite[]{yangkang20142}, which is also called deblending \cite[]{akerberg2008,abma2010,mediandeblend,sep,blac2012,proj,panagiotis20122,araz2012,bagaini2012,chengbo2013,yangkang2014,yangkang2014nmo,berkhout2014seg,yangkang2014svmf,qushan2015,yangkang2015dbortho,shaohuan2015}. Another way is by direct imaging and inversion of the blended data by attenuating the interference during inversion process \cite[]{verschuur2011,daiwei2011,zhiguang2014,yangkang2015image,shuwei2015vel}. Currently, deblending is still the dominant way for dealing with simultaneous-source data. 
+
+There are generally two types of deblending approaches that have been reported in the literature: (1) treating deblending as a noise attenuation approach \cite[]{mediandeblend,yangkang2014,yangkang2014nmo,yangkang2014svmf,yangkang2014simi,yangkang2015ortho}, (2) treating deblending as an inversion problem \cite[]{sep,abma2010,yangkang20142,shuwei2015seg}.  For the filtering based approaches, most of the approaches are based on median filter. \cite{yangkang2014nmo} proposed to use common midpoint domain for deblending, because of the better coherency of useful signals and also because the near-offset useful events follow the hyperbolic assumption and thus can be flattened using normal moveout (NMO) correction. A simple median filtering (MF) can be applied to the NMO corrected common-midpoint (CMP) gathers to attenuate blending noise. \cite{yangkang2014svmf} proposed a type of MF with spatially varying window length. The space-varying median filter (SVMF) does not require the events to be flattened and is also better applied in midpoint domain. \cite{mediandeblend} used a multidirectional vector median filter  after resorting the data into common midpoint gathers. For inversion based approaches, because of the ill-posed property of the inversion problem, there should be some constraint to regularize the inversion problem. \cite{akerberg2008} used sparsity constraint in the Radon domain to regularize the inversion. A sparsity constraint was also used by \cite{abma2010} to minimize the energy of incoherent events present in blended data. \cite{lin2009} connected a curvelet-based sparse inversion algorithm with the emerging field of compressive sensing. \cite{bagaini2012} compared two separation techniques for the dithered slip-sweep (DSS) data using the sparse inversion method  and f-x predictive filtering \cite[]{canales1984}, and pointed out the advantage of the inversion methods over the filtering based approaches. In order to deal with the aliasing problem, \cite{proj} proposed the alternating projection method (APM), which chooses corrective projections to exploit data characteristics and is claimed to be less sensitive to aliasing than alternative approaches. \cite{mahdad2010} proposed a coherence-based inversion approach to deblend\new{ing of} the simultaneous-source data. The convergence properties and the algorithmic aspects of the method were discussed by \cite{panagiotis20122} and \cite{araz2012}, respectively. \new{Although the inversion-based approaches have been demonstrated to obtain better deblending performance \cite[]{bagaini2012}, it usually takes many iterations to process the data. Currently, the most efficient way for deblending is using some types of median filtering.  However, most of the median filtering approaches are directly borrowed from the signal-processing field and do not utilize the structure information of seismic data. }
+
+In this paper, we propose a novel type of MF \new{that makes use of the structural features of seismic data} by means of first flattening the seismic record in local spatial windows and then applying MF along the flattened dimension. The flattening operator is constructed by predicting the neighbor traces following the local slope. One concern for such flattening processing is the estimation of an accurate-enough local slope map, which can be solved by first scanning the NMO velocity and then transferring the velocity to the local slope in the common midpoint domain. We first review the principle of separating simultaneous sources (deblending) and then introduce the theory of both traditional MF and the proposed structural-oriented median filter (SOMF). Next, we introduce the method of transferring the NMO velocity to local slope in the common midpoint domain. Finally, we use two synthetic examples and one simulated field data example to demonstrate the separating performance of the proposed approach.
+
+
+\section{Method}
+\subsection{Deblending of simultaneous-source data}
+In a simultaneous-source acquisition, more than one source are blended onto one constant receiver record:
+\begin{equation}
+\label{eq:blend}
+\mathbf{d}=\Gamma\mathbf{m},
+\end{equation}
+where $\mathbf{d}$ is the blended data, $\mathbf{m}$ is the unblended data, and $\Gamma$ denotes the blending operator \cite[]{sep,yangkang20142,yangkang2015pnmo}. The \old{principle}\new{principal} issue in simultaneous-source acquisition is to separate the blended sources into individual sources as if they were acquired independently, which also corresponds to solving the equation \ref{eq:blend} for $\mathbf{m}$.
+
+The simplest way to approximate $\mathbf{m}$ is called the pseudo-deblending:
+\begin{equation}
+\label{eq:pseudo}
+\hat{\mathbf{m}} = \Gamma^*\mathbf{d}.
+\end{equation}
+Equation \ref{eq:pseudo} corresponds to arranging the seismic records according to the shot schedules of each source in a common receiver gather, which honors the coherency between different shots in each source and makes the interference from other sources randomly spread\old{ing} the receiver domain. The inversion problem \new{as shown in equation} \ref{eq:blend} is then transformed to be a noise attenuation problem that separate\new{s} the spatially coherent signals from the random interference.
+
+A more accurate but also time-consuming approach for solving equation \ref{eq:blend} is to use iterative solver to invert $\mathbf{m}$ with some constraints. One of the currently popular and effective way\new{s} is to use a POCS like solver with a transformed domain sparse constraint \cite[]{abma2010,yangkang20142}:
+\begin{equation}
+\label{eq:pocs}
+\mathbf{m}_{n+1}=\mathbf{A}^{-1}\mathbf{T}\mathbf{A}[\mathbf{m}_n+\lambda\Gamma^*(\mathbf{d}-\Gamma\mathbf{m}_n)],
+\end{equation}
+where $\mathbf{m}_{n}$ is the inverted solution after $n$th iterations, $\mathbf{A}$ and $\mathbf{A}^{-1}$ denotes the forward and inverse sparse transforms, $\mathbf{T}$ denotes a thresholding operator, and $\lambda$ denotes the step size of the model update. The Fourier transform, the curvelet transform, the Radon transform, and the seislet transform are the currently popular sparse transforms for deblending.
+
+The performance of deblending heavily depends on the sparsity of the selected sparse transform. However, most sparse transforms are model dependent, which means that the transforms are based on some assumptions about the data structure. As we know, the seismic data is highly non-stationary and the commonly used sparse transforms can not obtain acceptable level of sparsity, which will result in non-optimal inversion performance. What is even worse is that the inversion may not be stable when blending interference is too strong or the sparse transform domain is not sparse enough. Even though we can use inversion based deblending approach to obtain satisfactory results, the deblending process will take a large number of iterations. Considering the modern seismic acquisition is becoming amazingly larger and larger, the iterative inversion is very time consuming. In the next sections, we will propose a non-iterative deblending approach based on median filtering, which is of exceptional convenience for removing the blending interference.
+
+\subsection{Median filtering}
+The MF is commonly used to remove spiky noise in signal-processing field. For the purpose of removing spiky noise in seismic data, the MF is applied point by point. For each point in the seismic data, we choose a local window that centers at the current point and then pick the median of the local window to be the final value of the current point. The basics of finding the median of a local window is to solve the following minimization problem:
+\begin{equation}
+\label{eq:mf1}
+\hat{u}_{i,j}=\arg\min_{u_m\in U_{i,j}}\sum_{l=1}^{L}\Arrowvert u_m-u_l \Arrowvert_p,
+\end{equation}
+where $\hat{u}_{i,j}$ is the output value for location $x_{i,j}$, $U_{i,j}=\{u_1,u_2,\cdots,u_L\}$, $i,j$ are the position indices in a 2-D profile, and $l$ and $m$ are both indices in the filtering window. $L$ is the length of the filtering window, and $p$ denotes $L_p$ norm. Commonly $p=1$ corresponds to standard MF. 
+
+Because the blending noise caused from the simultaneous shooting is spike-like along the spatial direction, we can use the MF to effectively remove \old{them}\new{it}. However, the traditional MF is only applicable to those seismic data that \old{is main}\new{mainly} composed of horizontal reflections, otherwise much useful reflection energy will be damaged. Thus, we need to either find a way to flatten the seismic data or apply the MF along the structural direction.  
+
+\subsection{Structural-oriented median filtering}
+We propose a type of median filter that is applied along the local structure to remove the blending interference. The principle of the approach is to first flatten the seismic data in a local spatial window:
+\begin{equation}
+\label{eq:flatten}
+ \mathbf{P}_j \mathbf{D}_j^R= \overline{\mathbf{D}}_j^R.
+\end{equation}
+where $\mathbf{P}_j$ is the $j$th flattening operator, \new{and} $j$ corresponds to the $j$th trace. And then, we apply a traditional median filter along the flatten\new{ed} direction. Here, the flattening operator is chosen as a plane-wave prediction operator related with the local slope. $\mathbf{D}_j^R$ denotes the $j$th spatial window (corresponding to $j$th trace) with a radius of $R$, $\overline{\mathbf{D}}_j^R$ denotes the flattened local spatial window.
+Equation \ref{eq:flatten} has the following detailed form \cite[]{shuwei2015}:
+\begin{equation}
+\label{eq:detail}
+\begin{split}
+& \left[
+\begin{array}{cccccc}
+\mathbf{P}_{(1,j)\rightarrow(1+R,j)}(\sigma_{1,j}) &  & & \\
+ &  & \ddots & \\
+ &  & & \mathbf{P}_{(1+2R,j)\rightarrow(1+R,j)}(\sigma_{1+2R,j})\\
+\end{array}
+\right]\\
+&[\mathbf{d}_{1,j},\cdots,\mathbf{d}_{1+R,j}, \cdots, \mathbf{d}_{1+2R,j}]\\
+&=[\overline{\mathbf{d}}_{1,j},\cdots,\overline{\mathbf{d}}_{1+R,j}, \cdots, \overline{\mathbf{d}}_{1+2R,j}]. 
+\end{split}
+\end{equation}
+Here, $\mathbf{P}_{(i,j)\rightarrow(k,j)}(\sigma_{i,j})$ denotes the prediction operator from trace $i$ to trace $k$ in $j$th spatial window, which is connected with the local slope of $i$th trace \new{$\sigma_{i,j}$}. \new{ $\mathbf{d}_{i,j}$ denotes the $i$th trace in the $j$th spatial window. $\overline{\mathbf{d}}_{i,j}$ denotes the $i$th trace in the $j$th spatial window after flattening.} Prediction of a trace consists of shifting the original trace along dominant event slopes \cite[]{fomel2010painting}.  
+Prediction of a trace from a distant neighbor can be accomplished by simple recursion \cite[]{liuyang2010}, i.e., predicting trace $k$ from trace $1$ is simply
+\begin{equation}
+\label{eq:recur}
+\begin{split}
+\mathbf{P}_{(1,j)\rightarrow(k,j)} (\sigma_{1,j})&= \mathbf{P}_{(k-1,j)\rightarrow(k,j)}(\sigma_{k-1,j})\cdots\\
+&\mathbf{P}_{(2,j)\rightarrow(3,j)}(\sigma_{2,j})\mathbf{P}_{(1,j)\rightarrow(2,j)}(\sigma_{1,j}).
+\end{split}
+\end{equation}
+
+\old{The prediction operator is a numerical solution of the local plane differential equation 
+$\frac{\partial P}{\partial x} + \sigma \frac{\partial P}{\partial t} = 0,$
+for local plane wave propagation in the $x$ direction. }
+
+The dominant slopes are estimated by solving the following least-square minimization problem using regularized least-squares optimization:
+\begin{equation}
+\label{eq:mini}
+\hat{\mathbf{\sigma}} = \arg\min_{\sigma} \parallel \mathbf{W}(\sigma)\mathbf{D} \parallel_2^2,
+\end{equation}
+where $\mathbf{W}$ is the destruction operator defined as 
+
+\begin{displaymath} 
+\mathbf{W} = \left[
+\begin{array}{ccccc} 
+\mathbf{I} & 0 & 0 & \cdots & 0\\
+-\mathcal{\mathbf{P}}_{1\rightarrow 2} &\mathbf{I} & 0 &\cdots &0\\
+0 &-\mathcal{\mathbf{P}}_{2\rightarrow 3} & \mathbf{I} & \cdots & 0 \\
+\cdots & \cdots & \cdots & \cdots & \cdots \\
+0& 0 & \cdots & - \mathcal{\mathbf{P}}_{N-1\rightarrow N} & \mathbf{I}
+\end{array}\right]\;, 
+\end{displaymath}
+where $\mathbf{I}$ stands for the identity operator, and $\mathcal{\mathbf{P}}_{i\rightarrow k}$ describes prediction of trace $k$ from trace $i$ (same as the previous version $\mathbf{P}_{(i,j)\rightarrow(k,j)}(\sigma_{i,j})$ except for not in a specific spatial window). The optimization approach as shown in equation \ref{eq:mini} for obtaining local slope estimation is called plane wave destruction (PWD) \cite[]{fomel2002pwd}.
+
+For each trace, we apply the aforementioned flattening, and then we can obtain a 3D cube of the flattened domain. The final filtered result is obtained by selecting the middle slice in the added third dimension after applying median filtering.
+
+\subsection{Estimating local slope from velocity analysis}
+The local slope estimation in highly noisy blended data is challenging. Instead of directly estimating the local slope using the PWD algorithm, we can alternatively first calculate the NMO velocity using simple NMO-correction based velocity analysis and transform\old{s} the NMO velocity to local slope \cite[]{liuyang2013} by using
+\begin{equation}
+\label{eq:vtop}
+p(t,x)=\frac{x}{t(x)v_n^2(t_0,x)},
+\end{equation}
+where $t_0$ is the zero-offset traveltime, $t(x)$ is the traveltime recorded at offset $x$, $v_n(t_0,x)$ is the NMO velocity, and $p(t,x)=dt/dx$ is the local slope. The detailed introduction of the velocity to slope transformation was introduced in \cite{liuyang2013}. 
+
+\section{Examples}
+The first example is a simulated synthetic example. The data has been sorted into common midpoint domain. Figures \ref{fig:hyper} and \ref{fig:hypers} shows the unblended and blended data, respectively. By using the direct slope estimation using PWD algorithm and the velocity-slope transformation, we can obtain two dramatically different local slope estimations, as shown in Figure \ref{fig:hyper-pdip,hyper-vdip}. It is obvious that the velocity-slope transformation can obtain much better slope estimation. Figures \ref{fig:hypers-vcube} and \ref{fig:hypers-vcube-mf} show the 3D cubes of the flattened domain for blended and deblended data, respectively\new{, using the local slope map from the velocity-slope transformation}. \new{Figure \ref{fig:hypers-pcube} shows the flattened blended data that uses the slope map from PWD algorithm. Figures \ref{fig:hypers-pcube} and \ref{fig:hypers-vcube} are very similar, which demonstrate the fact that the flattening process is not very sensitive to the estimated slope.} A traditional MF is applied along the third dimension of the 3D cube as shown in Figure \ref{fig:hypers-vcube}. Figures \ref{fig:hyper-pmf} and \ref{fig:hyper-vmf} show the final deblended data using the two slopes from PWD and velocity-slope estimation, respectively. Both deblended results are very successful because all the blending noise has been removed and there is no obvious damage in the useful energy. We can further confirm the performance by comparing the blending noise sections (Figure \ref{fig:hyper-pmf-dif,hyper-vmf-dif}) and the deblending error sections (Figure \ref{fig:hyper-pmf-err,hyper-vmf-err}). We also amplified the error sections (Figure \ref{fig:hyper-pmf-err-5,hyper-vmf-err-5}) in order to better compare the difference. From Figures \ref{fig:hyper-pmf-err,hyper-vmf-err} and \ref{fig:hyper-pmf-err-5,hyper-vmf-err-5}, we can conclude that both deblended results are very similar to the unblended data and the deblended data using the slope from velocity-slope transformation has smaller deblending error. We provide a Python script that can regenerate all the figures (from Figure \ref{fig:hyper,hypers} to Figure \ref{fig:hyper-pmf-err-5,hyper-vmf-err-5}) of the first example. \new{From this example, we can see that the two slope estimation approaches will generate similar flattened events and will generate similar deblended results. Thus, the proposed structural-oriented median filter might obtain robust deblending performance even when the slope estimation is not very accurate. } \new{It should also be mentioned that though the proposed algorithm is relatively robust, it still depend on an acceptable estimation of the local slope. In the case of extremely strong blending noise, even with the slope-slope transformation we cannot obtain good slope estimation, preliminary processing steps are required to obtain an acceptable slope estimation.} The Python script (SConstruct) should be run in the Madagascar open-source environment \cite[]{mada2013}, which can be downloaded at $www.ahay.org$. 
+
+The second example is a simulated pre-stack example. The unblended 3D data cube is shown in Figure \ref{fig:data-csg}. There are 1501 time samples in this synthetic example and the temporal sampling is 4 ms. The peak frequency is 10 Hz. There are 251 shots and 51 receivers in this example. The shot and receiver intervals are both 50 m. We simulate the blending geometry by using two sources shooting at the two sides of a towed-streamer. Both of the two sources shoot\old{ing} arbitrarily \old{and} with a small random dithering. The simulated blended shooting causes strong interference to the data as shown in Figure \ref{fig:datas-csg}. It is apparent that the blending noise appears coherent in common shot gathers and appears random in common offset gathers. By sorting the shot domain (Figure \ref{fig:datas-csg}) to midpoint domain (Figure \ref{fig:data-b}), we can observe that the blending noise appears random in both common offset gathers and common midpoint gathers. The deblending procedures using the proposed approach are applied to Figure \ref{fig:data-b}. The detailed deblending comparison is provided in Figure \ref{fig:data-cmg,data-db,data-db-dif,data-db-err}. Figure \ref{fig:data-db-csg} shows the final deblended result that is sorted back to the shot domain. We can conclude a successful separation considering the high similarity between Figures \ref{fig:data-csg} and \ref{fig:data-db-csg}. In Figure \ref{fig:data-cmg,data-db,data-db-dif,data-db-err}, we compare the unblended and deblended data in the midpoint domain in Figures \ref{fig:data-cmg} and \ref{fig:data-db}, and show the removed the blending noise cube and deblending error cube in Figures \ref{fig:data-db-dif} and \ref{fig:data-db-err}, respectively. From the very clean deblended data, incoherent blending noise, and small deblending error, we can further confirm that the proposed approach obtain a successful separation between the signals and interference.
+
+The third example is a simulated field data example. Figure \ref{fig:fieldsr} shows the unblended data from a constant-receiver 2D marine survey. Figure \ref{fig:fieldsrs} shows the blended data. As we can see, the blending interference appears incoherent in common receiver gathers and coherent in common shot gathers. Figure \ref{fig:fieldsrs-db} shows the deblended result using the proposed approach and Figure \ref{fig:fieldsrs-db-dif} shows the blending noise cube. It is obvious that the blending noise in each common receiver gather\old{s} do\new{es} not contain coherent reflections and the blending noise appears as coherent source when observed along the third dimension. As we can see, we can use the proposed approach to obtain a nearly perfect separation of simultaneous sources. 
+
+
+\section{Conclusion}
+We have proposed a novel deblending approach using a structural oriented median filter. The proposed median filter is applied in a pre-flattened third dimension of the original data. We use prediction operator following the local slope to flatten the seismic record in local spatial windows. The key aspect in the flattening process is the estimation of the local slope from the highly noisy blended data. Instead of directly estimating the local slope using PWD algorithm, we can use the velocity-slope transformation to alternatively estimate the slope. \new{While the slope estimation from the PWD algorithm can help obtain acceptable deblending performance, the slope from velocity-slope transformation can help obtain even better performance. } Both synthetic and field data examples show successful deblending performance using the proposed approach.
+
+\section{Acknowledgements}
+We would like to thank Shan Qu, Shaohuan Zu, Zhaoyu Jin, and Jiang Yuan for helpful discussions on the topics of deblending. \new{We also thank the chief editor Jef Caers and four anonymous reviewers for suggestions that improve the manuscript greatly.}  This research is supported by the National Natural Science Foundation of China (Grant No.41274137), the National Science and Technology of Major Projects of China (Grant No. 2011ZX05019-006), and National Engineering Laboratory of Offshore Oil Exploration.
+
+
+\inputdir{hypermf}
+\multiplot{2}{hyper,hypers}{width=0.46\textwidth}{Synthetic example in common midpoint domain. (a) Unblended data. (b) Blended data.}
+
+\multiplot{2}{hyper-pdip,hyper-vdip}{width=0.46\textwidth}{Local slope maps using (a) PWD, (b) velocity-slope transformation.}
+
+%\plot{hypers-vcube}{width=\textwidth}{Flattened domain of the blended data. The MF is to be applied along the third dimension of the cube. \new{(a) From the slope map using PWD. (b) From the slope map using velocity-slope transformation.}}
+\multiplot{2}{hypers-pcube,hypers-vcube}{width=0.6\textwidth}{Flattened domain of the blended data. The MF is to be applied along the third dimension of the cube. \new{(a) From the slope map using PWD. (b) From the slope map using velocity-slope transformation.}}
+
+\plot{hypers-vcube-mf}{width=\textwidth}{Flattened domain of the blended data after MF. }
+
+\multiplot{2}{hyper-pmf,hyper-vmf}{width=0.46\textwidth}{Deblended results using using slopes from (a) PWD, (b) velocity-slope transformation.}
+
+\multiplot{2}{hyper-pmf-dif,hyper-vmf-dif}{width=0.46\textwidth}{Blending noise  sections using slopes from (a) PWD, (b) velocity-slope transformation.}
+
+
+\multiplot{2}{hyper-pmf-err,hyper-vmf-err}{width=0.46\textwidth}{Deblending error sections using slopes from (a) PWD, (b) velocity-slope transformation.}
+
+
+\multiplot{2}{hyper-pmf-err-5,hyper-vmf-err-5}{width=0.46\textwidth}{Amplified deblending error sections ($\times5$) using slopes from (a) PWD, (b) velocity-slope transformation.}
+
+%\inputdir{field1}
+%\multiplot{2}{field1,fields}{width=0.46\textwidth}{Single receiver gather example. (a) Unblended common receiver gather. (b) Blended common receiver gather.}
+
+%\plot{fields-cube}{width=\textwidth}{Flattened domain of the blended data. The MF is to be applied along the third dimension of the cube.}
+%\plot{fields-cube-mf}{width=\textwidth}{Flattened domain of the blended data after MF. }
+
+%\multiplot{2}{field-fx,field-mf}{width=0.46\textwidth}{Deblended result using (a) FX decon, (b) SOMF.}
+%\multiplot{2}{field-fx-dif,field-mf-dif}{width=0.46\textwidth}{Blending noise sections using (a) FX decon, (b) SOMF.}
+
+\inputdir{presynth}
+\multiplot{4}{data-csg,datas-csg,data-b,data-db-csg}{width=0.45\textwidth}{Pre-stack synthetic example. (a) Unblended data in shot domain. (b) Blended data in shot domain. (c) Blended data in midpoint domain. (d) Deblended data in shot domain.}
+
+\multiplot{4}{data-cmg,data-db,data-db-dif,data-db-err}{width=0.45\textwidth}{Pre-stack synthetic example. (a) Unblended data in midpoint domain. (b) Deblended data in midpoint domain. (c) Blending noise in midpoint domain. (d) Deblending error in midpoint domain.}
+
+\inputdir{fieldsr}
+\multiplot{4}{fieldsr,fieldsrs,fieldsrs-db,fieldsrs-db-dif}{width=0.45\textwidth}{Field data example. (a) Unblended data. (b) Blended data. (c) Deblended data. (d) Blending noise.}
+
+
+
+\bibliographystyle{seg}
+\bibliography{dblendstr}
+
+
+
+
+
+
+
+
+
+
+
+

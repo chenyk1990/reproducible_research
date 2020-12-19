@@ -94,14 +94,6 @@ end
 %fid=fopen('syn_us_ratios_snrs.bin','w');
 %fwrite(fid,[snrs0,snrs1,snrs2],'float');
 
-%ratio=0.1: 4.7284;4.2651
-%ratio=0.2: 9.8721;8.6852;
-%ratio=0.3: 14.5532;11.7224
-%ratio=0.4: 18.4519,15.1889
-%ratio=0.5: 20.5601,17.4001
-%ratio=0.6: 20.9589,17.7631
-%ratio=0.7: 21.0329,17.9402
-
 snrs=[snrs0,snrs1,snrs2];
 
 %% from Matlab to Madagascar

@@ -1,8 +1,6 @@
 function [ dout ] =win3d_mask(oper, mask, param, din, n1win, n2win, n3win, r1, r2, r3)
 % Processing in 3D windows (can also deal with 2D processing)
-% 2D version similar to process_win
-% coding strategy follows exactly usr/cm/Mfxmssa_win.c
-%
+% 
 % din:          input data
 % oper:         operator
 % mask:         sampling/masking operator for data reconstruction
