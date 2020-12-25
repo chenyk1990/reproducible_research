@@ -1,2 +1,2 @@
-run lmafit/compile.m first to compile the c codes in the lmafit package.
+run matfun/lmafit/compile.m first to compile the c codes in the lmafit package.
 
