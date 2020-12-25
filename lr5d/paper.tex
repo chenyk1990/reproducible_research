@@ -1,5 +1,10 @@
-\history{Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.}
-\doi{10.1109/ACCESS.2020.DOI}
+%\history{Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.}
+%\doi{10.1109/ACCESS.2020.DOI}
+
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+
+\published{IEEE Access, 8, 175501-175512, (2020)}
 
 \title{Fast and robust low-rank approximation for high-dimensional seismic data reconstruction}
 %\author{\uppercase{Juan Wu}\authorrefmark{1},
@@ -34,22 +39,22 @@ Zhejiang University \\
 Hangzhou, Zhejiang, 310027 \\
 }
 
-\corresp{Corresponding author: M. Bai (e-mail: baimin2016@126.com).}
-\tfootnote{This research is sponsored by the National Natural Science Foundation of China (Nos. \new{41904110,}41704121), \new{the China Postdoctoral Science Foundation (No. 2019M662567), and the Postdoctoral Science Foundation of Hubei Province.}}
+%\corresp{Corresponding author: M. Bai (e-mail: baimin2016@126.com).}
+%\tfootnote{This research is sponsored by the National Natural Science Foundation of China (Nos. \new{41904110,}41704121), \new{the China Postdoctoral Science Foundation (No. 2019M662567), and the Postdoctoral Science Foundation of Hubei Province.}}
+%
 
-
-\def\thevol{8}
-\def\myyear{2020}
+%\def\thevol{8}
+%\def\myyear{2020}
 
 \begin{abstract}
 Five-dimensional (5D) seismic data reconstruction becomes more appealing in recent years because it takes advantage of five physical dimensions of the seismic data \old{for reconstruction }and can reconstruct data with large gap. The low-rank approximation approach is one of the most effective methods for reconstructing 5D dataset. However, the main disadvantage of the low-rank approximation method is its low computational efficiency because of many singular value decompositions (SVD) of the block Hankel\new{/Toeplitz} matrix in the frequency domain. In this paper, we develop an SVD-free low-rank approximation method for efficient and effective reconstruction and denoising of the seismic data that \old{contains}\new{contain} four spatial dimensions. Our SVD-free rank constraint model is based on an alternating minimization strategy, which updates one variable each time while fixes the other two. For each update, we only need to solve a linear least-squares problem with much less expensive QR factorization. The SVD-based and SVD-free low-rank approximation \new{methods} in the singular spectrum analysis (SSA) framework are compared in detail, regarding the reconstruction performance and computational cost. The comparison shows that the SVD-free low-rank approximation method can obtain similar reconstruction performance as the SVD-based method but with a large computational speed up.
 \end{abstract}
 
-\begin{keywords}
-Multidimensional seismic data, \old{lowrank}\new{low-rank} approximation, seismic data processing, \new{seismic reconstruction, matrix completion}
-\end{keywords}
+%\begin{keywords}
+%Multidimensional seismic data, \old{lowrank}\new{low-rank} approximation, seismic data processing, \new{seismic reconstruction, matrix completion}
+%\end{keywords}
 
-\titlepgskip=-15pt
+%\titlepgskip=-15pt
 
 \maketitle
 
@@ -232,180 +237,34 @@ where $\mathcal{R}_L$ denotes the rank reduction operator based on the SVD-free 
 %{Magnetization as a function of applied field.
 %It is good practice to explain the significance of the figure in the caption.\label{fig1}}
 
-\begin{figure}[htb!]
- \centering
- \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-clean-3d}
-   \label{fig:syn5d-clean-3d}}
- \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-noisy-3d}
-   \label{fig:syn5d-noisy-3d}}
- \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-decimated-3d}
-   \label{fig:syn5d-decimated-3d}}        
-  \caption{Common offset gathers for the 5D synthetic example with linear events. (a) Clean data. (b) Noisy data. (c) The observed data with 80\% traces randomly removed.}
-  \label{fig:syn5d-clean-3d,syn5d-noisy-3d,syn5d-decimated-3d}
-\end{figure}
+\inputdir{linear}
+\multiplot{3}{syn5d-clean-3d,syn5d-noisy-3d,syn5d-decimated-3d}{width=0.3\columnwidth}{Common offset gathers for the 5D synthetic example with linear events. (a) Clean data. (b) Noisy data. (c) The observed data with 80\% traces randomly removed.}
 
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-svd-3d}
-    \label{fig:syn5d-svd-3d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-n-svd-3d}
-    \label{fig:syn5d-n-svd-3d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-r-svd-3d}
-    \label{fig:syn5d-r-svd-3d}} 
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-lmafit-3d}
-    \label{fig:syn5d-lmafit-3d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-n-lmafit-3d}
-    \label{fig:syn5d-n-lmafit-3d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-r-lmafit-3d}
-    \label{fig:syn5d-r-lmafit-3d}}       
-   \caption{Comparison of reconstruction performance in common offset gathers for the 5D synthetic example with linear events. (a) Reconstructed data using the SVD-based low-rank approximation method. (b) The removed noise from the noisy data corresponding to (a). (c) The reconstruction error corresponding to (a). (d) Reconstructed data using the SVD-free low-rank approximation method. (e) The removed noise from the noisy data corresponding to (d). (f) The reconstruction error corresponding to (d).}
-\label{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d}
-\end{figure}
+\multiplot{6}{syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d}{width=0.3\columnwidth}{Comparison of reconstruction performance in common offset gathers for the 5D synthetic example with linear events. (a) Reconstructed data using the SVD-based low-rank approximation method. (b) The removed noise from the noisy data corresponding to (a). (c) The reconstruction error corresponding to (a). (d) Reconstructed data using the SVD-free low-rank approximation method. (e) The removed noise from the noisy data corresponding to (d). (f) The reconstruction error corresponding to (d).}
+
+\multiplot{3}{syn5d-clean-3d-1,syn5d-noisy-3d-1,syn5d-decimated-3d-1}{width=0.3\columnwidth}{Common midpoint gathers for the 5D synthetic example with linear events. (a) Clean data. (b) Noisy data. (c) The observed data with 80\% traces randomly removed.}
+
+\multiplot{6}{syn5d-svd-3d-1,syn5d-n-svd-3d-1,syn5d-r-svd-3d-1,syn5d-lmafit-3d-1,syn5d-n-lmafit-3d-1,syn5d-r-lmafit-3d-1}{width=0.3\columnwidth}{Comparison of reconstruction performance in common midpoint gathers for the 5D synthetic example with linear events. (a) Reconstructed data using the SVD-based low-rank approximation method. (b) The removed noise from the noisy data corresponding to (a). (c) The reconstruction error corresponding to (a). (d) Reconstructed data using the SVD-free low-rank approximation method. (e) The removed noise from the noisy data corresponding to (d). (f) The reconstruction error corresponding to (d).}
+
+\multiplot{5}{syn5d-clean-2d,syn5d-noisy-2d,syn5d-decimated-2d,syn5d-svd-2d,syn5d-lmafit-2d}{width=0.3\columnwidth}{Comparison of reconstruction performance in a 2D section. (a) Clean data. (b) Noisy data. (c) The observed data. (d) Reconstructed data using the SVD-based low-rank approximation method. (e) Reconstructed data using the SVD-free low-rank approximation method.}
+
+\plot{synth-ss}{width=0.3\columnwidth}{Comparison of the middle trace amplitude of each cubes in different datasets. The black line denotes the trace from the clean data.  The red line denotes the noisy data. The observed trace cannot be seen from this FIGURE because it is a blank trace in the selection position. The SVD-based and SVD-free methods are denoted as blue and green lines, respectively.}
+
+\multiplot{4}{simi-syn5d-noisy-2d,simi-syn5d-decimated-2d,simi-syn5d-svd-2d,simi-syn5d-lmafit-2d}{width=0.45\columnwidth}{Comparison of reconstruction performance in terms of local similarity. (a) Local similarity of the noisy data. (b) Local similarity of the observed data. (c) Local similarity of the reconstructed data using SVD-based low-rank approximation method. (d) Local similarity of the reconstructed data using SVD-free low-rank approximation method.}
+
+\inputdir{curve}
+\multiplot{3}{curve5d-clean-3d-1,curve5d-noisy-3d-1,curve5d-decimated-3d-1}{width=0.3\columnwidth}{Common midpoint gathers for the 5D synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) The observed data with 80\% traces randomly removed.}
 
 
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-clean-3d-1}
-    \label{fig:syn5d-clean-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-noisy-3d-1}
-    \label{fig:syn5d-noisy-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-decimated-3d-1}
-    \label{fig:syn5d-decimated-3d-1}}        
-   \caption{Common midpoint gathers for the 5D synthetic example with linear events. (a) Clean data. (b) Noisy data. (c) The observed data with 80\% traces randomly removed.}
-   \label{fig:syn5d-clean-3d-1,syn5d-noisy-3d-1,syn5d-decimated-3d-1}
-\end{figure}
+\multiplot{6}{curve5d-svd-3d-1,curve5d-n-svd-3d-1,curve5d-r-svd-3d-1,curve5d-lmafit-3d-1,curve5d-n-lmafit-3d-1,curve5d-r-lmafit-3d-1}{width=0.3\columnwidth}{Comparison of reconstruction performance in common midpoint gathers for the 5D synthetic example with hyperbolic events. (a) Reconstructed data using the SVD-based low-rank approximation method. (b) The removed noise from the noisy data corresponding to (a). (c) The reconstruction error corresponding to (a). (d) Reconstructed data using the SVD-free low-rank approximation method. (e) The removed noise from the noisy data corresponding to (d). (f) The reconstruction error corresponding to (d).}
 
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-svd-3d-1}
-    \label{fig:syn5d-svd-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-n-svd-3d-1}
-    \label{fig:syn5d-n-svd-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-r-svd-3d-1}
-    \label{fig:syn5d-r-svd-3d-1}} 
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-lmafit-3d-1}
-    \label{fig:syn5d-lmafit-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-n-lmafit-3d-1}
-    \label{fig:syn5d-n-lmafit-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-r-lmafit-3d-1}
-    \label{fig:syn5d-r-lmafit-3d-1}}       
-   \caption{Comparison of reconstruction performance in common midpoint gathers for the 5D synthetic example with linear events. (a) Reconstructed data using the SVD-based low-rank approximation method. (b) The removed noise from the noisy data corresponding to (a). (c) The reconstruction error corresponding to (a). (d) Reconstructed data using the SVD-free low-rank approximation method. (e) The removed noise from the noisy data corresponding to (d). (f) The reconstruction error corresponding to (d).}
-\label{fig:syn5d-svd-3d-1,syn5d-n-svd-3d-1,syn5d-r-svd-3d-1,syn5d-lmafit-3d-1,syn5d-n-lmafit-3d-1,syn5d-r-lmafit-3d-1}
-\end{figure}
+\multiplot{4}{simi-curve5d-noisy-3d-1,simi-curve5d-decimated-3d-1,simi-curve5d-svd-3d-1,simi-curve5d-lmafit-3d-1}{width=0.45\columnwidth}{Comparison of reconstruction performance in terms of local similarity. (a) Local similarity of the noisy data. (b) Local similarity of the observed data. (c) Local similarity of the reconstructed data using SVD-based low-rank approximation method. (d) Local similarity of the reconstructed data using SVD-free low-rank approximation method.}
 
 
+\inputdir{./}
+\multiplot{3}{field5d-decimated2d-0,field5d-svd2d-0,field5d-lmafit2d-0}{width=0.8\columnwidth}{Comparison of reconstruction performance in common offset gathers for the 5D field data example. (a) Observed data with roughly 80\% traces missing. (b) Reconstructed data using the SVD-based low-rank approximation method. (c) Reconstructed data using the SVD-free low-rank approximation method. The frame box areas are zoomed and highlighted in FIGURE \ref{fig:z-decimated,z-svd,z-lmafit}.}
 
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-clean-2d}
-    \label{fig:syn5d-clean-2d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-noisy-2d}
-    \label{fig:syn5d-noisy-2d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-decimated-2d}
-    \label{fig:syn5d-decimated-2d}} 
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-svd-2d}
-    \label{fig:syn5d-svd-2d}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{linear/Fig/syn5d-lmafit-2d}
-    \label{fig:syn5d-lmafit-2d}}    
-   \caption{Comparison of reconstruction performance in a 2D section. (a) Clean data. (b) Noisy data. (c) The observed data. (d) Reconstructed data using the SVD-based low-rank approximation method. (e) Reconstructed data using the SVD-free low-rank approximation method.}
-\label{fig:syn5d-clean-2d,syn5d-noisy-2d,syn5d-decimated-2d,syn5d-svd-2d,syn5d-lmafit-2d}
-\end{figure}
-
-
-\begin{figure}[htb!]
-  \centering
-  \includegraphics[width=0.45\textwidth]{linear_time/Fig/synth-ss}
-   \caption{Comparison of the middle trace amplitude of each cubes in different datasets. The black line denotes the trace from the clean data.  The red line denotes the noisy data. The observed trace cannot be seen from this FIGURE because it is a blank trace in the selection position. The SVD-based and SVD-free methods are denoted as blue and green lines, respectively.}
-   \label{fig:synth-ss}
-\end{figure}
-
-
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/simi-syn5d-noisy-2d}
-    \label{fig:simi-syn5d-noisy-2d}}
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/simi-syn5d-decimated-2d}
-    \label{fig:simi-syn5d-decimated-2d}} \\
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/simi-syn5d-svd-2d}
-    \label{fig:simi-syn5d-svd-2d}} 
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/simi-syn5d-lmafit-2d}
-    \label{fig:simi-syn5d-lmafit-2d}}  
-   \caption{Comparison of reconstruction performance in terms of local similarity. (a) Local similarity of the noisy data. (b) Local similarity of the observed data. (c) Local similarity of the reconstructed data using SVD-based low-rank approximation method. (d) Local similarity of the reconstructed data using SVD-free low-rank approximation method.}
-\label{fig:simi-syn5d-noisy-2d,simi-syn5d-decimated-2d,simi-syn5d-svd-2d,simi-syn5d-lmafit-2d}
-\end{figure}
-
-
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-clean-3d-1}
-    \label{fig:curve5d-clean-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-noisy-3d-1}
-    \label{fig:curve5d-noisy-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-decimated-3d-1}
-    \label{fig:curve5d-decimated-3d-1}}        
-   \caption{Common midpoint gathers for the 5D synthetic example with hyperbolic events. (a) Clean data. (b) Noisy data. (c) The observed data with 80\% traces randomly removed.}
-   \label{fig:curve5d-clean-3d-1,curve5d-noisy-3d-1,curve5d-decimated-3d-1}
-\end{figure}
-
-
-
-
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-svd-3d-1}
-    \label{fig:curve5d-svd-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-n-svd-3d-1}
-    \label{fig:curve5d-n-svd-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-r-svd-3d-1}
-    \label{fig:curve5d-r-svd-3d-1}} 
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-lmafit-3d-1}
-    \label{fig:curve5d-lmafit-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-n-lmafit-3d-1}
-    \label{fig:curve5d-n-lmafit-3d-1}}
-  \subfigure[]{\includegraphics[width=0.3\columnwidth]{curve/Fig/curve5d-r-lmafit-3d-1}
-    \label{fig:curve5d-r-lmafit-3d-1}}       
-   \caption{Comparison of reconstruction performance in common midpoint gathers for the 5D synthetic example with hyperbolic events. (a) Reconstructed data using the SVD-based low-rank approximation method. (b) The removed noise from the noisy data corresponding to (a). (c) The reconstruction error corresponding to (a). (d) Reconstructed data using the SVD-free low-rank approximation method. (e) The removed noise from the noisy data corresponding to (d). (f) The reconstruction error corresponding to (d).}
-\label{fig:curve5d-svd-3d-1,curve5d-n-svd-3d-1,curve5d-r-svd-3d-1,curve5d-lmafit-3d-1,curve5d-n-lmafit-3d-1,curve5d-r-lmafit-3d-1}
-\end{figure}
-
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{curve/Fig/simi-curve5d-noisy-3d-1}
-    \label{fig:simi-curve5d-noisy-3d-1}}
- \subfigure[]{\includegraphics[width=0.45\columnwidth]{curve/Fig/simi-curve5d-decimated-3d-1}
-    \label{fig:simi-curve5d-decimated-3d-1}} \\
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{curve/Fig/simi-curve5d-svd-3d-1}
-    \label{fig:simi-curve5d-svd-3d-1}}
-  \subfigure[]{\includegraphics[width=0.45\columnwidth]{curve/Fig/simi-curve5d-lmafit-3d-1}
-    \label{fig:simi-curve5d-lmafit-3d-1} }
-   \caption{Comparison of reconstruction performance in terms of local similarity. (a) Local similarity of the noisy data. (b) Local similarity of the observed data. (c) Local similarity of the reconstructed data using SVD-based low-rank approximation method. (d) Local similarity of the reconstructed data using SVD-free low-rank approximation method.}
-\label{fig:simi-curve5d-noisy-3d-1,simi-curve5d-decimated-3d-1,simi-curve5d-svd-3d-1,simi-curve5d-lmafit-3d-1}
-\end{figure}
-
-\begin{figure*}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=\textwidth]{field/Fig/field5d-decimated2d-0}
-    \label{fig:field5d-decimated2d-0}}
- \subfigure[]{\includegraphics[width=\textwidth]{field/Fig/field5d-svd2d-0}
-    \label{fig:field5d-svd2d-0}}
-  \subfigure[]{\includegraphics[width=\textwidth]{field/Fig/field5d-lmafit2d-0}
-    \label{fig:field5d-lmafit2d-0}}
-   \caption{Comparison of reconstruction performance in common offset gathers for the 5D field data example. (a) Observed data with roughly 80\% traces missing. (b) Reconstructed data using the SVD-based low-rank approximation method. (c) Reconstructed data using the SVD-free low-rank approximation method. The frame box areas are zoomed and highlighted in FIGURE \ref{fig:z-decimated,z-svd,z-lmafit}.}
-\label{fig:field5d-decimated2d-0,field5d-svd2d-0,field5d-lmafit2d-0}
-\end{figure*}
-
-\begin{figure}[htb!]
-  \centering
-  \subfigure[]{\includegraphics[width=0.9\columnwidth]{field/Fig/z-decimated}
-    \label{fig:z-decimated}}
- \subfigure[]{\includegraphics[width=0.9\columnwidth]{field/Fig/z-svd}
-    \label{fig:z-svd}}
-  \subfigure[]{\includegraphics[width=0.9\columnwidth]{field/Fig/z-lmafit}
-    \label{fig:z-lmafit}}
-   \caption{Zoomed comparison of reconstruction performance in common offset gathers for the 5D field data example. (a) Observed data with roughly 80\% traces missing. (b) Reconstructed data using the SVD-based low-rank approximation method. (c) Reconstructed data using the SVD-free low-rank approximation method.}
-\label{fig:z-decimated,z-svd,z-lmafit}
-\end{figure}
-
+\multiplot{3}{z-decimated,z-svd,z-lmafit}{width=0.45\columnwidth}{Zoomed comparison of reconstruction performance in common offset gathers for the 5D field data example. (a) Observed data with roughly 80\% traces missing. (b) Reconstructed data using the SVD-based low-rank approximation method. (c) Reconstructed data using the SVD-free low-rank approximation method.}
 
 %
 %\inputdir{linear} % figure directory
@@ -488,7 +347,7 @@ where $\mathcal{R}_L$ denotes the rank reduction operator based on the SVD-free 
 %
 
 \new{\section{Synthetic examples}}
-In this section, we use several\new{synthetic}  examples to demonstrate that the proposed SVD-free low-rank approximation method can significantly accelerate the reconstruction of 5D seismic data without loss of accuracy. \new{Although Hankel and Toeplitz matrices \cite{top1,top2} seem to be similar as the low-rank matrix, but in some cases one can lead us to better results in comparison to the other one. According to our experience, the Toeplitz matrix results in a slightly better reconstruction performance. So, here, we prefer to use the Toeplitz matrix as the low-rank matrix.} The first example is a synthetic example with linear events. We first construct a clean synthetic data, then we add some random noise to the data and also randomly remove some traces from the noisy data to simulate the incomplete seismic data. The size of this synthetic data is $100\times10\times10\times10\times10$. A comparison of the clean data, noisy data, and the incomplete data is presented in Figure \ref{fig:syn5d-clean-3d,syn5d-noisy-3d,syn5d-decimated-3d}, from which we can see that the added random noise is so strong that most useful seismic signals are not visible. Since 80\% of the total traces are removed from the original noisy data, the observed data is considered to be highly incomplete. We compare the reconstruction performance between the SVD-based low-rank approximation method and the SVD-free  low-rank approximation method in Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d}. The top row in Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d} corresponds to the results from the SVD-based low-rank approximation method and the bottom row in Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d} corresponds to the results from the SVD-free low-rank approximation method. In  Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d}, we show the reconstructed data in common offset gathers in the left column, the removed noise from the noisy data in the middle column, and the reconstruction error in the right column. The results show that the SVD-based and SVD-free low-rank approximation methods both obtain very successful reconstructions. The gaps in the observed incomplete data have been filled with seismic signals for both methods. The removed noise cubes of both methods do not contain obvious signal patterns, indicating that there are no significant damages to the useful signals during the reconstruction. The reconstruction error cubes also demonstrate that the error is negligible for both methods. However, for this example, the proposed SVD-free method is much faster than the SVD-based method. As tested on a Mac Pro Laptop equipped with an Intel Core i7 CPU clocked at 2.5 GHz and 16 GB of RAM, the SVD-based method takes 603 s to finish the calculation while the proposed only takes 153 s. The computational speedup is almost four times. A comparison of the computational efficiency of different methods for different data sizes is shown in Table \ref{tbl:time}.
+In this section, we use several\new{synthetic}  examples to demonstrate that the proposed SVD-free low-rank approximation method can significantly accelerate the reconstruction of 5D seismic data without loss of accuracy. \new{Although Hankel and Toeplitz matrices seem to be similar as the low-rank matrix, but in some cases one can lead us to better results in comparison to the other one. According to our experience, the Toeplitz matrix results in a slightly better reconstruction performance. So, here, we prefer to use the Toeplitz matrix as the low-rank matrix.} The first example is a synthetic example with linear events. We first construct a clean synthetic data, then we add some random noise to the data and also randomly remove some traces from the noisy data to simulate the incomplete seismic data. The size of this synthetic data is $100\times10\times10\times10\times10$. A comparison of the clean data, noisy data, and the incomplete data is presented in Figure \ref{fig:syn5d-clean-3d,syn5d-noisy-3d,syn5d-decimated-3d}, from which we can see that the added random noise is so strong that most useful seismic signals are not visible. Since 80\% of the total traces are removed from the original noisy data, the observed data is considered to be highly incomplete. We compare the reconstruction performance between the SVD-based low-rank approximation method and the SVD-free  low-rank approximation method in Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d}. The top row in Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d} corresponds to the results from the SVD-based low-rank approximation method and the bottom row in Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d} corresponds to the results from the SVD-free low-rank approximation method. In  Figure \ref{fig:syn5d-svd-3d,syn5d-n-svd-3d,syn5d-r-svd-3d,syn5d-lmafit-3d,syn5d-n-lmafit-3d,syn5d-r-lmafit-3d}, we show the reconstructed data in common offset gathers in the left column, the removed noise from the noisy data in the middle column, and the reconstruction error in the right column. The results show that the SVD-based and SVD-free low-rank approximation methods both obtain very successful reconstructions. The gaps in the observed incomplete data have been filled with seismic signals for both methods. The removed noise cubes of both methods do not contain obvious signal patterns, indicating that there are no significant damages to the useful signals during the reconstruction. The reconstruction error cubes also demonstrate that the error is negligible for both methods. However, for this example, the proposed SVD-free method is much faster than the SVD-based method. As tested on a Mac Pro Laptop equipped with an Intel Core i7 CPU clocked at 2.5 GHz and 16 GB of RAM, the SVD-based method takes 603 s to finish the calculation while the proposed only takes 153 s. The computational speedup is almost four times. A comparison of the computational efficiency of different methods for different data sizes is shown in Table \ref{tbl:time}.
 
 The denoising performance in the common midpoint gathers is presented in Figures \ref{fig:syn5d-clean-3d-1,syn5d-noisy-3d-1,syn5d-decimated-3d-1} and \ref{fig:syn5d-svd-3d-1,syn5d-n-svd-3d-1,syn5d-r-svd-3d-1,syn5d-lmafit-3d-1,syn5d-n-lmafit-3d-1,syn5d-r-lmafit-3d-1}. Figure \ref{fig:syn5d-clean-3d-1,syn5d-noisy-3d-1,syn5d-decimated-3d-1} plots the clean synthetic data, noisy data, and decimated data with 80\% traces randomly removed. Figure \ref{fig:syn5d-svd-3d-1,syn5d-n-svd-3d-1,syn5d-r-svd-3d-1,syn5d-lmafit-3d-1,syn5d-n-lmafit-3d-1,syn5d-r-lmafit-3d-1} shows the reconstructed data, removed noise, and reconstruction error cubes using the SVD-based and SVD-free low-rank approximation methods. A single-slice comparison in the common offset gather is presented in Figure \ref{fig:syn5d-clean-2d,syn5d-noisy-2d,syn5d-decimated-2d,syn5d-svd-2d,syn5d-lmafit-2d}. From the single-slice comparison, we can see that both methods obtain very similar results (Figures \ref{fig:syn5d-svd-2d} and \ref{fig:syn5d-lmafit-2d}), which are very close to the clean data (Figure \ref{fig:syn5d-clean-2d}). To numerically compare the reconstruction performance, we use the signal-to-noise ratio (SNR) defined as follows \cite{weilin2016,weilin2017gji}:
 \begin{equation}
@@ -515,392 +374,11 @@ Finally, we apply the proposed SVD-free low-rank approximation method to a 5D fi
 The traditional singular value decomposition (SVD) based low-rank approximation method suffers from the bottleneck of computational cost due to many SVD calculations. In order to relieve the computation overburden, we develop an SVD-free low-rank approximation method in this paper. The SVD-free matrix decomposition is based on an alternating minimization strategy. During the iterative update, we only need a much faster QR factorization for solving a linear least-squares problem. The SVD-free low-rank approximation can be easily inserted into the singular spectrum analysis (SSA) framework. We test the effectiveness of the SVD-free method on synthetic examples with linear and curving events,  and a real 5D seismic data. The results show that the proposed SVD-free method do not degrade the reconstruction performance compared with the traditional method. However, the proposed SVD-free method can greatly improve the computational efficiency. 
 
 
-\begin{thebibliography}{00}
-\bibitem{ronen}
-J.~Ronen, ``Wave-equation trace interpolation,'' \emph{Geophysics}, vol.~52,
-  pp. 973--984, 1987.
+\bibliographystyle{seg}
+\bibliography{5d}
 
-\bibitem{spitz1991}
-S.~Spitz, ``Seismic trace interpolation in the f-x domain,'' \emph{Geophysics},
-  vol.~56, pp. 785--794, 1991.
 
-\bibitem{chen1995}
-J.~Chen and J.~Cihlar, ``Quantifying the effect of canopy architecture on
-  optical measurements of leaf area index using two gap size analysis
-  methods,'' \emph{IEEE Transactions on Geoscience and Remote Sensing},
-  vol.~33, pp. 777--787, 1995.
 
-\bibitem{canning1996}
-A.~Canning and G.~H.~F. Gardner, ``Reducing 3{D} acquisition footprint for 3{D}
-  dmo and 3{D} prestack migration,'' \emph{Geophysics}, vol.~63, pp.
-  1177--1183, 1996.
-
-\bibitem{fomel2002pwd}
-S.~Fomel, ``Application of plane-wave destruction filters,'' \emph{Geophysics},
-  vol.~67, pp. 1946--1960, 2002.
-
-\bibitem{fomel2003}
-------, ``Seismic reflection data interpolation with differential offset and
-  shot continuation,'' \emph{Geophysics}, vol.~68, pp. 733--744, 2003.
-
-\bibitem{abmapocs}
-R.~Abma and N.~Kabir, ``\protect{3D} interpolation of irregular data with a
-  \protect{POCS} algorithm,'' \emph{Geophysics}, vol.~71, pp. E91--E97, 2006.
-
-\bibitem{herrmann2008non}
-F.~J. Herrmann and G.~Hennenfent, ``Non-parametric seismic data recovery with
-  curvelet frames,'' \emph{Geophysical Journal International}, vol. 173, no.~1,
-  pp. 233--248, 2008.
-
-\bibitem{protter2009}
-M.~Protter and M.~Elad, ``Image sequence denoising via sparse and redundant
-  representations,'' \emph{IEEE Trans Image Process}, vol.~18, no.~1, pp.
-  27--35, 2009.
-
-\bibitem{mostafa2010}
-M.~Naghizadeh and M.~D. Sacchi, ``Beyond alias hierarchical scale curvelet
-  interpolation of regularly and irregularly sampled seismic data,''
-  \emph{Geophysics}, vol.~75, p. WB189–WB202, 2010.
-
-\bibitem{mostafa2013}
-------, ``Multidimensional de-aliased cadzow reconstruction of seismic
-  records,'' \emph{Geophysics}, vol.~78, no.~1, pp. A1--A5, 2010.
-
-\bibitem{wang2011recovery}
-Y.~Wang, J.~Cao, and C.~Yang, ``Recovery of seismic wavefields based on
-  compressive sensing by an l 1-norm constrained trust region method and the
-  piecewise random subsampling,'' \emph{Geophysical Journal International},
-  vol. 187, no.~1, pp. 199--213, 2011.
-
-\bibitem{yanan2014}
-Y.~Tian, Y.~Li, and B.~Yang, ``Variable-eccentricity hyperbolic-trace {TFPF}
-  for seismic random noise attenuation,'' \emph{IEEE Transactions on Geoscience
-  and Remote Sensing}, vol.~52, pp. 6449--6458, 2014.
-
-\bibitem{yanhui2016}
-Y.~Zhou, J.~Gao, W.~Chen, and P.~Frossard, ``Seismic simultaneous source
-  separation via patchwise sparse representation,'' \emph{IEEE Transactions on
-  Geoscience and Remote Sensing}, vol.~54, pp. 5271--5284, 2016.
-
-\bibitem{kazemi2016}
-N.~Kazemi, E.~Bongajum, and M.~D. Sacchi, ``Surface-consistent sparse
-  multichannel blind deconvolution of seismic signals,'' \emph{IEEE
-  Transactions on Geoscience and Remote Sensing}, vol.~54, pp. 3200--3207,
-  2016.
-\bibitem{shuwei2016cs}
-S.~Gan, S.~Wang, Y.~Chen, X.~Chen, W.~Huang, and H.~Chen, ``Compressive sensing
-  for seismic data reconstruction via fast projection onto convex sets based on
-  seislet transform,'' \emph{Journal of Applied Geophysics}, vol. 130, pp.
-  194--208, 2016.
-
-\bibitem{lorenzi2016}
-L.~Lorenzi, F.~Melgani, and G.~Mercier, ``Missing-area reconstruction in
-  multispectral images under a compressive sensing perspective,'' \emph{IEEE
-  Transactions on Geoscience and Remote Sensing}, vol.~51, pp. 3998--4008,
-  2016.
-
-\bibitem{shaohuan2016gap}
-S.~Zu, H.~Zhou, Y.~Chen, X.~Pan, S.~Gan, and D.~Zhang, ``Interpolating big gaps
-  using inversion with slope constraint,'' \emph{IEEE Geoscience and Remote
-  Sensing Letters}, vol.~13, pp. 1369--1373, 2016.
-
-\bibitem{yangkang2016irr5d}
-Y.~Chen, D.~Zhang, Z.~Jin, X.~Chen, S.~Zu, W.~Huang, and S.~Gan, ``Simultaneous
-  denoising and reconstruction of 5{D} seismic data via damped rank-reduction
-  method,'' \emph{Geophysical Journal International}, vol. 206, pp. 1695--1717,
-  2016.
-
-\bibitem{amir2017ieee}
-R.~Anvari, M.~A.~N. Siahsar, S.~Gholtashi, A.~R. Kahoo, and M.~Mohammadi,
-  ``Seismic random noise attenuation using synchrosqueezed wavelet transform
-  and low-rank signal matrix approximation,'' \emph{IEEE Transactions on
-  Geoscience and Remote Sensing}, vol.~55, no.~11, pp. 6574--6581, 2017.
-
-\bibitem{verschuure1991}
-D.~J. Verschuur, ``Surface-related multiple elimination: An inversion
-  approach,'' \emph{PhD thesis, Delft University of Technology}, 1991.
-
-\bibitem{jingjie2011review}
-J.~Cao, Y.~Wang, J.~Zhao, and C.~Yang, ``A review on restoration of seismic
-  wavefields based on regularization and compressive sensing,'' \emph{Inverse
-  Problems in Science and Engineering}, vol.~19, no.~5, pp. 679--704, 2011.
-
-\bibitem{yangkang20142}
-Y.~Chen, S.~Fomel, and J.~Hu, ``Iterative deblending of simultaneous-source
-  seismic data using seislet-domain shaping regularization,''
-  \emph{Geophysics}, vol.~79, pp. V179--V189, 2014.
-
-\bibitem{shuwei20153}
-S.~Gan, S.~Wang, Y.~Chen, Y.~Zhang, and Z.~Jin, ``Dealiased seismic data
-  interpolation using seislet transform with low-frequency constraint,''
-  \emph{IEEE Geoscience and Remote Sensing Letters}, vol.~12, pp. 2150--2154,
-  2015.
-
-\bibitem{shuwei2016vscan}
-S.~Gan, S.~Wang, Y.~Chen, S.~Qu, and S.~Zu, ``Velocity analysis of
-  simultaneous-source data using high-resolution semblance-coping with the
-  strong noise,'' \emph{Geophysical Journal International}, vol. 204, pp.
-  768--779, 2016.
-
-\bibitem{liuwei2016dealiase}
-W.~Liu, S.~Cao, S.~Gan, Y.~Chen, S.~Zu, and Z.~Jin, ``One-step slope estimation
-  for dealiased seismic data reconstruction via iterative seislet
-  thresholding,'' \emph{IEEE Geoscience and Remote Sensing Letters}, vol.~13,
-  pp. 1462--1466, 2016.
-
-\bibitem{shaohuan2017gji}
-S.~Zu, H.~Zhou, W.~Mao, D.~Zhang, C.~Li, X.~Pan, and Y.~Chen, ``Iterative
-  deblending of simultaneous-source data using a coherency-pass shaping
-  operator,'' \emph{Geophysical Journal International}, vol. 211, no.~1, pp.
-  541--557, 2017.
-
-\bibitem{YuSiwei2015}
-S.~Yu, J.~Ma, X.~Zhang, and M.~D. Sacchi, ``Interpolation and denoising of
-  high-dimensional seismic data by learning a tight frame,'' \emph{Geophysics},
-  vol.~80, no.~5, pp. V119--V132, 2015. [Online]. Available:
-  \url{https://doi.org/10.1190/geo2014-0396.1}
-
-
-\bibitem{YuSiwei2016}
-S.~Yu, J.~Ma, and S.~Osher, ``Monte carlo data-driven tight frame for seismic
-  data recovery,'' \emph{Geophysics}, vol.~81, no.~4, pp. V327--V340, 2016.
-  [Online]. Available: \url{https://doi.org/10.1190/geo2015-0343.1}
-
-
-\bibitem{Jia2017}
-Y.~Jia and J.~Ma, ``What can machine learning do for seismic data processing?
-  an interpolation application,'' \emph{Geophysics}, vol.~82, no.~3, pp.
-  V163--V177, 2017. [Online]. Available:
-  \url{https://doi.org/10.1190/geo2016-0300.1}
-
-
-\bibitem{amir2017sp}
-M.~A.~N. Siahsar, V.~Abolghasemi, and Y.~Chen, ``Simultaneous denoising and
-  interpolation of 2{D} seismic data using data-driven non-negative dictionary
-  learning,'' \emph{Signal Processing}, vol. 141, pp. 309--321, 2017.
-
-\bibitem{amir2017geo}
-M.~A.~N. Siahsar, S.~Gholtashi, A.~R. Kahoo, W.~Chen, and Y.~Chen,
-  ``Data-driven multi-task sparse dictionary learning for noise attenuation of
-  3{D} seismic data,'' \emph{Geophysics}, vol.~82, no.~6, p. V385–V396, 2017.
-
-\bibitem{Jia2018}
-Y.~Jia, S.~Yu, and J.~Ma, ``Intelligent interpolation by monte carlo machine
-  learning,'' \emph{Geophysics}, vol.~83, no.~2, pp. V83--V97, 2018. [Online].
-  Available: \url{https://doi.org/10.1190/geo2017-0294.1}
-
-
-\bibitem{zhangmi2019}
-M.~Zhang, Y.~Liu, M.~Bai, and Y.~Chen, ``Seismic noise attenuation using
-  unsupervised sparse feature learning,'' \emph{IEEE Transactions on Geoscience
-  and Remote Sensing}, p. doi: 10.1109/TGRS.2019.2928715, 2019.
-
-\bibitem{yangkang2015ortho}
-Y.~Chen and S.~Fomel, ``Random noise attenuation using local signal-and-noise
-  orthogonalization,'' \emph{Geophysics}, vol.~80, pp. WD1--WD9, 2015.
-
-\bibitem{guochang2012}
-G.~Liu, X.~Chen, J.~Du, and K.~Wu, ``Random noise attenuation using \emph{f-x}
-  regularized nonstationary autoregression,'' \emph{Geophysics}, vol.~77, pp.
-  V61--V69, 2012.
-
-\bibitem{fxnaghizadeh}
-M.~Naghizadeh and M.~Sacchi, ``Multicomponent f-x seismic random noise
-  attenuation via vector autoregressive operators,'' \emph{Geophysics},
-  vol.~77, pp. V91--V99, 2012.
-
-\bibitem{beckouche}
-S.~Beckouche and J.~Ma, ``Simultaneous dictionary learning and denoising for
-  seismic data,'' \emph{Geophysics}, vol.~79, pp. A27--A31, 2014.
-
-\bibitem{mostafa2016bssa}
-S.~M. Mousavi and C.~A. Langston, ``Hybrid seismic denoising using higher-order
-  statistics and improved wavelet block thresholding,'' \emph{Bulletin of the
-  Seismological Society of America}, vol. 106, no.~4, pp. 1380--1393, 2016.
-
-\bibitem{mostafa2017geo}
-------, ``Automatic noise-removal/signal-removal based on general
-  cross-validation thresholding in synchrosqueezed domain and its application
-  on earthquake data,'' \emph{Geophysics}, vol.~82, no.~4, pp. V211--V227,
-  2017.
-
-\bibitem{zhaoqiang2018}
-Q.~Zhao, Q.~Du, X.~Gong, and Y.~Chen, ``Signal-preserving erratic noise
-  attenuation via iterative robust sparsity-promoting filter,'' \emph{IEEE
-  Transactions on Geoscience and Remote Sensing}, vol.~56, no.~6, pp.
-  1558--0644, 2018.
-
-\bibitem{oropezamssa}
-V.~Oropeza and M.~Sacchi, ``Simultaneous seismic data denoising and
-  reconstruction via multichannel singular spectrum analysis,''
-  \emph{Geophysics}, vol.~76, pp. V25--V32, 2011.
-
-\bibitem{gaomssa}
-J.~Gao, M.~Sacchi, and X.~Chen, ``A fast reduced-rank interpolation method for
-  prestack seismic volumes that depend on four spatial dimensions,''
-  \emph{Geophysics}, vol.~78, pp. V21--V30, 2013.
-
-\bibitem{Gaogp}
-J.~Gao, A.~Stanton, M.~Naghizadeh, M.~D. Sacchi, and X.~Chen, ``Convergence
-  improvement and noise attenuation considerations for beyond alias projection
-  onto convex sets reconstruction,'' \emph{Geophysical Prospecting}, vol.~61,
-  pp. 138--151, 2013.
-
-\bibitem{gholami}
-A.~Gholami, ``Non-convex compressed sensing with frequency mask for seismic
-  data reconstruction and denoising,'' \emph{Geophysical Prospecting}, vol.~62,
-  pp. 1389--1405, 2015.
-
-\bibitem{benfengpocs}
-B.~Wang, R.~Wu, X.~Chen, and J.~Li, ``Simultaneous seismic data interpolation
-  and denoising with a new adaptive method based on dreamlet transform,''
-  \emph{Geophysical Journal International}, vol. 201, pp. 1180--1192, 2015.
-
-\bibitem{pmf}
-J.~Gao, A.~Stanton, and M.~D. Sacchi, ``Parallel matrix factorization algorithm
-  and its application to 5{D} seismic reconstruction and denoising,''
-  \emph{Geophysics}, vol.~80, pp. V173--V187, 2015.
-
-\bibitem{wangchong2018}
-C.~Wang, Z.~Zhu, H.~Gu, X.~Wu, and S.~Liu, ``Hankel low-rank approximation for
-  seismic noise attenuation,'' \emph{IEEE Transactions on Geoscience and Remote
-  Sensing}, no.~99, pp. 1--13, 2018.
-
-\bibitem{Liubin2004}
-B.~Liu and M.~D. Sacchi, ``Minimum weighted norm interpolation of seismic
-  records,'' \emph{Geophysics}, vol.~69, no.~6, pp. 1560--1568, 2004. [Online].
-  Available: \url{https://doi.org/10.1190/1.1836829}
-
-
-\bibitem{Trad2007}
-D.~Trad, ``A strategy for wide azimuth land interpolation,'' \emph{SEG
-  Technical Program Expanded Abstracts}, pp. 946--950, 2007. [Online].
-  Available: \url{https://library.seg.org/doi/abs/10.1190/1.2792562}
-
-
-\bibitem{Trad2009}
-------, ``Five-dimensional interpolation: Recovering from acquisition
-  constraints,'' \emph{Geophysics}, vol.~74, pp. V123--V132, 2009.
-
-\bibitem{GaoJianjun2017}
-J.~Gao, J.~Cheng, and M.~D. Sacchi, ``Five-dimensional seismic reconstruction
-  using parallel square matrix factorization,'' \emph{IEEE Transactions on
-  Geoscience and Remote Sensing}, vol.~55, no.~4, pp. 2124--2135, April 2017.
-
-\bibitem{Xie2017}
-Y.~Xie and D.~Gajewski, ``5-{D} interpolation with wavefront attributes,''
-  \emph{Geophysical Journal International}, vol. 211, pp. 897--919, 08 2017.
-
-\bibitem{lu2015fast}
-L.~Lu, W.~Xu, and S.~Qiao, ``A fast {SVD} for multilevel block hankel matrices
-  with minimal memory storage,'' \emph{Numerical Algorithms}, vol.~69, no.~4,
-  pp. 875--891, 2015.
-
-\bibitem{jinkun2016}
-J.~Cheng and M.~Sacchi, ``Fast dual-domain reduced-rank algorithm for 3{D}
-  deblending via randomized qr decomposition,'' \emph{Geophysics}, vol.~81, pp.
-  V89--V101, 2014.
-
-\bibitem{jianjun2017five}
-J.~Gao, J.~Cheng, and M.~D. Sacchi, ``Five-dimensional seismic reconstruction
-  using parallel square matrix factorization,'' \emph{IEEE Transactions on
-  Geoscience and Remote Sensing}, vol.~55, no.~4, pp. 2124--2135, 2017.
-
-\bibitem{gavish2014optimal}
-M.~Gavish and D.~L. Donoho, ``The optimal hard threshold for singular values is
-  4/sqrt(3),'' \emph{IEEE Transactions on Information Theory}, vol.~60, no.~8,
-  pp. 5040--5053, 2014.
-
-\bibitem{trickett2015preserving}
-S.~Trickett, ``Preserving signal: Automatic rank determination for noise
-  suppression,'' in \emph{SEG Technical Program Expanded Abstracts 2015}.\hskip
-  1em plus 0.5em minus 0.4em\relax Society of Exploration Geophysicists, 2015,
-  pp. 4703--4707.
-
-\bibitem{aharchaou2017singular}
-M.~Aharchaou, J.~Anderson, S.~Hughes, and J.~Bingham, ``Singular-spectrum
-  analysis via optimal shrinkage of singular values,'' in \emph{SEG Technical
-  Program Expanded Abstracts 2017}.\hskip 1em plus 0.5em minus 0.4em\relax
-  Society of Exploration Geophysicists, 2017, pp. 4950--4954.
-
-\bibitem{yatong2018gji}
-Y.~Zhou, S.~Li, D.~Zhang, and Y.~Chen, ``Seismic noise attenuation using an
-  online subspace tracking algorithm,'' \emph{Geophysical Journal
-  International}, vol. 212, no.~2, p. 1072–1097, 2018.
-
-\bibitem{wujuan2018jge3}
-J.~Wu and M.~Bai, ``Adaptive rank-reduction method for seismic data
-  reconstruction,'' \emph{Journal of Geophysics and Engineering}, vol.~15, p.
-  1688, 2018.
-
-\bibitem{weilin2016}
-W.~Huang, R.~Wang, Y.~Chen, H.~Li, and S.~Gan, ``Damped multichannel singular
-  spectrum analysis for 3{D} random noise attenuation,'' \emph{Geophysics},
-  vol.~81, no.~4, pp. V261--V270, 2016.
-
-\bibitem{weilingieeedls}
-W.~Huang, R.~Wang, X.~Chen, and Y.~Chen, ``Double least-squares projections
-  method for signal estimation,'' \emph{IEEE Transactions on Geoscience and
-  Remote Sensing}, vol.~55, pp. 4111--4129, 2017.
-
-\bibitem{dong}
-D.~Zhang, Y.~Chen, W.~Huang, and S.~Gan, ``Multi-step damped multichannel
-  singular spectrum analysis for simultaneous reconstruction and denoising of
-  3{D} seismic data,'' \emph{Journal of Geophysics and Engineering}, vol.~13,
-  pp. 704--720, 2016.
-
-\bibitem{dong2017}
-D.~Zhang, Y.~Zhou, H.~Chen, W.~Chen, S.~Zu, and Y.~Chen, ``Hybrid rank-sparsity
-  constraint model for simultaneous reconstruction and denoising of 3{D}
-  seismic data,'' \emph{Geophysics}, vol.~82, pp. V351--V367, 2017.
-
-\bibitem{yufeng2017}
-Y.~Wang, H.~Zhou, S.~Zu, W.~Mao, and Y.~Chen, ``Three-operator proximal
-  splitting scheme for 3{D} seismic data reconstruction,'' \emph{IEEE
-  Geoscience and Remote Sensing Letters}, vol.~14, no.~10, pp. 1830--1834,
-  2017.
-
-\bibitem{yangkangelra}
-Y.~Chen, Y.~Zhou, W.~Chen, S.~Zu, W.~Huang, and D.~Zhang, ``Empirical low-rank
-  approximation for seismic noise attenuation,'' \emph{IEEE Transactions on
-  Geoscience and Remote Sensing}, vol.~55, pp. 4696--4711, 2017.
-
-\bibitem{baimin2018cg}
-M.~Bai, J.~Wu, S.~Zu, and W.~Chen, ``A structural rank reduction operator for
-  removing artifacts in least-squares reverse time migration,'' \emph{Computers
-  and Geosciences}, vol. 117, pp. 9--20, 2018.
-
-\bibitem{stanton2013processing}
-A.~Stanton, N.~Kazemi, and M.~D. Sacchi, ``Processing seismic data in the
-  presence of residual statics,'' in \emph{SEG Technical Program Expanded
-  Abstracts 2013}.\hskip 1em plus 0.5em minus 0.4em\relax Society of
-  Exploration Geophysicists, 2013, pp. 1838--1842.
-
-\bibitem{lmafit}
-Z.~Wen, W.~Yin, and Y.~Zhang, ``Solving a low-rank factorization model for
-  matrix completion by a nonlinear successive over-relaxation algorithm,''
-  \emph{Mathematical Programming Computation}, vol.~4, pp. 333--361, 2012.
-
-\bibitem{weilin2017gji}
-W.~Huang, R.~Wang, S.~Zu, and Y.~Chen, ``Low-frequency noise attenuation in
-  seismic and microseismic data using mathematical morphological filtering,''
-  \emph{Geophysical Journal International}, vol. 211, p. 1318–1340, 2017.
-
-\bibitem{yangkang2020odrr}
-Y.~Chen, M.~Bai, Z.~Guan, Q. Zhang, M. Zhang, and H.~Wang, ``Five-dimensional seismic data reconstruction using the optimally damped rank-reduction method,''
-  \emph{Geophysical Journal International}, vol. 222, p. 1824-1845, 2020.
-  
-\bibitem{top1}
-A.~Bottcher, S.M.~Grudsky, and T.~Kunz, ``Toeplitz Matrices, Asymptotic Linear Algebra, and Functional Analysis,''
-  \emph{ISBN: 978-3-7643-6290-4,A Birkhäuser book}, 2000.
-  
-\bibitem{top2}
-R.M.~Gray, ``Toeplitz and Circulant Matrices: A review,''
-  \emph{Foundations and Trends in Communications and Information Theory}, vol. 2, pp. 155-239, 2006.
-
-
-
-\end{thebibliography}
 
 %\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{a1.png}}]{First A. Author} (M'76--SM'81--F'87) and all authors may include 
 %biographies. Biographies are often not included in conference-related
@@ -948,35 +426,7 @@ R.M.~Gray, ``Toeplitz and Circulant Matrices: A review,''
 %Electromagnetic Compatibility Society Best Symposium Paper Award in 2011. 
 %\end{IEEEbiography}
 %
-\clearpage
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{juan}}]{Juan Wu} received the Ph.D. degree in geophysics from the China University of Petroleum, Beijing, China, in 2016, under the supervision of Prof. Xiaohong Chen.
-She is currently a Post-Doctoral Researcher with Yangtze University, Jingzhou, China. She has authored or coauthored more than 30 journal articles. Her research interests include seismic signal analysis and seismic imaging.
-\end{IEEEbiography}
-
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{min}}]{Min Bai}
- received the Ph.D. degree in geophysics from the China University of Petroleum, Beijing, China, in 2016, under the supervision of Prof. Xiaohong Chen.
-He is currently a Post-Doctoral Researcher with the School of Earth Sciences, Zhejiang University, Hangzhou, China, and a Lecturer with Yangtze University, Jingzhou, China. He has authored or coauthored more than 30 journal articles. His research interests include seismic imaging and inversion and seismic signal analysis.
-\end{IEEEbiography}
 
 
-
-
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{dong}}]{Dong Zhang} received the B.S. degree in applied geophysics from Jilin University, Changchun, China, in 2014.  He is currently pursuing a PhD degree in Geophysics at Delft university of technology. His current research interests include seismic signal analysis, seismic imaging and simultaneous-source data deblending and imaging.
-\end{IEEEbiography}
-
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{hang}}]{Hang Wang} received a master degree in geological resources and geological engineering from China University of Petroleum (Beijing), and he is a Ph.D. candidate in geophysics at Zhejiang University. His research interests include seismic signal processing, machine learning and FWI.
-\end{IEEEbiography}
-
-
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{guangtan}}]{Guangtan Huang} received the B.S., M.S., and Ph.D. degrees in exploration geophysics from the China University of Petroleum (East China), Beijing, Beijing, China, in 2012, 2015, and 2019, respec- tively. He holds a post-doctoral position in geophyiscs at Zhejiang University, Hangzhou, China. His research interests include seismic forward modeling and high-resolution seismic inversion.
-\end{IEEEbiography}
-
-
-
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{yangkang}}]{Yangkang Chen} received the B.S. degree in explo- ration geophysics from the China University of Petroleum, Beijing, Beijing, China, in 2012, and the Ph.D. degree in geophysics from the University of Texas at Austin, Austin, TX, USA, in 2015, under the supervision of Prof. S. Fomel.
-He was a Distinguished Post-Doctoral Research Associate with Oak Ridge National Laboratory, Oak Ridge, TN, USA, where he conducted research on global adjoint tomography. He is an Assistant Pro- fessor with Zhejiang University, Hangzhou, China. He has authored or coauthored more than 100 internationally renowned journal articles and more than 80 international conference papers. His research interests include seismic signal analysis, seismic modeling and inversion, simultaneous-source data deblending and imaging, global adjoint tomography, machine learning, and high-performance computing.
-\end{IEEEbiography}
-
-\EOD
 
 

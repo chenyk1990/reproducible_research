@@ -1,0 +1,222 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+
+def Grey(data,other): 
+	Result(data,'put d1=0.008 o1=0 d2=1 o2=1 | grey  labelfat=4 font=2 titlefat=4 clip=0.5 minval=-0.5 maxval=0.5 label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n color=g screenratio=1.4 %s'%other)
+
+def Grey_simi(data,other): 
+	Result(data,'put d1=0.008 o1=0 d2=1 o2=1 |grey labelfat=4 font=2 titlefat=4 label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t color=b labelsz=10 scalebar=y screenratio=1.4 %s '%other)
+
+def Grey3(data,other):
+      Result(data,
+       '''
+       put d1=0.008 o1=0 o3=1 o2=1 | byte  clip=0.2 |
+       grey3 wanttitle=y flat=n labelfat=4 font=2 titlefat=4
+       label1="Time" unit1=s label2=X label3=Y unit3=
+       frame1=70 frame2=7 frame3=6 point1=0.85 point2=0.75 screenratio=1.4
+       clip= title= wheretitle=t 
+       scalebar=n %s
+       '''%other)
+
+def Grey3_1(data,other):
+      Result(data,
+       '''
+       put d1=0.008 o1=0 o3=1 o2=1 | byte  clip=0.2 |
+       grey3 wanttitle=y flat=n labelfat=4 font=2 titlefat=4
+       label1="Time" unit1=s label2=HX label3=HY unit3=
+       frame1=50 frame2=3 frame3=2 point1=0.85 point2=0.75 screenratio=1.4
+       clip= title= wheretitle=t 
+       scalebar=n %s
+       '''%other)
+
+def Grey3_simi(data,other):
+      Result(data,
+       '''
+       put d1=0.008 o1=0 o3=1 o2=1 | byte  clip=1.0 |
+       grey3 wanttitle=y flat=n labelfat=4 font=2 titlefat=4
+       label1="Time" unit1=s label2=X label3=Y unit3=
+       frame1=70 frame2=7 frame3=6 point1=0.85 point2=0.75 screenratio=1.4
+       clip= title= wheretitle=t 
+       %s scalebar=n
+       '''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+	
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Linear'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+
+############################################################
+## generate and process synthetic data
+############################################################
+Flow('syn5d-clean-t syn5d-noisy-t syn5d-decimated-t syn5d-lmafit-t syn5d-svd-t syn5d-lanb-t syn5d-rsvd-t',[os.path.join(matROOT,matfun+'.m')],
+    '''MATLABPATH=%(matlabpath)s %(matlab)s 
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}','${TARGETS[6]}');quit"
+    '''%vars(),stdin=0,stdout=-1)
+
+put='n1=100 n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1'
+Flow('syn5d-clean','syn5d-clean-t','put %s'%put)
+Flow('syn5d-noisy','syn5d-noisy-t','put %s'%put)
+Flow('syn5d-decimated','syn5d-decimated-t','put %s'%put)
+Flow('syn5d-lmafit','syn5d-lmafit-t','put %s'%put)
+Flow('syn5d-svd','syn5d-svd-t','put %s'%put)
+Flow('syn5d-lanb','syn5d-lanb-t','put %s'%put)
+Flow('syn5d-rsvd','syn5d-rsvd-t','put %s'%put)
+
+
+### Single trace
+
+Flow('s-c','syn5d-clean','window n4=1 n5=1 f4=4 f5=4 n2=1 n3=1 f2=4 f3=4')
+Flow('s-n','syn5d-noisy','window n4=1 n5=1 f4=4 f5=4 n2=1 n3=1 f2=4 f3=4')
+Flow('s-obs','syn5d-decimated','window n4=1 n5=1 f4=4 f5=4 n2=1 n3=1 f2=4 f3=4')
+Flow('s-lmaft','syn5d-lmafit','window n4=1 n5=1 f4=4 f5=4 n2=1 n3=1 f2=4 f3=4')
+Flow('s-svd','syn5d-svd','window n4=1 n5=1 f4=4 f5=4 n2=1 n3=1 f2=4 f3=4')
+
+
+Flow('synth-ss','s-c s-lmaft s-n s-obs s-svd','cat axis=2 ${SOURCES[1:5]}')
+Graph('synth-ss','plotfat=10 plotcol="7,3,5,4,6"')
+
+
+
+
+### Reconstruction errors and removed noise
+Flow('syn5d-r-lmafit','syn5d-clean syn5d-lmafit',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-r-svd','syn5d-clean syn5d-svd',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-r-lanb','syn5d-clean syn5d-lanb',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-r-rsvd','syn5d-clean syn5d-rsvd',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-n-lmafit','syn5d-noisy syn5d-lmafit',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-n-svd','syn5d-noisy syn5d-svd',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-n-lanb','syn5d-noisy syn5d-lanb',' add scale=1,-1 ${SOURCES[1]}')
+Flow('syn5d-n-rsvd','syn5d-noisy syn5d-rsvd',' add scale=1,-1 ${SOURCES[1]}')
+
+
+### Choose the 3D cube for display
+Flow('syn5d-clean-3d','syn5d-clean','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-noisy-3d','syn5d-noisy','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-decimated-3d','syn5d-decimated','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-lmafit-3d','syn5d-lmafit','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-svd-3d','syn5d-svd','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-lanb-3d','syn5d-lanb','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-rsvd-3d','syn5d-rsvd','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-r-lmafit-3d','syn5d-r-lmafit','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-r-svd-3d','syn5d-r-svd','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-r-lanb-3d','syn5d-r-lanb','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-r-rsvd-3d','syn5d-r-rsvd','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-n-lmafit-3d','syn5d-n-lmafit','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-n-svd-3d','syn5d-n-svd','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-n-lanb-3d','syn5d-n-lanb','window n2=1 n3=1 f2=5 f3=5')
+Flow('syn5d-n-rsvd-3d','syn5d-n-rsvd','window n2=1 n3=1 f2=5 f3=5')
+
+j=3
+Flow('syn5d-clean-3d-1','syn5d-clean','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-noisy-3d-1','syn5d-noisy','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-decimated-3d-1','syn5d-decimated','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-lmafit-3d-1','syn5d-lmafit','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-svd-3d-1','syn5d-svd','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-lanb-3d-1','syn5d-lanb','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-rsvd-3d-1','syn5d-rsvd','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-r-lmafit-3d-1','syn5d-r-lmafit','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-r-svd-3d-1','syn5d-r-svd','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-r-lanb-3d-1','syn5d-r-lanb','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-r-rsvd-3d-1','syn5d-r-rsvd','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-n-lmafit-3d-1','syn5d-n-lmafit','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-n-svd-3d-1','syn5d-n-svd','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-n-lanb-3d-1','syn5d-n-lanb','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+Flow('syn5d-n-rsvd-3d-1','syn5d-n-rsvd','window n4=1 n5=1 f4=%d f5=%d'%(j,j))
+
+
+Flow('syn5d-clean-2d','syn5d-clean-3d','window n3=1 f2=2')
+Flow('syn5d-noisy-2d','syn5d-noisy-3d','window n3=1 f2=2')
+Flow('syn5d-decimated-2d','syn5d-decimated-3d','window n3=1 f2=2')
+Flow('syn5d-svd-2d','syn5d-svd-3d','window n3=1 f2=2')
+Flow('syn5d-lmafit-2d','syn5d-lmafit-3d','window n3=1 f2=2')
+Flow('syn5d-r-svd-2d','syn5d-r-svd-3d','window n3=1 f2=2')
+Flow('syn5d-r-lmafit-2d','syn5d-r-lmafit-3d','window n3=1 f2=2')
+
+Flow('syn5d-n-svd-2d','syn5d-n-svd-3d','window n3=1 f2=2')
+Flow('syn5d-n-lmafit-2d','syn5d-n-lmafit-3d','window n3=1 f2=2')
+
+Grey('syn5d-clean-2d','color=r title=Clean')
+Grey('syn5d-noisy-2d','color=r title=Noisy')
+Grey('syn5d-decimated-2d','color=r title=Decimated')
+Grey('syn5d-svd-2d','color=r title=SVD')
+Grey('syn5d-lmafit-2d','color=r title="SVD-free"')
+Grey('syn5d-r-svd-2d','color=r title=SVD')
+Grey('syn5d-r-lmafit-2d','color=r title="SVD-free"')
+Grey('syn5d-n-svd-2d','color=r title=SVD')
+Grey('syn5d-n-lmafit-2d','color=r title="SVD-free"')
+
+### Local similarity
+Flow('simi-syn5d-noisy-2d','syn5d-noisy-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-decimated-2d','syn5d-decimated-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-svd-2d','syn5d-svd-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-lmafit-2d','syn5d-lmafit-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-r-svd-2d','syn5d-r-svd-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-r-lmafit-2d','syn5d-r-lmafit-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-n-svd-2d','syn5d-n-svd-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Flow('simi-syn5d-n-lmafit-2d','syn5d-n-lmafit-2d syn5d-clean-2d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+Grey_simi('simi-syn5d-noisy-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0 title="Noisy"' )
+Grey_simi('simi-syn5d-decimated-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0 title="Decimated"' )
+Grey_simi('simi-syn5d-svd-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0 title="SVD"' )
+Grey_simi('simi-syn5d-lmafit-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0 title="SVD-free"' )
+Grey_simi('simi-syn5d-r-svd-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0' )
+Grey_simi('simi-syn5d-r-lmafit-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0' )
+Grey_simi('simi-syn5d-n-svd-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0' )
+Grey_simi('simi-syn5d-n-lmafit-2d','scalebar=y color=j clip=1.0 minval=0 maxval=1.0' )
+
+
+#Flow('simi-syn5d-noisy-3d','syn5d-noisy-3d syn5d-clean-3d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+#Flow('simi-syn5d-r-svd-3d','syn5d-r-svd-3d syn5d-clean-3d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+#Flow('simi-syn5d-r-lmafit-3d','syn5d-r-lmafit-3d syn5d-clean-3d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+#Flow('simi-syn5d-n-svd-3d','syn5d-r-svd-3d syn5d-clean-3d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+#Flow('simi-syn5d-n-lmafit-3d','syn5d-r-lmafit-3d syn5d-clean-3d','similarity other=${SOURCES[1]} niter=20 rect1=2 rect2=2')
+#Grey3_simi('simi-syn5d-noisy-3d','scalebar=n color=j' )
+#Grey3_simi('simi-syn5d-r-svd-3d','scalebar=n color=j' )
+#Grey3_simi('simi-syn5d-r-lmafit-3d','scalebar=n color=j' )
+#Grey3_simi('simi-syn5d-n-svd-3d','scalebar=n color=j' )
+#Grey3_simi('simi-syn5d-n-lmafit-3d','scalebar=n color=j' )
+
+### Ploting for Syn5d
+Grey3('syn5d-noisy-3d','color=r title=Noisy')
+Grey3('syn5d-decimated-3d','color=r title=Decimated')
+Grey3('syn5d-clean-3d','color=r title=Clean')
+Grey3('syn5d-lmafit-3d','color=r title="SVD-free"')
+Grey3('syn5d-svd-3d','color=r title=SVD')
+Grey3('syn5d-lanb-3d','color=r title=LanB')
+Grey3('syn5d-rsvd-3d','color=r title=RSVD')
+Grey3('syn5d-r-lmafit-3d','color=r title="SVD-free"')
+Grey3('syn5d-r-svd-3d','color=r title=SVD')
+Grey3('syn5d-r-lanb-3d','color=r title=LanB')
+Grey3('syn5d-r-rsvd-3d','color=r title=RSVD')
+Grey3('syn5d-n-lmafit-3d','color=r title="SVD-free"')
+Grey3('syn5d-n-svd-3d','color=r title=SVD')
+Grey3('syn5d-n-lanb-3d','color=r title=LanB')
+Grey3('syn5d-n-rsvd-3d','color=r title=RSVD')
+
+Grey3_1('syn5d-noisy-3d-1','color=r title=Noisy')
+Grey3_1('syn5d-decimated-3d-1','color=r title=Decimated')
+Grey3_1('syn5d-clean-3d-1','color=r title=Clean')
+Grey3_1('syn5d-lmafit-3d-1','color=r title="SVD-free"')
+Grey3_1('syn5d-svd-3d-1','color=r title=SVD')
+Grey3_1('syn5d-lanb-3d-1','color=r title=LanB')
+Grey3_1('syn5d-rsvd-3d-1','color=r title=RSVD')
+Grey3_1('syn5d-r-lmafit-3d-1','color=r title="SVD-free"')
+Grey3_1('syn5d-r-svd-3d-1','color=r title=SVD')
+Grey3_1('syn5d-r-lanb-3d-1','color=r title=LanB')
+Grey3_1('syn5d-r-rsvd-3d-1','color=r title=RSVD')
+Grey3_1('syn5d-n-lmafit-3d-1','color=r title="SVD-free"')
+Grey3_1('syn5d-n-svd-3d-1','color=r title=SVD')
+Grey3_1('syn5d-n-lanb-3d-1','color=r title=LanB')
+Grey3_1('syn5d-n-rsvd-3d-1','color=r title=RSVD')
+
+
+End()
