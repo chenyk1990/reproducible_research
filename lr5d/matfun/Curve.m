@@ -64,25 +64,25 @@ dn0=dn.*mask;
 
 %% data processing - 5D MSSA
 tic
-[d_recon_lmafit] = mssa5d_lmafit(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N1,K,eps,Niter,a,mask);
+[d_recon_lmafit] = lr5d_lmafit(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N1,K,eps,Niter,a,mask);
 toc
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_lmafit,nt*nhx*nhy,nx,ny),2)
 
 tic
-[d_recon_svd] = mssa5d_svd(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N1,K,eps,Niter,a,mask);
+[d_recon_svd] = lr5d_svd(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N1,K,eps,Niter,a,mask);
 toc
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_svd,nt*nhx*nhy,nx,ny),2)
 
 tic
-[d_recon_lanb] = mssa5d_lanb(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N2,K,eps,Niter,a,mask);
+[d_recon_lanb] = lr5d_lanb(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N2,K,eps,Niter,a,mask);
 toc
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_lanb,nt*nhx*nhy,nx,ny),2)
 
 tic
-[d_recon_rsvd] = mssa5d_rsvd(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N3,K,P,eps,Niter,a,mask);
+[d_recon_rsvd] = lr5d_rsvd(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N3,K,P,eps,Niter,a,mask);
 toc
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
 yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_rsvd,nt*nhx*nhy,nx,ny),2)
