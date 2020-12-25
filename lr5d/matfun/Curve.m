@@ -58,7 +58,7 @@ dn=d+var*randn(size(d));
 
 %% decimating data
 ratio=0.3;
-mask=genmask(reshape(dn,nt,nhx*nhy*nx*ny),ratio,'c',201415);
+mask=yc_genmask(reshape(dn,nt,nhx*nhy*nx*ny),ratio,'c',201415);
 mask=reshape(mask,nt,nhx,nhy,nx,ny);
 dn0=dn.*mask;
 
@@ -66,26 +66,26 @@ dn0=dn.*mask;
 tic
 [d_recon_lmafit] = mssa5d_lmafit(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N1,K,eps,Niter,a,mask);
 toc
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_lmafit,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_lmafit,nt*nhx*nhy,nx,ny),2)
 
 tic
 [d_recon_svd] = mssa5d_svd(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N1,K,eps,Niter,a,mask);
 toc
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_svd,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_svd,nt*nhx*nhy,nx,ny),2)
 
 tic
 [d_recon_lanb] = mssa5d_lanb(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N2,K,eps,Niter,a,mask);
 toc
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_lanb,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_lanb,nt*nhx*nhy,nx,ny),2)
 
 tic
 [d_recon_rsvd] = mssa5d_rsvd(dn0,nt,nf,nhx,nhy,nx,ny,dt,flow,fhigh,N3,K,P,eps,Niter,a,mask);
 toc
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
-snrcyk(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_rsvd,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(dn,nt*nhx*nhy,nx,ny),2)
+yc_snr(reshape(d,nt*nhx*nhy,nx,ny),reshape(d_recon_rsvd,nt*nhx*nhy,nx,ny),2)
 
 % figure;
 % imagesc([squeeze(d(:,5,5,:,6)),squeeze(dn(:,5,5,:,6)),squeeze(d_recon_lmafit(:,5,5,:,6)),...
