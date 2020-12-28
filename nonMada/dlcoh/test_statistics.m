@@ -22,15 +22,6 @@ clc;clear;close all;
 % Zu, S., H. Zhou, R. Wu, M. Jiang, and Y. Chen, 2019, Dictionary learning based on dip patch selection training for random noise attenuation, Geophysics, 84, V169?V183.
 % Zu, S., H. Zhou, R. Wu, and Y. Chen, 2019, Hybrid-sparsity constrained dictionary learning for iterative deblending of extremely noisy simultaneous-source data, IEEE Transactions on Geoscience and Remote Sensing, 57, 2249-2262.
 
-
-% x=0:.1:2*pi;
-% y=sin(x);
-% figure;plot(x,y);
-% 
-
-
-clc;clear;close all;
-
 %%
 ne=20;%number of events;
 dt = 4./1000;
@@ -185,6 +176,9 @@ figure;imagesc([d,d2_omp,d-d2_omp]);colormap(seis);
 yc_snr(d0,d2)
 
 %% atoms
+%% NOTE HERE the result is slightly different from what is shown in the paper
+% because a different KSVD subroutine is used (here we use the yc_ksvd.m for DEMO)
+% The human picked atoms need to be adjusted
 
 % option 2
 inds=[9,10,11,12,21,22,23,24,25,26,29,38,44,52,53,55,56,57,62];
@@ -194,7 +188,6 @@ inds=[9,10,18,21,22,23,24,25,26,29,38,44,52,53,55,56,57,62];%in backup statistic
 % inds=[9,10,15,16,25,26,29,30,38,46,53,55,57,58,60];
 
 inds=[8,9,10,11,12,13,14,15,16,17,19,23,24,25,26,27,28,29,30,31,32,40,41,42,43,44,45,46,47,48,56,57,58,59,60,61,62,63,64];
-
 
 figure('units','normalized','Position',[0.2 0.4 0.53, 1]);
 for ia=1:64

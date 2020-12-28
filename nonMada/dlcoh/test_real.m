@@ -145,8 +145,9 @@ k=kurtosis(Dksvd);%16.6513 N=21; 16.9889 N=22; 17.1545 N=23; 17.3897 N=24; 17.69
 % figure;stem(ks);
 % ks_ratio=[ks(1:end-1)./ks(2:end)];% ks_dif=diff(ks);figure;stem(ks_dif);
 % figure;stem(ks_ratio);
-perc=35;%works fine
-perc=50;%works perfectly? I think so.
+% perc=35;%works fine
+% perc=50;%works perfectly? I think so. %in original script
+perc=55;
 tt=round(natom*(100-perc)/100);
 inds=ii(1:tt);
 
