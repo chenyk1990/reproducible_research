@@ -14,7 +14,7 @@ The "nonMada" sub-directory contains reproducible packages that are not based on
 
 
 NOTES
-* sub-directories containing "matfun" require the Matlab-Madagascar interface (to do that, try ./configure API=c++,matlab --prefix=~/RSFROOT; scons install -k; add "~/RSFROOT/lib" into the Matlab path directories by "addpath(genpath('~/RSFROOT/lib')); savepath;". 
+* sub-directories containing "matfun" require the Matlab-Madagascar interface (to do that, try ./configure API=c++,matlab --prefix=~/RSFROOT; scons install -k; add "~/RSFROOT/lib" into the Matlab path directories by "addpath(genpath('~/RSFROOT/lib')); savepath;". The "matfun" directory contains all the Matlab scripts/subroutines to output the data for plotting in SConstruct. 
 
 * Other sub-directories not containing "matfun" are all based on Madagascar commands and are reproducible after Madagascar is installed successfully.
 
