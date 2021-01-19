@@ -74,8 +74,8 @@ Grey2(dip_pocs,'clip=1 color=j')
 for iter in range(niter): 
     thr=thr0+((8.-thr0)*iter*iter/((niter-1)*(niter-1)))
     if iter % ddip ==0 :
-	dip_pocs='dip-pocs%d'%int(iter/ddip)
-	Flow(dip_pocs,[data_pocs,'dipmask'],
+        dip_pocs='dip-pocs%d'%int(iter/ddip)
+        Flow(dip_pocs,[data_pocs,'dipmask'],
      		'''
 		bandpass fhi=%d | pad n2=%d | 
 		dip mask=${SOURCES[1]} rect1=%d rect2=%d liter=30
