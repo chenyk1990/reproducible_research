@@ -99,7 +99,7 @@ for k=ilow:ihigh
     
     %     save data_M M % check if M is Hankel
     if k~=ikf
-    M=P_R(M,Nmax,mode,eps);
+    M=P_R(M,Nmax,NN,mode,eps);
     else
     [M,H]=P_R(M,Nmax,NN,mode,eps);
     end
