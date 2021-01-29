@@ -1,0 +1,199 @@
+from rsf.proj import *
+def Grey(data1,data,other):
+	Result(data1,data,'put d2=1 d1=0.002 |grey label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n  clip=2  %s  '%other)
+ 
+def Greys(data,other):
+	Result(data,'put d2=1 |grey allpos=y color=j label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n  clip=0.8 maxval=0.8 minval=0 %s  '%other)
+
+# Fetch data
+#Fetch('image3d.rsf','cup',server)
+
+Flow('data','image2d','dd form=native | put d2=1 d3=1')
+Grey('real2d','data','title="Raw data"')
+
+### windowed function
+#Flow('test0','data','fxynpre n1win=256 n2win=1001 mode=0 fs=0 nsx=4 nsy=0 rect1=3 rect2=4 niter=20 verb=y')
+Flow('test0-n','test0 data','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('r2test0','test0','title="NPF"')
+Grey('r2test0-n','test0-n','title="NPF"')
+
+#Flow('test00','data','fxynpre n1win=256 n2win=1001 mode=0 fs=1 nsx=4 nsy=0 rect1=3 rect2=4 Ntimes=20 Nfrac=6 pow=0.5 niter=20 verb=y')
+Flow('test00-n','test00 data','add scale=-1,1 ${SOURCES[1]}')
+Grey('r2test00','test00','title="NPFFS"')
+Grey('r2test00-n','test00-n','title="NPFFS"')
+
+#Flow('test1','data','fxynpre n1win=256 n2win=1001 mode=1 nsx=4 nsy=0 rect2=10 niter=20 verb=y')
+Flow('test1-n','test1 data','add scale=-1,1 ${SOURCES[1]}')
+Grey('r2test1','test1','title="RNAR"')
+Grey('r2test1-n','test1-n','title="RNAR"')
+
+#Flow('test2','data','fxynpre n1win=256 n2win=1001 mode=2 nsx=4 nsy=0 rect2=1 niter=20 verb=y')
+Flow('test2-n','test2 data','add scale=-1,1 ${SOURCES[1]}')
+Grey('r2test2','test2','title="SPF"')
+Grey('r2test2-n','test2-n','title="SPF"')
+
+
+
+#local similarity
+Flow('r2simi0','test0 test0-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi00','test00 test00-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi1','test1 test1-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi2','test2 test2-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simic','r2curv r2curv-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+
+Greys('r2simi0','color=j clip=1 scalebar=y title="NPF"')
+Greys('r2simi00','color=j clip=1 scalebar=y title="NPFFS"')
+Greys('r2simi1','color=j clip=1 scalebar=y title="RNAR"')
+Greys('r2simi2','color=j clip=1 scalebar=y title="SPF"')
+Greys('r2simic','color=j clip=1 scalebar=y ')
+
+#FFT
+Flow('real2d-f','image2d','fft1 ')
+
+
+from rsf.prog import RSFROOT
+########################################################################
+# INITIALIZATION
+#######################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'hyper'
+matfun1 = 'hyper1'
+
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+matcykROOT='/Users/chenyk/chenyk/matlibcyk/Mada_matlab'
+############################################################
+## Curvelet thresholding
+############################################################
+matfun='Curvelet'
+perc=10
+n1=2501
+n2=1001
+d1=0.004
+d2=1
+Flow('r2curv-0',[os.path.join(matcykROOT,matfun+'.m'),'data'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('r2curv','r2curv-0','put n1=%d n2=%d d1=%g d2=%g o1=0 o2=0'%(n1,n2,d1,d2))
+Flow('r2curv-n','data r2curv','add scale=1,-1 ${SOURCES[1]}')
+Grey('r2curv','r2curv','')
+Grey('r2curv-n','r2curv-n','')
+
+### Zooming
+##zooming
+## Creating framebox
+x=400
+y=3.5
+w=200
+w1=1
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=1000 min2=1 max2=6 pad=n plotfat=10 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+## Create label A
+Plot('labela',None,
+	'''
+	box x0=5.5 y0=5.9 label="A" xt=0.5 yt=0.5 length=0.75 
+	''')
+
+##zooming
+Flow('real2d-z','data','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test0-z','test0','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test00-z','test00','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test00dif-z','r2test0-z r2test00-z','add scale=1,-1 ${SOURCES[1]}')
+Flow('r2test1-z','test1','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test2-z','test2','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey('real2d-z','real2d-z','screenratio=0.75 title="Raw data"')
+Grey('r2test0-z','r2test0-z','screenratio=0.75 title="NPF"')
+Grey('r2test00-z','r2test00-z','screenratio=0.75 title="NPFFS"')
+Grey('r2test00dif-z','r2test00dif-z','screenratio=0.75 title="Difference"')
+Grey('r2test1-z','r2test1-z','screenratio=0.75 title="RNAR"')
+Grey('r2test2-z','r2test2-z','screenratio=0.75 title="SPF"')
+
+Plot('label1',None,
+	'''
+	box x0=10.0 y0=5.3 label="" xt=-0.5 yt=0.5 length=1 
+	''')
+Plot('label2',None,
+	'''
+	box x0=11.0 y0=5.4 label="" xt=-0.5 yt=0.5 length=1 
+	''')
+Plot('label3',None,
+	'''
+	box x0=12.0 y0=5.5 label="" xt=-0.5 yt=0.5 length=1 
+	''')
+Plot('label4',None,
+	'''
+	box x0=6.0 y0=5.3 label="" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label5',None,
+	'''
+	box x0=5.0 y0=5.3 label="" xt=0.5 yt=0.5 length=1 
+	''')
+Result('real2d-z0','Fig/real2d-z.vpl label1 label2 label3 label4 label5','Overlay')
+Result('r2test0-z0','Fig/r2test0-z.vpl label1 label2 label3 label4 label5','Overlay')
+Result('r2test00-z0','Fig/r2test00-z.vpl label1 label2 label3 label4 label5','Overlay')
+Result('r2test1-z0','Fig/r2test1-z.vpl label1 label2 label3 label4 label5','Overlay')
+Result('r2test2-z0','Fig/r2test2-z.vpl label1 label2 label3 label4 label5','Overlay')
+Result('r2test00dif-z0','Fig/r2test00dif-z.vpl','Overlay')
+
+Result('real2d-0','Fig/real2d.vpl frame1 frame2','Overlay')
+Result('r2test0-0','Fig/r2test0.vpl frame1','Overlay')
+Result('r2test00-0','Fig/r2test00.vpl frame1','Overlay')
+Result('r2test1-0','Fig/r2test1.vpl frame1','Overlay')
+Result('r2test2-0','Fig/r2test2.vpl frame1','Overlay')
+
+
+## Noise
+x=180
+y=3.2
+w=220
+w1=0.8
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=1000 min2=1 max2=6 pad=n plotfat=10 plotcol=3 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n dash=4
+	''')
+	
+Plot('label',None,
+	'''
+	box x0=10.0 y0=5.3 label="Signal" xt=-0.5 yt=0.5 length=1 
+	''')
+	
+##zooming
+Flow('r2test0-n-z','test0-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test00-n-z','test00-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test1-n-z','test1-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test2-n-z','test2-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey('r2test0-n-z','r2test0-n-z','screenratio=0.75 title="NPF" clip=1.5')
+Grey('r2test00-n-z','r2test00-n-z','screenratio=0.75 title="NPFFS" clip=1.5')
+Grey('r2test1-n-z','r2test1-n-z','screenratio=0.75 title="RNAR" clip=1.5')
+Grey('r2test2-n-z','r2test2-n-z','screenratio=0.75 title="SPF" clip=1.5')
+
+Result('r2test1-n-z0','Fig/r2test1-n-z.vpl label','Overlay')
+
+
+Result('r2test0-n-0','Fig/r2test0-n.vpl frame2','Overlay')
+Result('r2test00-n-0','Fig/r2test00-n.vpl frame2','Overlay')
+Result('r2test1-n-0','Fig/r2test1-n.vpl frame2','Overlay')
+Result('r2test2-n-0','Fig/r2test2-n.vpl frame2','Overlay')
+
+
+
+End()
+

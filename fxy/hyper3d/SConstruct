@@ -1,0 +1,395 @@
+from rsf.proj import *
+import math
+
+
+def Grey(data,other):
+	Result(data,
+		'''byte clip=0.1| grey3 flat=n frame1=50 frame2=50 frame3=50 point1=0.8 point2=0.8 title= %s label2=X label3=Y unit2=km unit3=km '''%other)
+
+def Greys(data,other):
+	Result(data,
+		'''clip clip=0.15 |byte clip=0.2 allpos=y bar=bar.rsf| grey3 flat=n frame1=50 frame2=50 frame3=50 point1=0.8 point2=0.8 title= scalebar=y %s label2=X label3=Y unit2=km unit3=km maxval=0.2 minval=0'''%other)
+		
+def Greyf(data,clip,other):
+	Result(data,
+		'''clip clip=1.5 |byte clip=%g allpos=y bar=bar.rsf| window n1=31 | grey3 flat=n frame1=15 frame2=50 frame3=50 point1=0.8 point2=0.8 title= scalebar=y %s label2=X label3=Y unit2=km unit3=km maxval=2.0 minval=0'''%(clip,other))
+		
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s"  title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+	
+## Plot font and screen ratio, width, height for uniform ppt figs.
+p1=0.7
+sr=1.0
+sw=7.0
+sh=10.0
+xll=2.0
+fat=2
+
+#####
+##Synthetic CMP Parameters
+nx=101
+delx=0.0125*2
+ox=-1.25
+ny=nx
+dely=delx
+oy=ox
+nt=1001
+dt=0.004
+fw=10.0
+####
+
+################################################################################################################
+########  4 Reflection Events ################################################
+
+#111111111 Make a layer: z = z0 + x*dx + y*dy
+
+dx=0.4
+dy=0.1
+dt=.004
+z0=0.8
+##z0=0.75
+
+cg = 1/math.sqrt(1+dx*dx+dy*dy)
+ca = -dx*cg
+cb = -dy*cg
+d = z0*cg
+
+mx = 0
+my = 0
+
+D = d - mx*ca - my*cb
+
+v0 = 2.5
+t0 = 2*D/v0
+it0=int(t0/dt)
+it1=it0
+#print it1
+Flow('spike1',None,
+     '''
+     spike n1=%d k1=%d nsp=1 | ricker1 frequency=%g |
+     spray axis=2 n=%d o=%g d=%g |
+     spray axis=3 n=%d o=%g d=%g
+     ''' % (nt,it1,fw,ny,oy,dely,nx,ox,delx))
+
+wx = 1-ca*ca
+wy = 1-cb*cb
+wxy = - ca*cb
+
+Flow('vel1.asc',None,'echo %g %g %g n1=3 data_format=ascii_float in=$TARGET' % (wx,wy,wxy))
+Flow('vel1','vel1.asc','dd form=native | scale dscale=%g | spray axis=1 n=%d' % (1/(v0*v0),nt),local=1)
+
+
+Flow('cmp1','spike1 vel1','inmo3 velocity=${SOURCES[1]}',local=1)
+
+#222222222222 Make another layer: z = z0 + x*dx + y*dy
+
+dx=0.7
+dy=0.41
+dt=.004
+z0=0.85
+
+cg = 1/math.sqrt(1+dx*dx+dy*dy)
+ca = -dx*cg
+cb = -dy*cg
+d = z0*cg
+
+mx = 0
+my = 0
+
+D = d - mx*ca - my*cb
+
+v0 = 1.7
+t0 = 2*D/v0
+it0=int(t0/dt)
+it2=it0
+#print it2
+Flow('spike2',None,
+     '''
+     spike n1=%d k1=%d nsp=1 | ricker1 frequency=%g |
+     spray axis=2 n=%d o=%g d=%g |
+     spray axis=3 n=%d o=%g d=%g
+     ''' % (nt,it2,fw,ny,oy,dely,nx,ox,delx))
+
+wx = 1-ca*ca
+wy = 1-cb*cb
+wxy = - ca*cb
+
+Flow('vel2.asc',None,'echo %g %g %g n1=3 data_format=ascii_float in=$TARGET' % (wx,wy,wxy))
+Flow('vel2','vel2.asc','dd form=native | scale dscale=%g | spray axis=1 n=%d' % (1/(v0*v0),nt),local=1)
+
+
+Flow('cmp2','spike2 vel2','inmo3 velocity=${SOURCES[1]}',local=1)
+
+
+#3333333333333 Make yet another layer: z = z0 + x*dx + y*dy
+
+dx=0.1
+dy=0.9
+dt=.004
+z0=1.1
+
+cg = 1/math.sqrt(1+dx*dx+dy*dy)
+ca = -dx*cg
+cb = -dy*cg
+d = z0*cg
+
+mx = 0
+my = 0
+
+D = d - mx*ca - my*cb
+
+v0 = 1.75
+t0 = 2*D/v0
+it0=int(t0/dt)
+it3=it0
+#print it3
+Flow('spike3',None,
+     '''
+     spike n1=%d k1=%d nsp=1 | ricker1 frequency=%g |
+     spray axis=2 n=%d o=%g d=%g |
+     spray axis=3 n=%d o=%g d=%g
+     ''' % (nt,it3,fw,ny,oy,dely,nx,ox,delx))
+
+wx = 1-ca*ca
+wy = 1-cb*cb
+wxy = - ca*cb
+
+Flow('vel3.asc',None,'echo %g %g %g n1=3 data_format=ascii_float in=$TARGET' % (wx,wy,wxy))
+Flow('vel3','vel3.asc','dd form=native | scale dscale=%g | spray axis=1 n=%d' % (1/(v0*v0),nt),local=1)
+
+Flow('cmp3','spike3 vel3','inmo3 velocity=${SOURCES[1]}',local=1)
+
+#444444444444 Make a 4th layer: z = z0 + x*dx + y*dy
+
+dx=0.2
+dy=0.1
+dt=.004
+z0=1.3
+
+cg = 1/math.sqrt(1+dx*dx+dy*dy)
+ca = -dx*cg
+cb = -dy*cg
+d = z0*cg
+
+mx = 0
+my = 0
+
+D = d - mx*ca - my*cb
+
+v0 = 2.0
+t0 = 2*D/v0
+it0=int(t0/dt)
+it4=it0
+#print it4
+Flow('spike4',None,
+     '''
+     spike n1=%d k1=%d nsp=1 | ricker1 frequency=%g |
+     spray axis=2 n=%d o=%g d=%g |
+     spray axis=3 n=%d o=%g d=%g
+     ''' % (nt,it4,fw,ny,oy,dely,nx,ox,delx))
+
+wx = 1-ca*ca
+wy = 1-cb*cb
+wxy = - ca*cb
+
+Flow('vel4.asc',None,'echo %g %g %g n1=3 data_format=ascii_float in=$TARGET' % (wx,wy,wxy))
+Flow('vel4','vel4.asc','dd form=native | scale dscale=%g | spray axis=1 n=%d' % (1/(v0*v0),nt),local=1)
+
+Flow('cmp4','spike4 vel4','inmo3 velocity=${SOURCES[1]}',local=1)
+
+## Add events to create CMP.
+Flow('cmp0','cmp1 cmp2 cmp3 cmp4',
+     '''
+     math cmp2=${SOURCES[1]} cmp3=${SOURCES[2]} cmp4=${SOURCES[3]} output="input+cmp2+cmp3+cmp4" |
+     window max1=1.5 min1=0.5 j1=2 | put o1=0
+     ''',local=1)
+
+Flow('cmp','cmp0','noise seed=1 range=0.3 ')
+
+
+### combined methods
+Flow('fcmp','cmp','fft1 | transp plane=13 memsize=1000  | transp plane=12 memsize=1000')
+
+Flow('shifts','fcmp',
+     '''
+     cshifts2 ns1=1 ns2=1 | transp plane=34 memsize=300
+     ''')
+Flow('flt pre','shifts fcmp',
+     'clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=4 rect2=7 niter=30')
+Flow('tpre','pre','transp plane=13 memsize=1000| transp plane=23 memsize=1000 | fft1 inv=y')
+Flow('tpredif','tpre cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('cmp0','title="Clean"')
+Grey('cmp','title="Noisy"')
+Grey('tpre','')
+Grey('tpredif','')
+
+### test 2
+Flow('fcmp-1','cmp','fft1 ')
+Flow('shifts-1','fcmp-1',
+     '''
+     transp plane=12 | transp plane=23 | cshifts2 ns1=2 ns2=2 | transp plane=34 memsize=300|
+     transp plane=23 | transp plane=12 ''')
+Flow('flt-1 pre-1','shifts-1 fcmp-1',
+     'clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=4 rect2=7 niter=30')
+Flow('tpre-1','pre-1','fft1 inv=y')
+Flow('tpredif-1','tpre-1 cmp','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('tpre-1','')
+Grey('tpredif-1','')
+
+### 2D
+Flow('shifts2d','fcmp',' shiftd1 ns=3 |transp plane=25 | window squeeze=y')
+
+Flow('flt2d pre2d','shifts2d fcmp',
+     'clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=5  niter=400')
+
+Flow('tpre2d','pre2d','transp plane=13 memsize=1000| transp plane=23 memsize=1000 | fft1 inv=y')
+Flow('tpre2ddif','tpre2d cmp','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('tpre2d','')
+Grey('tpre2ddif','')
+
+### single program
+Flow('test','cmp','fxyrnar nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
+Flow('testdif','test cmp','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('test','')
+Grey('testdif','')
+
+
+### windowed function
+Flow('test0','cmp','fxynpre mode=0 fs=0 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
+Flow('test0dif','test0 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test0','title="NPF"')
+Grey('test0dif','title="NPF"')
+
+Flow('test00','cmp','fxynpre mode=0 fs=1 nsx=2 nsy=2 rect1=4 rect2=3 rect3=3 niter=20 verb=y')
+Flow('test00dif','test00 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test00','title="NPFFS"')
+Grey('test00dif','title="NPFFS"')
+
+Flow('test1','cmp','fxynpre mode=1 nsx=2 nsy=2 rect2=10 rect3=10 niter=20 verb=y')
+Flow('test1dif','test1 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test1','title="RNAR"')
+Grey('test1dif','title="RNAR"')
+
+
+# Flow('test11','cmp','fxynpre nsx=2 nsy=2 rect1=4 rect2=30 rect3=30 niter=20 verb=y')
+# Flow('test11dif','test11 cmp','add scale=-1,1 ${SOURCES[1]}')
+# Grey('test11','')
+# Grey('test11dif','')
+
+# Flow('test2','cmp','fxynpre n1win=70 n2win=50 n3win=50 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
+# Flow('test2dif','test2 cmp','add scale=-1,1 ${SOURCES[1]}')
+# Grey('test2','')
+# Grey('test2dif','')
+
+Flow('test2','cmp','fxynpre mode=2 nsx=2 nsy=2 rect1=1 rect2=1 niter=20 verb=y')
+Flow('test2dif','test2 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test2','title="SPF"')
+Grey('test2dif','title="SPF"')
+
+Flow('test22','cmp','fxynpre mode=2 n1win=70 n2win=50 n3win=50 nsx=2 nsy=2 rect1=1 rect2=1 niter=20 verb=y')
+Flow('test22dif','test22 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test22','')
+Grey('test22dif','')
+
+
+## fx comparison
+Flow('hyper-f','cmp0','fft1|cabs')
+Flow('hypern-f','cmp','fft1|cabs')
+Flow('test1-f','test1','fft1|cabs')
+Flow('test2-f','test2','fft1|cabs')
+Flow('test0-f','test0','fft1|cabs')
+Flow('test00-f','test00','fft1|cabs')
+Greyf('hyper-f',2.0,'color=j title="Clean"')
+Greyf('hypern-f',2.0,'color=j title="Noisy"')
+Greyf('test1-f',2.0,'color=j title="RNAR"')
+Greyf('test2-f',2.0,'color=j title="SPF"')
+Greyf('test0-f',2.0,'color=j title="NPF"')
+Greyf('test00-f',2.0,'color=j title="NPFFS"')
+
+## trace comparison
+min1=0.6
+max1=0.8
+Flow('hyper-ss','cmp0 cmp test1 test2 test0 test00','cat axis=4 ${SOURCES[1:6]}|window n2=1 f2=20 n3=1 f3=20')
+Graph('hyper-ss','plotfat=10 plotcol="7,3,5,4,2,6"')
+
+## Creating framebox
+x=min1
+y=-0.15
+w=max1-min1
+w1=0.3
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=1 min2=-0.15 max2=0.15 pad=n plotfat=15 plotcol=7 screenratio=0.5
+	wantaxis=n wanttitle=n yreverse=y 
+	''')
+
+Flow('hyper-ss-z','hyper-ss','window min1=%g max1=%g'%(min1,max1))
+Graph('hyper-ss-z','plotfat=10 plotcol="7,3,5,4,2,6"')
+
+Plot('label1',None,
+	'''
+	box x0=5 y0=4.3 label="Clean" xt=-0.5 yt=0.5 length=0.8 
+	''')
+Plot('label2',None,
+	'''
+	box x0=4.3 y0=6.8 label="Noisy" xt=0.5 yt=0.5 length=0.8 
+	''')
+Plot('label3',None,
+	'''
+	box x0=13.5 y0=4.5 label="SPF" xt=-0.5 yt=0.5 length=0.8 
+	''')
+Plot('label4',None,
+	'''
+	box x0=6.8 y0=4.8 label="RNAR" xt=-0.5 yt=0.5 length=0.8 
+	''')
+Plot('label5',None,
+	'''
+	box x0=10.1 y0=3.6 label="NPF" xt=-0.5 yt=-0.5 length=0.8 
+	''')
+Plot('label6',None,
+	'''
+	box x0=9 y0=4.95 label="NPFFS" xt=0.5 yt=0.5 length=0.8 
+	''')	
+Result('hyper-ss-0','Fig/hyper-ss.vpl frame','Overlay')
+Result('hyper-ss-z-0','Fig/hyper-ss-z.vpl label1 label2 label3 label4 label5 label6','Overlay')
+
+#local similarity
+Flow('simi0','test0 test0dif','similarity other=${SOURCES[1]} rect1=5 rect2=5 rect3=5')
+Flow('simi00','test00 test00dif','similarity other=${SOURCES[1]} rect1=5 rect2=5 rect3=5')
+Flow('simi1','test1 test1dif','similarity other=${SOURCES[1]} rect1=5 rect2=5 rect3=5')
+Flow('simi2','test2 test2dif','similarity other=${SOURCES[1]} rect1=5 rect2=5 rect3=5')
+Flow('simi3','test3 test3dif','similarity other=${SOURCES[1]} rect1=5 rect2=5 rect3=5')
+Greys('simi0','color=j title="NPF"')
+Greys('simi00','color=j title="NPFFS"')
+Greys('simi1','color=j title="RNAR"')
+Greys('simi2','color=j title="SPF"')
+Greys('simi3','color=j ')
+
+Flow('cmp-f','test0','fft1|cabs')
+Greyf('cmp-f',2.0,'color=j ')
+
+r_max=20 
+r_ref=4
+Flow('rect1','cmp-f','math output="input"|scale axis=2|dd type=float|math output="-%g*input+%g"'%(r_max-r_ref,r_max))
+Flow('rect2','rect1','cp')
+Flow('rect3','rect2','cp')
+Greyf('rect1',r_max,'color=j ')
+
+Flow('test3','cmp rect1 rect2 rect3','fxynpre2 mode=3 nsx=2 nsy=2 rect1=${SOURCES[1]} rect2=${SOURCES[2]} rect3=${SOURCES[3]} niter=20 verb=y')
+Flow('test3dif','test3 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test3','')
+Grey('test3dif','')
+
+
+
+
+
+End()
+

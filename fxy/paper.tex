@@ -1,0 +1,275 @@
+
+\title{Non-stationary predictive filtering for seismic random noise suppression - A tutorial}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\author{Hang Wang\footnotemark[1], Wei Chen\footnotemark[2], Weilin Huang\footnotemark[3], Shaohuan Zu\footnotemark[4], Xingye Liu\footnotemark[5], Liuqing Yang\footnotemark[3] and Yangkang Chen\footnotemark[1]}
+\ms{GEO-2021} %\ms{GJI-2019}
+
+\address{
+\footnotemark[1]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+18328504171@163.com \& chenyk2016@gmail.com \\
+\footnotemark[2] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+Yangtze University\\
+Daxue Road No.111\\
+Caidian District\\
+Wuhan, China, 430100\\
+chenwei2014@yangtzeu.edu.cn\& yangliuqingqin@163.com\\
+\footnotemark[3] State Key Laboratory of Petroleum Resources and Prospecting \\
+China University of Petroleum \\
+Fuxue Road 18th\\
+Beijing, China, 102200\\
+cup\_hwl@126.com \\
+\footnotemark[4] College of Geophysics\\
+Chengdu University of Technology \\
+Dongsanlu, Erxianqiao, Chengdu 610059, Sichuan, China \\
+zushaohuan@qq.com\\
+\footnotemark[5] College of Geology and Environment\\
+Xi’an University of Science and Technology\\
+Xi’an, Shaanxi Province, China, 710054 \\
+lwxwyh506673@126.com\\
+Corresponding author: Yangkang Chen, chenyk2016@gmail.com
+}
+
+\righthead{Non-stationary predictive filtering}
+
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+
+\begin{abstract}
+Predictive filtering in the frequency domain is one of the most widely used denoising algorithms in  seismic data processing. Predictive filtering is based on the assumption of linear or planar events in the time-space domain. In traditional predictive filtering methods, a predictive filter is fixed across the spatial dimension, which cannot deal with spatial variations in seismic data well. To handle the curved events, the predictive filter is either applied in local windows or extended into a non-stationary version. The regularized non-stationary autoregression (RNAR) method can be treated as a non-stationary extension of the traditional predictive filtering, where the predictive filter coefficients are variable between different spatial locations. This highly under-determined inverse problem is solved by shaping regularization with a smoothness constraint in space. We further extend the RNAR method to the more general case, where we can apply more constraints to the filter coefficients according to the features of seismic data. First, apart from the smoothness in space, we also apply a smoothing constraint in frequency, considering the coherency of the coefficients in the frequency dimension. 
+Second, we apply a frequency-dependent smoothing radius in the spatial dimension to better take advantage of the non-stationarity of seismic data in the frequency axis and to better deal with noise. \new{Effectiveness of the}\old{The} proposed method is validated via several synthetic and field data examples.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+Removing spatially incoherent noise from seismic data is an important task in reflection seismology. \old{The noise}\new{Noise} suppression is either applied in pre-stack seismic data for improving the velocity analysis and seismic migration to obtain a better seismic image or applied in post-stack seismic images or attribute maps to facilitate a more reliable seismic interpretation. Therefore, the noise suppression performance affects most steps in the seismic processing, imaging, and interpretation chain \cite[]{yangkang20142,chenwei2018,liu2019seismic,shucai2020,chenwei2020,omar2020geo1}. Due to the complexity of seismic data, \old{however,}\new{though} simple assumptions that are required in most denoising algorithms are not always valid. For these reasons, many denoising algorithms based on different assumptions \dlo{are}\wen{have been} developed during the past decades. 
+
+\dlo{Those}\wen{Two} widely used denoising approaches are the prediction-based methods \cite[]{canales1984}, either in $t-x-y$ domain \cite[]{abma1995} or $f-x-y$ domain \cite[]{guochang2012,guochang2013}, which assume that seismic data are spatially predictable, and thus a prediction filter can be designed to predict the useful signals. Sparsity based methods first transform the seismic data to a sparsity-promoting domain, where the useful signals and noise can be separated. The performance of the transform methods depends on the sparsity that is closely related to the amplitude\wen{/location} difference between signal and noise in the transform domain \cite[]{amir2017,amir2017geo}. Thus, researchers \old{were seeking}\new{seek} the \dlo{sparest}\wen{sparsest} transform for seismic data, among these being the curvelet \old{transform }\cite[]{neelamani2008}, the wavelet \old{transform }\cite[]{mostafa2016geo,liuwei2016ewt}, and the seislet \old{transform }\cite[]{fomel2010seislet,shuwei20163} \new{transforms}. The rank-reduction methods emerged in the past decade because of their \dlo{decent}\wen{good} performance in dealing with complex seismic data \cite[]{mssa,weilin2016dmssa,yangkang2016irr5d,yangkang2019nc,wang2020low}. Seismic data are first transformed to a low-rank space, and then the principal components are extracted to obtain the useful seismic signals. However, these methods suffer from the intense computation required by the singular value decomposition (SVD) operations. Decomposition-based methods divide the seismic data into several components, where the useful signals can be obtained by \dlo{recombine}\wen{recombining} these components either by frequency or morphological differences \cite[]{huijian20161,weilin2020gji}. Because of the complexity of seismic data, one or more methods are sometimes combined to output a better performance than an individual method \cite[]{yangkang20141}. 
+
+While many denoising algorithms have been developed by researchers, the most widely accepted methods in the industry are still the prediction filter-based methods. Because of the efficiency and the stable performance (although these may not be optimal), processing seismologists prefer to improve the traditional prediction filtering by simple and efficient strategies, with the purpose of maintaining the efficiency advantages while improving the existing performance, rather than \old{utilizing}\new{using} more complicated and time-consuming denoising methods. \cite{canales1984} presents the classic prediction filter that uses a frequency-domain Wiener filter, referred to as the f-x predictive filtering method. The predictive filter was then introduced by \cite{gulunay1986fxdecon} and was referred to as the famous \dlo{FXDECON}\wen{f-x decon} algorithm. Since then, a variety of variants have been proposed to improve the classic implementation of the predictive filter. \cite{fxydecon} proposes the non-causal prediction filter to better utilize the constraints from both forward and backward prediction and applied it to 3D random noise suppression. \cite{naghizadeh2009f} develop an adaptive predictive filter to handle the multi-dip problem in complex seismic data without the need \dlo{of}\wen{for} local windowing and applied it to the seismic interpolation problem.  \cite{guochang2012} develop a regularized non-stationary autoregression (RNAR) method to \old{deal with}\new{handle} the spatial curvature and the non-stationarity of seismic data. The RNAR method formulates the predictive filter as an auto-regression problem and extends the autoregression to each non-stationary version. \cite{guochang2013} \old{further applied}\new{apply} the RNAR method to 3D problems.  \cite{fx2017} discusses the signal leakage issues in various implementations of the f-x deconvolution algorithms based on the open-source Teapot domain dataset. \old{Recently,} \cite{fuchao2020} develop a structurally guided predictive filter to handle the non-stationarity of seismic data by squeezing and \dlo{shrink}\wen{shrinking} the length of prediction filter according to the structural complexity. 
+ 
+
+In this paper, we further extend the RNAR approach to a more integrated framework, where we deal with the spatial non-stationarity of seismic data by extending the stationary autoregression to non-stationary autoregression, taking advantage of the temporal coherency, i.e., the narrow-band and smooth spectrum, by smoothing the autoregression coefficients in frequency and applying frequency-dependent smoothing to the coefficients in space.  To distinguish our approach from the RNAR method, we refer to the proposed method as the non-stationary predictive filtering (NPF) method. Compared with the stationary predictive filtering (PF) \cite[]{canales1984}, there are two \dlo{meanings of}\wen{steps to handling} the non-stationarity we refer to here. First, we synthesize the non-stationary data by the regularized non-stationary autoregression. Second, we deal with the non-stationary model (the frequency-dependent non-stationary autoregression coefficients) by applying a non-stationary model constraint, e.g., frequency-dependent spatial smoothing. We organize the paper as follows: we first introduce the fundamentals of the stationary predictive filtering (SPF) and NPF, with the focus on the new constraints we have applied compared with the RNAR method. Then, we use several 2D/3D synthetic and real data examples to demonstrate the better denoising performance of the proposed NPF method. 
+\section{Theory}
+\subsection{Stationary predictive filtering}
+The stationary predictive filtering (SPF) is based on a plane-wave assumption. Let us first consider the plane-wave equation as follows \cite[]{fomel2002pwd}:
+\begin{equation}
+\label{eq:plane}
+p \frac{\partial u}{\partial t} + \frac{\partial u}{\partial x} = 0,
+\end{equation}
+where $p$ denotes the slope, and $u(t,x)$ denotes the wavefield at time $t$ and space $x$. The plane-wave equation has the following analytical solution:
+\begin{equation}
+\label{eq:pre}
+u(t,x)=g(t-px),
+\end{equation}
+where $g(t)$ denotes the wavelet.  When taken into the frequency domain one obtains
+\begin{equation}
+\label{eq:pref}
+U(f,x)=G(f)e^{i2\pi fpx},
+\end{equation}
+where $U(f,x)$ and $G(f)$ denote the frequency-domain spectra of wavefield and wavelet. From equation \ref{eq:pref}, it can be shown that
+\begin{equation}
+\label{eq:pref2}
+U(f,x+1)=e^{i2\pi fp}U(f,x).
+\end{equation}
+When several plane waves exist, 
+\begin{equation}
+\label{eq:pref22}
+U(f,x+1)=e^{i2\pi fp_1}U(f,x)+e^{i2\pi fp_2}U(f,x-1)+e^{i2\pi fp_3}U(f,x-2)+\cdots+e^{i2\pi fp_{L}}U(f,x-L+1),
+\end{equation}
+which can be considered as an auto-regression (AR) model of order $L$ \cite[]{tufts1980,canales1984,yangkang20141}. The AR model expressed in equation \ref{eq:pref22} is known as the f-x predictive filtering based on the forward prediction. The AR model can also be formulated as a \dlo{causal}\wen{non-causal} prediction filter
+\begin{equation}
+\label{eq:pref22causal}
+U(f,x)=\sum_{i=-L,i\ne 0}^{L}a_i(f)U(f,x+i),
+\end{equation}
+where $a_i(f)=e^{i2\pi fp_i}$ and $L$ denotes the order of the \dlo{causal}\wen{non-causal} prediction filter. 
+
+\subsection{Non-stationary predictive filtering}
+Since the SPF is based on the plane-wave assumption, it is normally combined with a local windowing strategy to best denoise complicated seismic data. However, there are many drawbacks to using the local windowing strategy, e.g., one needs to consider the window size, the tapering strategy around edges, and the parameter inconsistency issue \cite[]{shaohuan2017gji}. A more appropriate way to deal with complicated seismic data is to modify the SPF expression in equation \ref{eq:pref22} in a non-stationary form:
+\begin{equation}
+\label{eq:ncausal}
+U(f,x)=\sum_{i=-L,i\ne 0}^{L}a_i(f,x)U(f,x+i),
+\end{equation}
+where the auto-regression coefficients $a_i(f,x)$ vary across the f-x domain. The auto-regression formula expressed in equation \ref{eq:ncausal} \dlo{bypass}\wen{bypasses} the need \dlo{of}\wen{for} local windowing since it expresses the auto-regression coefficients, which \dlo{is}\wen{are} related with the slope, in a non-stationary version. However, equation \ref{eq:ncausal} requires solving a highly under-determined inverse problem. Traditionally, the stationary \cite[]{canales1984} or non-stationary auto-regression coefficients \cite[]{guochang2012}, $a_i(f)$ or $a_i(f,x)$, are solved frequency-by-frequency. For example, for the non-stationary auto-regression in equation \ref{eq:ncausal}, $a_i(f,x)$ is obtained by solving the following system of equations:
+\begin{equation}
+\label{eq:sys}
+\begin{split}
+\hat{a_i}(f_1,x) &= \arg \min_{a_i(f_1,x)} \parallel U(f_1,x)-\sum_{i=-L,i\ne 0}^{L}a_i(f_1,x)U(f_1,x+i) \parallel  \\
+\hat{a_i}(f_2,x) &= \arg \min_{a_i(f_2,x)} \parallel U(f_2,x)-\sum_{i=-L,i\ne 0}^{L}a_i(f_2,x)U(f_2,x+i) \parallel  \\
+&\vdots\\
+\hat{a_i}(f_{N_f},x) &= \arg \min_{a_i(f_{N_f},x)} \parallel U(f_{N_f},x)-\sum_{i=-L,i\ne 0}^{L}a_i(f_{N_f},x)U(f_{N_f},x+i) \parallel.
+\end{split}
+\end{equation}
+Solving equation \ref{eq:sys} is referred to as the regularized non-stationary autoregression \cite[]{guochang2012}. The benefit of solving the non-stationary auto-regression coefficients $a_i(f,x)$ 
+frequency-by-frequency via equation \ref{eq:sys} is that the computation is easy to \wen{be} parallelized, as introduced in \cite{guochang2012}. However, solving $a_i(f,x)$ frequency-by-frequency could lose the inherent model constraint along the frequency axis. 
+
+Here, we propose formulating the inverse problem \wen{described by equation} \ref{eq:ncausal} in a more integrated form where we can understand the nature of this inverse problem more intuitively, thereby applying more physically plausible constraints to the model, i.e., $a_i(f,x)$. To solve equation \ref{eq:ncausal} using the classic inversion theory, we first transform it into a matrix-vector form as follows:
+\begin{align}
+\label{eq:mv}
+\mathbf{u} = \left[\begin{array}{cccc}
+\mathbf{U}_{-L} &\mathbf{U}_{-L+1}&\cdots&\mathbf{U}_{L}
+\end{array}\right]\left[\begin{array}{c}
+\mathbf{a}_{-L}\\
+\mathbf{a}_{-L+1}\\
+\vdots\\
+\mathbf{a}_L
+\end{array}\right],
+\end{align}
+where $\mathbf{u}$ is the vector form of $U(f,x)$, $\mathbf{U}_i$ is the diagonal matrix constructed from the vector $\mathbf{u}_i$ that corresponds to $U(f,x+i)$, and $\mathbf{a}_i$ is the vector form of $a_i(f,x)$. \wen{$\mathbf{u}_i$ is a spatially shifted version of $\mathbf{u}$ with a shifting size of $i$.} All $\mathbf{u}$, $\mathbf{u}_i$, and $\mathbf{a}_i$ are vectors of size $N_f\times N_x$. $N_f$ and $N_x$ denote the size in frequency and space dimensions. Equation \ref{eq:mv} can be expressed more compactly as:
+\begin{equation}
+\label{eq:fx}
+\mathbf{Fa}=\mathbf{u},
+\end{equation}
+where
+\begin{equation}
+\label{eq:fx2}
+\mathbf{F}=\left[\begin{array}{cccc}
+\mathbf{U}_{-L} &\mathbf{U}_{-L+1}&\cdots&\mathbf{U}_{L}
+\end{array}\right] \quad \text{and}\quad \mathbf{a}=\left[\begin{array}{c}
+\mathbf{a}_{-L}\\
+\mathbf{a}_{-L+1}\\
+\vdots\\
+\mathbf{a}_L
+\end{array}\right].
+\end{equation}
+As an optimization problem, equation \ref{eq:fx} can be solved via:
+\begin{equation}
+\label{eq:fx3}
+\hat{\mathbf{a}} = \arg\min_{\mathbf{a}} \parallel \mathbf{u}-\mathbf{Fa} \parallel_2^2 + \mathbf{R}(\mathbf{a}),
+\end{equation}
+where $\mathbf{R}$ denotes a regularization operator. Equation \ref{eq:fx3} can be solved using standard regularized inversion methods, e.g., \cite{tikhonov1963} or shaping \cite[]{fomel2007shape} regularization. Here, we use the shaping regularization method to solve the optimization problem in equation \ref{eq:fx3} via an iterative procedure:
+ \begin{equation}
+\label{eq:iter}
+\mathbf{a}_{m+1} = \mathbf{S}[\mathbf{a}_m + \mathbf{B}^T(\mathbf{u}-\mathbf{Fa}_m)] ,
+\end{equation}
+where $\mathbf{a}_{m}$ denotes the model after $m$th iteration. $\mathbf{S}$ and $\mathbf{B}$ are called shaping and backward operators, $\mathbf{S}$ is used to apply a priori constraint to the model while  $\mathbf{B}$ provides an approximate inverse of the forward operator $\mathbf{F}$. In the conjugate gradient algorithm (CG) \cite[]{fomel2007shape}, model update $\mathbf{B}^T(\mathbf{u}-\mathbf{Fa}_m)$ is calculated following the general CG definition. The shaping operator $\mathbf{S}$ is chosen as a multi-dimensional triangle smoothing operator, i.e., smoothing along the space direction (as in \cite{guochang2012}) as well as the frequency direction to ensure the frequency smoothness. The iterative formula \wen{described by equation} \ref{eq:iter} converges to the following solution:
+\begin{equation}
+\label{eq:fx33}
+\hat{\mathbf{a}} = [\lambda^2\mathbf{I} + \mathbf{S}(\mathbf{F}^T\mathbf{F}-\lambda^2\mathbf{I}) ]^{-1}\mathbf{S}\mathbf{F}^T\mathbf{a},
+\end{equation}
+where $\lambda$ is fixed to be $\parallel\mathbf{F}^T\mathbf{F}\parallel_2$ \cite[]{fomel2007shape}. Because of the convenience offered by the shaping regularization, it is useful to apply physically meaningful constraints to the model, e.g., a frequency-dependent smoothing along the space direction. From equation \ref{eq:fx}, we are aware that the model in the inverse problem corresponds to the non-stationary auto-regression coefficients spread across the frequency-space domain. It is intuitive that the frequency-space coefficients should be smooth in both \wen{the} frequency and space dimensions; thus, we apply the smoothing in both directions. It is also intuitive that the auto-regression coefficients could show even more oscillation and even become unstable when the frequency increases, since high-frequency spectrum corresponds more to the noise. To facilitate a stronger anti-noise ability and to ensure the stability when solving high-frequency non-stationary auto-regression coefficients, we propose applying a frequency-dependent smoothing. For example, we can increase the smoothing radius from a low value around the dominant frequency (e.g., 10 Hz) to a larger value around the Nyquist frequency following a fraction power function:
+\begin{align}
+\label{eq:fs}
+R(f) = \left\{\begin{array}{ll}
+R_d, & 0<=f<=f_d \\
+R_d+\left(\frac{f-f_d}{f_n-f_d}\right)^{\alpha}\left(R_n-R_d\right),& f_d<f<=f_n
+\end{array} \right.
+\end{align}
+where $R_d$ and $R_n$ are the smoothing radii for dominant ($f_d$) and Nyquist ($f_n$) frequencies, and $\alpha$ is called the fraction parameter ($\alpha=0.5$ in default). \new{We normally choose an $\alpha<1$ because we want the increase of the smoothing radius be fast in the beginning and slow in the end. It corresponds to the fact that the useful signals become less dominant for the high-frequency band.} To distinguish between the regularized non-stationary auto-regression (RNAR) method and the proposed method (although both are intended to solve the non-stationary auto-regression coefficients), we refer to the proposed method as the non-stationary predictive filtering (NPF) method. We admit that RNAR and NPF are closely related with each other, but they have differences in the implementation and model constraint. These differences, however, could result in significant differences in the final denoised results, as will be illustrated in the \dlo{section of EXAMPLES}\wen{Examples section}. 
+
+\subsection{3D extension of the non-stationary predictive filtering}
+The non-stationary AR model can be extended to 3D or even higher dimensions in a straightforward manner. Considering a 3D seismic dataset $u(t,x,y)$, we first transform the 3D data volume from the $t-x-y$ domain to the $f-x-y$ domain, $U(f,x,y)$, where we can then express the non-stationary AR model as:
+\begin{equation}
+\label{eq:ncausal3}
+U(f,x,y)=\sum_{iy=-L_y,iy\ne 0}^{L_y}\sum_{ix=-L_x,ix\ne 0}^{L_x}a_{ix,iy}(f,x,y)U(f,x+ix,y+iy),
+\end{equation}
+where $L_x$ and $L_y$ denote the AR orders in the $x$ and $y$ directions, respectively. 
+Equation \ref{eq:ncausal3} can be expressed compactly in the form of equation \ref{eq:fx}, but with $\mathbf{F}$ and $\mathbf{a}$ denoting slightly different formulas:
+\begin{equation}
+\label{eq:fx3d}
+\mathbf{F}=\left[\begin{array}{cccc}
+\tilde{\mathbf{U}}_{-Ly} &\tilde{\mathbf{U}}_{-Ly+1}&\cdots&\tilde{\mathbf{U}}_{Ly}
+\end{array}\right] \quad \text{and}\quad \mathbf{a}=\left[\begin{array}{c}
+\tilde{\mathbf{a}}_{-L_y}\\
+\tilde{\mathbf{a}}_{-L_y+1}\\
+\vdots\\
+\tilde{\mathbf{a}}_{L_y}
+\end{array}\right],
+\end{equation}
+where
+\begin{equation}
+\label{eq:fx3d2}
+\tilde{\mathbf{U}}_{iy}=\left[\begin{array}{cccc}
+\mathbf{U}_{-{L_x},iy} &\mathbf{U}_{-L_x+1,iy}&\cdots&\mathbf{U}_{L_x,iy}
+\end{array}\right] \quad \text{and}\quad \tilde{\mathbf{a}}_{iy}=\left[\begin{array}{c}
+\mathbf{a}_{-L_x,iy}\\
+\mathbf{a}_{-L_x+1,iy}\\
+\vdots\\
+\mathbf{a}_{L_x,iy}
+\end{array}\right].
+\end{equation}
+In equation \ref{eq:fx3d2}, $\mathbf{U}_{ix,iy}$ denotes the diagonal matrix constructed from $U(f,x+ix,y+iy)$. $\mathbf{a}_{ix,iy}$ denotes the vector constructed from $a_{ix,iy}(f,x,y)$. In the 3D case, the size of vector $\mathbf{a}_{ix,iy}$ is $N_fN_xN_y$, where $N_x$ and $N_y$ denote the size in the x and y dimensions. Solving the non-stationary AR problem in 3D is the same as the 2D case based on the shaping regularization method expressed in equation \ref{eq:iter}. However, in the 3D case the multi-dimensional triangle smoothing operator means smoothing in frequency, and \old{space x and space y}\new{the spatial x and y} directions.  The smoothing radius formula expressed in equation \ref{eq:fs} holds for the smoothing radii in both x and y directions. \wen{Based on the same framework, the NPF method is also extendable to 4D and 5D datasets, e.g., seismic data that depends on the temporal dimension and three or four spatial dimensions.} \wen{As indicated by equations \ref{eq:pref22causal} and \ref{eq:ncausal}, both the SPF and NPF methods require a selection of $L$, the filter length. In addition, the NPF method requires a selection of the smoothing radii in both the space ($R_x$ and $R_y$) and frequency ($R_f$) directions. When the frequency-dependent smoothing is applied, the two smoothing radii $R_d$ and $R_n$ (shown in equation \ref{eq:fs}) need to be defined. The computational complexity of SPF and RNAR are both $O(LN_xN_yN_fN_{iter})$. The extra computational cost of NPF is simply caused by the multi-dimensional smoothing, i.e., $O(N_fN_xN_y)$.  } 
+
+
+\section{Examples}
+We use one synthetic and two field data examples to demonstrate the performance of the NPF method and compare it to the SPF and RNAR methods. For the synthetic example, we use the signal-to-noise ratio (SNR) as the metric \old{to evaluate}\new{for evaluating} the denoising performance. The definition of SNR is given as
+\begin{equation}
+\label{eq:diff}
+SNR=10\log_{10}\frac{\Arrowvert \mathbf{s} \Arrowvert_2^2}{\Arrowvert \hat{\mathbf{s}} -\mathbf{s}\Arrowvert_2^2},
+\end{equation}
+where $\mathbf{s}$ is the clean signal and $\hat{\mathbf{s}}$ is the denoised data with residual noise. In addition, we use local similarity \cite[]{fomel2007localattr,yangkang2015ortho} to evaluate the signal leakage of different denoising methods. For the real data examples, we only use the local similarity to evaluate the signal leakage. The local similarity between the denoised data and noise removed is calculated to indicate which part of the noise section is significantly similar to the same part of the denoised data, i.e., signal leakage.
+
+To ensure that all the competing methods obtain acceptable results, we use the local similarity as a reference to tune the parameters so that each method can obtain the same level of signal preservation (i.e., low signal leakage). Based on the same level of signal leakage, we focus on the comparisons of denoised data. Cleaner and smoother seismic data indicate better performance. For those methods that will inevitably cause high signal leakage, we tune the parameters to minimize the leakage as revealed from the local similarity metric. \new{Although the proposed method does not require the windowing strategy to make the results to be acceptable, it usually achieves better performance when applied windows. Thus, all the field data examples (both 2D and 3D) in this paper are all based on the windowed implementation. }
+ 
+Figures \ref{fig:cmp0} and \ref{fig:cmp} show the clean and noisy data from the synthetic model. The SNR of the noisy data is -9.23 dB. Figure \ref{fig:test2,test1,test0,test00} shows the denoised data using varioius methods. Figure \ref{fig:test2} shows the denoised data using the SPF method. The SPF method uses a \dlo{causal}\wen{non-causal} autoregression filter with a two point prediction length for the forward and backward prediction. The prediction length for the x and y directions are the same. Figure \ref{fig:test1} shows the result from the RNAR method. Figure \ref{fig:test0} shows the result from the NPF method (with only frequency-direction smoothing, but without frequency-dependent spatial smoothing). Figure \ref{fig:test00} plots the result from the NPF method with both frequency-direction smoothing and frequency-dependent space-direction smoothing (NPFFS). For both RNAR and NPF, we use a \dlo{causal}\wen{non-causal} filter with two-point forward and backward predictions in each spatial direction (x and y). We use a smoothing radius of three points in frequency for the NPF method (Figures \ref{fig:test0} and \ref{fig:test00}).  For frequency-dependent smoothing, we increase the smoothing radius from four points around the dominant frequency (e.g., 10 Hz for this example) to 20 points at the Nyquist frequency, following the fraction power function (with a power fraction of 0.5). This frequency-smoothing strategy is the default form for the NPF method. Figure \ref{fig:test2dif,test1dif,test0dif,test00dif} shows the removed noise corresponding to the four approaches shown in Figure \ref{fig:test2,test1,test0,test00}.  It is clear that only the SPF method causes obvious signal damage, while all the other methods do not leave significant signal energy in the noise. The SNRs of the four methods, namely SPF, RNAR, NPF, NPFFS, are 
+2.34 dB, 2.56 dB, 2.93 dB, and 4.80 dB, respectively, indicating a gradually improved performance from the SPF to RNAR and to NPF methods. \new{The root-mean-squares (RMS) of the clean data, noisy data, denoised data using the SPF, RNAR, NPF, and NPFFS methods is 0.023, 0.071, 0.016, 0.027, 0.026, 0.023, respectively.} The frequency-space domain spectra comparison is plotted in Figure \ref{fig:hyper-f,hypern-f,test2-f,test1-f,test0-f,test00-f}. It is clear that the noise level is \dlo{very }high for the noise spectra in Figure \ref{fig:hypern-f}. The SPF method significantly damages the signal spectra, as shown in Figure \ref{fig:test2-f}. The RNAR method obtains a good recovery of the signal spectra. Both NPF methods obtain cleaner spectra than the RNAR method. The NPF method with frequency smoothing obtains the cleanest signal spectra.
+
+It is convenient to compare the signal leakage by the local similarity maps, as plotted in Figure \ref{fig:simi2,simi1,simi0,simi00}. The signal leakage of the SPF method is clearly revealed in Figure \ref{fig:simi2}, where the high similarity values depict the distribution of the seismic events correctly. The RNAR and NPFFS methods cause negligible signal leakage, while the NPF (without frequency-dependent smoothing) allows a little stronger signal leakages. 
+\dlo{However, the large similarity values are mostly spreading those areas lacking signals, indicating that the pure frequency-direction smoothing could cause potential hidden weak artifacts (which is not visible from the data) and further cause the weak artifacts in the noise section.}
+\wen{The large similarity values indicate that applying the frequency-direction smoothing only could cause potential weak artifacts (which are not visible from the data) and further cause the weak artifacts in the noise section.} Such \dlo{hidden}\wen{weak} artifacts could result in an abnormal local similarity value. However, because the overall similarity values of all the methods are very low, e.g., below 0.1, the aforementioned signal leakage for these methods is not significant. 
+
+A single-trace comparison (the 20th x-direction trace and the 20th y-direction trace) of this dataset is plotted in Figure \ref{fig:hyper-ss-0,hyper-ss-z-0}. Figures \ref{fig:hyper-ss-0} and \ref{fig:hyper-ss-z-0} show the single-trace comparison and a zoomed version, respectively. The zoomed area is indicated by the box in Figure \ref{fig:hyper-ss-0}. In Figure \ref{fig:hyper-ss-0,hyper-ss-z-0}, the black line corresponds to the clean data. The green line corresponds to the noisy data. The pink line corresponds to the SPF method. The red line corresponds to the RNAR method.  The cyan and blue lines correspond to the denoised data using the NPF methods without and with  the frequency-dependent smoothing, respectively. It is clear that the SPF result deviates from the signal in the clean trace the most. The RNAR method contains the largest residual noise. Both NPF methods are close to the clean trace but the NPF method with frequency-dependent smoothing is closest to the clean trace.
+%
+%
+%\textbf{You might consider plotting only the zoomed results in the squares in Figures 7, 8, 9, and 10.  Seeing differences is very difficult at the present scale, and these plots seem unnecessary.}
+
+The first field data example is a 2D seismic section. It is a complicated seismic profile with time-migration applied, but it is still very noisy (see Figure \ref{fig:real2d-0}). To better compare the denoised results, Figure \ref{fig:real2d-z0,r2test2-z0,r2test1-z0,r2test0-z0,r2test00-z0,r2test00dif-z0} presents a zoomed area from each plot in Figure \ref{fig:real2d-0} and \wen{all denoised data}. From the zoomed sections, we confirm that the SPF method loses some details, the RNAR method contains more residual noise, the NPF method obtains quite successful denoising performance, while the NPFFS method obtains an even better result than NPF by mitigating more high-frequency noise. The difference between Figures \ref{fig:r2test0-z0} and \ref{fig:r2test00-z0} is plotted in Figure \ref{fig:r2test00dif-z0}, illustrates some of the removed high-frequency noise due to the frequency-dependent smoothing. We also zoom into a part of the sections showing the noise removed and show them in Figure \ref{fig:r2test2-n-z,r2test1-n-z0,r2test0-n-z,r2test00-n-z}, where we can more clearly see that both SPF and RNAR methods cause some leaked signals and the NPF method causes minimal visible signal leakage. 
+
+The third example is a 3D field dataset, as plotted in Figure \ref{fig:real}. The denoised data using the various methods are plotted in Figure \ref{fig:rtest2,rtest1,rtest0,rtest00}. The SPF and NPF methods seem to obtain smoother results than the RNAR method. The cubes showing the noise removed are plotted in Figure \ref{fig:rtest2-n,rtest1-n,rtest0-n,rtest00-n}. The local similarity cubes are plotted in Figure \ref{fig:rsimi2,rsimi1,rsimi0,rsimi00}, showing 
+ a similar level of signal leakage for all the methods. It is also clear that the RNAR method seems to cause a little more signal leakage than the other methods. Figure \ref{fig:real-z,rtest2-z,rtest1-z,rtest0-z,rtest00-z,rtest00dif-z} shows a zoomed comparison between the raw data and denoised data using the different methods. From the zoomed comparison, we conclude that the result from the SPF method is smooth, but contains a little weaker energy. The RNAR method removes less noise. The two NPF approaches obtain smooth results and preserve the details well. The frequency-dependent smoothing can make the denoised result a little smoother by removing more high-frequency noise. 
+
+\inputdir{hyper3d}
+\multiplot{2}{cmp0,cmp}{width=0.45\textwidth}{Synthetic example. (a) Clean data. (b) Noisy data (SNR=-9.23 dB).}
+
+\multiplot{4}{test2,test1,test0,test00}{width=0.45\textwidth}{Denoised data using (a) stationary predictive filtering (SPF) (SNR=2.34 dB), (b) regularized non-stationary auto-regression (RNAR) (SNR=2.56 dB), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF) (SNR=2.93 dB), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS) (SNR=4.80 dB).}
+\multiplot{4}{test2dif,test1dif,test0dif,test00dif}{width=0.45\textwidth}{Removed noise using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+
+\multiplot{6}{hyper-f,hypern-f,test2-f,test1-f,test0-f,test00-f}{width=0.3\textwidth}{FX spectra of (a) clean data, (b) noisy data, (c) denoised data using stationary predictive filtering (SPF), (d) denoised data using regularized non-stationary auto-regression (RNAR), (e) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (f) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+
+\multiplot{4}{simi2,simi1,simi0,simi00}{width=0.45\textwidth}{Local similarity (between denoised data and removed noise) using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+
+\multiplot{2}{hyper-ss-0,hyper-ss-z-0}{width=0.8\textwidth}{Single-trace comparison (20th x-direction trace and 20th y-direction trace). (a) Comparison in the original scale. (b) Comparison in the zoomed scale. The zooming area is highlighted by the black frame box in (a). The green line corresponds to the noisy data. The black line corresponds to the clean data. The pink line corresponds to the SPF method. The red line corresponds to the RNAR method.  The cyan and blue lines correspond to the denoised data using the NPF methods without and with  frequency-dependent smoothing, respectively. }
+
+\inputdir{real2d}
+\plot{real2d-0}{width=0.8\textwidth}{Real 2D seismic profile.}
+
+%\multiplot{4}{r2test2-0,r2test1-0,r2test0-0,r2test00-0}{width=0.4\textwidth}{Denoised data using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPF(SF)).}
+%\multiplot{4}{r2test2-n-0,r2test1-n-0,r2test0-n-0,r2test00-n-0}{width=0.4\textwidth}{Removed noise using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+%
+%\multiplot{4}{r2simi2,r2simi1,r2simi0,r2simi00}{width=0.4\textwidth}{Local similarity (between denoised data and removed noise) using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (NSAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+
+\multiplot{6}{real2d-z0,r2test2-z0,r2test1-z0,r2test0-z0,r2test00-z0,r2test00dif-z0}{width=0.35\textwidth}{Zoomed comparison \new{(pink solid frame in Figure \ref{fig:real2d-0})} of denoised data using (a) raw data, (b) stationary predictive filtering (SPF), (c) regularized non-stationary auto-regression (RNAR), (d) non-stationary predictive filtering without frequency-dependent smoothing NPF), and (e) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS). (f) Difference between (d) and (e). Note that the frequency-dependent smoothing (e) has removed more high-frequency noise compared with (d). \wen{Note the obvious differences highlighted by the arrows.}}
+
+\multiplot{4}{r2test2-n-z,r2test1-n-z0,r2test0-n-z,r2test00-n-z}{width=0.4\textwidth}{Zoomed comparison \new{(green dashed frame in Figure \ref{fig:real2d-0})} of removed noise using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS). Note the obvious signal leakages in (a) and (b). }
+
+
+\inputdir{real}
+\plot{real}{width=0.8\textwidth}{3D field data example. }
+
+\multiplot{4}{rtest2,rtest1,rtest0,rtest00}{width=0.4\textwidth}{Denoised data using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regression (RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+\multiplot{4}{rtest2-n,rtest1-n,rtest0-n,rtest00-n}{width=0.4\textwidth}{Removed noise using (a) stationary predictive filtering (SPF), (b) regularized non-stationary auto-regressionv(RNAR), (c) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (d) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS).}
+
+\multiplot{4}{rsimi2,rsimi1,rsimi0,rsimi00}{width=0.4\textwidth}{Local similarity (between denoised data and removed noise) using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering without frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-dependent smoothing.}
+
+\multiplot{6}{real-z,rtest2-z,rtest1-z,rtest0-z,rtest00-z,rtest00dif-z}{width=0.4\textwidth}{Zoomed comparison of denoised data using (a) raw data, (b) stationary predictive filtering (SPF), (c) regularized non-stationary auto-regression (RNAR), (d) non-stationary predictive filtering without frequency-dependent smoothing (NPF), and (e) non-stationary predictive filtering with frequency-dependent smoothing (NPFFS). (f) Difference between (d) and (e). Note that the frequency-dependent smoothing (e) has removed more high-frequency noise compared with (d).}
+
+
+\section{Conclusions}
+The traditional predictive filter is unable to accurately characterize the non-stationarity of seismic data in the spatial dimensions. 
+The RNAR method calculates the spatially variable predictive filter coefficients by solving an inverse problem with a spatial smoothness-constrained shaping regularization. By formulating the non-stationary filter coefficients in all the frequency bands into the same inverse problem, we can solve a non-stationary predictive filter that is constrained in both spatial and frequency dimensions. The new non-stationary predictive filtering method is better at denoising \dlo{very }noisy seismic data with more robust performance than the alternatives. In addition, the frequency-dependent smoothing method helps the non-stationary predictive filtering method to attenuate more random noise in the mid-frequency to high-frequency bands. The proposed method is easily applied to 2D, 3D, or 4D applications with effective performance. Several synthetic and field data examples demonstrate the \dlo{appealing}\dlo{excellent}\wen{attractive} performance of the proposed method.
+
+
+\section{DATA AND MATERIALS AVAILABILITY}
+Data associated with this research are available and can be obtained by contacting the corresponding author.
+
+\section{Acknowledgements}
+We would like to thank Ray Abma and two anonymous reviewers for constructive suggestions. 
+
+\bibliographystyle{seg}
+\bibliography{fxy}
+
+
+
