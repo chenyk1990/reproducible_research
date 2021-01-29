@@ -206,57 +206,6 @@ Flow('cmp0','cmp1 cmp2 cmp3 cmp4',
 
 Flow('cmp','cmp0','noise seed=1 range=0.3 ')
 
-
-### combined methods
-Flow('fcmp','cmp','fft1 | transp plane=13 memsize=1000  | transp plane=12 memsize=1000')
-
-Flow('shifts','fcmp',
-     '''
-     cshifts2 ns1=1 ns2=1 | transp plane=34 memsize=300
-     ''')
-Flow('flt pre','shifts fcmp',
-     'clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=4 rect2=7 niter=30')
-Flow('tpre','pre','transp plane=13 memsize=1000| transp plane=23 memsize=1000 | fft1 inv=y')
-Flow('tpredif','tpre cmp','add scale=-1,1 ${SOURCES[1]}')
-Grey('cmp0','title="Clean"')
-Grey('cmp','title="Noisy"')
-Grey('tpre','')
-Grey('tpredif','')
-
-### test 2
-Flow('fcmp-1','cmp','fft1 ')
-Flow('shifts-1','fcmp-1',
-     '''
-     transp plane=12 | transp plane=23 | cshifts2 ns1=2 ns2=2 | transp plane=34 memsize=300|
-     transp plane=23 | transp plane=12 ''')
-Flow('flt-1 pre-1','shifts-1 fcmp-1',
-     'clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=4 rect2=7 niter=30')
-Flow('tpre-1','pre-1','fft1 inv=y')
-Flow('tpredif-1','tpre-1 cmp','add scale=-1,1 ${SOURCES[1]}')
-
-Grey('tpre-1','')
-Grey('tpredif-1','')
-
-### 2D
-Flow('shifts2d','fcmp',' shiftd1 ns=3 |transp plane=25 | window squeeze=y')
-
-Flow('flt2d pre2d','shifts2d fcmp',
-     'clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=5  niter=400')
-
-Flow('tpre2d','pre2d','transp plane=13 memsize=1000| transp plane=23 memsize=1000 | fft1 inv=y')
-Flow('tpre2ddif','tpre2d cmp','add scale=-1,1 ${SOURCES[1]}')
-
-Grey('tpre2d','')
-Grey('tpre2ddif','')
-
-### single program
-Flow('test','cmp','fxyrnar nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
-Flow('testdif','test cmp','add scale=-1,1 ${SOURCES[1]}')
-
-Grey('test','')
-Grey('testdif','')
-
-
 ### windowed function
 Flow('test0','cmp','fxynpre mode=0 fs=0 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
 Flow('test0dif','test0 cmp','add scale=-1,1 ${SOURCES[1]}')
@@ -273,16 +222,6 @@ Flow('test1dif','test1 cmp','add scale=-1,1 ${SOURCES[1]}')
 Grey('test1','title="RNAR"')
 Grey('test1dif','title="RNAR"')
 
-
-# Flow('test11','cmp','fxynpre nsx=2 nsy=2 rect1=4 rect2=30 rect3=30 niter=20 verb=y')
-# Flow('test11dif','test11 cmp','add scale=-1,1 ${SOURCES[1]}')
-# Grey('test11','')
-# Grey('test11dif','')
-
-# Flow('test2','cmp','fxynpre n1win=70 n2win=50 n3win=50 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
-# Flow('test2dif','test2 cmp','add scale=-1,1 ${SOURCES[1]}')
-# Grey('test2','')
-# Grey('test2dif','')
 
 Flow('test2','cmp','fxynpre mode=2 nsx=2 nsy=2 rect1=1 rect2=1 niter=20 verb=y')
 Flow('test2dif','test2 cmp','add scale=-1,1 ${SOURCES[1]}')
@@ -322,7 +261,7 @@ w=max1-min1
 w1=0.3
 
 Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
 Plot('frame','frame.asc',
 	'''
 	dd type=complex form=native |
