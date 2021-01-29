@@ -5,10 +5,8 @@ def Grey(data1,data,other):
 def Greys(data,other):
 	Result(data,'put d2=1 |grey allpos=y color=j label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n  clip=0.8 maxval=0.8 minval=0 %s  '%other)
 
-# Fetch data
-#Fetch('image3d.rsf','cup',server)
-
-Flow('data','image2d','dd form=native | put d2=1 d3=1')
+## Get the 2D seismic data
+Flow('data','data2d.rsf','cp')
 Grey('real2d','data','title="Raw data"')
 
 ### windowed function
@@ -40,47 +38,14 @@ Flow('r2simi0','test0 test0-n','similarity other=${SOURCES[1]} rect1=10 rect2=10
 Flow('r2simi00','test00 test00-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
 Flow('r2simi1','test1 test1-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
 Flow('r2simi2','test2 test2-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
-Flow('r2simic','r2curv r2curv-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
 
 Greys('r2simi0','color=j clip=1 scalebar=y title="NPF"')
 Greys('r2simi00','color=j clip=1 scalebar=y title="NPFFS"')
 Greys('r2simi1','color=j clip=1 scalebar=y title="RNAR"')
 Greys('r2simi2','color=j clip=1 scalebar=y title="SPF"')
-Greys('r2simic','color=j clip=1 scalebar=y ')
 
 #FFT
-Flow('real2d-f','image2d','fft1 ')
-
-
-from rsf.prog import RSFROOT
-########################################################################
-# INITIALIZATION
-#######################################################################
-matlab         = WhereIs('matlab')
-matROOT = '../matfun'
-matfun = 'hyper'
-matfun1 = 'hyper1'
-
-matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
-
-matcykROOT='/Users/chenyk/chenyk/matlibcyk/Mada_matlab'
-############################################################
-## Curvelet thresholding
-############################################################
-matfun='Curvelet'
-perc=10
-n1=2501
-n2=1001
-d1=0.004
-d2=1
-Flow('r2curv-0',[os.path.join(matcykROOT,matfun+'.m'),'data'],
-     '''MATLABPATH=%(matlabpath)s %(matlab)s 
-     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(perc)g);quit"
-     '''%vars(),stdin=0,stdout=-1)
-Flow('r2curv','r2curv-0','put n1=%d n2=%d d1=%g d2=%g o1=0 o2=0'%(n1,n2,d1,d2))
-Flow('r2curv-n','data r2curv','add scale=1,-1 ${SOURCES[1]}')
-Grey('r2curv','r2curv','')
-Grey('r2curv-n','r2curv-n','')
+Flow('real2d-f','data','fft1 ')
 
 ### Zooming
 ##zooming
