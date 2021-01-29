@@ -1,0 +1,216 @@
+from rsf.proj import *
+import math
+
+
+def Grey(data,other):
+	Result(data,
+		'''byte clip=0.1| grey3 flat=n frame1=500 frame2=64 frame3=64 point1=0.8 point2=0.8 title= label2=X label3=Y unit2=km unit3=km %s'''%other)
+
+def Greys(data,other):
+	Result(data,
+		'''clip clip=0.15|byte clip=0.15 allpos=y bar=bar.rsf| grey3 flat=n frame1=50 frame2=50 frame3=50 point1=0.8 point2=0.8 title= scalebar=y label2=X label3=Y unit2=km unit3=km maxval=0.2 minval=0 %s'''%other)
+		
+def Greyf(data,clip,other):
+	Result(data,
+		'''clip clip=8 | byte clip=%g allpos=y bar=bar.rsf| window max1=50|grey3 flat=n frame1=15 frame2=50 frame3=50 point1=0.8 point2=0.8 title= scalebar=y label2=X label3=Y unit2=km title=n unit3=km %s'''%(clip,other))
+
+
+Nt=1000
+dt=0.004
+t0=0
+
+Nx=128
+dx=0.1
+x0=-6.4
+
+Ny=128
+dy=dx
+y0=x0
+
+def Grey3(data,other):
+	Result(data,
+		'''
+		byte gainpanel=all | grey3 title=" " 
+		point1=0.8 point2=0.8 flat=n frame1=%d 
+		frame2=%d frame3=%d %s''' % (Nt/2,Nx/2,Ny/2,other))
+def Grey4(data,other):
+	Result(data,
+		'''
+		byte gainpanel=all | grey3 title=" " 
+		point1=0.5 point2=0.5 flat=y frame1=%d 
+		frame2=%d frame3=%d %s''' % (Nt/2,Nx/2,Ny/2,other))
+
+# nonconstant Vavg
+Flow('Vavg',None,'math n1=%d d1=%g o1=%g output="1/(1.5+0.25*x1)^2" ' % (Nt,dt,t0))
+Flow('Vcos',None,'math n1=%d d1=%g o1=%g output="0.06/(1.5+0.25*x1)^2*cos(2*(1.*sin(3*x1)))" ' % (Nt,dt,t0))
+Flow('Vsin',None,'math n1=%d d1=%g o1=%g output="0.06/(1.5+0.25*x1)^2*sin(2*(1.*sin(3*x1)))" ' % (Nt,dt,t0))
+Result('Vavg','graph transp=y yreverse=y min2=0.1 max2=0.5 plotfat=7 plotcol=4 pad=n title="Wavg (s\^2\_/km\^2\_)" label1=Time unit1=s')
+Result('Vcos','graph transp=y yreverse=y min2=-0.04 max2=0.04 plotfat=7 plotcol=4 pad=n title="Wcos (s\^2\_/km\^2\_)" label1=Time unit1=s wantaxis=n wanttitle=n')
+Result('Vsin','graph transp=y yreverse=y min2=-0.04 max2=0.04 plotfat=7 plotcol=4 pad=n title="Wsin (s\^2\_/km\^2\_)" label1=Time unit1=s wantaxis=n wanttitle=n')
+Plot('Vcos','graph transp=y yreverse=y min2=-0.04 max2=0.04 plotfat=7 plotcol=4 pad=n title="Wcos (s\^2\_/km\^2\_)" label1=Time unit1=s wantaxis=y wanttitle=y')
+Plot('Vsin','graph transp=y yreverse=y min2=-0.04 max2=0.04 plotfat=7 plotcol=4 pad=n title="Wsin (s\^2\_/km\^2\_)" label1=Time unit1=s wantaxis=y wanttitle=y')
+
+
+# construct original data
+Flow('vel','Vavg Vcos Vsin','cat axis=2 ${SOURCES[1:3]}')
+Flow('data1','vel',
+     '''
+     window n2=1 |
+     noise seed=1999 rep=y |
+     math output="input^3" |
+     cut n1=100 | cut f1=999 |
+     ricker1 frequency=10 |
+     spray axis=2 n=%d d=%g o=%g label="Inline Offset" unit=km |
+     spray axis=3 n=%d d=%g o=%g label="Crossline Offset" unit=km |
+     inmo3_ort velocity=$SOURCE half=n |
+     put label1=Time unit1=s 
+     ''' % (Nx,dx,x0,Ny,dy,y0))
+Flow('cmp0','data1','cp|scale axis=3|math output="input*2"')
+Flow('cmp','cmp0','noise seed=1 range=0.3 ')
+
+Grey('cmp1','title="Clean"')
+Grey('cmp2','title="Clean"')
+
+### windowed function
+Flow('test0','cmp','fxynpre mode=0 fs=0 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
+Flow('test0dif','test0 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test0','title="NPF"')
+Grey('test0dif','title="NPF"')
+
+Flow('test00','cmp','fxynpre mode=0 fs=1 nsx=2 nsy=2 rect1=4 rect2=3 rect3=3 niter=20 verb=y')
+Flow('test00dif','test00 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test00','title="NPFFS"')
+Grey('test00dif','title="NPFFS"')
+
+Flow('test1','cmp','fxynpre mode=1 nsx=2 nsy=2 rect2=10 rect3=10 niter=20 verb=y')
+Flow('test1dif','test1 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test1','title="RNAR"')
+Grey('test1dif','title="RNAR"')
+
+Flow('test2','cmp','fxynpre mode=2 nsx=2 nsy=2 rect1=1 rect2=1 niter=20 verb=y')
+Flow('test2dif','test2 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test2','title="SPF"')
+Grey('test2dif','title="SPF"')
+
+Flow('test22','cmp','fxynpre mode=2 n1win=70 n2win=50 n3win=50 nsx=2 nsy=2 rect1=1 rect2=1 niter=20 verb=y')
+Flow('test22dif','test22 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test22','title="SPF"')
+Grey('test22dif','title="SPF"')
+
+
+#local similarity
+Flow('simi0','test0 test0dif','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=10')
+Flow('simi00','test00 test00dif','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=10')
+Flow('simi1','test1 test1dif','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=10')
+Flow('simi2','test2 test2dif','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=10')
+Flow('simi3','test3 test3dif','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=10')
+Greys('simi0','color=j title="NPF"')
+Greys('simi00','color=j title="NPFFS"')
+Greys('simi1','color=j title="RNAR"')
+Greys('simi2','color=j title="SPF"')
+Greys('simi3','color=j title="NPFFXS"')
+
+Flow('cmp-f','test0','fft1|cabs')
+Greyf('cmp-f',2.0,'color=j ')
+
+r_max=20 
+r_ref=4
+Flow('rect1','cmp-f','math output="input*input"|scale axis=2|mask min=0.05 | dd type=float|math output="-%g*input+%g"'%(r_max-r_ref,r_max))
+Flow('rect2','rect1','cp')
+Flow('rect3','rect2','cp')
+Greyf('rect1',r_max,'color=j title="Non-stationary smoothing radius"')
+
+
+Flow('test3','cmp rect1 rect2 rect3','fxynpre2 mode=3 nsx=2 nsy=2 rect1=${SOURCES[1]} rect2=${SOURCES[2]} rect3=${SOURCES[3]} niter=20 verb=y')
+Flow('test3dif','test3 cmp','add scale=-1,1 ${SOURCES[1]}')
+Grey('test3','title="NPFFXS"')
+Grey('test3dif','title="NPFFXS"')
+
+## fx comparison
+Flow('hyper-f','cmp0','fft1|cabs')
+Flow('hypern-f','cmp','fft1|cabs')
+Flow('test1-f','test1','fft1|cabs')
+Flow('test2-f','test2','fft1|cabs')
+Flow('test3-f','test3','fft1|cabs')
+Flow('test0-f','test0','fft1|cabs')
+Flow('test00-f','test00','fft1|cabs')
+Greyf('hyper-f',10.0,'color=j title="Clean" maxval=10.0 minval=0')
+Greyf('hypern-f',10.0,'color=j title="Noisy" maxval=10.0 minval=0')
+Greyf('test1-f',10.0,'color=j title="RNAR" maxval=10.0 minval=0')
+Greyf('test2-f',10.0,'color=j title="SPF" maxval=10.0 minval=0')
+Greyf('test3-f',10.0,'color=j title="NPFFXS" maxval=10.0 minval=0')
+
+Greyf('test0-f',10.0,'color=j title="NPF" maxval=10.0 minval=0')
+Greyf('test00-f',10.0,'color=j title="NPFFS" maxval=10.0 minval=0')
+	
+Plot('label1',None,
+	'''
+	box x0=8 y0=5.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label2',None,
+	'''
+	box x0=8.5 y0=4.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label3',None,
+	'''
+	box x0=9 y0=3.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label4',None,
+	'''
+	box x0=9.5 y0=2.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+
+Result('test1-0','Fig/test1.vpl label1 label2 label3 label4','Overlay')
+Result('test2-0','Fig/test2.vpl label1 label2 label3 label4','Overlay')
+Result('test3-0','Fig/test3.vpl label1 label2 label3 label4','Overlay')
+Result('test0-0','Fig/test0.vpl label1 label2 label3 label4','Overlay')
+Result('test00-0','Fig/test00.vpl label1 label2 label3 label4','Overlay')
+
+
+Plot('label11',None,
+	'''
+	box x0=6.5 y0=6.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label22',None,
+	'''
+	box x0=6.5 y0=5.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label33',None,
+	'''
+	box x0=6.5 y0=4.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label44',None,
+	'''
+	box x0=6.5 y0=3.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Result('test1dif-0','Fig/test1dif.vpl label11 label22 label33 label44','Overlay')
+Result('test2dif-0','Fig/test2dif.vpl label11 label22 label33 label44','Overlay')
+Result('test3dif-0','Fig/test3dif.vpl label11 label22 label33 label44','Overlay')
+Result('test0dif-0','Fig/test0dif.vpl label11 label22 label33 label44','Overlay')
+Result('test00dif-0','Fig/test00dif.vpl label11 label22 label33 label44','Overlay')
+
+	
+	
+#SNR
+Flow('cmp-e','cmp0 cmp','add scale=1,-1 ${SOURCES[1]}|put n2=16384 n3=1')
+Flow('cmp-snr','cmp0 cmp-e','put n2=16384 n3=1|snr2 noise=${SOURCES[1]}')
+
+Flow('test1-e','cmp0 test1','add scale=1,-1 ${SOURCES[1]}|put n2=16384 n3=1 ')
+Flow('test1-snr','cmp0 test1-e','put n2=16384 n3=1|snr2 noise=${SOURCES[1]}')
+
+Flow('test2-e','cmp0 test2','add scale=1,-1 ${SOURCES[1]}|put n2=16384 n3=1')
+Flow('test2-snr','cmp0 test2-e','put n2=16384 n3=1|snr2 noise=${SOURCES[1]}')
+
+Flow('test0-e','cmp0 test0','add scale=1,-1 ${SOURCES[1]}|put n2=16384 n3=1')
+Flow('test0-snr','cmp0 test0-e','put n2=16384 n3=1|snr2 noise=${SOURCES[1]}')
+
+Flow('test00-e','cmp0 test00','add scale=1,-1 ${SOURCES[1]}|put n2=16384 n3=1')
+Flow('test00-snr','cmp0 test00-e','put n2=16384 n3=1|snr2 noise=${SOURCES[1]}')
+
+Flow('test3-e','cmp0 test3','add scale=1,-1 ${SOURCES[1]}|put n2=16384 n3=1')
+Flow('test3-snr','cmp0 test3-e','put n2=16384 n3=1|snr2 noise=${SOURCES[1]}')
+
+
+
+End()
+

@@ -1,0 +1,451 @@
+%\title{Non-stationary predictive filtering with frequency-space dependent smoothness constraint}
+\title{Frequency-space-dependent smoothing regularized \\
+non-stationary predictive filtering}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\author{Guangtan Huang, Min Bai, Hang Wang, Xingye Liu, and Yangkang Chen
+%\author{*
+%\thanks{G. Huang, H. Wang, and Y. Chen is with School of Earth Sciences, Zhejiang University, Hangzhou, Zhejiang Province, China, 310027, yangkang.chen@zju.edu.cn}
+%\thanks{X. Liu is with the College of Geology and Environment, Shaanxi Provincial Key Laboratory of Geological Support for Coal Green Exploitation, Xi’an University of Science and Technology, Xi’an, China, 710054, e-mail: lwxwyh506673@126.com}
+%\thanks{M. Bai is is with the Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education, Yangtze University, Wuhan, China, 430100, bmwj103@163.com}
+
+\thanks{G. Huang, H. Wang, and Y. Chen is with Zhejiang University}
+\thanks{X. Liu is with Xi’an University of Science and Technology}
+\thanks{M. Bai is is with Yangtze University}
+\thanks{This work was supported in part by the starting fund from Zhejiang University, and in part by the National Natural Science Foundation of China under Grant 41704121}}
+\maketitle
+
+\begin{abstract}
+Predictive filtering is one of the most widely used denoising algorithms in the seismic data processing community because of its high efficiency and stability in different situations. The traditional predictive filtering, however, is not able to deal with structurally complex dataset unless applied in local windows. We develop a novel non-causal predictive filtering method that is free of the windowing step but is able to denoise complicated dataset. We extend the stationary predictive filtering method to its non-stationary version, where the predictive filter coefficients vary across the frequency-space domain. The non-stationary predictive filtering model requires solving a highly underdetermined inverse problem using an iterative shaping regularization method. The traditional shaping regularization method solves an inverse problem by applying a constant smoothing operator and thus does not consider the heterogeneity of the filter coefficients in the frequency-space domain. We propose to apply a non-stationary smoothing operator to constrain the model in the shaping regularization framework. The smoothing radius in the non-stationary smoothing operator is chosen based on a priori information of the model, e.g., the non-stationarity of the data in the frequency-space domain. The proposed non-stationary predictive filtering method offers the flexibility in controlling the smoothness and sharpness of the calculated filter coefficients in both frequency and space dimensions. Several synthetic datasets and complicated real data examples are used to demonstrate the advantages of the new method.
+\end{abstract}
+
+\begin{keywords}
+Signal processing, predictive filtering, seismic data
+\end{keywords}
+
+\section{Introduction}
+Due to the severe recording environment, seismic data are usually contaminated with strong random noise \cite{wangchong2019hankel,zhaoqiang2019tgrs,baimin2019tgrs,zhangmi2019}. The strong random noise may deteriorate the performance of many seismic tasks, e.g., surface-related multiple attenuation, velocity analysis, seismic migration, amplitude-variation-with-offset (AVO) inversion, full waveform inversion, and even post-stack seismic interpretation. Thus, the removal of the seismic random noise is beneficial for the whole seismic processing, imaging, and interpretation workflow \cite{hongbo2014,yanan2014,yu2017complex,li2018seismic,liu2019seismic,liuwei2019ewt}.  
+
+Among the hundreds of algorithms, the predictive filtering, rank-reduction, and sparse transform methods are the most widely used for denoising. The predictive filtering method assumes the seismic events are locally plane waves, which can be well characterized by the plane-wave equation. Based on the plane-wave equation, a predictive filter can be designed to reject noise while preserving signals in either the time or the frequency domain \cite{abma1995}.  Since predictive filtering aims to solve an inverse problem, several implementations in solving the inverse problem are used in different predictive filtering methods in the literature \cite{canales1984,gulunay1986fxdecon}. However, it is difficult to process curving and even more complicated datasets. To tackle this problem, the predictive filtering is normally applied in local windows, which introduces extra issues inevitably due to the windowing strategy\new{, like the parameter inconsistency problem \cite{shaohuan2017gji}}. Liu et al. (2012) \cite{guochang2012} developed a window-free predictive filtering method by extending the standard auto-regression model to the non-stationary auto-regression. The non-stationary auto-regression model was then extended to 2D version for the application in 3D random noise attenuation problems \cite{guochang2013}. 
+
+
+Rank-reduction methods assume the seismic data to be lowrank when the data is mapped to another domain. The classic rank-reduction method is the singular spectrum analysis (SSA) method, which arises from the general signal processing field \cite{ssa}. The SSA method was applied to denoise seismic data by \new{Oropeza} \cite{mssa}, where the SSA operator is applied to each frequency slice of seismic data. \old{When dealing with 3D seismic data, the Hankel matrix required by the SSA operator is extended to a block Hankel matrix.}\new{When dealing with 3D seismic data, the SSA method requires a block Hankel matrix.} The block Hankel-matrix-based method is referred to as the multi-channel singular spectrum analysis (MSSA) method. Huang et al. (2016) \cite{weilin2016dmssa} derived a theoretically optimal rank-reduction operator to better separate signal and noise by introducing a damping operator. Considering the rank inconsistency problem \cite{shaohuan2017gji,wang2020low} when the rank-reduction method is applied locally, Chen et al. (2017) \cite{yangkang2017ieee} proposed an empirical rank-reduction method, where the seismic data in each local window are first decomposed into an ensemble of lowrank components, each with a constant rank. Chen et al. (2019) \cite{yangkang2019nc} applied the rank-reduction method to denoise earthquake data that are recorded by USArray, a pioneering seismic network across the North American continent. 
+
+
+Sparse-transform methods assume the seismic data to be sparse in a transform domain, where the signal and noise can be easily separated by applying a thresholding operation. \old{The performance of sparse-transform methods depends on the sparsity of seismic data in the transform domain.}\new{The performance of sparse-transform methods depends on the sparsity in the transform domain.} To achieve a good sparsity, a variety of sparse transforms have been proposed and applied for seismic data. Fourier transform is the most traditional sparse transform widely applied in seismic data \cite{abma2009}. The wavelet transform is also a frequently used sparse transform due to its flexibility in choosing the appropriate mother wavelets \cite{mostafa2016geo}. The curvelet transform has been applied by many researchers to achieve decent performance in various seismic denoising and inverse problems \cite{neelamani2008,candes2009}. The seislet transform is the special transform tailored for seismic data compression and analysis based on the second-generation wavelet transform \cite{fomel2010seislet,yangkang20142}. The shearlet transform is a recently emerging sparse transform, which has been successfully applied to deal with complicated datasets, e.g., microseismic dataset \cite{zhang2018multicomponent}. 
+%
+
+\new{In addition, Deep learning has recently gained a lot of attention on denoising seismic data \cite{omar2020geo1,omar2020gp1,chenwei2020,song2020seismic}.} All the aforementioned denoising methods have their pros and cons. On the one hand, all denoising methods need to compromise between noise removal and signal preservation, which is controlled by the input parameters. In this sense, those denoising methods differ by the convenience in choosing the appropriate parameters. On the other hand, most denoising methods need to compromise between performance and efficiency. Even though some advanced denoising methods are more effective in separating signal and noise, they may result in a significantly larger computational cost. Thus, despite of a huge number of denoising algorithms developed so far, the prediction-based methods still play a central role in industrial applications because they are both stable and fast. In this paper, we deal with the main drawback of the prediction-based methods, i.e., less convenient to denoise complicated datasets, and propose a general non-stationary predictive filtering method. The proposed non-stationary predictive filtering method can process complex seismic data with large dips and curvatures by taking advantage of the spatial heterogeneity to design the optimal constraints during inversion. We first introduce the fundamentals of the stationary and non-stationary predictive filtering, and then use several representative 2D/3D synthetic and field seismic datasets to demonstrate the decent performance. 
+
+\begin{figure}[htb!]
+\centering
+\subfigure[]{\includegraphics[width=0.32\textwidth]{hyper3d2/Fig/cmp0}
+\label{fig:cmp0}}
+\subfigure[]{\includegraphics[width=0.32\textwidth]{hyper3d2/Fig/cmp}
+\label{fig:cmp}}
+\caption{Synthetic example. (a) Clean data. (b) Noisy data (SNR=-8.13 dB).}
+\label{fig:cmp0,cmp}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test2-0}
+\label{fig:test2-0}}
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test1-0}
+\label{fig:test1-0}}\\
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test00-0}
+\label{fig:test00-0}}
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test3-0}
+\label{fig:test3-0}}
+\caption{Denoised data using (a) stationary predictive filtering (SNR=2.87 dB), (b) regularized non-stationary auto-regression (SNR=2.90 dB), (c) non-stationary predictive filtering with frequency-dependent smoothing (SNR=5.49 dB), and (d) non-stationary predictive filtering with frequency-space-dependent smoothing (SNR=7.12 dB).}
+\label{fig:test2-0,test1-0,test00-0,test3-0}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\includegraphics[width=0.5\textwidth]{hyper3d2/Fig/rect1}
+\caption{Smoothing radius distribution in the $f-x-y$ domain. The smoothing radius distribution is used in all three directions, i.e., frequency, space X, and space Y. Note that the maximum smoothing radius is chosen as 20 points for high-frequency band and the minimum smoothing radius is chosen as 4 points for low-frequency band. }
+\label{fig:rect1}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test2dif-0}
+\label{fig:test2dif-0}}
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test1dif-0}
+\label{fig:test1dif-0}}\\
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test00dif-0}
+\label{fig:test0dif-0}}
+\subfigure[]{\includegraphics[width=0.31\textwidth]{hyper3d2/Fig/test3dif-0}
+\label{fig:test00dif-0}}
+\caption{Removed noise using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:test2dif-0,test1dif-0,test0dif-0,test00dif-0}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/simi2}
+\label{fig:simi2}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/simi1}
+\label{fig:simi1}}\\
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/simi00}
+\label{fig:simi0}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/simi3}
+\label{fig:simi00}}
+\caption{Local similarity (between denoised data and removed noise) using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:simi2,simi1,simi0,simi00}
+\end{figure}
+
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/hyper-f}
+\label{fig:hyper-f}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/hypern-f}
+\label{fig:hypern-f}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/test2-f}
+\label{fig:test2-f}}\\
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/test1-f}
+\label{fig:test1-f}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/test00-f}
+\label{fig:test00-f}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{hyper3d2/Fig/test3-f}
+\label{fig:test3-f}}
+\caption{Frequency-space spectrum comparison of (a) clean data, (b) noisy data, (c) stationary predictive filtering, (d) regularized non-stationary auto-regression, (e) non-stationary predictive filtering with frequency-dependent smoothing, and (f) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:hyper-f,hypern-f,test2-f,test1-f,test00-f,test3-f}
+\end{figure*}
+
+
+\section{THEORY}
+\subsection{Stationary and non-stationary auto-regression}
+The stationary predictive filtering aims to solve an auto-regression problem in the frequency domain. A stationary auto-regression model can be expressed as \cite{sdrnar}:
+\begin{equation}
+\label{eq:ar}
+b(x) = \sum_{n=1}^{N}a_nb(x-n),
+\end{equation}
+where $b(x)$ denotes a signal. $a_n$ denotes the $n$th auto-regression coefficient. $N$ denotes the order of the auto-regression model. %Since the auto-regression coefficient is fixed at all space locations $x$, equation \ref{eq:ar} is referred to as the stationary auto-regression. 
+As shown in the equation \ref{eq:ar}, the auto-regression coefficient of the stationary auto-regression model is fixed at all space locations.
+
+For non-stationary signals, the stationary auto-regression cannot sufficiently model the variation. Instead, the non-stationary auto-regression can be used to characterize a non-stationary signal:
+\begin{equation}
+\label{eq:nar}
+b(x) = \sum_{n=1}^{N}a_n(x)b(x-n),
+\end{equation}
+where the auto-regression coefficient $a_n(x)$ varies with the space coordinate $x$. Equation \ref{eq:nar} is referred to as the non-stationary auto-regression model \cite{fomel20132}. However, since more unknowns need to be solved based on the same signal $b(x)$, solving equation \ref{eq:nar} is more challenging than solving equation \ref{eq:ar}. 
+
+Solving equations \ref{eq:ar} and \ref{eq:nar} requires inverting the following optimization problems, respectively, i.e.,
+\begin{equation}
+\label{eq:arinv}
+\hat{a}_n = \arg \min_{a_n} \sum_{x=1}^{L_x}| b(x)-\sum_{n=1}^{N}a_nb(x-n) |^2,
+\end{equation}
+and 
+\begin{equation}
+\label{eq:narinv}
+\hat{a}_n(x) = \arg \min_{a_n(x)} \sum_{x=1}^{L_x}| b(x)-\sum_{n=1}^{N}a_n(x)b(x-n) |^2,
+\end{equation}
+where $L_x$ denotes the number of samples of $b(x)$ in the $x$ axis.
+
+\subsection{Stationary and non-stationary predictive filtering}
+Stationary predictive filtering is based on the assumption that a linear event can be predicted by the following relation in the time-space domain \cite{yangkang20141,wanghang2021geo}:
+\begin{equation}
+\label{eq:pre}
+d(t,x+1)=d(t-x\sigma,1),
+\end{equation}
+which is basically the general solution to the plane-wave equation \cite{fomel2002pwd}, considering that $d(t-x\sigma,1)$ denotes the source wavelet. \old{$\sigma\frac{\partial d}{\partial t} + \frac{\partial d}{\partial x} =0$}
+Transforming equation \ref{eq:pre} into frequency domain, we obtain
+\begin{equation}
+\label{eq:fpre}
+D(f,x+1)=D(f,1)e^{-i2\pi\sigma x},
+\end{equation}
+which can be expressed as the prediction formula in terms of a two-point prediction filter $[1,-e^{-i2\pi\sigma x}]$. Assuming $N$ plane-wave components, the prediction formula can be expressed as
+\begin{equation}
+\label{eq:fpre2}
+\begin{split}
+D(f,x+1)&=w_1(f)D(f,x)+ w_2(f)D(f,x-1) + \cdots \\
+&+ w_N(f)D(f,x-N+1),
+\end{split}
+\end{equation}
+where $w_n(f)$ denotes the prediction filter. Substituting  $D(f,x+1)$ by $b(x)$ and $w_n(f)$ by $a_n$, equation \ref{eq:fpre2} can be expressed as the same formula as equation \ref{eq:ar}, which is a stationary AR model of order $N$. Thus, the prediction formula of equation \ref{eq:fpre2} can be referred to as the stationary predictive filter. In a similar way, the non-stationary predictive filtering formula can be expressed as
+\begin{equation}
+\label{eq:fpre22}
+D(f,x+1)=\sum_{n=1}^{N}w_n(f,x)D(f,x-n+1),
+\end{equation}
+where $w_n(f,x)$ is the coefficient of the non-stationary predictive filter. Equation \ref{eq:fpre2} can be solved via the regularized shaping regularization method:
+\begin{equation}
+\label{eq:fpre2inv}
+\begin{split}
+&\hat{w}_n(f,x) \\
+&=\arg \min_{w_n(f,x)} \sum_{x=1}^{L_x}| D(f,x+1)-\sum_{n=1}^{N}w_n(f,x)D(f,x-n+1)|^2 \\
+&+ \mathcal{R}(w_n(f,x)),
+\end{split}
+\end{equation}
+where $\mathcal{R}(\cdot)$ denotes a regularization term applied onto the non-stationary predictive filter coefficients. \new{The computational cost of the non-stationary predictive filtering method is $O(N_aN_fN_xN_yN_{iter}$, where $N_a$ denotes the filter size. $N_f$, $N_x$, and $N_y$ denote the dimension of frequency, X and Y directions, respectively. $N_{iter}$ is the number of iterations.} In \cite{guochang2012}, $\mathcal{R}$ is chosen as a triangle smoothing operator with a fixed smoothing radius along the space direction in each frequency slice.
+
+Considering the non-stationary feature of a seismic data, the predictive filter coefficient $w_n(f,x)$ should vary across the whole frequency-space domain, which has been characterized by the non-stationary auto-regression model in equation \ref{eq:fpre2inv}. However, to ensure the stability of the model $w_n(f,x)$, the constraint applied onto the model, i.e., the smoothing, should also be non-stationary, or frequency-and-space dependent. The non-stationary model constraint/smoothing considers the model non-stationarity and makes the estimated model more physically appropriate. In this paper, following the philosophy of two-fold non-stationarity of both data and model, we propose a non-stationary model constraint to solve equation \ref{eq:fpre2inv}. More specifically, we propose to apply a triangle smoothing operator with frequency-space-dependent smoothing radius across the whole model domain, taking all physical dimensions (frequency and space) into consideration, to constrain the predictive filter coefficients. \old{In order to distinguish the new method from the one proposed in ?, we}\new{We} refer the new algorithm as the non-stationary predictive filtering method. \new{The traditional f–x–y regularized nonstationary auto-regression (RNAR) method proposed in Liu et al. \cite{guochang2012} does not use a spatially varying smoothing filter to regularize the regression coefficients. In other words, in the traditional RNAR method, the smoothing is fixed. In the new method, the smoothing is spatially varying.} The non-stationary smoothing radius can be designed based on any a priori information\new{, e.g., the result from an initial denoising}. Some feasible strategies will be introduced during the illustration of examples.
+
+
+\begin{figure}[htb!]
+\centering
+\includegraphics[width=0.45\textwidth]{real2d2/Fig/real2d-0}
+\caption{Real 2D seismic profile. }
+\label{fig:real2d-0}
+\end{figure}
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test2-0}
+\label{fig:r2test2-0}}
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test1-0}
+\label{fig:r2test1-0}}\\
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test00-0}
+\label{fig:r2test00-0}}
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test3-0}
+\label{fig:r2test3-0}}
+\caption{Denoised data using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing. \new{The rectangles are zoomed for detailed comparison in Fig. \ref{fig:real2d-z,r2test2-z,r2test1-z,r2test00-z,r2test3-z}.}}
+\label{fig:r2test2-0,r2test1-0,r2test00-0,r2test3-0}
+\end{figure*}
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test2-n}
+\label{fig:r2test2-n}}
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test1-n}
+\label{fig:r2test1-n}}\\
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test00-n}
+\label{fig:r2test00-n}}
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2test3-n}
+\label{fig:r2test3-n}}
+\caption{Removed noise using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:r2test2-n,r2test1-n,r2test00-n,r2test3-n}
+\end{figure*}
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2simi2}
+\label{fig:r2simi2}}
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2simi1}
+\label{fig:r2simi1}}\\
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2simi00}
+\label{fig:r2simi00}}
+\subfigure[]{\includegraphics[width=0.350\textwidth]{real2d2/Fig/r2simi3}
+\label{fig:r2simi3}}
+\caption{Local similarity (between denoised data and removed noise) using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:r2simi2,r2simi1,r2simi00,r2simi3}
+\end{figure*}
+
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.30\textwidth]{real2d2/Fig/real2d-z}
+\label{fig:real2d-z}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{real2d2/Fig/r2test2-z}
+\label{fig:r2test2-z}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{real2d2/Fig/r2test1-z}
+\label{fig:r2test1-z}}\\
+\subfigure[]{\includegraphics[width=0.30\textwidth]{real2d2/Fig/r2test00-z}
+\label{fig:r2test00-z}}
+\subfigure[]{\includegraphics[width=0.30\textwidth]{real2d2/Fig/r2test3-z}
+\label{fig:r2test3-z}}
+\caption{Zoomed comparison of denoised data using (a) raw data, (b) stationary predictive filtering, (c) regularized non-stationary auto-regression, (d) non-stationary predictive filtering with frequency-dependent smoothing, and (e) non-stationary predictive filtering with frequency-space-dependent smoothing. \old{(f) Difference between (d) and (e). Note that the frequency-space-dependent smoothing (e) has removed more high-frequency noise compared with (d).}}
+\label{fig:real2d-z,r2test2-z,r2test1-z,r2test00-z,r2test3-z}
+\end{figure*}
+
+
+\subsection{Non-stationary smoothing}
+To apply the non-stationary model constraint with frequency-space smoothing radius, we propose to use an efficient recursion-based smoothing method. Considering the triangle smoothing operator in the Z transform domain:
+\begin{equation}
+\label{eq:tri}
+T(Z)=B^2(Z),
+\end{equation}
+where $B(Z)$ denotes the rectangle smoothing operator in the Z transform domain. A rectangle smoothing operator means a simple average of all neighbor samples. Correspondingly, in Z transform domain, it can be expressed as
+\begin{equation}
+\label{eq:box}
+B(Z) = 1 + Z + Z^2 +\cdots + Z^{R-1},
+\end{equation}
+where $R$ denotes the size of the rectangle smoothing operator or the radius of the triangle smoothing operator.  Equation \ref{eq:box} can be further computed analytically as
+\begin{equation}
+\label{eq:box2}
+B(Z) = \frac{1-Z^R}{1-Z}.
+\end{equation}
+Equation \ref{eq:box2} becomes very beneficial for the fast implementation of a rectangle smoothing operator since both the numerator and the denominator can be calculated in the way of recursion. For example, equation \ref{eq:box2} can be expressed as cascaded two filters:
+\begin{equation}
+\label{eq:box3}
+B(Z) = H_1(Z)H_2(Z),
+\end{equation}
+where
+\begin{equation}
+\label{eq:box31}
+\begin{split}
+H_1(Z)&=1-Z^R,\\
+H_2(Z)&=1/(1-Z).
+\end{split}
+\end{equation}
+The filter $H_1(Z)$ is equivalent to the following filter in the space domain
+\begin{equation}
+\label{eq:h1}
+y(n)=x(n)-x(n+R).
+\end{equation}
+The filter $H_2(Z)$ is equivalent to a causal integration 
+\begin{equation}
+\label{eq:h2}
+y(n)=y(n-1)+x(n).
+\end{equation}
+The recursion-based smoothing is efficient since the causal integration is implemented only once for all the samples and the $H_1$ filter only requires one floating operation between two samples. Besides, a great benefit of this implementation is that the filter $H_1$ is a function of the smoothing radius. The non-stationary smoothing thus can be implemented conveniently without the need of windowing operation, as required by many other types of smoothing operators. 
+
+The $f-x$ non-stationary predictive filter, expressed in equation \ref{eq:fpre2inv}, can be easily extended to 3D version by simple modifications:
+\begin{equation}
+\label{eq:fpre2inv2}
+\begin{split}
+&\hat{w}_{n_x,n_y}(f,x,y)=\arg \min_{w_{n_x,n_y}(f,x,y)} \sum_{x=1}^{L_x}\sum_{y=1}^{L_y} \\
+&|D(f,x+1,y+1)-\sum_{n_x=1}^{N_x}\sum_{n_y=1}^{N_y}w_{n_x,n_y}(f,x,y)\\
+&D(f,x-n_x+1,y-n_y+1)|^2 + \mathcal{R}(w_{n_x,n_y}(f,x,y)),
+\end{split}
+\end{equation}
+%\begin{figure*}
+%\begin{equation}
+%\label{eq:fpre2inv2}
+%\hat{w}_{n_x,n_y}(f,x,y)=\arg \min_{w_{n_x,n_y}(f,x,y)} \sum_{x=1}^{L_x}\sum_{y=1}^{L_y} 
+%|D(f,x+1,y+1)-\sum_{n_x=1}^{N_x}\sum_{n_y=1}^{N_y}w_{n_x,n_y}(f,x,y)
+%D(f,x-n_x+1,y-n_y+1)|^2 + \mathcal{R}(w_{n_x,n_y}(f,x,y)),
+%\end{equation}
+%\end{figure*}
+where $L_y$ denotes the number of samples in the $y$ axis, $N_x$ and $N_y$ denotes the prediction length of the non-stationary filter in $x$ and $y$ directions, respectively. Correspondingly, the non-stationary smoothing operator is applied along the frequency, $x$, and $y$ directions, respectively. \new{The proposed method can be straightforwardly extended to high-dimension (e.g., 4D/5D) versions, where the triangle smoothing operator is variable in the 3D/4D spatial dimensions. }
+
+
+
+
+
+\begin{figure}[htb!]
+\centering
+\subfigure[]{\includegraphics[width=0.355\textwidth]{real3d2/Fig/real}}
+\caption{3D real data example.}
+\label{fig:real}
+\end{figure}
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest2}
+\label{fig:rtest2}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest1}
+\label{fig:rtest1}}\\
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest00}
+\label{fig:rtest00}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest3}
+\label{fig:rtest3}}
+\caption{Denoised data using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:rtest2,rtest1,rtest00,rtest3}
+\end{figure*}
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest2-n}
+\label{fig:rtest2-n}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest1-n}
+\label{fig:rtest1-n}}\\
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest00-n}
+\label{fig:rtest00-n}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest3-n}
+\label{fig:rtest3-n}}
+\caption{Removed noise using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:rtest2-n,rtest1-n,rtest00-n,rtest3-n}
+\end{figure*}
+
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rsimi2}
+\label{fig:rsimi2}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rsimi1}
+\label{fig:rsimi1}}\\
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rsimi00}
+\label{fig:rsimi00}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rsimi3}
+\label{fig:rsimi3}}
+\caption{Local similarity (between denoised data and removed noise) using (a) stationary predictive filtering, (b) regularized non-stationary auto-regression, (c) non-stationary predictive filtering with frequency-dependent smoothing, and (d) non-stationary predictive filtering with frequency-space-dependent smoothing.}
+\label{fig:rsimi2,rsimi1,rsimi00,rsimi3}
+\end{figure*}
+
+
+\begin{figure*}[ht!]
+\centering
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/real-z}
+\label{fig:real-z}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest2-z}
+\label{fig:rtest2-z}}\\
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest1-z}
+\label{fig:rtest1-z}}
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest00-z}
+\label{fig:rtest00-z}}\\
+\subfigure[]{\includegraphics[width=0.38\textwidth]{real3d2/Fig/rtest3-z}
+\label{fig:rtest3-z}}
+\caption{Zoomed comparison of denoised data using (a) raw data, (b) stationary predictive filtering, (c) regularized non-stationary auto-regression, (d) non-stationary predictive filtering with frequency-dependent smoothing, and (e) non-stationary predictive filtering with frequency-space-dependent smoothing. \old{(f) Difference between (d) and (e). Note that the frequency-space-dependent smoothing (e) has removed more high-frequency noise compared with (d).}}
+\label{fig:real-z,rtest2-z,rtest1-z,rtest00-z,rtest3-z}
+\end{figure*}
+
+
+
+
+\section{Examples}
+In this section, we apply the proposed non-stationary predictive filtering method to three examples, i.e., 3D synthetic dataset, 2D field dataset, and 3D field dataset. For benchmark comparison, we compare the non-stationary predictive filtering method (NPF) with the stationary predictive filtering (SPF) method and the \old{regularized non-stationary auto-regression method (RNAR)}\new{regularized non-stationary auto-regression method (RNAR)}. We also compare two non-stationary predictive filtering methods by designing different model smoothing strategies, i.e., frequency dependent smoothing (NPFFS) \cite{wanghang2021geo} and frequency-space-dependent smoothing (NPFFXS). To evaluate the denoising performance, we use two metrics, i.e., the commonly used signal-to-noise ratio (SNR) \cite{guochang2009,weilin2018} and the local similarity metric \cite{fomel2007localattr,yangkang2015ortho}. The SNR is defined as 
+\begin{equation}
+\label{eq:diff}
+\text{SNR}=10\log_{10}\frac{\Arrowvert \mathbf{d} \Arrowvert_2^2}{\Arrowvert \hat{\mathbf{d}} -\mathbf{d}\Arrowvert_2^2},
+\end{equation}
+where $\mathbf{d}$ is the ground-truth signal and $\hat{\mathbf{d}}$ is the noisy or estimated signal. The local similarity metric measures the correlation between denoised data and removed noise. It is intuitive that if the local similarity shows abnormal values, it indicates strong signal leakage. Besides, it is convenient to locate the signal leakage from the local similarity map. The local similarity metric is especially useful in evaluating field data example, where no ground-truth signal is available and thus the SNR metic cannot be computed. In addition, we use the local similarity metric as a reference to tune the parameters of different methods to ensure that each method obtains its best performance and avoids significant signal leakage. 
+
+The first example is shown in Fig. \ref{fig:cmp0,cmp}, with the left showing the clean data and the right showing the noisy data. The SNR of the noisy data is \old{-8.13}\new{-6.92} dB. Note that a SNR value below zero is considered very noisy for a common denoising test. The noise level in the noisy data is very high as we can barely see the useful signals in some areas. In the dataset, there are \old{four}\new{many} hyperbolic events\old{, with two of them crossing each other}. Each hyperbolic event has an apex point, where the curvature is very large. This synthetic dataset is representative because it contains both large dips and curvatures, which make it challenging for a common denoising algorithm. Fig. \ref{fig:test2-0,test1-0,test00-0,test3-0} shows the comparison of different denoising methods. The top two results correspond to the traditional stationary predictive filtering method \cite{canales1984} and the regularized non-stationary auto-regression method \cite{guochang2012}. From these two results, it is clear that the stationary predictive filtering method tends to damage the signal amplitude in large offsets. The regularized non-stationary auto-regression method, successfully removes significant noise, but causes some residual noise. \old{The bottom two figures}\new{Figs. \ref{fig:test00-0} and \ref{fig:test3-0}} correspond to the non-stationary predictive filtering methods with different model smoothing strategies. \old{The bottom left Fig.}\new{Fig. \ref{fig:test00-0}} shows the result using a frequency-dependent smoothing strategy. In the frequency-dependent smoothing scheme, we use a constant smoothing radius of 4 points along the frequency axis and use a frequency-dependent varying smoothing radius for the space axis. The reference shortest smoothing radius along the space directions (both X and Y) is 4 points below the dominant frequency of the data (10 Hz), and then gradually increases to 20 points around the Nyquist frequency, following a fraction power function (with the fraction as 0.5). The 
+frequency-space-dependent smoothing scheme uses a smoothing map that varies across the whole $f-x-y$ domain. Here, we use a simple way to obtain the non-stationary smoothing map by taking the a priori information offered from the initial estimate using the regularized non-stationary auto-regression method. We calculate the $f-x-y$ spectra of the initial estimate (Fig. \ref{fig:test1-0}), compute the energy, and set a hard threshold, below which the radius is set as the 4 points and above which the radius is set as 20 points, to obtain the non-stationary smoothing radius estimation. The non-stationary smoothing radius map we use to obtain the result shown in Fig. \ref{fig:test3-0} is plotted in Fig. \ref{fig:rect1}. 
+Note that both smoothing strategies are possible only in the proposed non-stationary predictive filtering framework. Other smoothing options and radius estimation options (that takes better a priori information) are also applicable. Using the two smoothing operations, we obtain very successful denoising for this dataset. \new{The SNRs of the top two results in Fig. \ref{fig:test2-0,test1-0,test00-0,test3-0} are 1.47 dB and 2.01 dB, respectively.} The SNRs of the bottom two results in Fig. \ref{fig:test2-0,test1-0,test00-0,test3-0} are \old{5.49 dB and 7.12 dB}\new{4.14 dB and 5.14 dB}, respectively, which are far larger than those obtained from the stationary predictive filtering method and the regularized non-stationary auto-regression method. We conclude from this test that applying both non-stationary smoothing strategies helps improve the results significantly and the smoothing radius that varies across the whole $f-x-y$ domain obtains the best result. 
+
+The removed noise sections are shown in Fig. \ref{fig:test2dif-0,test1dif-0,test0dif-0,test00dif-0}. Except for \old{the top left result}\new{Fig. \ref{fig:test2-0}} \old{(stationary predictive filtering method)}\new{(SPF method)} \new{and Fig. \ref{fig:test1-0} (RNAR method)}, \old{all other}\new{the other two} methods seem to cause negligible signal leakage\new{, as indicated by the arrows}. To confirm the observation of signal leakage, we compare the local similarity (between denoised data and removed noise) maps in Fig. \ref{fig:simi2,simi1,simi0,simi00}. As shown in Fig. \ref{fig:simi2,simi1,simi0,simi00}, we can see that stationary predictive filtering shows clear similarity anomalies around the seismic events, indicating significantly higher signal leakage. The result from the frequency-dependent non-stationary predictive filtering shows low similarity around the seismic events, but show relatively higher anomalies in non-event areas, which indicate that the frequency-dependent smoothing could result in some invisible artifacts that cause relatively higher similarity values. The similarity maps corresponding to the regularized non-stationary auto-regression method and the frequency-space-dependent non-stationary predictive filtering method show very low values across the similarity cubes, confirming the negligible signal leakage of these two methods. Fig. \ref{fig:hyper-f,hypern-f,test2-f,test1-f,test00-f,test3-f} shows a spectrum comparison of different data. The spectrum comparison further demonstrates the effectiveness of the proposed non-stationary predictive filtering method. It is clear that the stationary predictive filtering causes damages to frequency components above 20Hz. The regularization non-stationary auto-regression method causes obvious residual noise. The non-stationary predictive filtering method with frequency-dependent smoothing obtains very good performance. The non-stationary predictive filtering method with frequency-space-dependent smoothing obtains a even better result. 
+
+The second example is shown in Fig. \ref{fig:real2d-0}. \old{This example was previously studied by ? and ?. This field data is very complicated because it contains various non-stationary features, e.g., large dips, large curvatures, pinch-outs, amplitude variations, and weak events.} The denoised results are plotted in Fig. \ref{fig:r2test2-0,r2test1-0,r2test00-0,r2test3-0}. The top two figures show the results using the stationary predictive filtering method and the regularized non-stationary auto-regression method. The bottom two results correspond to the non-stationary predictive filtering method with different non-stationary smoothing operations, i.e., frequency-dependent and frequency-space-dependent smoothing. The removed noise corresponding to different denoising methods are plotted in Fig. \ref{fig:r2test2-n,r2test1-n,r2test00-n,r2test3-n}. Except for the stationary predictive filtering method, all the other three methods cause negligible signal leakages. The local similarity comparison corresponding to different methods are plotted in Fig. \ref{fig:r2simi2,r2simi1,r2simi00,r2simi3}, where the similarity values for all these methods are low. There are some anomalies in the top two figures. The non-stationary predictive filtering methods with different model smoothing options show obviously low similarity values. For a better comparison, we zoom a part of the raw data and each denoised data, and show the zoomed sections in Fig. \ref{fig:real2d-z,r2test2-z,r2test1-z,r2test00-z,r2test3-z}. The zoomed raw data is plotted in Fig. \ref{fig:real2d-z}. The results from the aforementioned methods are plotted in Figs. \ref{fig:r2test2-z}-\ref{fig:r2test3-z}, respectively. From the zoomed comparison, it is clear that the amplitude of Fig. \ref{fig:r2test2-z} (stationary predictive filtering method) is a little weaker than the other methods. The result from the regularized non-stationary auto-regression method is a little noisier than other methods. The two non-stationary predictive filtering results preserve better the details and remove relatively more noise, with the frequency-dependent smoothing causing a little more residual noise than the frequency-space-dependent smoothing. \old{The difference between Figs. \ref{fig:r2test00-z} and \ref{fig:r2test3-z} is plotted in Fig. \ref{fig:r2test3dif-z}, which corresponds to mostly the high-frequency noise. The difference plotted in Fig. \ref{fig:r2test3dif-z} indicates that the frequency-space-dependent smoothing helps remove more high-frequency noise than the frequency-dependent smoothing.} %We also zoom a part from each noise sections and show the comparison in Fig. \ref{fig:real2d-z,r2test2-z,r2test1-z,r2test00-z,r2test3-z}. From the zoomed comparison of noise sections, it is clear all methods except for the stationary predictive filtering method cause no visible damages to useful signals. 
+
+The third example is plotted in Fig. \ref{fig:real}. The denoised data using the four aforementioned methods are plotted in Fig. \ref{fig:rtest2,rtest1,rtest00,rtest3}. It is clear that both non-stationary predictive filtering results are obviously cleaner than the other two results. The regularized non-stationary auto-regression method causes slightly more residual noise in the denoised data. Fig. \ref{fig:rtest2-n,rtest1-n,rtest00-n,rtest3-n} shows the comparison of \old{noise}\new{removed noise sections}, Fig. \ref{fig:rsimi2,rsimi1,rsimi00,rsimi3} shows the comparison of local similarity cubes, where the regularized non-stationary auto-regression result causes obviously larger similarity anomalies, indicating a slightly larger signal damage. The non-stationary predictive filtering with frequency-space-dependent smoothing causes much lower similarity values in most areas except for the area in the middle of the cube. \old{Note that all similarity cubes show relatively small values (mostly below 0.05), indicating that all methods obtain acceptable results by tuning.} A zoomed comparison of different datasets are plotted in Fig. \ref{fig:real-z,rtest2-z,rtest1-z,rtest00-z,rtest3-z}, where we can clearly see the improvement from top to bottom. The results corresponding to the frequency-dependent (Fig. \ref{fig:rtest00-z}) and frequency-space-dependent (Fig. \ref{fig:rtest3-z}) non-stationary predictive filtering methods \old{show a quite similar effect, with the latter one removing more high-frequency noise (Fig. \ref{fig:rtest3dif-z}) and thus making the events a little more coherent.}\new{both show successful performance, but the latter makes the events more coherent, as indicated by the arrows.} 
+
+\section{Discussions}
+We particularly want to emphasize the point that the main purpose of the similarity comparison in this paper is to show that all competing methods are doing a reasonable job as they all remove significant noise without damaging the useful signals (since the best way to detect the signal leakage is by local similarity, which is used herein). We do not intend to make the traditional methods completely wrong and show how successful our proposed method is, since that is not fair. A lot of factors could make an actually good method not perform well. Here, we have tuned each method and made their performance best for each method. The full paper is completely reproducible based on the Madagascar platform (www.ahay.org) \cite{mada2013}, and all source codes and datasets will be put online after its publication (http://www.ahay.org/wiki/Reproducible\_Documents). Thus, it is easy to find that the traditional method is not working in its best way if we use improper parameters, and the conclusion from this paper is not convincing and not solid. Based on the fact that all these competing methods are performing reasonably well, we use the local similarity to judge which is slightly better in the sense of preserving the signals. However, to judge which method is significantly better, we need to check the denoised data. The best denoising method corresponds to the cleaner image and better amplitude-preserving performance.
+
+\section{Conclusions}
+Seismic data is highly non-stationary in either time-space or frequency-space domain, thus the traditional predictive filter is not able to denoise the complicated seismic data successfully without using local windows. The non-stationary predictive filtering method estimates a filter with frequency-space dependent coefficients to predict the useful signals in an optimal way. The non-stationary predictive filter can be inverted based on either a stationary smoothness constraint, assuming the homogeneous distribution of coefficients energy, or a non-stationary smoothness constraint, where the coefficient heterogeneity is also taken into consideration.  The non-stationary predictive filter estimated with a non-stationary smoothness constraint is better at removing more random noise and preserving the signal energy. Designing the frequency-space dependent smoothing radius takes advantages of the a priori information of the filter coefficients, which correlates with the non-stationarity of the data in the frequency-space domain. Utilizing the a priori information of the filter coefficients and designing  better non-stationary model constraint is an open research topic and is worth more attention in the future. The results shown in this paper demonstrate the obviously better performance of the new method compared with the traditional methods.
+
+\section{Acknowledgements}
+All datasets and source codes associated with this research will be made available online (www.ahay.org) in the format of reproducible research \cite{mada2013}.
+
+\bibliographystyle{IEEEtran}
+\bibliography{fxy}
+
+
+
+%\begin{figure}[htb!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.8\textwidth]{Fig/fig}}
+%	\caption{Caption.}
+%	\label{fig:fig}
+%\end{figure}
+
+
+%\begin{figure}[htb!]
+%	\centering
+%	\subfigure[]{\includegraphics[width=0.355\textwidth]{Fig/fig1}}\\
+%    \subfigure[]{\includegraphics[width=0.355\textwidth]{Fig/fig2}}
+%	\caption{(a) Caption a. (b) Caption b.}
+%	\label{fig:fig1,fig2}
+%\end{figure}
+
+%\begin{table}[h]
+%\caption{Table caption}
+%\begin{center}
+%     \begin{tabular}{|c|c|c|c|c|c|} 
+%	  \hline Column1 (unit)  & Column2 (unit) & Column3 (unit) \\ 
+%	  \hline 1 & 2  & 3 \\
+%       \hline
+%    \end{tabular} 
+%\end{center}
+%\label{tbl:table1}
+%\end{table}
+
+
+
+
+

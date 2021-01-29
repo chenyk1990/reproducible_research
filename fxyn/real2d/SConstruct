@@ -1,0 +1,209 @@
+from rsf.proj import *
+def Grey(data1,data,other):
+	Result(data1,data,'grey label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n color=g clip=0.3  %s  '%other)
+ 
+def Greys(data,other):
+	Result(data,'put d2=1 |grey allpos=y color=j label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n  clip=0.2 maxval=0.2 minval=0 %s  '%other)
+
+### prepare the real 2D seismic data
+Flow('data-0','data2d.rsf','cp')
+Flow('n','data-0','noise seed=20202020 var=0.1|bandpass flo=2 fhi=60')
+
+Flow('data','data-0 n','add scale=1,0 ${SOURCES[1]}|scale axis=2')
+Grey('real2d','data','title="Raw data"')
+Grey('data-0','data-0','title="Raw data"')
+
+### windowed function
+Flow('test0','data','fxynpre n1win=512 n2win=128 mode=0 fs=0 nsx=4 nsy=0 rect1=3 rect2=4 niter=20 verb=y')
+Flow('test0-n','test0 data','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('r2test0','test0','title="NPF"')
+Grey('r2test0-n','test0-n','title="NPF"')
+
+Flow('test00','data','fxynpre n1win=512 n2win=128 mode=0 fs=1 nsx=4 nsy=0 rect1=3 rect2=2 Ntimes=4 Nfrac=2 pow=0.5 niter=20 verb=y')
+Flow('test00-n','test00 data','add scale=-1,1 ${SOURCES[1]}')
+Grey('r2test00','test00','title="NPFFS"')
+Grey('r2test00-n','test00-n','title="NPFFS"')
+
+Flow('test1','data','fxynpre n1win=512 n2win=128 mode=1 nsx=4 nsy=0 rect2=4 niter=20 verb=y')
+Flow('test1-n','test1 data','add scale=-1,1 ${SOURCES[1]}')
+Grey('r2test1','test1','title="RNAR"')
+Grey('r2test1-n','test1-n','title="RNAR"')
+
+Flow('test2','data','fxynpre n1win=512 n2win=128 mode=2 nsx=2 nsy=0 rect2=4 niter=20 verb=y')
+Flow('test2-n','test2 data','add scale=-1,1 ${SOURCES[1]}')
+Grey('r2test2','test2','title="SPF"')
+Grey('r2test2-n','test2-n','title="SPF"')
+
+
+#local similarity
+Flow('r2simi0','test0 test0-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi00','test00 test00-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi1','test1 test1-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi2','test2 test2-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+Flow('r2simi3','test3 test3-n','similarity other=${SOURCES[1]} rect1=10 rect2=10 rect3=3')
+
+
+Greys('r2simi0','color=j clip=0.2 scalebar=y title="NPF"')
+Greys('r2simi00','color=j clip=0.2 scalebar=y title="NPFFS"')
+Greys('r2simi1','color=j clip=0.2 scalebar=y title="RNAR"')
+Greys('r2simi2','color=j clip=0.2 scalebar=y title="SPF"')
+Greys('r2simi3','color=j clip=0.2 scalebar=y title="NPFFXS"')
+
+#FFT
+Flow('real2d-f','data','fft1 ')
+
+Flow('cmp-f','test0','fft1|cabs')
+# Greyf('cmp-f',2.0,'color=j ')
+
+# Flow('cmp-f','test0','fft1|cabs')
+# Greyf('cmp-f',2.0,'color=j ')
+# 
+# 
+rx_max=4 
+rx_ref=4
+rf_max=3 
+rf_ref=3
+Flow('rect1','cmp-f','math output="input*input"|scale axis=2 | mask min=0.3|dd type=float|math output="-%g*input+%g"'%(rf_max-rf_ref,rf_max))
+Flow('rect2','cmp-f','math output="input*input"|scale axis=2 | mask min=0.3|dd type=float|math output="-%g*input+%g"'%(rx_max-rx_ref,rx_max))
+# Flow('rect3','rect2','cp')
+# Greyf('rect1',rf_max,'color=j ')
+# Greyf('rect2',rx_max,'color=j ')
+
+Grey('rect1','rect1','color=j allpos=y clip=%g scalebar=y'%rf_max)
+Grey('rect2','rect2','color=j allpos=y clip=%g scalebar=y'%rx_max)
+
+Flow('test3','data rect1 rect2','fxynpre2 mode=3 nsx=2 nsy=2 rect1=${SOURCES[1]} rect2=${SOURCES[2]} niter=20 verb=y')
+
+########## Patch (fxynpre2 not easy for inside patching)
+Flow('patch','data','patch w=512,128 p=1,1')
+Flow('patch0','patch','patch inv=y weight=y dim=2')
+
+#Result('patch','patch','grey title="Patch Data"')
+#Result('patch0','patch0','grey title=" Inv Patch Data"')
+
+# wflts = []
+# wpres = []
+# rx_max=12 
+# rx_ref=4
+# rf_max=6 
+# rf_ref=3
+# for nwt in range(0,20):
+#     wdata  = 'wdata%d'  % nwt
+#     wflt   = 'wfl%d'    % nwt
+#     wprei   = 'wprei%d'    % nwt
+#     wpre   = 'wpre%d'    % nwt
+#     rect1   = 'rect1-%d'    % nwt
+#     rect2   = 'rect2-%d'    % nwt
+#     Flow(wdata,'patch','window n3=1 f3=%d ' % nwt) 
+#     Flow(wprei,wdata,'fxynpre mode=0 nsx=4 nsy=0 rect1=3 rect2=4 niter=20 verb=y')
+#     Flow(rect1,wprei,'fft1|cabs|math output="input*input"|scale axis=2 | dd type=float|math output="-%g*input+%g"'%(rf_max-rf_ref,rf_max))
+#     Flow(rect2,wprei,'fft1|cabs|math output="input*input"|scale axis=2 | dd type=float|math output="-%g*input+%g"'%(rx_max-rx_ref,rx_max))
+# #     Flow(rect1,wprei,'fft1|cabs|math output="input*input"|scale axis=2|mask min=0.001 | dd type=float|math output="-%g*input+%g"'%(rf_max-rf_ref,rf_max))
+# #     Flow(rect2,wprei,'fft1|cabs|math output="input*input"|scale axis=2|mask min=0.001 | dd type=float|math output="-%g*input+%g"'%(rx_max-rx_ref,rx_max))
+#     Grey(rect1,rect1,'color=j allpos=y scalebar=y clip=10')
+# # 	Flow(rect3,rect2,'cp')
+#     Flow(wpre,[wdata,rect1,rect2],'fxynpre2 mode=3 nsx=4 nsy=0 rect1=${SOURCES[1]} rect2=${SOURCES[2]} niter=20 verb=y')
+#     wpres.append(wpre)
+# 
+# Flow('pre',wpres,'cat ${SOURCES[1:%d]} axis=4 ' % len(wpres))
+# Flow('test3','pre','transp plane=34 memsize=1000 | patch inv=y weight=y dim=2')
+Flow('test3-n','data test3','add scale=1,-1 ${SOURCES[1]}')
+
+Grey('r2test3','test3','title="NPFFXS"')
+Grey('r2test3-n','test3-n','title="NPFFXS"')
+
+
+### Zooming
+##zooming
+## Creating framebox
+x=0
+y=0.4
+w=254
+w1=0.6
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=256 min2=0 max2=2.048 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+## Create label A
+Plot('labela',None,
+	'''
+	box x0=5.5 y0=5.9 label="A" xt=0.5 yt=0.5 length=0.75 
+	''')
+
+##zooming
+Flow('real2d-z','data','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test0-z','test0','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test00-z','test00','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test00dif-z','r2test0-z r2test00-z','add scale=1,-1 ${SOURCES[1]}')
+Flow('r2test3dif-z','r2test00-z r2test3-z','add scale=1,-1 ${SOURCES[1]}')
+Flow('r2test1-z','test1','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test2-z','test2','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test3-z','test3','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey('real2d-z','real2d-z','screenratio=0.75 title="Raw data"')
+Grey('r2test0-z','r2test0-z','screenratio=0.75 title="NPF"')
+Grey('r2test00-z','r2test00-z','screenratio=0.75 title="NPFFS"')
+Grey('r2test00dif-z','r2test00dif-z','screenratio=0.75 title="Difference"')
+Grey('r2test3dif-z','r2test3dif-z','screenratio=0.75 title="Difference"')
+Grey('r2test1-z','r2test1-z','screenratio=0.75 title="RNAR"')
+Grey('r2test2-z','r2test2-z','screenratio=0.75 title="SPF"')
+Grey('r2test3-z','r2test3-z','screenratio=0.75 title="NPFFXS"')
+
+Result('real2d-0','Fig/real2d.vpl frame1','Overlay')
+Result('r2test0-0','Fig/r2test0.vpl frame1','Overlay')
+Result('r2test00-0','Fig/r2test00.vpl frame1','Overlay')
+Result('r2test1-0','Fig/r2test1.vpl frame1','Overlay')
+Result('r2test2-0','Fig/r2test2.vpl frame1','Overlay')
+Result('r2test3-0','Fig/r2test3.vpl frame1','Overlay')
+
+## Noise
+x=0
+y=0.4
+w=254
+w1=0.6
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=256 min2=0 max2=2.048 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+Plot('label',None,
+	'''
+	box x0=10.0 y0=5.3 label="Signal" xt=-0.5 yt=0.5 length=1 
+	''')
+	
+##zooming
+Flow('r2test0-n-z','test0-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test00-n-z','test00-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test1-n-z','test1-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test2-n-z','test2-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('r2test3-n-z','test3-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey('r2test0-n-z','r2test0-n-z','screenratio=0.75 title="NPF" clip=1.5')
+Grey('r2test00-n-z','r2test00-n-z','screenratio=0.75 title="NPFFS" clip=1.5')
+Grey('r2test1-n-z','r2test1-n-z','screenratio=0.75 title="RNAR" clip=1.5')
+Grey('r2test2-n-z','r2test2-n-z','screenratio=0.75 title="SPF" clip=1.5')
+Grey('r2test3-n-z','r2test3-n-z','screenratio=0.75 title="NPFFXS" clip=1.5')
+
+Result('r2test1-n-z0','Fig/r2test1-n-z.vpl label','Overlay')
+
+Result('r2test0-n-0','Fig/r2test0-n.vpl frame2','Overlay')
+Result('r2test00-n-0','Fig/r2test00-n.vpl frame2','Overlay')
+Result('r2test1-n-0','Fig/r2test1-n.vpl frame2','Overlay')
+Result('r2test2-n-0','Fig/r2test2-n.vpl frame2','Overlay')
+Result('r2test3-n-0','Fig/r2test3-n.vpl frame2','Overlay')
+
+
+End()
+
