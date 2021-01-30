@@ -391,207 +391,207 @@ figure;plot(snrs6);
 
 figure;imagesc([[dc,d2,d1,d3,d4];[dn,dn-d2,dn-d1,dn-d3,dn-d4]]);colormap(seis);caxis([-1,1]);
 
-% 
-% %% plot
-% [nt,nx]=size(dc);
-% dt=0.004;
-% t=[0:nt-1]*dt;x=[1:nx];
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,dc);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_dc.eps');
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,dn);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_dn.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,d2);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_curv.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,d1);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_curvi.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,d3);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_sosvmf.eps');
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,d4);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_sosvmfi.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,dn-d2);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_curv_n.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,dn-d1);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_curvi_n.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,dn-d3);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_sosvmf_n.eps');
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
-% imagesc(x,t,dn-d4);colormap(seis);caxis([-0.6,0.6]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_sosvmfi_n.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.2 0.4 0.4, 0.4],'color','w');
-% plot([0:8],snrs4,'-g*','linewidth',2);
-% ylabel('SNR (dB)','Fontsize',30);
-% xlabel('Iteration NO','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_snrs4.eps');
-% 
-% %% local similarity
-% rect=[10,5,1];niter=20;eps=0;verb=0;
-% [simi1]=localsimi(dc,d1,rect,niter,eps,verb);
-% [simi2]=localsimi(dc,d2,rect,niter,eps,verb);
-% [simi3]=localsimi(dc,d3,rect,niter,eps,verb);
-% [simi4]=localsimi(dc,d4,rect,niter,eps,verb);
-% 
-% [simi11]=localsimi(dn-d1,d1,rect,niter,eps,verb);
-% [simi22]=localsimi(dn-d2,d2,rect,niter,eps,verb);
-% [simi33]=localsimi(dn-d3,d3,rect,niter,eps,verb);
-% [simi44]=localsimi(dn-d4,d4,rect,niter,eps,verb);
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi1);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,1]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi_curvi.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi2);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,1]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi_curv.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi3);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,1]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi_sosvmf.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi4);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,1]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi_sosvmfi.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi11);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,0.5]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi2_curvi.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi22);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,0.5]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi2_curv.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi33);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,0.5]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi2_sosvmf.eps');
-% 
-% 
-% figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
-% imagesc(x,t,simi44);colormap(jet);colormap(jet);
-% c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
-% caxis([0,0.5]);
-% ylabel('Time (s)','Fontsize',30);
-% xlabel('Trace','Fontsize',30);
-% % title('Noise','Fontsize',30);
-% set(gca,'Linewidth',2,'Fontsize',30);
-% print(gcf,'-depsc','-r200','l_simi2_sosvmfi.eps');
-% 
-% 
+
+%% plot
+[nt,nx]=size(dc);
+dt=0.004;
+t=[0:nt-1]*dt;x=[1:nx];
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,dc);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_dc.eps');
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,dn);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_dn.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,d2);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_curv.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,d1);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_curvi.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,d3);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_sosvmf.eps');
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,d4);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_sosvmfi.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,dn-d2);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_curv_n.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,dn-d1);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_curvi_n.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,dn-d3);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_sosvmf_n.eps');
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.8],'color','w');
+imagesc(x,t,dn-d4);colormap(seis);caxis([-0.6,0.6]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_sosvmfi_n.eps');
+
+
+figure('units','normalized','Position',[0.2 0.4 0.4, 0.4],'color','w');
+plot([0:8],snrs4,'-g*','linewidth',2);
+ylabel('SNR (dB)','Fontsize',30);
+xlabel('Iteration NO','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_snrs4.eps');
+
+%% local similarity
+rect=[10,5,1];niter=20;eps=0;verb=0;
+[simi1]=localsimi(dc,d1,rect,niter,eps,verb);
+[simi2]=localsimi(dc,d2,rect,niter,eps,verb);
+[simi3]=localsimi(dc,d3,rect,niter,eps,verb);
+[simi4]=localsimi(dc,d4,rect,niter,eps,verb);
+
+[simi11]=localsimi(dn-d1,d1,rect,niter,eps,verb);
+[simi22]=localsimi(dn-d2,d2,rect,niter,eps,verb);
+[simi33]=localsimi(dn-d3,d3,rect,niter,eps,verb);
+[simi44]=localsimi(dn-d4,d4,rect,niter,eps,verb);
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi1);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,1]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi_curvi.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi2);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,1]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi_curv.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi3);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,1]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi_sosvmf.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi4);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,1]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi_sosvmfi.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi11);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,0.5]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi2_curvi.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi22);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,0.5]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi2_curv.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi33);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,0.5]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi2_sosvmf.eps');
+
+
+figure('units','normalized','Position',[0.0 0.0 0.6, 1],'color','w');
+imagesc(x,t,simi44);colormap(jet);colormap(jet);
+c = colorbar;c.Label.String = 'Local similarity';c.Label.FontSize = 30;%c.Label.FontWeight = bold;
+caxis([0,0.5]);
+ylabel('Time (s)','Fontsize',30);
+xlabel('Trace','Fontsize',30);
+% title('Noise','Fontsize',30);
+set(gca,'Linewidth',2,'Fontsize',30);
+print(gcf,'-depsc','-r200','l_simi2_sosvmfi.eps');
+
+
 
 
 
