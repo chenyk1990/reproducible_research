@@ -1,3 +1,11 @@
+% Demo for erratic noise suppression using iterative SOSVMF with sparsity constraint
+% Prepared By Guangtan Huang, Min Bai, and Yangkang Chen
+% Dec, 2020
+%
+% References
+% Huang, G., M. Bai, Q. Zhao, W. Chen, and Y. Chen, 2021, Erratic noise suppression using iterative structure-oriented space-varying median filtering with sparsity constraint, Geophys- ical Prospecting, 69, 101-121.
+% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2019, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 216, 1214?1232.
+
 clc;clear;close all;
 
 is_real=1;           % Type of the transform(0: complex-valued curvelets,1: real-valued curvelets)

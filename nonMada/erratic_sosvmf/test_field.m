@@ -1,3 +1,11 @@
+% Demo for erratic noise suppression using iterative SOSVMF with sparsity constraint
+% Prepared By Guangtan Huang, Min Bai, and Yangkang Chen
+% Dec, 2020
+%
+% References
+% Huang, G., M. Bai, Q. Zhao, W. Chen, and Y. Chen, 2021, Erratic noise suppression using iterative structure-oriented space-varying median filtering with sparsity constraint, Geophys- ical Prospecting, 69, 101-121.
+% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2019, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 216, 1214?1232.
+
 clc;clear;close all;
 
 is_real=1;           % Type of the transform(0: complex-valued curvelets,1: real-valued curvelets)
@@ -6,9 +14,10 @@ alpha=1.0;           % 噪音标准差的alpha倍阈值（1.2左右较为理想）
 
 niter=10;
 
-infile='~/chenyk.data2/various/cyksmall/zq_real_input.su';
-[ori]=glreadsu(infile,'su');
-dn=scalecyk(ori,2);
+fid=fopen('real.bin','r');
+ori=fread(fid,[800,220],'float');
+
+dn=yc_scale(ori,2);
 [n1,n2]=size(dn);
 figure;imagesc([dn]);colormap(seis);caxis([-0.5,0.5]);
 
@@ -55,7 +64,6 @@ Sigma=Sigma0;
 % sigma=[Sigma,5*Sigma,2*Sigma, Sigma, 0.6*Sigma,Sigma*0.1];
 sigma=[Sigma,linspace(2.5*Sigma,0.5*Sigma,niter)];
 
-
 for i=1:niter
     P=(dn-d1);
     inter=abs(P-median(P(:)));
@@ -79,8 +87,6 @@ for i=1:niter
     
     pause(1);figure(2);imagesc([dn,d1,dn-d1]);colormap(seis);caxis([-0.5,0.5]);
 end
-
-
 
 %% SOSVMF
 dipn=dip2d_shan(d1,5,20,2,0.01,[20,5,1]);
@@ -264,10 +270,10 @@ print(gcf,'-depsc','-r200','f_sosvmfi_n.eps');
 
 
 rect=[10,5,1];niter=20;eps=0;verb=0;
-[simi11]=localsimi(dn-d1,d1,rect,niter,eps,verb);
-[simi22]=localsimi(dn-d2,d2,rect,niter,eps,verb);
-[simi33]=localsimi(dn-d3,d3,rect,niter,eps,verb);
-[simi44]=localsimi(dn-d4,d4,rect,niter,eps,verb);
+[simi11]=yc_localsimi(dn-d1,d1,rect,niter,eps,verb);
+[simi22]=yc_localsimi(dn-d2,d2,rect,niter,eps,verb);
+[simi33]=yc_localsimi(dn-d3,d3,rect,niter,eps,verb);
+[simi44]=yc_localsimi(dn-d4,d4,rect,niter,eps,verb);
 
 figure('units','normalized','Position',[0.0 0.0 0.6 1.0],'color','w');
 imagesc(x,t,simi11);colormap(jet);
