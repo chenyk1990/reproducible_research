@@ -206,6 +206,9 @@ Flow('cmp0','cmp1 cmp2 cmp3 cmp4',
 
 Flow('cmp','cmp0','noise seed=1 range=0.3 ')
 
+Grey('cmp0','title="Clean"')
+Grey('cmp','title="Noisy"')
+
 ### windowed function
 Flow('test0','cmp','fxynpre mode=0 fs=0 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
 Flow('test0dif','test0 cmp','add scale=-1,1 ${SOURCES[1]}')
