@@ -68,8 +68,8 @@ Flow('data1','vel',
 Flow('cmp0','data1','cp|scale axis=3|math output="input*2"')
 Flow('cmp','cmp0','noise seed=1 range=0.3 ')
 
-Grey('cmp1','title="Clean"')
-Grey('cmp2','title="Clean"')
+Grey('cmp0','title="Clean"')
+Grey('cmp','title="Noisy"')
 
 ### windowed function
 Flow('test0','cmp','fxynpre mode=0 fs=0 nsx=2 nsy=2 rect1=4 rect2=4 rect3=4 niter=20 verb=y')
