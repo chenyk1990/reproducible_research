@@ -1,5 +1,13 @@
 from rsf.proj import *
-#data: https://drive.google.com/file/d/1tXcH1aW7lmulq9x8g07AebgEtysV8EaP/view?usp=sharing 
+# PLEASE NOTE:
+# The sffxynpre2 is sometimes unstable (for large datasets with windowed processing; it works fine for smaller datasets) due to some unknown memory allocation error
+# We have been debugging the errors for a long time but still haven't fixed the issue
+# But, generally, it is only an implementation problem (in C) and does not affect the final result. 
+# If the error shows up, please keep using "scons lock" (many times) to continue where it was stopped. Although it is not automatic, and is a little bit stupid, it solves the problem (to some extent) and outputs the result shown in our paper.
+# We are asking interested researchers to dig into the codes (RSFSRC/user/chenyk/fxynpre.c and related subroutines) and to find the bug that causes the memory issue.
+# If you have found the issue/bug, please contact me at chenyk2016@@gmail.com. Thank you! 
+# 
+# datapath: https://drive.google.com/file/d/1tXcH1aW7lmulq9x8g07AebgEtysV8EaP/view?usp=sharing 
 
 def Grey3(data1,data,other):
 	Result(data1,data,
