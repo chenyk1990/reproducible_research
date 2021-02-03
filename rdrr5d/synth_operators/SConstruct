@@ -1,0 +1,171 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import pi
+# Data size: 301*61*61
+ 
+def Grey3(data,other):
+	Result(data,
+       '''
+       byte clip=0.4 |
+       grey3 flat=n frame1=50 frame2=5 frame3=0 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s unit2=trace unit3=trace title=
+       screenratio=1.4 color=grey font=104 %s'''%other)
+
+def Grey3e(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g |
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=g font=104 %s'''%(clip,other))
+
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=40 frame2=2 frame3=5 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 font=104 %s'''%(clip,other))
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.9 title=
+       screenratio=1.4 color=g font=104 %s'''%other)
+
+#def Wig(data,other):
+#	Result(data,
+#       '''
+#       wiggle poly=y transp=y yreverse=y label2=Trace label1="Time" unit1=s clip=0.4 title=
+#       screenratio=1.4 color=g %s'''%other)
+
+def Wig(data,other): 
+	Result(data,'''
+				put d1=0.004 |
+				grey color=g color=g transp=y yreverse=y screenratio=1.4
+				wanttitle=y flat=n labelfat=4 font=2 titlefat=4				
+				label2=Trace unit2="" label1="Time" unit1=s
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=t wherexlabel=b clip=0.4 labelsz=10 color=g font=104 %s'''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title=" Amplitude comparison" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+	
+## Load data
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'synth_operators'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+   sys.stderr.write('\nCannot find Matlab.\n')
+   sys.exit(1)
+
+############################################################
+## generate and process synthetic data
+############################################################
+Flow('synth-clean-0 synth-rrdamping-0 synth-rrstma-0 synth-rrdampingst-0 synth-rrdampingma-0 synth-rrdampingstma-0',[os.path.join(matROOT,matfun+'.m')],
+    '''MATLABPATH=%(matlabpath)s %(matlab)s 
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}');quit"
+    '''%vars(),stdin=0,stdout=-1)
+
+Flow('synth-clean','synth-clean-0',' put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+#Flow('synth-noisy','synth-noisy-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+#Flow('synth-obs','synth-obs-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('synth-rrdamping','synth-rrdamping-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('synth-rrstma','synth-rrstma-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('synth-rrdampingst','synth-rrdampingst-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('synth-rrdampingma','synth-rrdampingma-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('synth-rrdampingstma','synth-rrdampingstma-0','put n2=11 n3=11 n4=11 n5=11 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+
+Flow('synth-clean-xy','synth-clean','window n2=1 n3=1 f2=5 f3=5')
+#Flow('synth-noisy-xy','synth-noisy','window n2=1 n3=1 f2=5 f3=5')
+#Flow('synth-obs-xy','synth-obs','window n2=1 n3=1 f2=5 f3=5')
+Flow('synth-rrdamping-xy','synth-rrdamping','window n2=1 n3=1 f2=5 f3=5')
+Flow('synth-rrstma-xy','synth-rrstma','window n2=1 n3=1 f2=5 f3=5')
+Flow('synth-rrdampingst-xy','synth-rrdampingst','window n2=1 n3=1 f2=5 f3=5')
+Flow('synth-rrdampingma-xy','synth-rrdampingma','window n2=1 n3=1 f2=5 f3=5')
+Flow('synth-rrdampingstma-xy','synth-rrdampingstma','window n2=1 n3=1 f2=5 f3=5')
+
+#Grey3('synth-clean-xy','title=Clean')
+#Grey3('synth-noisy-xy','title=Noisy')
+#Grey3('synth-obs-xy','title=Observed')
+#Grey3('synth-rrdamping-xy','title=RR+damping')
+#Grey3('synth-rrstma-xy','title=RR+ST+MA')
+#Grey3('synth-rrdampingst-xy','title=RR+damping+ST')
+#Grey3('synth-rrdampingma-xy','title=RR+damping+MA')
+#Grey3('synth-rrdampingstma-xy','title=RR+damping+ST+MA')
+
+Flow('synth-rrdamping-s','synth-rrdamping-xy','window n2=1 f3=2')
+Flow('synth-rrstma-s','synth-rrstma-xy','window n2=1 f3=2')
+Flow('synth-rrdampingst-s','synth-rrdampingst-xy','window n2=1 f3=2')
+Flow('synth-rrdampingma-s','synth-rrdampingma-xy','window n2=1 f3=2')
+Flow('synth-rrdampingstma-s','synth-rrdampingstma-xy','window n2=1 f3=2')
+
+Wig('synth-rrdamping-s','title=RR+damping')
+Wig('synth-rrstma-s','title=RR+ST+MA')
+Wig('synth-rrdampingst-s','title=RR+damping+ST')
+Wig('synth-rrdampingma-s','title=RR+damping+MA')
+Wig('synth-rrdampingstma-s','title=RR+damping+ST+MA')
+
+Flow('synth-clean-hxhy','synth-clean','window n4=1 n5=1 f4=1 f5=1')
+#Flow('synth-noisy-hxhy','synth-noisy','window n4=1 n5=1 f4=1 f5=1')
+#Flow('synth-obs-hxhy','synth-obs','window n4=1 n5=1 f4=1 f5=1')
+Flow('synth-rrdamping-hxhy','synth-rrdamping','window n4=1 n5=1 f4=1 f5=1')
+Flow('synth-rrstma-hxhy','synth-rrstma','window n4=1 n5=1 f4=1 f5=1')
+Flow('synth-rrdampingst-hxhy','synth-rrdampingst','window n4=1 n5=1 f4=1 f5=1')
+Flow('synth-rrdampingma-hxhy','synth-rrdampingma','window n4=1 n5=1 f4=1 f5=1')
+Flow('synth-rrdampingstma-hxhy','synth-rrdampingstma','window n4=1 n5=1 f4=1 f5=1')
+
+#Grey3('synth-clean-hxhy','title=Clean frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-noisy-hxhy','title=Noisy frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-obs-hxhy','title=Observed frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-rrdamping-hxhy','title=DRR frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-rrstma-hxhy','title=Proposed frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-rrdampingst-hxhy','title=DRR frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-rrdampingma-hxhy','title=Proposed frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+#Grey3('synth-rrdampingstma-hxhy','title=Proposed frame1=50 frame3=5 label2=HX label3=HY label1="Time" unit1=s unit2=trace unit3=trace')
+
+#Flow('s-c','synth-clean-hxhy','window n2=1 n3=1 f2=4 f3=4')
+#Flow('s-n','synth-noisy-hxhy','window n2=1 n3=1 f2=4 f3=4')
+#Flow('s-obs','synth-obs-hxhy','window n2=1 n3=1 f2=4 f3=4')
+#Flow('s-drr','synth-drr-hxhy','window n2=1 n3=1 f2=4 f3=4')
+#Flow('s-rdrr','synth-rdrr-hxhy','window n2=1 n3=1 f2=4 f3=4')
+
+#Flow('synth-ss','s-n s-obs s-drr s-rdrr s-c','cat axis=2 ${SOURCES[1:5]}')
+#Graph('synth-ss','plotfat=10 plotcol="1,7,2,5,3"')
+
+Flow('synth-rrdamping-xy-e','synth-clean-xy synth-rrdamping-xy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrstma-xy-e','synth-clean-xy synth-rrstma-xy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrdampingst-xy-e','synth-clean-xy synth-rrdampingst-xy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrdampingma-xy-e','synth-clean-xy synth-rrdampingma-xy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrdampingstma-xy-e','synth-clean-xy synth-rrdampingstma-xy','add scale=1,-1 ${SOURCES[1]}')
+
+#Grey3e('synth-rrdamping-xy-e','title=DRR frame1=50 frame2=5 frame3=0 label1="Time" unit1=s unit2=trace unit3=trace',0.9)
+#Grey3e('synth-rrstma-xy-e','title=Proposed frame1=50 frame2=5 frame3=0 label1="Time" unit1=s unit2=trace unit3=trace',0.9)
+#Grey3e('synth-rrdampingst-xy-e','title=DRR frame1=50 frame2=5 frame3=0 label1="Time" unit1=s unit2=trace unit3=trace',0.9)
+#Grey3e('synth-rrdampingma-xy-e','title=Proposed frame1=50 frame2=5 frame3=0 label1="Time" unit1=s unit2=trace unit3=trace',0.9)
+#Grey3e('synth-rrdampingstma-xy-e','title=Proposed frame1=50 frame2=5 frame3=0 label1="Time" unit1=s unit2=trace unit3=trace',0.9)
+
+Flow('synth-rrdamping-hxhy-e','synth-clean-hxhy synth-rrdamping-hxhy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrstma-hxhy-e','synth-clean-hxhy synth-rrstma-hxhy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrdamping-hxhy-e','synth-clean-hxhy synth-rrdamping-hxhy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrdampingst-hxhy-e','synth-clean-hxhy synth-rrdampingst-hxhy','add scale=1,-1 ${SOURCES[1]}')
+Flow('synth-rrdampingstma-hxhy-e','synth-clean-hxhy synth-rrdampingstma-hxhy','add scale=1,-1 ${SOURCES[1]}')
+
+Flow('synth-rrdamping-xy-e-s','synth-rrdamping-xy-e','window n2=1 f3=2')
+Flow('synth-rrstma-xy-e-s','synth-rrstma-xy-e','window n2=1 f3=2')
+Flow('synth-rrdampingst-xy-e-s','synth-rrdampingst-xy-e','window n2=1 f3=2')
+Flow('synth-rrdampingma-xy-e-s','synth-rrdampingma-xy-e','window n2=1 f3=2')
+Flow('synth-rrdampingstma-xy-e-s','synth-rrdampingstma-xy-e','window n2=1 f3=2')
+
+Wig('synth-rrdamping-xy-e-s','title=RR+damping')
+Wig('synth-rrstma-xy-e-s','title=RR+ST+MA')
+Wig('synth-rrdampingst-xy-e-s','title=RR+damping+ST')
+Wig('synth-rrdampingma-xy-e-s','title=RR+damping+MA')
+Wig('synth-rrdampingstma-xy-e-s','title=RR+damping+ST+MA')
+
+End()

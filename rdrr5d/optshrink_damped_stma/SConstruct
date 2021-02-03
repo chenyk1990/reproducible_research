@@ -1,0 +1,125 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import *
+
+#def Grey(data,other): 
+#      Result(data,
+#      '''
+#      put d1=0.002 d2=1 o1=0 o2=0 | 
+#      grey clip=0.2 transp=y yreverse=y  
+#      label2=Trace  unit2="" label1=Time unit1="s" title=""
+#      wherexlabel=t scalebar=n wheretitle=b screenratio=1.2  %s
+#      '''
+#      %other)
+
+def Greyfk(data,data0,other):
+	Result(data,data0,
+		'''put d1=0.002 d2=1 d3=1| fft1 | fft3 axis=2 pad=1| fft3 axis=3 pad=1| window max1=100| cabs |byte clip=300 allpos=y | grey3 labelfat=4 font=2 titlefat=4 flat=n label2="Inline" unit2= label3="Xline" unit1=Hz label1=Frequency frame1=30 frame2=10 frame3=10 point1=0.8 point2=0.8 title= screenratio=1.2 unit2=Wavenumber unit3=Wavenumber font=104 color=j %s '''%other)
+	
+def Grey3(data,other):
+	Result(data,
+       '''
+       put d1=0.002 o3=1 d2=1 d3=1 | byte  clip=0.2 |
+       grey3 flat=n frame1=150 frame2=10 frame3=9
+       point1=0.8 point2=0.8 label2=Inline label3=Xline label1="Time (s)" title=
+       screenratio=1.4 unit2=trace unit3=trace font=104  color=g %s'''%other)
+	
+#def Grey3n(data,other):
+#      Result(data,
+#       '''
+#       put d1=0.002 o3=0 | byte  clip=0.2 |
+#       grey3 wanttitle=y flat=n labelfat=4 font=2 titlefat=4
+#       label1="Time" unit1=s label2=Inline label3=Xline unit3=
+#       frame1=120 frame2=15 frame3=10 point1=0.85 point2=0.75 screenratio=1.2
+#       clip= title= wheretitle=t 
+#       scalebar=n %s
+#       '''%other)
+
+#def Grey3nn(data,other):
+#      Result(data,
+#       '''
+#       put d1=0.002 o3=0 | byte  clip=0.2 |
+#       grey3 wanttitle=y flat=n labelfat=4 font=2 titlefat=4
+#       label1="Time" unit1=s label2=Inline label3=Xline unit3=
+#       frame1=120 frame2=15 frame3=10 point1=0.85 point2=0.75 screenratio=1.2
+#       clip= title= wheretitle=t 
+#       scalebar=n %s
+#       '''%other)
+       
+def Greys(data,other):
+	Result(data,
+		'''put d1=0.002 o3=0 d2=1 d3=1 | byte clip=0.6 bar=bar.rsf| grey3  labelfat=4 font=2 titlefat=4 label2=Inline label3=Xline flat=n frame1=120 frame2=10 frame3=10 point1=0.85 point2=0.75 screenratio=1.2 label1=Time unit1=s  %s'''%(other))
+		
+		     
+#def Graph(data,other):
+#	Result(data,'graph label1="Iter #no" label2="SNR" unit2=dB unit1="" title="" wherexlabel=b wheretitle=t %s' %other)
+
+#def Greyz(data,other):
+#	Result(data,
+#       '''
+#       grey label2=Trace label1="Time" unit1= clip=0.2 title= screenratio=0.6
+#       color=g %s'''%other)
+
+def Greys2d(data,other):
+	Result(data,
+		'''put d1=0.002 | grey clip=0.6 label2=Inline unit2=km label3=Xline unit2=km flat=n screenratio=1.2 title= wanttitle=y flat=n labelfat=4 font=2 titlefat=4				
+				label2=Trace unit2="" label1="Time"  unit1=s
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=t wherexlabel=b labelsz=10 %s'''%(other))
+
+def Wig(data,other): 
+	Result(data,'''
+				put d1=0.004 |
+				grey color=g color=b transp=y yreverse=y screenratio=1.2
+				wanttitle=y flat=n labelfat=4 font=2 titlefat=4				
+				label2=Trace unit2="" label1="Time"  unit1=s
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=t wherexlabel=b clip=0.2 labelsz=10 %s'''%other)
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'syn_optshrinkdamped_stma3d'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+   sys.stderr.write('\nCannot find Matlab.\n')
+   sys.exit(1)
+
+############################################################
+## generate and process synthetic data
+############################################################
+Flow('syn-c syn-n syn-obs syn-opshrinkdamped syn-opshrinkdampedstma',[os.path.join(matROOT,matfun+'.m')],
+    '''MATLABPATH=%(matlabpath)s %(matlab)s 
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}');quit"
+    '''%vars(),stdin=0,stdout=-1)
+
+Flow('syn3d-c','syn-c','put n1=300 n2=20 n3=20')
+Flow('syn3d-n','syn-n','put n1=300 n2=20 n3=20')
+Flow('syn3d-obs','syn-obs','put n1=300 n2=20 n3=20')
+Flow('syn3d-opshrinkdamped','syn-opshrinkdamped','put n1=300 n2=20 n3=20')
+Flow('syn3d-opshrinkdampedstma','syn-opshrinkdampedstma','put n1=300 n2=20 n3=20')
+
+Grey3('syn3d-c','color=g color=g title=Clean')
+Grey3('syn3d-n','color=g color=g title=Noisy')
+Grey3('syn3d-obs','color=g color=g title=Observed')
+Grey3('syn3d-opshrinkdamped','color=g color=g title=Damped optshrink')
+Grey3('syn3d-opshrinkdampedstma','color=g color=g title=Damped optshrink + STMA')
+
+Flow('syn3d-c-s','syn3d-c','window n3=1 f3=5')
+Flow('syn3d-n-s','syn3d-n','window n3=1 f3=5')
+Flow('syn3d-obs-s','syn3d-obs','window n3=1 f3=5')
+Flow('syn3d-opshrinkdamped-s','syn3d-opshrinkdamped','window n3=1 f3=5')
+Flow('syn3d-opshrinkdampedstma-s','syn3d-opshrinkdampedstma','window n3=1 f3=5')
+
+Wig('syn3d-c-s','title=Clean')
+Wig('syn3d-n-s','title=Noisy')
+Wig('syn3d-obs-s','title=Observed')
+Wig('syn3d-opshrinkdamped-s','title=Damped+optshrink')
+Wig('syn3d-opshrinkdampedstma-s','title=Damped+optshrink+STMA')
+
+End()
+
+
