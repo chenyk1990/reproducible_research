@@ -1,8 +1,8 @@
-function [U,B_k,V] = lbcyk(A,p,k,reorth)
-%LBCYK: Lanczos bidiagonalization
+function [U,B_k,V] = yc_lb(A,p,k,reorth)
+%yc_lb: Lanczos bidiagonalization
 %
-% B_k = lbcyk(A,p,k,reorth)
-% [U,B_k,V] = lbcyk(A,p,k,reorth)
+% B_k = yc_lb(A,p,k,reorth)
+% [U,B_k,V] = yc_lb(A,p,k,reorth)
 % p: Starting vector must be nonzero (zeros(size(A,1),1))
 % 
 % Performs k steps of the Lanczos bidiagonalization process with
