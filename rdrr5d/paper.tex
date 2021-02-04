@@ -371,7 +371,7 @@ where $\mathbf{D}_0 = \mathbf{D}_{ob}$ corresponds to the observed noisy and inc
 	\end{algorithm}
 \end{center}
 
-The following workflow presents our proposed robust damped rank-reduction algorithm for simultaneous denoising and reconstruction of 5D seismic data:
+The following workflow presents our proposed RDRR algorithm for simultaneous denoising and reconstruction of 5D seismic data:
 
 \begin{center}
 	\begin{algorithm}[H]
@@ -423,9 +423,9 @@ where $\mathbf{X^{c}_i}$ denotes the original data and $\mathbf{X^{r}}$ is the s
 
 To demonstrate the performance of the proposed algorithm, we apply both methods \wen{first, on 5D synthetic seismic data set that is composed of linear events and then curved events. \dlo{The four spatial dimensions of both 5D data are $hx$, $hy$, $x$ and $y$}}   
 
-\wen{For the first case,} we generate a 5D data model with the size of $100 \times 12 \times 12 \times 12 \times 12$, \wen{where}\dlo{which is composed of linear events.} $12 \times 12 \times 12 \times 12$ denotes the spatial size of the model. \wen{We conduct many experiments with this data}. In the first experiment, we randomly decimate $70\%$ of the traces and add a noise \dlo{variance of 0.3}\wen{of 0.3 variance} to examine the simultaneous denoising and reconstruction quality of both algorithms. The 3D figures in one common-midpoint gather \dlo{($Nx_1$ = 6, $Nx_2$ = 6)}\wen{($x$ = 6, $y$ = 6)} and one common offset gather \dlo{($x_1$ = 6, $x_2$ = 6)}\wen{($hx$ = 6, $hy$ = 6)} of the true, noisy, and decimated data are presented in Figures \ref{synth-clean-hxhy}\dlo{(a)}-\ref{synth-obs-hxhy}\dlo{(c)} and \ref{synth-clean-hxhy}\dlo{(a)}-\ref{synth-obs-hxhy}\dlo{(c)}, respectively. 
+\wen{For the first case,} we generate a 5D data model with the size of $100 \times 12 \times 12 \times 12 \times 12$, \wen{where}\dlo{which is composed of linear events.} $12 \times 12 \times 12 \times 12$ denotes the spatial size of the model. \wen{We conduct many experiments with this data}. In the first experiment, we randomly decimate $70\%$ of the traces and add a noise \dlo{variance of 0.3}\wen{of 0.3 variance} to examine the simultaneous denoising and reconstruction quality of both algorithms. The 3D figures in one common-midpoint gather \dlo{($Nx_1$ = 6, $Nx_2$ = 6)}\wen{($x$ = 6, $y$ = 6)} and one common-offset gather \dlo{($x_1$ = 6, $x_2$ = 6)}\wen{($hx$ = 6, $hy$ = 6)} of the true, noisy, and decimated data are presented in Figures \ref{fig:synth-clean-hxhy}\dlo{(a)}-\ref{fig:synth-obs-hxhy}\dlo{(c)} and \ref{fig:synth-clean-hxhy}\dlo{(a)}-\ref{fig:synth-obs-hxhy}\dlo{(c)}, respectively. 
 
-The S/N\wen{s} of the noisy and observed data are extremely low with values of {$-$5.38 dB} and {$-$2.40 dB}, respectively. It is difficult to detect any coherent \dlo{valid}events in the observed noisy and incomplete data. To restore the useful signal, we use a rank {$K$ = 6} and a damped factor {$d$ = 2} for the DRR approach. Figures \ref{synth-drr-hxhy}\dlo{(d)} and \ref{synth-drr-xy}\dlo{(d)} show the results obtained using the DRR method. The simultaneously denoised and reconstructed data are satisfactory. Indeed, almost all signals are restored and the random noise has been perfectly reduced. However, the visual examination reveals some residual noise in the results. Using the proposed algorithm, with the same parameters used for DRR approach, we use a valid combination of cooling factor ${\beta = 3.3}$, rational transfer function coefficient ${e = 0.972}$, and window size ${T = 1}$. We run both methods using \dlo{ten}\wen{10} weighted POCS-like iterations. Figures \ref{synth-rdrr-hxhy}\dlo{(e)} and \ref{synth-rdrr-xy}\dlo{(e)} show the results obtained via the proposed RR approach. Compared with the DRR results, our method greatly removes the residual noise and recovers the useful signal. The output S/Ns for the DRR and the proposed approaches are {$15.55$} and {$21.89$ dB}, respectively. From the visual examination and the S/Ns comparison, we deduce that the restoration of the useful signal by the proposed approach is better than the DRR method.
+The S/N\wen{s} of the noisy and observed data are extremely low with values of {$-$5.38 dB} and {$-$2.40 dB}, respectively. It is difficult to detect any coherent \dlo{valid}events in the observed noisy and incomplete data. To restore the useful signal, we use a rank {$K$ = 6} and a damped factor {$d$ = 2} for the DRR approach. Figures \ref{fig:synth-drr-hxhy}\dlo{(d)} and \ref{fig:synth-drr-xy}\dlo{(d)} show the results obtained using the DRR method. The simultaneously denoised and reconstructed data are satisfactory. Indeed, almost all signals are restored and the random noise has been perfectly reduced. However, the visual examination reveals some residual noise in the results. Using the proposed algorithm, with the same parameters used for DRR approach, we use a valid combination of cooling factor ${\beta = 3.3}$, rational transfer function coefficient ${e = 0.972}$, and window size ${T = 1}$. We run both methods using \dlo{ten}\wen{10} weighted POCS-like iterations. Figures \ref{fig:synth-rdrr-hxhy}\dlo{(e)} and \ref{fig:synth-rdrr-xy}\dlo{(e)} show the results obtained via the proposed RR approach. Compared with the DRR results, our method greatly removes the residual noise and recovers the useful signal. The output S/Ns for the DRR and the proposed approaches are {$15.55$} and {$21.89$ dB}, respectively. From the visual examination and the S/Ns comparison, we deduce that the restoration of the useful signal by the proposed approach is better than the DRR method.
 
 \AtEndDocument{
 	\begin{center}
@@ -466,686 +466,157 @@ The S/N\wen{s} of the noisy and observed data are extremely low with values of {
 			\end{table}
 		\end{center}
 }}
-\AtEndDocument{
+%\AtEndDocument{
 %	\begin{figure}[htb!]
 %		\centering
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/cmp_originalfinal}
-%			\label{cmp_originalfinal}}
+%			\label{Figure:cmp_originalfinal}}
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/cmp_noisyfinal}
-%			\label{cmp_noisyfinal}}
+%			\label{Figure:cmp_noisyfinal}}
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/cmp_observedfinal}
-%			\label{cmp_observedfinal}}\\	
+%			\label{Figure:cmp_observedfinal}}\\	
 %		\centering
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/cmp_drrokfinal}
-%			\label{cmp_drrokfinal}}
+%			\label{Figure:cmp_drrokfinal}}
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/cmp_proposedfinal}
-%			\label{cmp_proposedfinal}}	
+%			\label{Figure:cmp_proposedfinal}}	
 %		\caption{Common midpoint 3-D figures comparison ($x$ = 6, $y$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{10}\wen{ten} iterations. (a) Clean data. (b) Noisy data with $ 0.3 $ as noise level. (c) Observed noisy and incomplete data with $70\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed method, respectively.}
-%		\label{cmp_originalfinal,cmp_noisyfinal,cmp_observedfinal,cmp_drrokfinal,cmp_proposedfinal}
+%		\label{Figure:cmp_originalfinal,cmp_noisyfinal,cmp_observedfinal,cmp_drrokfinal,cmp_proposedfinal}
 %	\end{figure}%fig.1
-\begin{figure}[htb!]
-	\centering
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-clean-hxhy}\label{synth-clean-hxhy}}
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-noisy-hxhy}\label{synth-noisy-hxhy}}
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-obs-hxhy}\label{synth-obs-hxhy}}\\
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-drr-hxhy}\label{synth-drr-hxhy}}
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-rdrr-hxhy}\label{synth-rdrr-hxhy}}
-	\caption{Common-midpoint 3D figures comparison ($x$ = 6, $y$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{ten}\wen{10} iterations. (a) Clean data. (b) Noisy data with $0.3$ as noise level. (c) Observed noisy and incomplete data with $70\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed method, respectively.}
-	\label{synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}
-\end{figure}%fig.1
+
+\inputdir{synth_Linear_NV03_MT70}
+\multiplot{5}{synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}{width=0.3\textwidth}{Common-midpoint 3D figures comparison ($x$ = 6, $y$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{ten}\wen{10} iterations. (a) Clean data. (b) Noisy data with $0.3$ as noise level. (c) Observed noisy and incomplete data with $70\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed method, respectively.}
+
+%\begin{figure}[htb!]
+%	\centering
+%	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-clean-hxhy}\label{Figure:synth-clean-hxhy}}
+%	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-noisy-hxhy}\label{Figure:synth-noisy-hxhy}}
+%	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-obs-hxhy}\label{Figure:synth-obs-hxhy}}\\
+%	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-drr-hxhy}\label{Figure:synth-drr-hxhy}}
+%	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-rdrr-hxhy}\label{Figure:synth-rdrr-hxhy}}
+%	\caption{Common-midpoint 3D figures comparison ($x$ = 6, $y$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{ten}\wen{10} iterations. (a) Clean data. (b) Noisy data with $0.3$ as noise level. (c) Observed noisy and incomplete data with $70\%$ of missing traces. (d %and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed method, respectively.}
+%	\label{Figure:synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}
+%\end{figure}%fig.1
 %\begin{figure}[htb!]
 %		\centering
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/offset_originalfinal}
-%			\label{offset_originalfinal}}
+%			\label{Figure:offset_originalfinal}}
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/offset_noisyfinal}
-%			\label{offset_noisyfinal}}
+%			\label{Figure:offset_noisyfinal}}
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/offset_observedfinal}
-%			\label{offset_observedfinal}}
+%			\label{Figure:offset_observedfinal}}
 		
 %		\centering
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/offset_drrokfinal}
-%			\label{offset_drrokfinal}}
+%			\label{Figure:offset_drrokfinal}}
 %		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/offset_proposedfinal}
-%			\label{offset_proposedfinal}}
+%			\label{Figure:offset_proposedfinal}}
 %		\caption{Common offset gather 3-D figures comparison ($hx$ = 6, $hy$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{10}\wen{ten} iterations. (a) True data. (b) Noisy data with $ 0.3 $ as noise level. (c) Observed noisy and incomplete data with $ 70\% $ of %missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
-%		\label{offset_originalfinal,offset_noisyfinal,offset_observedfinal,offset_drrokfinal,offset_proposedfinal}
+%		\label{Figure:offset_originalfinal,offset_noisyfinal,offset_observedfinal,offset_drrokfinal,offset_proposedfinal}
 %	\end{figure}%fig.2
-\begin{figure}[htb!]
-	\centering
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-clean-xy}\label{synth-clean-xy}}
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-noisy-xy}\label{synth-noisy-xy}}
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-obs-xy}\label{synth-obs-xy}}\\
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-drr-xy}\label{synth-drr-xy}}
-	\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-rdrr-xy}\label{synth-rdrr-xy}}
-	\caption{Common-offset gather 3D figures comparison ($hx$ = 6, $hy$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{ten}\wen{10} iterations. (a) True data. (b) Noisy data with $0.3$ as noise level. (c) Observed noisy and incomplete data with $70\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
-	\label{synth-clean-xy,synth-noisy-xy,synth-obs-xy,synth-drr-xy,synth-rdrr-xy}
-\end{figure}%fig.2
-}
-%\dlo{To make a good comparison based on visual examination, we plot the 2-D figures of each synthetic 5-D data aforementioned. The results in one common midpoint gather and one common offset gather are displayed in Figures \ref{3} and \ref{5}, respectively. Figures \ref{3}\dlo{(a)}\wen{a} and \ref{5}\dlo{(a)}\wen{a} denote the original data. Figures \ref{3}\dlo{(b)}\wen{b} and \ref{5}\dlo{(b)}\wen{b} show the noisy data. Figures \ref{3}\dlo{(c)}\wen{c} and \ref{5}\dlo{(c)}\wen{c} show the decimated data. Figures \ref{3}\dlo{(d)}\wen{d} and \ref{5}\dlo{(d)}\wen{d} display the simultaneously denoised and reconstructed data using the DRR algorithm. From this comparison, it is clear that the results obtained by our algorithm displayed in Figures \ref{3}\dlo{(e)}\wen{e} and \ref{5}\dlo{(e)}\wen{e} are still preferable than those of the DRR method.}
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2Dcmpclean7003}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DcmpNoisy7003}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DcmpObserved7003}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DcmpDRR7003}
-%			\label{Fiigure:d}}
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DcmpProposed7003}
-%			\label{Fiigure:e}}
-%		\caption{Common midpoint 2-D figures comparison ($Nx_1$ = 6, $Nx_2$ = 6) after 10 iterations between both algorithms. (a) Clean data. (b) Noisy data with 0.3 as noise level. (c) Observed noisy and incomplete data with 70\% of missing traces. (d-e) Simultaneously denoised and reconstructed  data using the DRR method and the proposed approach, respectively.}
-%		\label{3}
-%	\end{figure}
-%}
-To see the difference more clearly, we display the rms error results obtained by subtracting the recovered data from the original data in \wen{Figure \ref{synth-drr-hxhy-e,synth-rdrr-hxhy-e,synth-drr-xy-e,synth-rdrr-xy-e}. Figures \ref{synth-drr-hxhy-e}\dlo{(a)} and \ref{synth-drr-xy-e}\dlo{(c)} correspond to the DRR approach with rms error values of $2.22\%$ and $2.64\%$ respectively in one common-midpoint and common-offset gather. Figure \ref{synth-rdrr-hxhy-e}\dlo{(b)} and \ref{synth-rdrr-xy}\dlo{(d)} is from the proposed algorithm with rms error values of $1.53\% $ and $1.48\% $ respectively in one common-midpoint and common-offset gathers.} From this comparison, it is \dlo{further} apparent that our approach performs better with fewer denoising and reconstruction errors and thus can provide a better simultaneously denoised and reconstructed improvement than the DRR algorithm. This comparison confirms the superiority of our approach in terms of accuracy. 
-\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.34\textwidth]{Figures/cmp_drrokerrfinal}
-%			\label{cmp_drrokerrfinal}}
-%		\subfloat[]{\includegraphics[width=0.34\textwidth]{Figures/cmp_proposederrfinal}
-%			\label{cmp_proposederrfinal}}\\
-%		\subfloat[]{\includegraphics[width=0.34\textwidth]{Figures/diff_offset_drrokfinal}
-%			\label{diff_offset_drrokfinal}}
-%		\subfloat[]{\includegraphics[width=0.34\textwidth]{Figures/diff_offset_proposedfinal}
-%			\label{diff_offset_proposedfinal}}
-%		\caption{Simultaneous denoising and reconstruction error \wen{3-D figures} comparison between \dlo{both}\wen{two} algorithms after \dlo{10}\wen{ten} iterations. (a and c) show the DRR approach with RMSE values of $ 2.22\% $ and $ 2.64\% $ in one common midpoint and one common offset gathers, respectively. (b and d) correspond to the proposed approach with RMSE values of $ 1.53\% $ and $ 1.48\% $ in one common midpoint and one common offset gathers, respectively.}
-%		\label{cmp_drrokerrfinal,cmp_proposederrfinal,diff_offset_drrokfinal,diff_offset_proposedfinal}
-%	\end{figure}%fig.3
-\begin{figure}[htb!]
-		\centering
-	        \subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-drr-hxhy-e}\label{synth-drr-hxhy-e}}
-	        \subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-rdrr-hxhy-e}\label{synth-rdrr-hxhy-e}}\\
-	        \subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-drr-xy-e}\label{synth-drr-xy-e}}
-	        \subfloat[]{\includegraphics[width=0.35\textwidth]{synth_Linear_NV03_MT70/Fig/synth-rdrr-xy-e}\label{synth-rdrr-xy-e}}
-		\caption{Simultaneous denoising and reconstruction error \wen{3D figures} comparison between \dlo{both}\wen{two} algorithms after \dlo{10}\wen{ten} iterations. (a and c) show the DRR approach with rms error values of $2.22\%$ and $2.64\%$ in one common-midpoint and one common-offset gather, respectively. (b and d) correspond to the proposed approach with rms error values of $1.53\%$ and $1.48\%$ in one common-midpoint and one common-offset gather, respectively.}
-		\label{synth-drr-hxhy-e,synth-rdrr-hxhy-e,synth-drr-xy-e,synth-rdrr-xy-e}
-	\end{figure}%fig.3
-}
-%\begin{figure}[htb!] 
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2Doffsetclean7003}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DoffsetNoisy7003}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DoffsetObserved7003}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DoffsetDRR7003}
-%			\label{Fiigure:d}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DoffsetProposed7003}
-%			\label{Fiigure:e}}	
-%		\caption{Common offset 2-D figures comparison ($x_1$ = 6, $x_2$ = 6) after 10 iterations between both algorithms. (a) Clean data. (b) Noisy data with 0.3 as noise variance. (c) Observed noisy and incomplete data with 70\% of missing traces. (d-e) Simultaneously denoised and reconstructed data using both methods, respectively.}
-%		\label{5}
-%	\end{figure}
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DRMSEoffsetDRR7003}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/2DRMSEoffsetProposed7003}
-%			\label{b}}
-%		\caption{Simultaneous reconstruction and denoising errors comparison in common offset ($x_1$ = 6, $x_2$ = 6) after 10 iterations between both algorithms. (a) shows the DRR approach with an RMSE of 2.64\%. (b) shows the proposed approach with an RMSE of 1.48\%.}
-%		\label{6}
-%	\end{figure}
-%}
 
-\wen{Moreover,} we conduct a comparison between the amplitude of each corresponding \dlo{5-D}data \wen{plotted in Figure \ref{synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}} to highlight more distinctly the differences. Figure \dlo{\ref{7}}\wen{\ref{synth-ss}} displays a comparison between each amplitude. The green, yellow and black lines are, respectively, from the original, noisy, and observed data. The amplitude of the observed data cannot be detected in this figure due to the influence \dlo{of the percentage}of missing traces. The blue and red lines correspond to the DRR approach and proposed approach, respectively. Clearly shown in Figure \dlo{\ref{7}}\wen{\ref{synth-ss}}, the blue and red lines are very regular in most areas. However, we find that the green and red lines are \dlo{too much close} \wen{much closer} to each other. This comparison further demonstrates the high accuracy of the proposed algorithm.
+\inputdir{synth_Linear_NV03_MT70}
+\multiplot{5}{synth-clean-xy,synth-noisy-xy,synth-obs-xy,synth-drr-xy,synth-rdrr-xy}{width=0.3\textwidth}{Common-offset gather 3D figures comparison ($hx$ = 6, $hy$ = 6) between \dlo{both}\wen{two} algorithms after \dlo{ten}\wen{10} iterations. (a) True data. (b) Noisy data with $0.3$ as noise level. (c) Observed noisy and incomplete data with $70\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
 
-%\AtEndDocument{
-%	\old{\begin{figure}
-%			\centering
-%			\includegraphics[width=1\%textwidth]{Figures/Amplit%ude_with_Time}
-%			\caption{Comparison of the amplitude of each corresponding 5-D synthetic data after 10 iterations between both algorithms. The green line is from the clean data. The yellow line denotes the noisy data. The amplitude of the observed data, in this case, is zero and thus cannot be seen from the figure. The blue line corresponds to the damped rank-reduction method. The red line corresponds to the proposed method. The proposed method can provide a good amplitude very close to the clean data than the DRR method.}
-%			\label{7}
-%	\end{figure}
-%}
-%}
-%\section{acknowledgments}
-%
-%The authors would like to thank Hang Wang for constructive
-%comments and suggestions, which have helped to improve this manuscript. The authors also thank Min Bai, Dong Zhang, Mi Zhang, Weilin Huang, and Yatong Zhou for fruitful discussions on the rank-reduction method.
-\AtEndDocument{
-	\wen{\begin{figure}
-			\centering
-                        {\includegraphics[width=0.9\textwidth]{synth_Linear_NV03_MT70/Fig/synth-ss}}
-			\caption{Comparison of a single trace amplitude of each \dlo{5-D synthetic} data \wen{shown in Figure \ref{synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}}. The green line is from the clean data. The yellow line denotes the noisy data. The amplitude of the observed data denoted by the black line is zero and thus cannot be seen from the figure. The blue line corresponds to the DRR method. The red line corresponds to the proposed method. The proposed method can provide a good amplitude very close to the clean compared to the DRR method.}
-			\label{synth-ss}
-	\end{figure}}
-}%fig.4
-\dlo{We further compare the performance of the DRR method and our approach from another aspect using the amplitude \dlo{and frequency-space (f-x)} spectra. According to the amplitude spectrum comparison displayed in Figure \dlo{\ref{8}}\wen{\ref{5}}, we deduce that both approaches can recover the signal. However, there is a remarkable difference in the amplitude in favor of our algorithm. It can be explained by the fact that DRR approach suppresses the residual noise at the entire frequency band to a relatively weak degree whereas our approach removes the residual noise sufficiently. That is why the amplitude spectrum of the proposed approach shown in Figure \dlo{\ref{8}(e)} \ref{5}(e) is perfect and very similar to that of the true data shown in Figure \dlo{\ref{8}(a)} \wen{\ref{5}(a)}. This analysis demonstrates one more time the better performance of the proposed algorithm compared to the DRR method. \wen{Therefore, we deduce that the proposed method can obtain successful results even though the observed noisy and incomplete data have very low amplitudes as shown in Figures \ref{5}(c)} \dlo{\ref{8}(c)}.}
 
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/AmplitudeSpectrumClean}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/AmplitudeSpectrumNoisy}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/AmplitudeSpectrumObserved}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/AmplitudeSpectrumdrr}
-%			\label{Fiigure:d}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/AmplitudeSpectrumPropoposed}
-%			\label{Fiigure:e}}
-%		\caption{Amplitude spectra comparison of each \old{5-D data after 10 iterations between both algorithms} data \new{displayed in Figure \ref{2}}. (a) is from the clean data. (b) represents the noisy data. (c) shows the observed data. (d) is from the DRR approach. (e) is from the proposed method. The amplitude spectrum of the true data and that of the proposed method are very close to each other.}
-%		\label{5}
-%	\end{figure}
-%}
-%\dlo{According to the f-x spectra of each corresponding 5-D data, we specify that Figures \ref{6} and \ref{7} denote the f-x spectra in one common midpoint and offset gathers, respectively. From these figures, we find that the f-x spectra of our method displayed in Figures \ref{6}(e) and \ref{7}(e) are much smoother and clearer than those of the DRR algorithm shown in Figures \ref{6}(d) and \ref{7}(d). The f-x spectra comparison corroborates the better restoration performance of our approach in the frequency domain. Therefore, we deduce that the proposed method can obtain successful results even though the observed noisy and incomplete data have very low frequencies as shown in Figures \ref{5}(c), \ref{6}(c) and \ref{7}(c).}
+To see the difference more clearly, we display the rms error results obtained by subtracting the recovered data from the original data in \wen{Figure \ref{fig:synth-drr-hxhy-e,synth-rdrr-hxhy-e,synth-drr-xy-e,synth-rdrr-xy-e}. Figures \ref{fig:synth-drr-hxhy-e}\dlo{(a)} and \ref{fig:synth-drr-xy-e}\dlo{(c)} correspond to the DRR approach with rms error values of $2.22\%$ and $2.64\%$ respectively in one common-midpoint and common-offset gather. Figure \ref{fig:synth-rdrr-hxhy-e}\dlo{(b)} and \ref{fig:synth-rdrr-xy}\dlo{(d)} is from the proposed algorithm with rms error values of $1.53\% $ and $1.48\% $ respectively in one common-midpoint and common-offset gathers.} From this comparison, it is \dlo{further} apparent that our approach performs better with fewer denoising and reconstruction errors and thus can provide a better simultaneously denoised and reconstructed improvement than the DRR algorithm. This comparison confirms the superiority of our approach in terms of accuracy. 
 
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencycmpclean}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencycmpnoisy}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencycmpobserved}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencycmpdrr}
-%			\label{Fiigure:d}}
-%%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencycmpproposed}
-%			\label{Fiigure:e}}
-%		\caption{Common midpoint f-x spectrum comparison of each 5-D synthetic data ($Nx_1$ = 6, $Nx_2$ = 6) after 10 iterations between both algorithms. (a-c) show the f-x spectra of clean, noisy, observed data, respectively. (d and e) show f-x spectra after using the DRR approach and the proposed approach, respectively.}
-%		\label{9}
-%	\end{figure}
-%	\begin{figure}[htb!]
+\inputdir{synth_Linear_NV03_MT70}
+\multiplot{4}{synth-drr-hxhy-e,synth-rdrr-hxhy-e,synth-drr-xy-e,synth-rdrr-xy-e}{width=0.35\textwidth}{Simultaneous denoising and reconstruction error \wen{3D figures} comparison between \dlo{both}\wen{two} algorithms after \dlo{wen}\wen{10} iterations. (a and c) show the DRR approach with rms error values of $2.22\%$ and $2.64\%$ in one common-midpoint and one common-offset gather, respectively. (b and d) correspond to the proposed approach with rms error values of $1.53\%$ and $1.48\%$ in one common-midpoint and one common-offset gather, respectively.}
 
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencyOffsetclean}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencyOffsetnoisy}
-%			\label{b}}
-%%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencyOffsetobserved}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencyOffsetdrr}
-%			\label{Fiigure:d}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/frequencyOffsetproposed}
-%			\label{Fiigure:e}}
-%		\caption{Common offset f-x spectrum comparison of each 5-D synthetic data ($x_1$ = 6, $x_2$ = 6) after 10 iterations between both algorithms. (a-c) display the f-x spectra of clean, noisy, observed data, respectively. (d and e) display the f-x spectra after using the DRR approach and the proposed approach, respectively.}
-%		\label{10}
-%	\end{figure}
-%}
-Moreover, we conduct several numerical tests to compare the performances of both algorithms. The key idea of these experiments is to provide a practical guideline by quantifying the performance of both methods. They are implemented in terms of iterations number, \dlo{the} percentage of missing data, and \dlo{the}noise levels. Using the same observed noisy and incomplete 5D synthetic data corrupted by a noise level of $0.3$ and $70\%$ of missing traces, we \dlo{first} highlight the behavior of each method in terms of S/N \dlo{and RMSE}to the iteration numbers. \dlo{Figures \ref{11}(a) and \ref{11}(b) show the S/N and rms error diagrams respectively, for}\wen{Figure \ref{SNR_with_iterations} shows} the S/N \wen{values} for the iteration numbers \dlo{ranged}\wen{ranging} from $5$ to $30$. The blue and red lines indicate the S/N diagrams of the DRR method and the proposed approach, respectively. As shown on the figure\dlo{these figures}, it is visible that the proposed method surpasses the DRR method in terms of S/N\dlo{and RMSE}. \dlo{In both cases,}\wen{From this comparison, we find that} when the iteration number becomes large (approximately $25$), the S/N \wen{values} tends to decrease slightly.\dlo{Thus, the RMSE increases slowly.} We can therefore deduce from this analysis that both approaches behave the same way even though the proposed method is still better than the DRR method. From this comparison, which greatly highlights the accuracy of both methods concerning the iteration numbers, we can intuitively know the performance of each framework in terms of S/N \dlo{and RMSE}as the iteration number increase\wen{s}. 
+\wen{Moreover,} we conduct a comparison between the amplitude of each corresponding \dlo{5-D}data \wen{plotted in Figure \ref{fig:synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}} to highlight more distinctly the differences. Figure \dlo{\ref{fig:7}}\wen{\ref{fig:synth-ss}} displays a comparison between each amplitude. The green, yellow and black lines are, respectively, from the original, noisy, and observed data. The amplitude of the observed data cannot be detected in this figure due to the influence \dlo{of the percentage}of missing traces. The blue and red lines correspond to the DRR approach and proposed approach, respectively. Clearly shown in Figure \dlo{\ref{fig:7}}\wen{\ref{fig:synth-ss}}, the blue and red lines are very regular in most areas. However, we find that the green and red lines are \dlo{too much close} \wen{much closer} to each other. This comparison further demonstrates the high accuracy of the proposed algorithm.
+
+\inputdir{synth_Linear_NV03_MT70}
+\plot{synth-ss}{width=0.8\columnwidth}{Comparison of a single trace amplitude of each \dlo{5-D synthetic} data \wen{shown in Figure \ref{fig:synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-rdrr-hxhy}}. The green line is from the clean data. The yellow line denotes the noisy data. The amplitude of the observed data denoted by the black line is zero and thus cannot be seen from the figure. The blue line corresponds to the DRR method. The red line corresponds to the proposed method. The proposed method can provide a good amplitude very close to the clean compared to the DRR method.}
+
+\dlo{We further compare the performance of the DRR method and our approach from another aspect using the amplitude \dlo{and frequency-space (f-x)} spectra. According to the amplitude spectrum comparison displayed in Figure \dlo{\ref{fig:8}}\wen{\ref{fig:5}}, we deduce that both approaches can recover the signal. However, there is a remarkable difference in the amplitude in favor of our algorithm. It can be explained by the fact that DRR approach suppresses the residual noise at the entire frequency band to a relatively weak degree whereas our approach removes the residual noise sufficiently. That is why the amplitude spectrum of the proposed approach shown in Figure \dlo{\ref{Figure:8}(e)} \ref{Figure:5}(e) is perfect and very similar to that of the true data shown in Figure \dlo{\ref{Figure:8}(a)} \wen{\ref{Figure:5}(a)}. This analysis demonstrates one more time the better performance of the proposed algorithm compared to the DRR method. \wen{Therefore, we deduce that the proposed method can obtain successful results even though the observed noisy and incomplete data have very low amplitudes as shown in Figures \ref{Figure:5}(c)} \dlo{\ref{Figure:8}(c)}.}
+
+Moreover, we conduct several numerical tests to compare the performances of both algorithms. The key idea of these experiments is to provide a practical guideline by quantifying the performance of both methods. They are implemented in terms of iterations number, \dlo{the} percentage of missing data, and \dlo{the}noise levels. Using the same observed noisy and incomplete 5D synthetic data corrupted by a noise level of $0.3$ and $70\%$ of missing traces, we \dlo{first} highlight the behavior of each method in terms of S/N \dlo{and RMSE}to the iteration numbers. \dlo{Figures \ref{Figure:11}(a) and \ref{fig:11}(b) show the S/N and rms error diagrams respectively, for}\wen{Figure \ref{fig:SNR_with_iterations} shows} the S/N \wen{values} for the iteration numbers \dlo{ranged}\wen{ranging} from $5$ to $30$. The blue and red lines indicate the S/N diagrams of the DRR method and the proposed approach, respectively. As shown on the figure\dlo{these figures}, it is visible that the proposed method surpasses the DRR method in terms of S/N\dlo{and RMSE}. \dlo{In both cases,}\wen{From this comparison, we find that} when the iteration number becomes large (approximately $25$), the S/N \wen{values} tends to decrease slightly.\dlo{Thus, the RMSE increases slowly.} We can therefore deduce from this analysis that both approaches behave the same way even though the proposed method is still better than the DRR method. From this comparison, which greatly highlights the accuracy of both methods concerning the iteration numbers, we can intuitively know the performance of each framework in terms of S/N \dlo{and RMSE}as the iteration number increase\wen{s}. 
 \wen{From this figure, the best result from the proposed approach is at 15 iterations, whereas the best result from DRR is at 20 iterations. We find that the proposed method could save \old{$\frac{1}{4}$}\wen{25\%} of the computation\dlo{s} time, and \dlo{ten}\wen{10} \dlo{weight}\wen{weighted} POCS-like iterations can be used for the proposed method. Therefore, all examples in this paper are conducted with \dlo{ten}\wen{10} iterations.}
 
-\AtEndDocument{
-	\begin{figure}[htb!]
-		\centering
-		\includegraphics[width=0.5\textwidth]{Fig/SNR_with_iterations}
-		\caption{Comparison of S/N diagrams regarding the iteration numbers. The blue and red lines correspond to the DRR and the proposed approaches, respectively. The performance of the proposed method is better than that of the DRR method as the iteration number increases. We decimated $70\%$ of traces and added a noise level of $0.3$ for this test.}
-		\label{SNR_with_iterations}
-	\end{figure}
-}%fig.5
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\includegraphics[width=0.5\textwidth]{Figures/SNRwithiterations}
-%	\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEwithiterations}
-%			\label{b}}
-%		\caption{Comparison of SNR diagrams with respect to the iteration number. The blue and red lines correspond to the DRR method and the proposed approach, respectively. The accuracy of the proposed method is better than the DRR method as the iteration number increases. We decimated $70\%$ of traces and added a noise level of $ 0.3 $.}
-%		\label{11}
-%	\end{figure}
-%}
-Then, we use $0.3$ as noise variance and we realize nine experiments with different decimated 5D synthetic data ranging from $10\% $ to $90\% $. Figure \dlo{\ref{12}(a)}\wen{\ref{SNR_with_MissingTraces}\dlo{(a)}} \dlo{and (b) show respectively the SNR and RMSE}\wen{shows the S/N} diagrams with respect to the percentage of decimated data. At last, we randomly decimate $90\%$ of the 5D synthetic data and we conduct six tests using different noise levels 0.05, 0.2, 0.4, 0.6, 0.8 and 1. 
-Figure \dlo{\ref{13}(a)}\wen{\ref{SNR_with_noise_levels}\dlo{(b)} denotes}\dlo{present respectively,} the S/N \dlo{and RMSE}diagrams regarding noise levels. In both cases, the blue and red lines denote the diagrams of the restored data using the DRR approach and our method, respectively. As can be observed from the figures, our method performs better than the DRR method. When the percentage of decimated data becomes large, the distance between the DRR method and the RDRR method also becomes \dlo{imposing}\wen{more apparent}. Manifestly, when the noise variances increase, the \dlo{distance}\wen{difference} between both methods also decreases. However, the \dlo{distance}\wen{difference} between both diagrams is \dlo{still imposing}\wen{always evident.} From the diagrams presented, we deduce that our algorithm provides better results than the DRR method in terms of S/N\dlo{and RMSE}. Thus, the proposed RDRR method can be used to denoise 5D seismic data while reconstructing the missing values even in the conditions of a high degree of missing traces and strong random noise.
+\inputdir{./}
+\plot{SNR_with_iterations}{width=0.5\columnwidth}{Comparison of S/N diagrams regarding the iteration numbers. The blue and red lines correspond to the DRR and the proposed approaches, respectively. The performance of the proposed method is better than that of the DRR method as the iteration number increases. We decimated $70\%$ of traces and added a noise level of $0.3$ for this test.}
 
-\AtEndDocument{
-	\begin{figure}[htb!]
-		\centering
-		\subfloat[]{\includegraphics[width=0.5\textwidth]{Fig/SNR_with_MissingTraces}
-			\label{SNR_with_MissingTraces}}
-		\subfloat[]{\includegraphics[width=0.5\textwidth]{Fig/SNR_with_noise_levels}
-			\label{SNR_with_noise_levels}}
-		\caption{Comparison of S/N\dlo{(a) and RMSE (b)} diagrams after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms. (a) S/N diagrams for the percentage of missing data. (b) S/N diagrams concerning the noise levels. In both cases, the blue and red lines correspond to the DRR and the proposed approaches, respectively. The red line still presents \dlo{the least RMSE} higher \wen{S/N values}. We used a noise variance of $0.3$, and then we decimated the traces from $10$ to $90\%$ for this demonstration.}
-		\label{SNR_with_MissingTraces,SNR_with_noise_levels}
-	\end{figure}
-}%fig.6
+Then, we use $0.3$ as noise variance and we realize nine experiments with different decimated 5D synthetic data ranging from $10\% $ to $90\% $. Figure \dlo{\ref{Figure:12}(a)}\wen{\ref{fig:SNR_with_MissingTraces}\dlo{(a)}} \dlo{and (b) show respectively the SNR and RMSE}\wen{shows the S/N} diagrams with respect to the percentage of decimated data. At last, we randomly decimate $90\%$ of the 5D synthetic data and we conduct six tests using different noise levels 0.05, 0.2, 0.4, 0.6, 0.8 and 1. 
+Figure \dlo{\ref{Figure:13}(a)}\wen{\ref{fig:SNR_with_noise_levels}\dlo{(b)} denotes}\dlo{present respectively,} the S/N \dlo{and RMSE}diagrams regarding noise levels. In both cases, the blue and red lines denote the diagrams of the restored data using the DRR approach and our method, respectively. As can be observed from the figures, our method performs better than the DRR method. When the percentage of decimated data becomes large, the distance between the DRR method and the RDRR method also becomes \dlo{imposing}\wen{more apparent}. Manifestly, when the noise variances increase, the \dlo{distance}\wen{difference} between both methods also decreases. However, the \dlo{distance}\wen{difference} between both diagrams is \dlo{still imposing}\wen{always evident.} From the diagrams presented, we deduce that our algorithm provides better results than the DRR method in terms of S/N\dlo{and RMSE}. Thus, the proposed RDRR method can be used to denoise 5D seismic data while reconstructing the missing values even in the conditions of a high degree of missing traces and strong random noise.
 
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[%width=0.5\textwidth]{Figures/%SNRwithMissingTraces}
-%			\label{a}}
-%%		\subfloat[]{\includegraphics[%width=0.5\textwidth]{Figures/%SNRwithnoiselevels}
-%			\label{b}}
-%	\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEwithmissingTraces}
-%			\label{b}}
-%		\caption{Comparison of SNR \old{(a) and RMSE (b)} diagrams for the percentage of missing data (a) and noise levels (b)  after 10 iterations between both algorithms. The blue and red line corresponds to the DRR method and the proposed approach, respectively. The red line still presents \old{the least RMSE} higher \new{SNRs values}. We used a noise variance of $ 0.3 $, and then, decimated the %traces from $ 10 $ to $ 90\% %$.}
-%		\label{12}
-%	\end{figure}
-%}
-%\dlo{At last, we randomly decimate $ 90\% $ of the 5-D synthetic data and we conduct six tests using different noise levels 0.05, 0.2, 0.4, 0.6, 0.8 and 1. Figures \ref{13}(a-b) present respectively, the SNR and RMSE diagrams with respect to noise levels. After analysis of the plotted results, it is evident that the SNR diagrams using the proposed method presented in red line is always superior to that of the DRR in blue line. The relative errors values of the proposed approach (red line) are still fewer than that of the DRR approach (blue line). It is well visible that the proposed method yields smaller denoising and reconstruction errors than the DRR method. Manifestly, when the noise variances increase, the distance between both low-rank methods also decreases. However, the distance between both diagrams is still imposing. From the diagrams presented, we deduce that our algorithm provides better results than the DRR method in terms of SNR and RMSE. Thus, the proposed RDRR method can be used to denoise 5-D seismic data while reconstructing the missing values even in the conditions of a high degree of missing traces and strong random noise.}
+\inputdir{./}
+\multiplot{2}{SNR_with_MissingTraces,SNR_with_noise_levels}{width=0.45\textwidth}{Comparison of S/N\dlo{(a) and RMSE (b)} diagrams after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms. (a) S/N diagrams for the percentage of missing data. (b) S/N diagrams concerning the noise levels. In both cases, the blue and red lines correspond to the DRR and the proposed approaches, respectively. The red line still presents \dlo{the least RMSE} higher \wen{S/N values}. We used a noise variance of $0.3$, and then we decimated the traces from $10$ to $90\%$ for this demonstration.}
 
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/SNRwithnoiselevels}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEwithnoiselevels}
-%			\label{b}}
-%		\caption{Comparison of SNR (a) and RMSE (b) diagrams with respect to noise variance after 10 iterations between both algorithms. The proposed method in the red line outperforms the DRR approach denoted in blue line when the noise level increase. Here, we used 90\% as a percentage of missing traces and then we added the noise variance as shown in the figure.}
-%		\label{13}
-%	\end{figure}
-%}
+\wen{To corroborate the numerical tests, we display the results for only a single shot gather of each simultaneously denoised and reconstructed signal. The results are from an observed data contaminated by a noise level of $0.3$ and $80\%$ of missing data. Here, we select the following parameters to examine the performance of both algorithms: rank {$K$ = 6} and a \dlo{damped}\wen{damping} factor {$d$ = 2} for the DRR approach. In addition to these values, we use a cooling factor ${\beta = 3.3}$, a rational transfer function coefficient ${e = 0.95}$ and a window size ${T = 1}$ for the proposed algorithm. We run both methods using \dlo{ten}\wen{$10$} weighted POCS-like iterations. Figure \ref{fig:synth-clean-hxhy-s}\dlo{(a)} displays the true data. Figures \ref{fig:synth-noisy-hxhy-s}\dlo{(b)} and \ref{fig:synth-obs-hxhy-s}\dlo{(c)} denote the noisy data with S/N of $-5.38$ dB and observed noisy and incomplete data with S/N of $-1.74$ dB, respectively. Figures \ref{fig:synth-drr-hxhy-s}\dlo{(d)} and \ref{fig:synth-rdrr-hxhy-s}\dlo{(e)} display the results using the DRR method and the proposed method, respectively. The S/Ns are $10.40$ and $19.18$ dB for the DRR approach and the proposed approach, respectively. Figures \ref{fig:synth-drr-hxhy-s-e}\dlo{(a)} and \ref{fig:synth-rdrr-hxhy-s-e}\dlo{(b)} are the rms error \dlo{results}\wen{figures} of the DRR method and the proposed method, respectively. The useful signal is recovered with an rms error of $4.89\%$ and $1.56\%$ respectively for the DRR approach and our approach.} 
 
-%\dlo{To corroborate the numerical tests, we display the results for only a single shot gather of each simultaneously denoised and reconstructed signal. The data are from an observed data contaminated by a noise level of $ 0.3 $ and $ 80\% $ of missing data. Here, the following parameters are chosen to examine the performance of both algorithms : rank {$K$ = 6} and a damped factor {$d$ = 2} for the DRR approach. In addition to these values, we used a cooling factor ${\beta = 3.3}$, a rational transfer function coefficient ${e = 0.95}$ and a window size ${T = 1}$ for the proposed algorithm. We run both methods using 10 weighted POCS-like iterations. Figure \ref{14}(a) displays the true data. Figures \ref{14}(b) and (c) denote the noisy data with SNR of -5.38 dB and observed noisy and incomplete data with SNR of $ -1.74 $ dB, respectively. Figures \ref{14}(d) and \ref{14}(e) display the results using the DRR method and the proposed method, respectively. The SNRs are 10.40 dB and 19.18 dB for the DRR approach and the proposed approach, respectively. Figures \ref{15}(a) corresponds to the RMSE result of the DRR method and  Figures \ref{15}(b) is from the proposed method. The useful signal is recovered with an RMSE of $4.89\%$ and $1.56\%$ respectively for the DRR approach and our algorithm. We then compare the corresponding frequency-wavenumber spectra of the clean, noisy, observed, simultaneously denoised and reconstructed data form the former algorithm and the proposed approach. They are respectively displayed in Figures \ref{16}(a-e) to see the performance in other domain. Here, our algorithm provides smoother and clear results than the DRR method. Indeed, the frequency-wavenumber spectrum obtained with the proposed approach is even clearer than that of the DRR method.} 
-\wen{To corroborate the numerical tests, we display the results for only a single shot gather of each simultaneously denoised and reconstructed signal. The results are from an observed data contaminated by a noise level of $0.3$ and $80\%$ of missing data. Here, we select the following parameters to examine the performance of both algorithms: rank {$K$ = 6} and a \dlo{damped}\wen{damping} factor {$d$ = 2} for the DRR approach. In addition to these values, we use a cooling factor ${\beta = 3.3}$, a rational transfer function coefficient ${e = 0.95}$ and a window size ${T = 1}$ for the proposed algorithm. We run both methods using \dlo{ten}\wen{$10$} weighted POCS-like iterations. Figure \ref{synth-clean-hxhy-s}\dlo{(a)} displays the true data. Figures \ref{synth-noisy-hxhy-s}\dlo{(b)} and \ref{synth-obs-hxhy-s}\dlo{(c)} denote the noisy data with S/N of $-5.38$ dB and observed noisy and incomplete data with S/N of $-1.74$ dB, respectively. Figures \ref{synth-drr-hxhy-s}\dlo{(d)} and \ref{synth-rdrr-hxhy-s}\dlo{(e)} display the results using the DRR method and the proposed method, respectively. The SNRs are $10.40$ and $19.18$ dB for the DRR approach and the proposed approach, respectively. Figures \ref{synth-drr-hxhy-s-e}\dlo{(a)} and \ref{synth-rdrr-hxhy-s-e}\dlo{(b)} are the rms error \dlo{results}\wen{figures} of the DRR method and the proposed method, respectively. The useful signal is recovered with an rms error of $4.89\%$ and $1.56\%$ respectively for the DRR approach and our approach.} 
 
-\AtEndDocument{
-\begin{figure}[htb!]
-	\centering
-	\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_linear_NV03_MT80/Fig/synth-clean-hxhy-s}\label{synth-clean-hxhy-s}}
-	\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_linear_NV03_MT80/Fig/synth-noisy-hxhy-s}\label{synth-noisy-hxhy-s}}
-	\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_linear_NV03_MT80/Fig/synth-obs-hxhy-s}\label{synth-obs-hxhy-s}}\\
-	\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_linear_NV03_MT80/Fig/synth-drr-hxhy-s}\label{synth-drr-hxhy-s}}
-	\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_linear_NV03_MT80/Fig/synth-rdrr-hxhy-s}\label{synth-rdrr-hxhy-s}}
-	\caption{Simultaneous reconstruction and denoising \wen{2D figures} comparison in only a single shot gather. (a) Clean data. (b) Noisy data with a variance of $0.3$. (c) Observed noisy with $80\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method the proposed approach, respectively.}
-	\label{synth-clean-hxhy-s,synth-noisy-hxhy-s,synth-obs-hxhy-s,synth-drr-hxhy-s,synth-rdrr-hxhy-s}
-\end{figure}%fig.7
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/single_shot_Clean_0380}
-%			\label{single_shot_Clean_0380}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/single_shot_Noisy_0380}
-%			\label{single_shot_Noisy_0380}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/single_shot_Observed_0380}
-%			\label{single_shot_Observed_0380}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/single_shot_DRR_0380}
-%			\label{single_shot_DRR_0380}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/single_shot_Proposed_0380}
-%			\label{single_shot_Proposed_0380}}
-%		\caption{Simultaneous reconstruction and denoising \wen{2-D figures} comparison in only a single shot gather. (a) Clean data. (b) Noisy data with a variance of $0.3$. (c) Observed noisy with $80\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method the proposed approach, respectively.}
-%		\label{single_shot_Clean_0380,single_shot_Noisy_0380,single_shot_Observed_0380,single_shot_DRR_0380,single_shot_Proposed_0380}%fig.7
-%	\end{figure}
-	\begin{figure}[htb!]
-		\centering
-		\subfloat[]{\includegraphics[width=0.5\textwidth]{synth_linear_NV03_MT80/Fig/synth-drr-hxhy-s-e}\label{synth-drr-hxhy-s-e}}
-		\subfloat[]{\includegraphics[width=0.5\textwidth]{synth_linear_NV03_MT80/Fig/synth-rdrr-hxhy-s-e}\label{synth-rdrr-hxhy-s-e}}	
-		\caption{Simultaneous reconstruction and denoising error \wen{2D figures} comparison of only one shot gather extracted from the 5D data matrix. (a) DRR approach with an rms error of $4.89\%$. (b) Proposed approach with an rms error of $1.56\%$.}
-		\label{synth-drr-hxhy-s-e,synth-rdrr-hxhy-s-e}
-	\end{figure}
-}%fig.8
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/WaveNumberclean}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/WaveNumbernoisy}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/WaveNumberObserved}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/WaveNumberdrr}
-%			\label{Fiigure:d}}
-%		\subfloat[]{\includegraphics[width=0.3\tex%twidth]{Figures/WaveNumberproposed}
-%			\label{Fiigure:e}}
-%		\caption{Frequency-wavenumber spectra comparison of a group of only one shot gathers (15) extracted from the 5-D data matrix. (a-c) correspond to the clean data, noisy data with a variance of 0.3 and observed data with $ 80\% $ of missing data, respectively. (c and d) denote the DRR approach and the proposed framework, respectively.}
-%		\label{12}
-%	\end{figure}
-%}
-Figure \dlo{\ref{17} and \ref{19}}\wen{\ref{synth-drr-hxhy-s0290,synth-rdrr-hxhy-s0290,synth-drr-xy-s0290,synth-rdrr-xy-s0290}} illustrates the numerical analysis\dlo{, respectively} in one common midpoint \dlo{($Nx_1$ = 6, $Nx_2$ = 6)}\wen{($x$ = 6, $y$ = 6)} and offset \dlo{($x_1$ = 6, $x_2$ = 6)}\wen{($hx$ = 6, $hy$ = 6)} gathers of each simultaneously denoised and reconstructed signal from \dlo{the}\wen{an} observed data corrupted by a noise variance of $0.2$ and $90\%$ of missing data. \wen{The S/N of this observed data $-0.23$ dB.} In these conditions, we use a rank {$K$ = 6} and a \dlo{damped}\wen{damping} factor {$d$ = 2} for the DRR approach. \dlo{In addition to}\wen{Based on} these parameters, we use a cooling factor ${\beta = 2.5}$, a rational transfer function coefficient ${e = 0.891}$ and a window size ${T= 1}$ for the proposed approach. We run both methods using \dlo{ten}\wen{$10$} weighted POCS-like iterations. Figures \ref{synth-drr-hxhy-s0290}\dlo{(a)} and \ref{synth-drr-hxhy-s0290}\dlo{(c)} display the results of the simultaneous denoising and reconstruction data via the DRR method. The S/N is approximately $5.20$ dB. Figures \wen{\ref{synth-rdrr-hxhy-s0290}\dlo{(b)} and \ref{synth-rdrr-hxhy-s0290}\dlo{(d)}} display the results using the proposed method. The S/N is about $17.84$ dB. \wen{The recovery error using each approach is displayed in Figure \ref{synth-drr-hxhy-s-e0290,synth-rdrr-hxhy-s-e0290,synth-drr-xy-s-e0290,synth-rdrr-xy-s-e0290}. Figures \ref{synth-drr-hxhy-s-e0290}\dlo{(a)} and \ref{synth-drr-xy-s-e0290}\dlo{(c)} show the DRR approach with \wen{an} an rms error of $8.37\%$ and $8.82\%$ in one common-midpoint and one common-offset gather, respectively. Figures \ref{synth-drr-hxhy-s-e0290}\dlo{(b)} and \ref{synth-rdrr-xy-s-e0290}\dlo{(d)} are from the proposed approach with \wen{an} rms error of $2.63\%$ and $2.34\%$ in one common-midpoint and one common-offset gather, respectively. This comparison shows the superiority of the proposed algorithm when the observed data is severely decimated.}
-%\dlo{Figures \ref{17}(a) and \ref{19}(a) denote the original data. Figures \ref{17}(b) and \ref{19}(b) are from the noisy data. The SNR of the noisy data is of {$-1.86$ dB}. Figures \ref{17}(c) and \ref{19}(c) show the observed noisy data with $ 90 \% $ missing. The SNR is extremely low with a value of $ -0.23 $ dB. Figures \ref{17}(d) and \ref{19}(d) display the results of the simultaneous denoising and reconstruction data from the DRR method. The SNR is about $ 5.20 $ dB. Figures \ref{17}(e) and \ref{19}(e) display the results from the proposed method. The SNR is about $ 17.84 $ dB. The proposed approach results are much better than those of the DRR method. Figures \ref{18} and \ref{20} show the RMSE from each method in one common midpoint gather and one common offset gather, respectively. Figures \ref{18}(a) and \ref{20}(a) are from the DRR method with RMSE values of $ 8.37 \% $ and $ 8.82 \% $, respectively. Figures \ref{18}(b) and \ref{20}(b) correspond to the proposed method with  RMSE values of $ 2.63 \%$ and $ 2.34 \%$, respectively. This comparison shows the superiority of the proposed algorithm when the observed data is severely decimated.} 
+\inputdir{synth_linear_NV03_MT80}
+\multiplot{5}{synth-clean-hxhy-s,synth-noisy-hxhy-s,synth-obs-hxhy-s,synth-drr-hxhy-s,synth-rdrr-hxhy-s}{width=0.30\textwidth}{Simultaneous reconstruction and denoising \wen{2D figures} comparison in only a single shot gather. (a) Clean data. (b) Noisy data with a variance of $0.3$. (c) Observed noisy with $80\%$ of missing traces. (d and e) Simultaneously denoised and reconstructed data using the DRR method the proposed approach, respectively.}
 
-\AtEndDocument{
-	\begin{figure}[htb!]
-		\centering
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-drr-hxhy-s0290} 
-			\label{synth-drr-hxhy-s0290}}
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-rdrr-hxhy-s0290}
-			\label{synth-rdrr-hxhy-s0290}}\\
-		\centering
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-drr-xy-s0290}
-			\label{synth-drr-xy-s0290}}
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-rdrr-xy-s0290}
-			\label{synth-rdrr-xy-s0290}}
-		\caption{Simultaneous denoising and reconstruction \wen{2D figures} comparison between \dlo{both}\wen{two} approaches after \dlo{ten}\wen{10} iterations. (a and c) display the DRR approach in one common-midpoint and one common-offset gather, respectively. (b and d) display the proposed approach in one common-midpoint and one common-offset gather, respectively. We used an observed data corrupted by a noise variance of $0.2$ and $90\%$ of missing data for this example.}
-		\label{synth-drr-hxhy-s0290,synth-rdrr-hxhy-s0290,synth-drr-xy-s0290,synth-rdrr-xy-s0290}
-	\end{figure}
-}%fig.9
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEcmpDRR9002}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEcmpProposed9002}
-%			\label{b}}
-%		\caption{Simultaneous denoising and reconstruction errors comparison of common midpoint 2-D figure ($Nx_1$ = 6, $Nx_2$ = 6) after 10 iterations between both algorithms. (a) shows the DRR approach with an RMSE of $ 8.37\% $. (b) shows the proposed approach with an RMSE of $ 2.63\% $.}
-%		\label{14}
-%	\end{figure}
+\inputdir{synth_linear_NV03_MT80}
+\multiplot{2}{synth-drr-hxhy-s-e,synth-rdrr-hxhy-s-e}{width=0.35\textwidth}{Simultaneous reconstruction and denoising error \wen{2D figures} comparison of only one shot gather extracted from the 5D data matrix. (a) DRR approach with an rms error of $4.89\%$. (b) Proposed approach with an rms error of $1.56\%$.}
 
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEoffsetDRR9002}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSEoffsetProposed9002}
-%			\label{b}}
+Figure \dlo{\ref{fig:17} and \ref{fig:19}}\wen{\ref{fig:synth-drr-hxhy-s0290,synth-rdrr-hxhy-s0290,synth-drr-xy-s0290,synth-rdrr-xy-s0290}} illustrates the numerical analysis\dlo{, respectively} in one common midpoint \dlo{($Nx_1$ = 6, $Nx_2$ = 6)}\wen{($x$ = 6, $y$ = 6)} and offset \dlo{($x_1$ = 6, $x_2$ = 6)}\wen{($hx$ = 6, $hy$ = 6)} gathers of each simultaneously denoised and reconstructed signal from \dlo{the}\wen{an} observed data corrupted by a noise variance of $0.2$ and $90\%$ of missing data. \wen{The S/N of this observed data $-0.23$ dB.} In these conditions, we use a rank {$K$ = 6} and a \dlo{damped}\wen{damping} factor {$d$ = 2} for the DRR approach. \dlo{In addition to}\wen{Based on} these parameters, we use a cooling factor ${\beta = 2.5}$, a rational transfer function coefficient ${e = 0.891}$ and a window size ${T= 1}$ for the proposed approach. We run both methods using \dlo{ten}\wen{$10$} weighted POCS-like iterations. Figures \ref{fig:synth-drr-hxhy-s0290}\dlo{(a)} and \ref{fig:synth-drr-hxhy-s0290}\dlo{(c)} display the results of the simultaneous denoising and reconstruction data via the DRR method. The S/N is approximately $5.20$ dB. Figures \wen{\ref{fig:synth-rdrr-hxhy-s0290}\dlo{(b)} and \ref{fig:synth-rdrr-hxhy-s0290}\dlo{(d)}} display the results using the proposed method. The S/N is about $17.84$ dB. \wen{The recovery error using each approach is displayed in Figure \ref{fig:synth-drr-hxhy-s-e0290,synth-rdrr-hxhy-s-e0290,synth-drr-xy-s-e0290,synth-rdrr-xy-s-e0290}. Figures \ref{fig:synth-drr-hxhy-s-e0290}\dlo{(a)} and \ref{fig:synth-drr-xy-s-e0290}\dlo{(c)} show the DRR approach with \wen{an} an rms error of $8.37\%$ and $8.82\%$ in one common-midpoint and one common-offset gather, respectively. Figures \ref{fig:synth-drr-hxhy-s-e0290}\dlo{(b)} and \ref{fig:synth-rdrr-xy-s-e0290}\dlo{(d)} are from the proposed approach with \wen{an} rms error of $2.63\%$ and $2.34\%$ in one common-midpoint and one common-offset gather, respectively. This comparison shows the superiority of the proposed algorithm when the observed data is severely decimated.}
 
-%		\caption{Simultaneous denoising and reconstruction errors comparison in common offset ($x_1$ = 6, $x_2$= 6) after 10 iterations between both algorithms. (a) displays the DRR approach with an RMSE of $ 8.82\% $. (b) shows the proposed approach with an RMSE of $ 2.34\% $.}
-%		\label{16}
-%	\end{figure}
-%}
-\AtEndDocument{
-	\begin{figure}[htb!]
-		\centering
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-drr-hxhy-s-e0290}
-			\label{synth-drr-hxhy-s-e0290}}
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-rdrr-hxhy-s-e0290}
-			\label{synth-rdrr-hxhy-s-e0290}}\\
-		\centering
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-drr-xy-s-e0290}
-			\label{synth-drr-xy-s-e0290}}
-		\subfloat[]{\includegraphics[width=0.35\textwidth]{synth_linear_NV02_MT90/Fig/synth-rdrr-xy-s-e0290}
-			\label{synth-rdrr-xy-s-e0290}}
-		\caption{Simultaneous denoising and reconstruction error \wen{2D figures} comparison between both approaches after \dlo{ten}\wen{10} iterations. (a and c) display the DRR approach with an rms error of $8.37\%$ and $8.82\%$ in one common-midpoint and one common-offset gather, respectively. (b and d) display the proposed approach with an rms error of $2.63\%$ and $2.34\%$ in one common-midpoint and one common-offset gather, respectively.}
-		\label{synth-drr-hxhy-s-e0290,synth-rdrr-hxhy-s-e0290,synth-drr-xy-s-e0290,synth-rdrr-xy-s-e0290}
-	\end{figure}
-}%fig.10
-To further examine the performance of both approaches on a higher level of missing traces ($90\%$), we conduct a comparison using the periodogram power spectral density (PSD) of each corresponding 5D synthetic data mentioned in this last test. After a comparison of the different PSD diagrams shown in Figure \dlo{\ref{21}}\wen{\ref{Periodogrampsdcomparison9002}}, we find that the PSD of the restored data from our approach denoted in the red line and that of the true data shown in the green line are much closer to each other than the PSD of the DRR method indicated in \wen{the} the blue line. This comparison vividly \dlo{proves}\wen{demonstrates} that the proposed approach can yield the closest results to the original data\wen{,} even though we are in the conditions of a high level of missing traces.\\
+\inputdir{synth_linear_NV02_MT90}
+\multiplot{4}{synth-drr-hxhy-s0290,synth-rdrr-hxhy-s0290,synth-drr-xy-s0290,synth-rdrr-xy-s0290}{width=0.35\textwidth}{Simultaneous denoising and reconstruction \wen{2D figures} comparison between \dlo{both}\wen{two} approaches after \dlo{ten}\wen{10} iterations. (a and c) display the DRR approach in one common-midpoint and one common-offset gather, respectively. (b and d) display the proposed approach in one common-midpoint and one common-offset gather, respectively. We used an observed data corrupted by a noise variance of $0.2$ and $90\%$ of missing data for this example.}
+
+\inputdir{synth_linear_NV02_MT90}
+\multiplot{4}{synth-drr-hxhy-s-e0290,synth-rdrr-hxhy-s-e0290,synth-drr-xy-s-e0290,synth-rdrr-xy-s-e0290}{width=0.35\textwidth}{Simultaneous denoising and reconstruction error \wen{2D figures} comparison between both approaches after \dlo{ten}\wen{10} iterations. (a and c) display the DRR approach with an rms error of $8.37\%$ and $8.82\%$ in one common-midpoint and one common-offset gather, respectively. (b and d) display the proposed approach with an rms error of $2.63\%$ and $2.34\%$ in one common-midpoint and one common-offset gather, respectively.}
+
+To further examine the performance of both approaches on a higher level of missing traces ($90\%$), we conduct a comparison using the periodogram power spectral density (PSD) of each corresponding 5D synthetic data mentioned in this last test. After a comparison of the different PSD diagrams shown in Figure \dlo{\ref{fig:21}}\wen{\ref{fig:Periodogrampsdcomparison9002}}, we find that the PSD of the restored data from our approach denoted in the red line and that of the true data shown in the green line are much closer to each other than the PSD of the DRR method indicated in \wen{the} the blue line. This comparison vividly \dlo{proves}\wen{demonstrates} that the proposed approach can yield the closest results to the original data\wen{,} even though we are in the conditions of a high level of missing traces.\\
 Qualitative and quantitative analysis of these two illustrations conducted by using different noise variances and percentages of missing data further confirm the performance of the proposed approach in terms of accuracy. Note that, as the percentage of missing data increases, the proposed method becomes more accurate than the former approach.
 
-\AtEndDocument{
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.7\textwidth]{Fig/Periodogrampsdcomparison9002}
-		\caption{Comparison of the periodogram power spectral density (PSD) of each 5D data set after \dlo{ten}\wen{10} iterations between both algorithms. The green line is from the clean data. The yellow line denotes the noisy data. The observed data is represented by the black line. The blue line corresponds to the DRR method. The red line is from the proposed method. The red and green lines are very close to each other in most areas.}
-		\label{Periodogrampsdcomparison9002}
-	\end{figure}
-}%fig.11
-%\dlo{Figure \ref{22} compares the diagrams of percentage of similarity between the original data (green line) and both approaches results. They are first to the iteration number as shown in Figure \ref{22}(a), then ratio of missing data as displayed in Figure \ref{22}(b) and finally noise level as illustrated in Figure \ref{22}(c). Each sub-figure demonstrates that the percentage of similarity between the results obtained via the DRR method (blue line) is much bigger than that of the proposed results (red line). We, therefore, deduce that our approach can reduce the percentage of similarity to a very low level contrary to the DRR method. The diagram of the proposed method is closer to that of the original data as shown by the different sub-figures. The percentage of similarity demonstrates that the proposed approach can produce results closest to the original data.}
+\inputdir{./}
+\plot{Periodogrampsdcomparison9002}{width=0.5\columnwidth}{Comparison of the periodogram power spectral density (PSD) of each 5D data set after \dlo{ten}\wen{10} iterations between both algorithms. The green line is from the clean data. The yellow line denotes the noisy data. The observed data is represented by the black line. The blue line corresponds to the DRR method. The red line is from the proposed method. The red and green lines are very close to each other in most areas.}
 
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Swithiterations}
-%			\label{ a}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/SwithmissingTraces}
-%			\label{ b}}
-%		\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Swithnoiselevels}
-%			\label{Fiigure: c}}
+\wen{We then conduct another example to demonstrate the effectiveness of the proposed method on 5D synthetic data containing curved events. We compare the performances of the proposed approach to that of the DRR approach. We display the one common-midpoint gather comparison in Figure \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}. The clean data is displayed in Figure \ref{fig:hyper-clean2d-0}\dlo{(a)}. Figure \ref{fig:hyper-obs2d-0}\dlo{(b)} denotes the observed data with $80\%$ missing values and $0.2$ as noise variance. The significant events are difficult to see due to the percentage of missing traces and strong noise. By using a rank {$K = 12$} and a \dlo{damped}\wen{damping} factor {$d = 3$}, we denoise and reconstruct the observed data with the DRR approach. Based on these same values of $K$ and $d$, we apply our algorithm by using a ${\beta = 5}$, ${e = 0.954}$ and ${T = 1}$. We run both algorithms with \dlo{ten}\wen{$10$} POCS-like iterations. Figures \ref{fig:hyper-drr2d-0}\dlo{(c)} and \ref{fig:hyper-rdrr2d-0}\dlo{(d)} show the recovered data obtained using the DRR and the proposed approaches, respectively.} \wen{Compared to the DRR approach, our method performs much better results. As \dlo{reveals}\wen{revealed by} the comparison, the DRR result seems \wen{to} contain artifacts due to the presence of significant noise, which affects the quality of the useful signal. To see the difference in detail, we magnify a section of each corresponding data displayed in Figure \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}. The red\dlo{s} frame boxes indicate the magnified section plotted in Figure \ref{fig:hyper-z-clean,hyper-z-obs,hyper-z-drr,hyper-z-rdrr}. The Figures \ref{fig:hyper-z-clean}\dlo{(a)}-\ref{fig:hyper-z-rdrr}\dlo{(d)} correspond to the clean data, observed data, \dlo{recovered data}\wen{and data recovered} using the DRR and the proposed approaches, respectively.} 
 
-%		\caption{Comparison of the percentage of similarity diagrams with respect to (a) iteration number, (b) ratio of decimated data (\%), (c) noise level. In each case, the green, blue and red line denotes the percentage of similarity diagram of the true, DRR, and proposed data, respectively. The green and red lines are closer to each other.}
-%		\label{ 22}
-%	\end{figure}
-%}
-\wen{We then conduct another example to demonstrate the effectiveness of the proposed method on 5D synthetic data containing curved events. We compare the performances of the proposed approach to that of the DRR approach. We display the one common-midpoint gather comparison in Figure \ref{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}. The clean data is displayed in Figure \ref{hyper-clean2d-0}\dlo{(a)}. Figure \ref{hyper-obs2d-0}\dlo{(b)} denotes the observed data with $80\%$ missing values and $0.2$ as noise variance. The significant events are difficult to see due to the percentage of missing traces and strong noise. By using a rank {$K = 12$} and a \dlo{damped}\wen{damping} factor {$d = 3$}, we denoise and reconstruct the observed data with the DRR approach. Based on these same values of $K$ and $d$, we apply our algorithm by using a ${\beta = 5}$, ${e = 0.954}$ and ${T = 1}$. We run both algorithms with \dlo{ten}\wen{$10$} POCS-like iterations. Figures \ref{hyper-drr2d-0}\dlo{(c)} and \ref{hyper-rdrr2d-0}\dlo{(d)} show the recovered data obtained using the DRR and the proposed approaches, respectively.} \wen{Compared to the DRR approach, our method performs much better results. As \dlo{reveals}\wen{revealed by} the comparison, the DRR result seems \wen{to} contain artifacts due to the presence of significant noise, which affects the quality of the useful signal. To see the difference in detail, we magnify a section of each corresponding data displayed in Figure \ref{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}. The red\dlo{s} frame boxes indicate the magnified section plotted in Figure \ref{hyper-z-clean,hyper-z-obs,hyper-z-drr,hyper-z-rdrr}. The Figures \ref{hyper-z-clean}\dlo{(a)}-\ref{hyper-z-rdrr}\dlo{(d)} correspond to the clean data, observed data, \dlo{recovered data}\wen{and data recovered} using the DRR and the proposed approaches, respectively.} 
-\wen{\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-clean2d-0}
-				\label{hyper-clean2d-0}}\\
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-obs2d-0}
-				\label{hyper-obs2d-0}}\\
-			\centering
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-drr2d-0}
-				\label{hyper-drr2d-0}}\\
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-rdrr2d-0}
-				\label{hyper-rdrr2d-0}}		
-			\caption{\dlo{2-D figures c}\wen{C}omparison in one common-midpoint gather after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms. (a) Clean data. (b) Observed noisy with $80\%$ of missing traces and $0.2$ as noise variance. (c and d) Simultaneously denoised and reconstructed data using the DRR method the proposed method, respectively.}
-			\label{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}
-\end{figure}}} %fig.12
+\inputdir{synth_hyper}
+\multiplot{4}{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}{width=1\textwidth}{\dlo{2-D figures c}\wen{C}omparison in one common-midpoint gather after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms. (a) Clean data. (b) Observed noisy with $80\%$ of missing traces and $0.2$ as noise variance. (c and d) Simultaneously denoised and reconstructed data using the DRR method the proposed method, respectively.}
 
-\wen{\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-z-clean}
-				\label{hyper-z-clean}}\\
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-z-obs}
-				\label{hyper-z-obs}}\\
-			\centering
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-z-drr}
-				\label{hyper-z-drr}}\\
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-z-rdrr}
-				\label{hyper-z-rdrr}}	
-			\caption{\dlo{{2-D figures c}}\wen{C}omparison of the magnified data displayed in Figure \ref{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0} (the red frame box). (a) Clean data. (b) Observed noisy with $80 \%$ of missing trace and $0.2$ as noise variance. (c and d) Simultaneously denoised and reconstructed data using the DRR and the proposed approaches, respectively.}
-			\label{hyper-z-clean,hyper-z-obs,hyper-z-drr,hyper-z-rdrr}
-	\end{figure}}
-}%fig.13
-%\new{
-%To see the difference in detail, we display a single shot gather of each data shown in Figure \ref{16}. The clean data is presented in Figure \ref{16}(a). The sub-figures \ref{16}(b)-\ref{16}(d) correspond to the observed data, the DRR data, and our algorithm data.}
 
-%\new{\AtEndDocument{
-%		\begin{figure}[htb!]
-%			\centering
-%			\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/single_shot_Clean_0280_curvedEvents}
-%				\label{a}}
-%			\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/single_shot_Observed_0280_curvedEvents}
-%				\label{Fiigure:c}}\\
-%			\centering
-%			\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/single_shot_DRR_0280_curvedEvents}
-%				\label{Fiigure:d}}
-%			\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/single_shot_Proposed_0280_curvedEvents}
-%				\label{Fiigure:e}}	%		
-%			\caption{Simultaneous denoising and reconstruction \new{2-D figures} comparison of a single shot gather after 10 iterations between both algorithms. (a) Clean data. (b) Observed data with $ 80\% $ of missing trace and $ 0.2 $ as noise variance. (c and d) Simultaneously denoised and reconstructed data using the DRR method the proposed approach, respectively.}
-%			\label{16}
-%		\end{figure}}
-%}
-\wen{
-	\dlo{Figures \ref{17} and \ref{18}}\wen{Figure \ref{hyper-drr2d-e,hyper-rdrr2d-e} corresponds} to the error figure of each restored data displayed in Figure \ref{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}. \dlo{and Figures \ref{16}, respectively}\dlo{Figures \ref{17}(a) and \ref{18}(a) are}\wen{Figure \ref{hyper-drr2d-e}\dlo{(a)} is from the DRR approach}. \dlo{Figures \ref{17}(b) and \ref{18}(b)}\wen{Figure \ref{hyper-rdrr2d-e}\dlo{(b)} denotes the error figure} of the proposed algorithm. From Figures \ref{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}\dlo{to Figure} \wen{to} \ref{hyper-drr2d-e,hyper-rdrr2d-e}, we find that although the DRR algorithm removes noise and reconstructs the missing traces well, our approach still performs better results. From the magnified data comparison, which vividly \dlo{demonstrate}\wen{demonstrates} the superiority of our approach, we find that the restored data obtained using our approach is much similar to the clean data than those of the DRR result. The visual examination of each subfigure shows that the proposed method offers better simultaneously denoised and reconstructed data. From the fewer errors that \dlo{provides}the proposed algorithm \wen{provides}, we deduce that the recovered data has the smallest amount of artifacts. In this example, the S/N values of the observed data, the recovered data using the DRR method, and the proposed method are {$0.58$}, {$10.94$}, and {$18.43$ dB}, respectively. The DRR approach and the proposed approach achieve the simultaneous denoising and reconstruction process with rms error values $9.07\%$ and $3.08\%$, respectively. Based on the numerical analysis, it is evident that the proposed algorithm can produce higher S/N values, consequently\wen{,} lower rms error values, and thus, the recovered data can be much \dlo{similar}\dlo{related}\wen{closer} to the clean data. We deduce that our algorithm can introduce fewer artifacts. The visual examination and the numerical test comparison demonstrate the recovery improvement of our algorithm on curved events.}
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-drr2d-e}
-				\label{hyper-drr2d-e}}\\
-			\subfloat[]{\includegraphics[width=0.9\textwidth]{synth_hyper/Fig/hyper-rdrr2d-e}
-				\label{hyper-rdrr2d-e}}			
-			\caption{Simultaneous denoising and reconstruction error comparison in common-midpoint gather. \dlo{(a) Simultaneously denoised and reconstructed errors using the DRR method with an rms error of $9.07\%$. (a) Simultaneously denoised and reconstructed errors using the proposed method with an rms error of $3.08\%$.}\wen{(a) \dlo{shows the 2-D figures of t}\wen{T}he error using the DRR method with an rms error of $9.07\%$. (b) \dlo{displays the 2D figures of t}\wen{T}he error using the proposed method with an rms error of $3.08\%$.}}
-			\label{hyper-drr2d-e,hyper-rdrr2d-e}
-	\end{figure}}
-}%fig.14
-%\new{
-%	\AtEndDocument{
-%		\begin{figure}[htb!]
-%			\centering
-%			\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSE_single_shot_DRR_0280_curvedEvents}
-%				\label{a}}
-%			\subfloat[]{\includegraphics[width=0.5\textwidth]{Figures/RMSE_single_shot_Proposed_0280_curvedEvents}
-%				\label{b}}
-%			\caption{Simultaneous denoising and reconstruction error \new{2-D figures} comparison in a single shot gather. (a and b) Simultaneously denoised and reconstructed error using the DRR approach the proposed approach, respectively.}
-%			\label{18}
-%		\end{figure}}}
+\inputdir{synth_hyper}
+\multiplot{4}{hyper-z-clean,hyper-z-obs,hyper-z-drr,hyper-z-rdrr}{width=1\textwidth}{\dlo{{2-D figures c}}\wen{C}omparison of the magnified data displayed in Figure \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0} (the red frame box). (a) Clean data. (b) Observed noisy with $80 \%$ of missing trace and $0.2$ as noise variance. (c and d) Simultaneously denoised and reconstructed data using the DRR and the proposed approaches, respectively.}
 
 \wen{
-	To demonstrate the performance of the proposed approach in other perspective\wen{s}, we display in Figure \dlo{\ref{19}}\wen{\ref{fx_clean_curved,fx_Observed_curved,fx_DRR_curved,fx_Proposed_curved}}, the corresponding f-x spectra of each data shown in Figure \dlo{\ref{16}}\wen{\ref{hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}}. The \dlo{sub-figures \dlo{\ref{19}(a)-\ref{19}(d)}\wen{\ref{15}(a)-\ref{15}(d)}}Figures \wen{\ref{fx_clean_curved}-\ref{fx_Proposed_curved}} correspond to the f-x spectra of the clean data, the observed data, the restored data using the DRR and the proposed approaches, respectively. From the comparison of each subfigure, we find that both approaches can successfully denoise and reconstruct the missing values in the whole frequency band (from $0$ \new{Hz} to $125$ Hz). However, a detailed comparison highlights the greatest difference between both approaches. Indeed, based on the lower frequencies (from $0$ \wen{Hz} to approximately $40$ Hz), we can affirm that our algorithm further \dlo{remove}\wen{removes} the noise energy to a weaker degree and improves the signal quality compared with the DRR algorithm, which shows the better quality of the recovered results using our algorithm. From this analysis, we can intuitively deduce that our approach can successfully remove the random noise while reconstructing the useful signal more adequately than the DRR approach.}		
-\wen{	
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/fx_clean_curved}
-				\label{fx_clean_curved}}
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/fx_Observed_curved}
-				\label{Fiigure:fx_Observed_curved}}\\
-			\centering
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/fx_DRR_curved}
-				\label{fx_DRR_curved}}
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/fx_Proposed_curved}
-				\label{fx_Proposed_curved}}		
-			\caption{\dlo{One single shot gathers}Frequency-space (f-x) spectra comparison after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms. (a and b) The clean data and observed data, respectively. (c and d) The DRR approach and the proposed framework, respectively.}
-			\label{fx_clean_curved,fx_Observed_curved,fx_DRR_curved,fx_Proposed_curved}
-	\end{figure}}
-}%fig.15
+	\dlo{Figures \ref{fig:17} and \ref{fig:18}}\wen{Figure \ref{fig:hyper-drr2d-e,hyper-rdrr2d-e} corresponds} to the error figure of each restored data displayed in Figure \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}. \dlo{and Figures \ref{fig:16}, respectively}\dlo{Figures \ref{fig:17}(a) and \ref{fig:18}(a) are}\wen{Figure \ref{fig:hyper-drr2d-e}\dlo{(a)} is from the DRR approach}. \dlo{Figures \ref{fig:17}(b) and \ref{fig:18}(b)}\wen{Figure \ref{fig:hyper-rdrr2d-e}\dlo{(b)} denotes the error figure} of the proposed algorithm. From Figures \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}\dlo{to Figure} \wen{to} \ref{fig:hyper-drr2d-e,hyper-rdrr2d-e}, we find that although the DRR algorithm removes noise and reconstructs the missing traces well, our approach still performs better results. From the magnified data comparison, which vividly \dlo{demonstrate}\wen{demonstrates} the superiority of our approach, we find that the restored data obtained using our approach is much similar to the clean data than those of the DRR result. The visual examination of each subfigure shows that the proposed method offers better simultaneously denoised and reconstructed data. From the fewer errors that \dlo{provides}the proposed algorithm \wen{provides}, we deduce that the recovered data has the smallest amount of artifacts. In this example, the S/N values of the observed data, the recovered data using the DRR method, and the proposed method are {$0.58$}, {$10.94$}, and {$18.43$ dB}, respectively. The DRR approach and the proposed approach achieve the simultaneous denoising and reconstruction process with rms error values $9.07\%$ and $3.08\%$, respectively. Based on the numerical analysis, it is evident that the proposed algorithm can produce higher S/N values, consequently\wen{,} lower rms error values, and thus, the recovered data can be much \dlo{similar}\dlo{related}\wen{closer} to the clean data. We deduce that our algorithm can introduce fewer artifacts. The visual examination and the numerical test comparison demonstrate the recovery improvement of our algorithm on curved events.}
 
-%\dlo{\wen{To further demonstrate the performance of the proposed method on curved events, we compare the amplitude spectrum of each data shown in Figure \ref{14}. Figure \dlo{\ref{20}} \wen{\ref{18}} displays the comparison. The sub-figures \dlo{\ref{20,}(a)-\ref{20}(d)} \wen{\ref{18}(a)-\ref{18}(d)} correspond to the amplitudes spectra of the clean data, observed data, recovered data using the DRR approach and the proposed approach, respectively. The amplitude spectrum using our approach is very similar to the clean data than that of DRR approach. From this comparison, we find that the proposed approach can greatly restore the amplitude of the useful signal in the whole frequency band even though the data to be recovered has very low SNR that can seriously affect its amplitude. From the amplitude spectra comparison, it is evident that the proposed algorithm can conserve the significant feature of the recovered data than the DRR approach.}}   
-%\wen{
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/Amplite_spectrum_comparison_curved_data_clean}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/Amplite_spectrum_comparison_curved_data_observed}
-%			\label{Fiigure:c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/Amplite_spectrum_comparison_curved_data_DRR}
-%			\label{Fiigure:d}}
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/Amplite_spectrum_comparison_curved_data_Proposed}
-%			\label{Fiigure:e}}		
-%		\caption{Amplitude spectra comparison after 10 iterations between both algorithms. (a and b) correspond to the clean data and the observed data, respectively. (c and d) denote the DRR approach, and the proposed framework, respectively.}
-%		\label{18}
-%	\end{figure}}
-%}
+\inputdir{synth_hyper}
+\multiplot{4}{hyper-drr2d-e,hyper-rdrr2d-e}{width=1\textwidth}{Simultaneous denoising and reconstruction error comparison in common-midpoint gather. \dlo{(a) Simultaneously denoised and reconstructed errors using the DRR method with an rms error of $9.07\%$. (a) Simultaneously denoised and reconstructed errors using the proposed method with an rms error of $3.08\%$.}\wen{(a) \dlo{shows the 2-D figures of t}\wen{T}he error using the DRR method with an rms error of $9.07\%$. (b) \dlo{displays the 2D figures of t}\wen{T}he error using the proposed method with an rms error of $3.08\%$.}}
 
-\wen{In the presence of random noise and missing traces, we evaluate the quality of the simultaneously denoised and reconstructed data using both approaches after \dlo{ten}\wen{$10$} iterations. We fix the noise variance at $0.2$ while varying the missing traces from $10\%$ to $90\%$, and we measure the S/N values. Figure \dlo{\ref{21}}\wen{\ref{snr_missing_traces_curvedD}} shows the S/N values as functions of missing traces. From this figure \dlo{above mentioned}\wen{mentioned above}, it is undeniable that as the percentage of missing trace becomes large, the proposed method (the red line) consistently provides higher values of S/N than the DRR approach (the blue line). For both approaches, the simultaneous denoising and reconstruction quality decreases as the percentage of missing traces \dlo{increase}\wen{increases}. However, our algorithm can provide \wen{a} satisfactory result\wen{,} even though the observed data is corrupted with a significant ratio of missing traces and noise levels. These numerical and visual \dlo{analyses}\wen{analyses} further confirm the adaptability of our approach \dlo{on}\wen{to} data containing curved events. 
+\wen{
+	To demonstrate the performance of the proposed approach in other perspective\wen{s}, we display in Figure \dlo{\ref{Figure:19}}\wen{\ref{fig:fx_clean_curved,fx_Observed_curved,fx_DRR_curved,fx_Proposed_curved}}, the corresponding f-x spectra of each data shown in Figure \dlo{\ref{fig:16}}\wen{\ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-drr2d-0,hyper-rdrr2d-0}}. The \dlo{sub-figures \dlo{\ref{fig:19}(a)-\ref{fig:19}(d)}\wen{\ref{fig:15}(a)-\ref{fig:15}(d)}}Figures \wen{\ref{fig:fx_clean_curved}-\ref{fig:fx_Proposed_curved}} correspond to the f-x spectra of the clean data, the observed data, the restored data using the DRR and the proposed approaches, respectively. From the comparison of each subfigure, we find that both approaches can successfully denoise and reconstruct the missing values in the whole frequency band (from $0$ \new{Hz} to $125$ Hz). However, a detailed comparison highlights the greatest difference between both approaches. Indeed, based on the lower frequencies (from $0$ \wen{Hz} to approximately $40$ Hz), we can affirm that our algorithm further \dlo{remove}\wen{removes} the noise energy to a weaker degree and improves the signal quality compared with the DRR algorithm, which shows the better quality of the recovered results using our algorithm. From this analysis, we can intuitively deduce that our approach can successfully remove the random noise while reconstructing the useful signal more adequately than the DRR approach.}		
+
+\inputdir{./}
+\multiplot{4}{fx_clean_curved,fx_Observed_curved,fx_DRR_curved,fx_Proposed_curved}{width=0.35\textwidth}{\dlo{One single shot gathers}Frequency-space (f-x) spectra comparison after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms. (a and b) The clean data and observed data, respectively. (c and d) The DRR approach and the proposed framework, respectively.}
+
+\wen{In the presence of random noise and missing traces, we evaluate the quality of the simultaneously denoised and reconstructed data using both approaches after \dlo{ten}\wen{$10$} iterations. We fix the noise variance at $0.2$ while varying the missing traces from $10\%$ to $90\%$, and we measure the S/N values. Figure \dlo{\ref{Figure:21}}\wen{\ref{fig:snr_missing_traces_curvedD}} shows the S/N values as functions of missing traces. From this figure \dlo{above mentioned}\wen{mentioned above}, it is undeniable that as the percentage of missing trace becomes large, the proposed method (the red line) consistently provides higher values of S/N than the DRR approach (the blue line). For both approaches, the simultaneous denoising and reconstruction quality decreases as the percentage of missing traces \dlo{increase}\wen{increases}. However, our algorithm can provide \wen{a} satisfactory result\wen{,} even though the observed data is corrupted with a significant ratio of missing traces and noise levels. These numerical and visual \dlo{analyses}\wen{analyses} further confirm the adaptability of our approach \dlo{on}\wen{to} data containing curved events. 
 }
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\includegraphics[width=0.5\textwidth]{Fig/snr_missing_traces_curvedD}	
-			\caption{Comparison of S/N diagrams for the percentage of missing data after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms on data containing curved events. The blue and red lines correspond to the DRR method and the proposed approach, respectively. The red line still presents higher S/N values. We used a noise variance of $0.2$ and then decimated the traces from $10$ to $90\% $ for this comparison.}
-			\label{snr_missing_traces_curvedD}
-	\end{figure}}
-}%fig.16
+
+\inputdir{./}
+\plot{snr_missing_traces_curvedD}{width=0.5\columnwidth}{Comparison of S/N diagrams for the percentage of missing data after \dlo{ten}\wen{10} iterations between \dlo{both}\wen{two} algorithms on data containing curved events. The blue and red lines correspond to the DRR method and the proposed approach, respectively. The red line still presents higher S/N values. We used a noise variance of $0.2$ and then decimated the traces from $10$ to $90\%$ for this comparison.}
 
 In order to evaluate the computing time, we test the efficiency of each approach on different 5D synthetic data sizes after \dlo{ten}\wen{10} iterations and a frequency band \wen{of} $0$-$100$ Hz. The comparison of the running time is shown in Table \ref{tbl:table1}. \dlo{Let us mention that b}\wen{B}oth algorithms have been performed on an Intel Core i7 7th generation running MATLAB codes (R2017a). From this comparison, we can note a \dlo{small}\wen{little} bit of difference between both approaches in favor of our method. Because of this relatively less difference, we deduce that the computation time of these methods is almost the same. However, we find that as the size of the matrix increases, the computation time also increases for both approaches. The same is true for the number of iterations and the frequency.
 
 \subsection{Field data examples}
 To verify the performance of our approach in practice, we apply both algorithms on a 5D field seismic data. Here, we have considered a visual examination of the results obtained via both methods to demonstrate the performances of our algorithm.
-%\dlo{Figures \ref{23}, \ref{24} and \ref{25} display the comparison in one common midpoint gather, one common offset gather and 500 traces, respectively. Figures \ref{23}(a), \ref{24}(a) and \ref{25}(a) show the observed noisy and incomplete data. In this example, about 75\% of traces are missing. To preserve the significant features of the useful signal, we select rank {$K= 6$} and damping factor {$d = 2$} for the DRR approach. Figures \ref{23}(b), \ref{24}(b) and \ref{25}(b) present the results of this approach. The DRR method obtains successful results. Indeed, the recovery of the missing data is perfect. However, coherent events cannot be seen clearly due to the presence of residual noise in the results. In addition to the same parameters used for the DRR method, we use a cooling factor $\beta= 3$, a rational transfer function coefficient ${e= 0.9}$ and a window size ${T= 1}$ for the proposed method. We run both programs using 10 weighted {POCS-like} iterations. As can be seen in Figures \ref{23}(c), \ref{24}(c) and \ref{25}(c), which display the results obtained by the proposed approach, all useful signal\wen{s} \dlo{is}\wen{are} perfectly recovered. All significant events are highlighted and can be perceived without much effort on each sub-figures mentioned. To better compare them in detail, we zoom a portion from each sub-figure in Figure \ref{25} and display the comparison in Figure \ref{26}. The red frame boxes are shown in Figure \ref{25} to highlight the zoomed data. After a comparison of the Figures \ref{26}(a-c), it is obvious that our method provides better results than those of the DRR approach. The zoomed data comparison further demonstrates the accuracy of our algorithm.}
-\wen{Figures \dlo{\ref{22} and \ref{23}}\wen{\ref{cmp_field_obseerved,cmp_field_DRR,cmp_field_proposed} and \ref{offset_field_obseerved,offset_field_DRR,offset_field_Proposed}} display the comparison in one common-midpoint and one common-offset gather, respectively. Figures \dlo{\ref{22}}\wen{\ref{cmp_field_obseerved}}\dlo{(a)} and \dlo{\ref{23}}\wen{\ref{offset_field_obseerved}}\dlo{(a)} show the observed noisy and incomplete data. In this example, approximately $75\%$ of traces are missing. To preserve the significant features of the useful signal, we select rank {$K= 6$} and damping factor {$d = 2$} for the DRR approach. Figures \dlo{\ref{22}}\wen{\ref{cmp_field_DRR}}\dlo{(b)} and \dlo{\ref{23}}\wen{\ref{offset_field_DRR}}\dlo{(b)} show the results\dlo{of this approach}. The DRR method obtains successful results. Indeed, the recovery of the missing data is \old{perfect}\wen{better}. However, coherent events cannot be seen clearly \dlo{due to the presence of}because of residual noise in the results. In addition to the same parameters used for the DRR method, we use a cooling factor $\beta= 3$, a rational transfer function coefficient ${e= 0.9}$, and a window size ${T= 1}$ for the proposed method.} We run both \dlo{programs}\wen{algorithms} using \dlo{ten}\wen{10} weighted {POCS-like} iterations. As can be seen in Figures \dlo{\ref{22}}\wen{\ref{cmp_field_proposed}}\dlo{(c)} and \dlo{\ref{23}}\wen{\ref{offset_field_Proposed}}\dlo{(c)}, which display the results obtained by the proposed approach, all useful signal\wen{s} \dlo{is}\wen{are} perfectly recovered. \dlo{All}\wen{The} significant events are highlighted and can be perceived without much effort on each subfigure\dlo{mentioned}. \wen{For further comparison, we display in Figures \dlo{\ref{24}(a)-\ref{24}(c)}\wen{\ref{Zoomed_offset_field_obseerved}\dlo{(a)}-\ref{Zoomed_offset_field_Proposed}\dlo{(c)}}, the magnified section of each subfigure \dlo{\ref{23}(a)-\ref{23}(c)}\wen{\ref{offset_field_obseerved}\dlo{(a)}-\ref{offset_field_Proposed}\dlo{(c)}}, which are highlighted by the green frame boxes, respectively. The magnified data reveals \dlo{the presence of}\wen{some} curved events in one common offset gather. We can therefore deduce that although the field data \dlo{is}\wen{are} mainly composed of linear events, it is also \dlo{consist}\wen{consisted} of curved events in some sections. From\dlo{,} the magnified data comparison, it is obvious that the proposed method provides better results than \dlo{those of}the DRR method. The magnified data comparison further demonstrates the accuracy of our algorithm.} 
-%\old{
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\te%xtwidth]{Figures/cmpObservedfielddata}
-%			\label{ a}}
-%		\subfloat[]{\includegraphics[width=0.3\te%xtwidth]{Figures/cmpDRRfielddata}
-%			\label{ b}}
-%		\subfloat[]{\includegraphics[width=0.3\te%xtwidth]{Figures/cmpProposedfielddata}
-%			\label{Fiigure: c}}
+%\dlo{Figures \ref{Figure:23}, \ref{Figure:24} and \ref{Figure:25} display the comparison in one common midpoint gather, one common offset gather and 500 traces, respectively. Figures \ref{Figure:23}(a), \ref{Figure:24}(a) and \ref{Figure:25}(a) show the observed noisy and incomplete data. In this example, about 75\% of traces are missing. To preserve the significant features of the useful signal, we select rank {$K= 6$} and damping factor {$d = 2$} for the DRR approach. Figures \ref{Figure:23}(b), \ref{Figure:24}(b) and \ref{Figure:25}(b) present the results of this approach. The DRR method obtains successful results. Indeed, the recovery of the missing data is perfect. However, coherent events cannot be seen clearly due to the presence of residual noise in the results. In addition to the same parameters used for the DRR method, we use a cooling factor $\beta= 3$, a rational transfer function coefficient ${e= 0.9}$ and a window size ${T= 1}$ for the proposed method. We run both programs using 10 weighted {POCS-like} iterations. As can be seen in Figures \ref{Figure:23}(c), \ref{Figure:24}(c) and \ref{Figure:25}(c), which display the results obtained by the proposed approach, all useful signal\wen{s} \dlo{is}\wen{are} perfectly recovered. All significant events are highlighted and can be perceived without much effort on each sub-figures mentioned. To better compare them in detail, we zoom a portion from each sub-figure in Figure \ref{Figure:25} and display the comparison in Figure \ref{Figure:26}. The red frame boxes are shown in Figure \ref{Figure:25} to highlight the zoomed data. After a comparison of the Figures \ref{Figure:26}(a-c), it is obvious that our method provides better results than those of the DRR approach. The zoomed data comparison further demonstrates the accuracy of our algorithm.}
+\wen{Figures \dlo{\ref{fig:22} and \ref{fig:23}}\wen{\ref{fig:cmp_field_obseerved,cmp_field_DRR,cmp_field_proposed} and \ref{fig:offset_field_obseerved,offset_field_DRR,offset_field_Proposed}} display the comparison in one common-midpoint and one common-offset gather, respectively. Figures \dlo{\ref{fig:22}}\wen{\ref{fig:cmp_field_obseerved}}\dlo{(a)} and \dlo{\ref{fig:23}}\wen{\ref{fig:offset_field_obseerved}}\dlo{(a)} show the observed noisy and incomplete data. In this example, approximately $75\%$ of traces are missing. To preserve the significant features of the useful signal, we select rank {$K= 6$} and damping factor {$d = 2$} for the DRR approach. Figures \dlo{\ref{fig:22}}\wen{\ref{fig:cmp_field_DRR}}\dlo{(b)} and \dlo{\ref{fig:23}}\wen{\ref{fig:offset_field_DRR}}\dlo{(b)} show the results\dlo{of this approach}. The DRR method obtains successful results. Indeed, the recovery of the missing data is \old{perfect}\wen{better}. However, coherent events cannot be seen clearly \dlo{due to the presence of}because of residual noise in the results. In addition to the same parameters used for the DRR method, we use a cooling factor $\beta= 3$, a rational transfer function coefficient ${e= 0.9}$, and a window size ${T= 1}$ for the proposed method.} We run both \dlo{programs}\wen{algorithms} using \dlo{ten}\wen{10} weighted {POCS-like} iterations. As can be seen in Figures \dlo{\ref{fig:22}}\wen{\ref{fig:cmp_field_proposed}}\dlo{(c)} and \dlo{\ref{fig:23}}\wen{\ref{fig:offset_field_Proposed}}\dlo{(c)}, which display the results obtained by the proposed approach, all useful signal\wen{s} \dlo{is}\wen{are} perfectly recovered. \dlo{All}\wen{The} significant events are highlighted and can be perceived without much effort on each subfigure\dlo{mentioned}. \wen{For further comparison, we display in Figures \dlo{\ref{fig:24}(a)-\ref{fig:24}(c)}\wen{\ref{fig:Zoomed_offset_field_obseerved}\dlo{(a)}-\ref{fig:Zoomed_offset_field_Proposed}\dlo{(c)}}, the magnified section of each subfigure \dlo{\ref{fig:23}(a)-\ref{fig:23}(c)}\wen{\ref{fig:offset_field_obseerved}\dlo{(a)}-\ref{fig:offset_field_Proposed}\dlo{(c)}}, which are highlighted by the green frame boxes, respectively. The magnified data reveals \dlo{the presence of}\wen{some} curved events in one common offset gather. We can therefore deduce that although the field data \dlo{is}\wen{are} mainly composed of linear events, it is also \dlo{consist}\wen{consisted} of curved events in some sections. From\dlo{,} the magnified data comparison, it is obvious that the proposed method provides better results than \dlo{those of}the DRR method. The magnified data comparison further demonstrates the accuracy of our algorithm.} 
 
-%		\caption{Common midpoint gather comparison. (a) Observed noisy and incomplete data. (b-c) denote the simultaneously denoised and reconstructed data using the DRR method %and the proposed approach, respectively.}
-%		\label{23}
-%	\end{figure}
-%	
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.3\te%xtwidth]{Figures/offsetObservedfielddata}
-%			\label{ a}}
-%		\subfloat[]{\includegraphics[width=0.3\te%xtwidth]{Figures/offsetDRRfielddata}
-%			\label{ b}}
-%		\subfloat[]{\includegraphics[width=0.3\te%xtwidth]{Figures/offsetProposedfielddata}
-%			\label{Fiigure: c}}
+\dlo{On the other hand, we compare both methods using the corresponding f-x spectrum and normalized PSD of the 500 traces of aforementioned data. Figures \ref{Figure:27} and \ref{Figure:28} display the f-x spectrum and normalized PSD, respectively. In Figure \ref{Figure:27}, (a) denotes the f-x spectrum of the observed noisy and incomplete data. (b) is from the DRR approach and (c) corresponds to the f-x spectrum of the proposed approach. The yellow, blue and red lines shown in Figure \ref{Figure:28} are the normalized PSD of the decimated data, the restored data from the DRR algorithm and our approach, respectively.}
 
-%		\caption{Common offset gather comparison. (a) Observed data. (b-c) display the simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
-%		\label{ 24}
-%	\end{figure}
+\inputdir{./}
+\multiplot{3}{cmp_field_obseerved,cmp_field_DRR,cmp_field_proposed}{width=0.30\textwidth}{Common midpoint gather \wen{2D figures} comparison. (a) Observed noisy and incomplete data with about $75\%$ of missing traces. (b and c) denote the simultaneously denoised and reconstructed data using the DRR approach and the proposed approach, respectively.}
 
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.9\te%xtwidth]{Figures/Tx500tracesObservedfield%data}
-%			\label{ a}}\\
-%		\subfloat[]{\includegraphics[width=0.9\te%xtwidth]{Figures/Tx500tracesDRRfielddata}
-%			\label{ b}}\\
-%		\subfloat[]{\includegraphics[width=0.9\te%xtwidth]{Figures/Tx500tracesProposedfielddata}
-%			\label{Fiigure: c}}
-%		
-%		\caption{Comparison of 500 traces extracted from the 5-D field data matrix. (a) shows the observed data. (b-c) denote the simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
-%		\label{ 25}
-%	\end{figure}
+\inputdir{./}
+\multiplot{3}{offset_field_obseerved,offset_field_DRR,offset_field_Proposed}{width=0.29\textwidth}{Common-offset gather \wen{2D figures} comparison. (a) Observed noisy and incomplete data with approximately $75\%$ of missing traces. (b and c) The simultaneously denoised and reconstructed data using the DRR approach and the proposed approach, respectively.}
 
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.5\te%xtwidth]{Figures/ZoomedTx500tracesObserve%dfielddata}
-%			\label{ a}}\\
-%		\subfloat[]{\includegraphics[width=0.5\te%xtwidth]{Figures/ZoomedTx500tracesDRRfielddata}
-%			\label{ b}}
-%		\subfloat[]{\includegraphics[width=0.5\te%xtwidth]{Figures/ZoomedTx500tracesPropose%dfielddata}
-%			\label{Fiigure: c}}
-
-%		\caption{Comparison of the zoomed sections from Figure \ref{ 25}. (a) shows the observed data. (b-c) denote the simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
-%		\label{ 26}
-%	\end{figure}
-%}
-%}
-\dlo{On the other hand, we compare both methods using the corresponding f-x spectrum and normalized PSD of the 500 traces of aforementioned data. Figures \ref{27} and \ref{28} display the f-x spectrum and normalized PSD, respectively. In Figure \ref{27}, (a) denotes the f-x spectrum of the observed noisy and incomplete data. (b) is from the DRR approach and (c) corresponds to the f-x spectrum of the proposed approach. The yellow, blue and red lines shown in Figure \ref{28} are the normalized PSD of the decimated data, the restored data from the DRR algorithm and our approach, respectively.}
-%\old{
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.7\te%xtwidth]{Figures/fx500tracesobservedfielddata}
-%			\label{ a}}\\
-%		\subfloat[]{\includegraphics[width=0.7\te%xtwidth]{Figures/fx500tracesdrrfielddata}
-%			\label{ b}}\\
-%		\subfloat[]{\includegraphics[width=0.7\te%xtwidth]{Figures/fx500tracesproposedfielddata}
-%			\label{Fiigure: c}}
-
-%		\caption{Frequency-space (f-x) spectra comparison of the corresponding 500 traces of each 5-D seismic field data. (a) shows the f-x spectrum of the decimated data, (c and d) correspond to the f-x spectra obtained after using the DRR method and the proposed framework, %respectively.}
-%		\label{ 27}
-%	\end{figure}
-
-%	\begin{figure}
-%		\centering
-%		\includegraphics[width=0.8\textwidth]{Figures/NormalizedPSDfielddata}
-%		\caption{Comparison of the normalized power spectral density (PSD) of the corresponding 500 traces of each 5-D seismic field data. The yellow line shows the PSD of the observed data. The blue and red lines denote the PSD of the simultaneously denoised and reconstructed data using the DRR approach and the proposed approach, respectively.}
-%		\label{ 28}
-%	\end{figure}
-%}
-%}
-%\dlo{Simultaneous analysis of the f-x spectrum and normalized PSD better prove that random noise contained in the decimated data cannot be completely attenuated by only using the damping operator. From the comparison, we find that our method can yield perfect results than the DRR approach. It is visible that the red line is smoother than the blue line (see Figure \ref{28}) due to the less noise in the restored data. Thus, the simultaneous denoising and reconstruction errors of the proposed approach are very smaller than that of the DRR method. The f-x spectrum and PSD further verify the better recovering quality of our algorithm. From Figures \ref{27}, \ref{28}, we deduce that the proposed approach can provide a higher resolution than the DRR method.}
-
-\AtEndDocument{
-	\begin{figure}[htb!]
-		\centering
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/cmp_field_obseerved}
-			\label{cmp_field_obseerved}}
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/cmp_field_DRR}
-			\label{cmp_field_DRR}}
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/cmp_field_proposed}
-			\label{cmp_field_proposed}}
-		\caption{Common midpoint gather \wen{2D figures} comparison. (a) Observed noisy and incomplete data with about $75\%$ of missing traces. (b and c) denote the simultaneously denoised and reconstructed data using the DRR approach and the proposed approach, respectively.}
-		\label{cmp_field_obseerved,cmp_field_DRR,cmp_field_proposed}
-\end{figure}}%fig.17
+\inputdir{./}
+\multiplot{4}{Zoomed_offset_field_obseerved,Zoomed_offset_field_DRR,Zoomed_offset_field_Proposed}{width=0.29\textwidth}{Magnified section from Figure \ref{fig:offset_field_obseerved,offset_field_DRR,offset_field_Proposed} (the green frame boxes) comparison. (a) Observed noisy and incomplete data with approximately $75\% $ of missing traces. (b and c) The simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
+		 
 \wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/offset_field_obseerved}
-				\label{offset_field_obseerved}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/offset_field_DRR}
-				\label{offset_field_DRR}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/offset_field_Proposed}
-				\label{offset_field_Proposed}}			
-			\caption{Common-offset gather \wen{2D figures} comparison. (a) Observed noisy and incomplete data with approximately $75\%$ of missing traces. (b and c) The simultaneously denoised and reconstructed data using the DRR approach and the proposed approach, respectively.}
-			\label{offset_field_obseerved,offset_field_DRR,offset_field_Proposed}
-	\end{figure}}
-}%fig.18
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/Zoomed_offset_field_obseerved}
-				\label{Zoomed_offset_field_obseerved}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/Zoomed_offset_field_DRR}
-				\label{Zoomed_offset_field_DRR}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/Zoomed_offset_field_Proposed}
-				\label{Zoomed_offset_field_Proposed}}
-			\caption{Magnified section from Figure \ref{offset_field_obseerved,offset_field_DRR,offset_field_Proposed} (the green frame boxes) comparison. (a) Observed noisy and incomplete data with approximately $75\% $ of missing traces. (b and c) The simultaneously denoised and reconstructed data using the DRR method and the proposed approach, respectively.}
-			\label{Zoomed_offset_field_obseerved,Zoomed_offset_field_DRR,Zoomed_offset_field_Proposed}
-	\end{figure}}
-}%fig.19		 
-\wen{
-	Moreover, we compare both methods using the corresponding f-x spectrum of each data displayed in Figure \dlo{\ref{23}}\wen{\ref{offset_field_obseerved,offset_field_DRR,offset_field_Proposed}}. \dlo{In Figure \dlo{\ref{25}, \ref{25}(a)}\wen{\ref{20}},}\wen{Figure \ref{fx_offset_obs_field}-\ref{fx_offset_Proposed_field}}\dlo{\ref{20}} denotes the f-x \dlo{spectrum}\wen{spectra} of the observed noisy and incomplete data\dlo{. \dlo{\ref{25}}\dlo{\ref{20}}(b) is from}\wen{,} the DRR approach, and \dlo{\dlo{\ref{25}}\dlo{\ref{20}}(c) corresponds to the f-x spectrum of}the proposed approach, \wen{respectively}. Analysis of the f-x spectra \dlo{better proves}\wen{further shows} that random noise included in the decimated data cannot be completely attenuated by only using the damping operator. From the comparison, we find that our method can yield \dlo{perfect}\wen{better} results than the DRR approach. It is visible that the proposed approach can improve the quality of the useful signal \dlo{due to}\wen{because of} the energy of the events. We can deduce that the simultaneous denoising and reconstruction errors of the proposed approach are \dlo{very}\wen{much} smaller than that of the DRR method. The f-x spectra comparison further verifies the better reconstruction quality of our algorithm. From Figure \dlo{\ref{25}}\wen{\ref{fx_offset_obs_field,fx_offset_DRR_field,fx_offset_Proposed_field}}, we deduce that the proposed approach can provide a higher resolution than the DRR method.}
-\wen{	
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/fx_offset_obs_field}
-				\label{fx_offset_obs_field}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/fx_offset_DRR_field}
-				\label{fx_offset_DRR_field}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{Fig/fx_offset_Proposed_field}
-				\label{fx_offset_Proposed_field}}		
-			\caption{Frequency-space (f-x) spectra comparison of each data displayed in Figure \dlo{\ref{23}}\wen{\ref{offset_field_obseerved,offset_field_DRR,offset_field_Proposed}}. (a) The f-x spectra of the decimated data. (b and c) The f-x spectra obtained after using the DRR and the proposed approaches, respectively.}
-			\label{fx_offset_obs_field,fx_offset_DRR_field,fx_offset_Proposed_field}
-		\end{figure}
-}}%fig.20
+	Moreover, we compare both methods using the corresponding f-x spectrum of each data displayed in Figure \dlo{\ref{fig:23}}\wen{\ref{fig:offset_field_obseerved,offset_field_DRR,offset_field_Proposed}}. \dlo{In Figure \dlo{\ref{fig:25}, \ref{fig:25}(a)}\wen{\ref{fig:20}},}\wen{Figure \ref{fig:fx_offset_obs_field}-\ref{fig:fx_offset_Proposed_field}}\dlo{\ref{fig:20}} denotes the f-x \dlo{spectrum}\wen{spectra} of the observed noisy and incomplete data\dlo{. \dlo{\ref{fig:25}}\dlo{\ref{fig:20}}(b) is from}\wen{,} the DRR approach, and \dlo{\dlo{\ref{fig:25}}\dlo{\ref{fig:20}}(c) corresponds to the f-x spectrum of}the proposed approach, \wen{respectively}. Analysis of the f-x spectra \dlo{better proves}\wen{further shows} that random noise included in the decimated data cannot be completely attenuated by only using the damping operator. From the comparison, we find that our method can yield \dlo{perfect}\wen{better} results than the DRR approach. It is visible that the proposed approach can improve the quality of the useful signal \dlo{due to}\wen{because of} the energy of the events. We can deduce that the simultaneous denoising and reconstruction errors of the proposed approach are \dlo{very}\wen{much} smaller than that of the DRR method. The f-x spectra comparison further verifies the better reconstruction quality of our algorithm. From Figure \dlo{\ref{fig:25}}\wen{\ref{fig:fx_offset_obs_field,fx_offset_DRR_field,fx_offset_Proposed_field}}, we deduce that the proposed approach can provide a higher resolution than the DRR method.}
+
+\inputdir{./}
+\multiplot{3}{fx_offset_obs_field,fx_offset_DRR_field,fx_offset_Proposed_field}{width=0.30\textwidth}{Frequency-space (f-x) spectra comparison of each data displayed in Figure \dlo{\ref{fig:23}}\wen{\ref{fig:offset_field_obseerved,offset_field_DRR,offset_field_Proposed}}. (a) The f-x spectra of the decimated data. (b and c) The f-x spectra obtained after using the DRR and the proposed approaches, respectively.}
+
 \section{discussion}
 
 This paper investigates the feasibility of the RDRR method \dlo{developed herein}for simultaneous denoising and reconstruction of 5D seismic data. The damping operator, which is one of the key\dlo{s} parameters of the DRR framework, has been introduced into the conventional TSVD formula to further suppress random noise. However, we find that \dlo{using only}\wen{only using} this operator is not enough to recover the useful signal when the percentage of missing traces \wen{and the noise level} \dlo{become}\wen{becomes} large. Hence, how to accurately restore the useful signal \dlo{pays our attention}\wen{becomes our focus}. \dlo{One of the contributions}\wen{The contribution} of this work is the development of the STMA into the existing DRR framework. The proposed algorithm \dlo{that}aims at designing an ideal combination of STMA operator and DRR formula to further enhance the recovery of the useful signal\wen{s}. \dlo{, can \dlo{benefit from} the individual advantage of each operator.}Acceleration of computation time usually \dlo{pays}\wen{attracts} attention \dlo{of}\dlo{to}\wen{from} most researchers when using the low-rank method for seismic data simultaneous denoising and reconstruction. Here, by introducing the STMA operator into the DRR formula, we focus not only on enhancing the computation cost but also \wen{on} random noise removal.
@@ -1154,191 +625,43 @@ The tight connection established between the STMA operator and the DRR formula c
 
 \wen{Our RDRR framework}\dlo{We understand these clarifications as the physical definition of our robust damped rank-reduction framework, which} uses five keys parameters: rank $K$, damping factor $d$, cooling factor $\beta$ that is used to control the effects of the thresholding parameter $\tau$, the rational transfer function coefficient $e$ and window size $T$. These parameters used in our proposed framework are essential to achieve the \dlo{ultimate}goal of this work. The empirical selection of these five useful parameters usually leads to satisfactory results. 
 
-\wen{The proposed RDRR method was implemented by varying $K$, $d$, $\beta$, $e$ and $T$, and the resulting \dlo{SNRs}\wen{S/N} and rms error values were selected as the quantitative measures to \dlo{analysis}\wen{analyze} their influence on the simultaneous denoising and reconstruction performance. In this section, we use the first \dlo{example of synthetic data}\wen{synthetic example} to show the influence of each parameter on the proposed algorithm performance. The parameters $K$, $d$, $\beta$, $e$ and $T$ were set at $6$, $2$, $3.3$, $0.972$ and $1$, respectively to simultaneous denoise and reconstruct observed data corrupted by $0.3$ as noise variance and $70\%$ of missing traces. Figure \wen{\ref{snr_with_K}}\dlo{(a)} shows the influence of $K$ for different values.\dlo{We vary the values of $K$ from $1$ to $10$ while fixing the other parameters to see its influence.} As seen from this subfigure, a $K$ value of $6$ produces a better result in terms of S/N. Thus, we adopted this value of rank to restore the useful signal. Besides, as \dlo{can be seen}observed in Figure \wen{\ref{snr_with_d}}\dlo{(b)}, it is \dlo{explicit}\wen{clear} that \dlo{the damping factor}$d=2$ can positively affect the result. \dlo{we range the damping factor from $1$ to $3$, and plot the results in Figure \ref{26}. From this figure, it is explicit that $d=2$ can positively affect the result.}From Figure \ref{snr_with_beta}\dlo{(c)}, \dlo{it is clear that}$\beta$ of $3$ can produce the best S/N value. Therefore, by adjusting this parameter properly, we adopted \dlo{$\beta$ of $3.3$}\wen{$\beta = 3.3$} to recover the useful signal in this example. \dlo{Then, we change the cooling factor from $1$ to $10$ to see its influence on this result. Figure \ref{26}\dlo{(c)}\wen{c} shows the results. From this figure, $\beta$ of $3$ can produce the best S/N value. Therefore, by adjusting this parameter properly, we adopted $\beta$ of $3.3$ to recover the useful signal in this example. In the same way, we analyze the effect of $e$ by ranging its values from 0.95, 0.96,..., to $1$. As shown in Figure \ref{26}}As shown in Figure \wen{\ref{snr_with_e}}\dlo{(d)}, the best quality of the signal can be provided by fixing $e$ around $0.97$. So, by regulating the parameter accurately, we used $e=0.972$ to recover the useful signal.\dlo{Finally, as displayed in the sub-figure \ref{26} we range the parameter $T$ from $ 1 $ to $ 5 $ to analyze its behavior. The analysis of this diagram demonstrates}\dlo{.} Finally, as displayed in the \dlo{sub-figure}\wen{Figure} \wen{\ref{snr_with_T}}\dlo{(e)}, all values of $T$ set above $1$ produce lower S/N values. Thus, we selected $T$ of $1$ to restore the useful signal. From this analysis, we can \dlo{appreciate}\wen{understand} the contribution of each parameter to the quality of our results.} \wen{The parameter $e$ is \dlo{a} helpful \dlo{tool} to enhance the energy of the useful signal when the best trade-off with the parameter $T$ is reached.}
-\wen{\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/snr_with_K}
-				\label{snr_with_K}}
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/snr_with_d}
-				\label{snr_with_d}}
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/snr_with_beta}
-				\label{snr_with_beta}}\\
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/snr_with_e}
-				\label{snr_with_e}}
-			\subfloat[]{\includegraphics[width=0.35\textwidth]{Fig/snr_with_T}
-				\label{snr_with_T}}
-			\caption{Influence of the five key parameters under a noise variance of $0.3$ and $70\%$ as missing traces after $10$ iterations. (a) The influence of the rank constraint. (b) The influence of the damping factor. (c) The influence of the cooling factor. (d) The influence of the rational transfer function coefficient. (e) The effect of the window size.
-				\label{snr_with_K,snr_with_d,snr_with_beta,snr_with_e,snr_with_T}}
-\end{figure}}}%fig.21
+\wen{The proposed RDRR method was implemented by varying $K$, $d$, $\beta$, $e$ and $T$, and the resulting \dlo{SNRs}\wen{S/N} and rms error values were selected as the quantitative measures to \dlo{analysis}\wen{analyze} their influence on the simultaneous denoising and reconstruction performance. In this section, we use the first \dlo{example of synthetic data}\wen{synthetic example} to show the influence of each parameter on the proposed algorithm performance. The parameters $K$, $d$, $\beta$, $e$ and $T$ were set at $6$, $2$, $3.3$, $0.972$ and $1$, respectively to simultaneous denoise and reconstruct observed data corrupted by $0.3$ as noise variance and $70\%$ of missing traces. Figure \wen{\ref{fig:snr_with_K}}\dlo{(a)} shows the influence of $K$ for different values.\dlo{We vary the values of $K$ from $1$ to $10$ while fixing the other parameters to see its influence.} As seen from this subfigure, a $K$ value of $6$ produces a better result in terms of S/N. Thus, we adopted this value of rank to restore the useful signal. Besides, as \dlo{can be seen}observed in Figure \wen{\ref{fig:snr_with_d}}\dlo{(b)}, it is \dlo{explicit}\wen{clear} that \dlo{the damping factor}$d=2$ can positively affect the result. \dlo{we range the damping factor from $1$ to $3$, and plot the results in Figure \ref{fig:26}. From this figure, it is explicit that $d=2$ can positively affect the result.}From Figure \ref{fig:snr_with_beta}\dlo{(c)}, \dlo{it is clear that}$\beta$ of $3$ can produce the best S/N value. Therefore, by adjusting this parameter properly, we adopted \dlo{$\beta$ of $3.3$}\wen{$\beta = 3.3$} to recover the useful signal in this example. \dlo{Then, we change the cooling factor from $1$ to $10$ to see its influence on this result. Figure \ref{fig:26}\dlo{(c)}\wen{c} shows the results. From this figure, $\beta$ of $3$ can produce the best S/N value. Therefore, by adjusting this parameter properly, we adopted $\beta$ of $3.3$ to recover the useful signal in this example. In the same way, we analyze the effect of $e$ by ranging its values from 0.95, 0.96,..., to $1$. As shown in Figure \ref{fig:26}}As shown in Figure \wen{\ref{fig:snr_with_e}}\dlo{(d)}, the best quality of the signal can be provided by fixing $e$ to approximately $0.97$. So, by regulating the parameter accurately, we used $e=0.972$ to recover the useful signal.\dlo{Finally, as displayed in the sub-figure \ref{fig:26} we range the parameter $T$ from $ 1 $ to $ 5 $ to analyze its behavior. The analysis of this diagram demonstrates}\dlo{.} Finally, as displayed in the \dlo{sub-figure}\wen{Figure} \wen{\ref{fig:snr_with_T}}\dlo{(e)}, all values of $T$ set above $1$ produce lower S/N values. Thus, we selected $T$ of $1$ to restore the useful signal. From this analysis, we can \dlo{appreciate}\wen{understand} the contribution of each parameter to the quality of our results.} \wen{The parameter $e$ is \dlo{a} helpful \dlo{tool} to enhance the energy of the useful signal when the best trade-off with the parameter $T$ is reached.}
 
-\wen{The proposed approach uses \dlo{many}\wen{several} operators to recover the useful signal from the noisy observation. It is therefore necessary to show their influence on the quality of our results. By using the same observed data \dlo{above mentioned}\wen{mentioned above}, we first show the performance of the ST operator, the MA operator, the STMA operator, and the RR operator on the level-4 block Hankel matrix. The S/N of the observed data is $-2.40$ dB. In Figure \dlo{\ref{27}}\wen{\ref{influence_operator_block_HMatrice}}, we plot the S/N\dlo{s} values as a function of iteration numbers ranging from $5$ to $30$.}
-\wen{The black, gray, gray dashed, and blue lines correspond to the RR, STMA, MA, and ST operators, respectively. From this figure, we find that the ST operator fails to simultaneously denoise and reconstruct the missing traces whatever the value of the cooling factor used to adjust the threshold parameter. The influence of ST on the level-4 block Hankel is almost insignificant because it provides very low S/N. In contrast, the MA operator can recover the useful signal from the level-4 block Hankel matrix because the S/N\dlo{s} values (Figure \dlo{\ref{27}}\wen{\ref{influence_operator_block_HMatrice}}) are quite acceptable. Note that, when we set $T$ at $2$, and we use the smaller values of $e$ ($e= 0.1,...,0.7$), we cannot obtain acceptable results. The results become acceptable at approximately $e=0.9$. All values of $e$ selected above $1$ damage the features of the useful signal. \dlo{The the amplitude of the signal can be degraded.}}\wen{Besides, when we fix $e$ at $0.99$ while using a small value of window size (e.g., $T=2$), the MA operator cannot \dlo{adequately simultaneous}\wen{effectively} denoise and reconstruct the missing values when it is directly applied to the level-4 block Hankel matrix. The approximation signal contains an important quantity of noise, whereas large values can recover the useful signal from its noisy observation. However, the recovered data lose an important amount of \dlo{data}\wen{signals} in one common midpoint gather. The results in \dlo{one}\wen{the} common-offset gather are \dlo{generally quite}acceptable.}
-\wen{As shown in Figure \dlo{\ref{27}}\wen{\ref{influence_operator_block_HMatrice}}, the S/N \dlo{diagram}\wen{values} using the STMA operator \dlo{outperforms}\wen{are higher than} both the ST and MA \wen{S/N} values. We deduce that by combining the ST and the MA operators (STMA), we can \dlo{profit to}\wen{benefit from} their individual performance and thus further influence the level-4 block Hankel matrix. In Figure \dlo{\ref{28}}\wen{\ref{synth-hxhy-s-stma1,synth-hxhy-s-stma2,synth-xy-s-stma1,synth-xy-s-stma2}}, we plot the STMA results first, for $\mathbf{\beta}=80$, $e=0.999$, $T=2$, and then, $\mathbf{\beta}=15$, $e=0.999$, $T=17$. Figures \dlo{\ref{28}(a) and \ref{28}(c) and Figures \ref{28}\dlo{(b)}\new{b} and \ref{28}\dlo{(d)}\wen{d}} \wen{\ref{synth-hxhy-s-stma1}\dlo{(a)} and \ref{synth-xy-s-stma1}\old{(c)} and Figures \ref{synth-hxhy-s-stma2}\dlo{(b)} and \ref{synth-xy-s-stma2}\old{(d)}} show the results using both cases, respectively. The first case yields \wen{S/N =$4.07$} dB \dlo{as SNR}while the second situation \dlo{performs with $10.46$ dB}\wen{S/N = $8.00$} dB after $15$ iterations. From this comparison, we find that when applying the STMA operator directly on the level-4 block Hankel matrix, the larger values of $T$ can provide higher values in terms of S/N. However, the smoothing \dlo{degree} damages the useful signal in one common-midpoint gather (Figure \dlo{\ref{28}}\wen{\ref{synth-hxhy-s-stma2}}\dlo{(b)}). \dlo{Whereas}\wen{However}, the \dlo{one} common-offset gather result (Figure \dlo{\ref{28}}\wen{\ref{synth-xy-s-stma2}}\dlo{(d)}) is satisfactory. From this test, we find that the influence of the ST operator can be seen when it is combined with the MA operator.} \wen{From Figure \dlo{\ref{27}}\ref{influence_operator_block_HMatrice}, the RR operator demonstrates its superiority over the ST, MA, and STMA operators with \wen{a} rank \wen{of} six. From the different tests, we find that for $T=1$, the STMA operator provides the same result as the ST operator whatever the combination of the parameters when it is directly applied to the level-4 block Hankel matrix to recover the useful signal. STMA can simultaneous\new{ly} denoise and reconstruct the level-4 block Hankel matrix when $T>1$. However, all values of $T$ selected above $1$ induce some loss of data in one common-midpoint gather. From our experience, we find that STMA is not adequate to preserve all features of the useful signal when it is directly applied to the block Hankel matrix\wen{.}\dlo{ to denoise and reconstruct the missing traces.} STMA can be introduced in an existing algorithm of denoising and/or reconstruction to improve its performance.} 
+\inputdir{./}
+\multiplot{5}{snr_with_K,snr_with_d,snr_with_beta,snr_with_e,snr_with_T}{width=0.3\textwidth}{Influence of the five key parameters under a noise variance of $0.3$ and $70\%$ as missing traces after $10$ iterations. (a) The influence of the rank constraint. (b) The influence of the damping factor. (c) The influence of the cooling factor. (d) The influence of the rational transfer function coefficient. (e) The effect of the window size.}
 
-\wen{\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\includegraphics[width=0.4\textwidth]{Fig/influence_operator_block_HMatrice}
-			\caption{Influence of the operators (ST, MA, STMA, and RR) on the level-4 block Hankel matrix under a noise variance of $0.3$ and $70\%$ as missing traces after \dlo{ten}\wen{$10$} iterations. The blue line corresponds to the ST operator. The dashed and solid gray lines are from the MA and STMA operators, respectively. The black line denotes the RR operator.
-				\label{influence_operator_block_HMatrice}}
-\end{figure}}
-}%fig.22
-\AtEndDocument{
-	\begin{figure}[htb!]
-		\centering
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_stma_block_Hankel_matrix/Fig/synth-hxhy-s-stma1}
-			\label{synth-hxhy-s-stma1}}
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_stma_block_Hankel_matrix/Fig/synth-hxhy-s-stma2}
-			\label{synth-hxhy-s-stma2}}\\
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_stma_block_Hankel_matrix/Fig/synth-xy-s-stma1}
-			\label{synth-xy-s-stma1}}
-		\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_stma_block_Hankel_matrix/Fig/synth-xy-s-stma2}
-			\label{synth-xy-s-stma2}}
-		\caption{Influence of the STMA operator on the level-4 block Hankel matrix. (a and c) The one common-midpoint and and common-offset gather\dlo{2-D figures}, respectively, for \wen{$\mathbf{\beta}=80$, $e=0.999$, $T=2$}. (b and d) The one common-midpoint and common-offset gather, respectively, for \wen{$\mathbf{\beta}=15$, $e=0.999$, \wen{and} $T=17$.}}
-		\label{synth-hxhy-s-stma1,synth-hxhy-s-stma2,synth-xy-s-stma1,synth-xy-s-stma2}
-	\end{figure}
-}%fig.23
-\wen{To verify the adaptability of the STMA operator with some iterative denoising and reconstruction methods, we introduce the proposed STMA operator in the damped data-driven optimal singular value shrinkage algorithm \citep{siahsar2017simultaneous} framework for simultaneous denoising and interpolation of 3D seismic. Here, STMA is first applied to the block Hankel matrix before SVD, and then, to the singular values just after the SVD. For this test, we add a noise variance of $0.2$ to the 3D synthetic data and we decimate $50\%$. The S/N of the noisy data and the observed data is approximately $-8.40$ dB and $-5.98$ dB, respectively. Figures \dlo{\ref{29} and \ref{30}}\wen{\ref{syn3d-c-s,syn3d-n-s,syn3d-obs-s,syn3d-opshrinkdamped-s,syn3d-opshrinkdampedstma-s}}\dlo{and \ref{25}} show the 2D slice comparison in the 5th crossline\dlo{ and inline sections, respectively}. Figures \dlo{\ref{29}(a)-\ref{29}(c)}\wen{\ref{syn3d-c-s}\dlo{(a)}-\ref{syn3d-obs-s}\dlo{(c)}} correspond to the clean data, noisy data, and observed data, respectively. Figures \dlo{\ref{30}(d) and \ref{30}(e)}\wen{\ref{syn3d-opshrinkdamped-s}\dlo{(d)} and \ref{syn3d-opshrinkdampedstma-s}\dlo{(e)}} display the recovered data using the damped data-driven optimal singular value shrinkage (damped optshrink) algorithm\wen{,} and the modified damped data-driven optimal singular value shrinkage algorithm, respectively. From the comparison of each sub-figure mentioned, the modified algorithm can obtain better recovery performance.\dlo{(Figures \ref{29}(e) and \ref{30})} The result of the modified algorithm is obtained with  $K=3$, $d=2$, $\mathbf{\beta}=2.10$, $e=0.991$, and $T=1$. The S/Ns are $7.77$ dB and $8.22$ dB for the damped data-driven optimal singular value shrinkage algorithm\wen{,} and the modified algorithm, respectively. We also analyze the contribution of the STMA operator by conducting two \dlo{significant}\wen{meaningful} numerical tests. First, by considering the S/N values as a function of iteration numbers. For this experiment, we range the iteration numbers from $5$ to $30$, and we plot the results in Figure \dlo{\ref{31}}\wen{\ref{snr_IterationN_DampedOpshrinkSTMA}}\dlo{(a)}. Then, we fix the noise level at $0.2$ and we vary the missing traces from $10\%$ to $90\%$. We \dlo{displays}\wen{display} the performance of each approach for the percentage of missing data in Figure \dlo{\ref{31}}\wen{\ref{snr_missing_trace_DampedOpshrink_stma}}\dlo{(b)}. From both subfigures, we find that the STMA operator can effectively improve the damped data-driven optimal singular value shrinkage algorithm.} 
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{optshrink_damped_stma/Fig/syn3d-c-s}
-				\label{syn3d-c-s}}
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{optshrink_damped_stma/Fig/syn3d-n-s}
-				\label{syn3d-n-s}}
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{optshrink_damped_stma/Fig/syn3d-obs-s}
-				\label{syn3d-obs-s}}\\
-			\centering
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{optshrink_damped_stma/Fig/syn3d-opshrinkdamped-s}
-				\label{syn3d-opshrinkdamped-s}}
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{optshrink_damped_stma/Fig/syn3d-opshrinkdampedstma-s}
-				\label{syn3d-opshrinkdampedstma-s}}
-			\caption{\dlo{Single slice comparison (5th crossline slice). (a-c) Clean, noisy, and observed data, respectively. (d and e) Recovered.} \wen{Single slice 2D figures comparison (fifth crossline slice). (a) Clean data. (b) Noisy data. (c) Observed data. (d and e) The recovered data obtained using the damped data-driven optimal singular value shrinkage algorithm and the modified algorithm, respectively.}}
-			\label{syn3d-c-s,syn3d-n-s,syn3d-obs-s,syn3d-opshrinkdamped-s,syn3d-opshrinkdampedstma-s}
-		\end{figure}
-}}%fig.24
-%\wen{
-%	\AtEndDocument{
-%		\begin{figure}[htb!]
-%			\centering
-%			\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Inline_Clean}
-%				\label{a}}
-%			\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Inline_Noise}
-%				\label{b}}
-%			\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Inline_Observed}
-%				\label{c}}\\
-%			\centering
-%			\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Inline_Dampedopshrink}
-%				\label{d}}
-%			\subfloat[]{\includegraphics[width=0.3\textwidth]{Figures/Inline_DampedOpshrinkSTMA}
-%				\label{e}}
-%			\caption{\old{Single slice comparison (5th inline slice). (a-c) Clean, noisy, and observed data, respectively.(d and e) Recovered.} \new{Single slice 2-D figures comparison (5th inline slice). (a) Clean data. (b) Noisy data. (c) Observed data. (d and e) show the recovered} data obtained using the damped data-driven optimal singular value shrinkage algorithm and the modified algorithm, respectively.}
-%			\label{25}
-%\end{figure}}}
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{Fig/snr_IterationN_DampedOpshrinkSTMA}
-				\label{snr_IterationN_DampedOpshrinkSTMA}}
-			\subfloat[]{\includegraphics[width=0.3\textwidth]{Fig/snr_missing_trace_DampedOpshrink_stma}
-				\label{snr_missing_trace_DampedOpshrink_stma}}		
-			\caption{S/N diagrams comparison between two approaches.\dlo{a noise level $0.2$ and $50\%$ as missing traces} (a) S/N\dlo{s} values for iteration numbers. (b) S/N\dlo{s} values as a function of missing traces after $15$ iterations. In both cases, the gray and black lines are from the damped data-driven optimal singular value shrinkage algorithm, and the modified algorithm, respectively.} 				  
-			\label{snr_IterationN_DampedOpshrinkSTMA,snr_missing_trace_DampedOpshrink_stma}
-\end{figure}}}
-%fig.25
+\wen{The proposed approach uses \dlo{many}\wen{several} operators to recover the useful signal from the noisy observation. It is therefore necessary to show their influence on the quality of our results. By using the same observed data \dlo{above mentioned}\wen{mentioned above}, we first show the performance of the ST operator, the MA operator, the STMA operator, and the RR operator on the level-4 block Hankel matrix. The S/N of the observed data is $-2.40$ dB. In Figure \dlo{\ref{fig:27}}\wen{\ref{fig:influence_operator_block_HMatrice}}, we plot the S/N\dlo{s} values as a function of iteration numbers ranging from $5$ to $30$.}
+\wen{The black, gray, gray dashed, and blue lines correspond to the RR, STMA, MA, and ST operators, respectively. From this figure, we find that the ST operator fails to simultaneously denoise and reconstruct the missing traces whatever the value of the cooling factor used to adjust the threshold parameter. The influence of ST on the level-4 block Hankel is almost insignificant because it provides very low S/N. In contrast, the MA operator can recover the useful signal from the level-4 block Hankel matrix because the S/N\dlo{s} values (Figure \dlo{\ref{fig:27}}\wen{\ref{fig:influence_operator_block_HMatrice}}) are quite acceptable. Note that, when we set $T$ at $2$, and we use the smaller values of $e$ ($e= 0.1,...,0.7$), we cannot obtain acceptable results. The results become acceptable at approximately $e=0.9$. All values of $e$ selected above $1$ damage the features of the useful signal. \dlo{The the amplitude of the signal can be degraded.}}\wen{Besides, when we fix $e$ at $0.99$ while using a small value of window size (e.g., $T=2$), the MA operator cannot \dlo{adequately simultaneous}\wen{effectively} denoise and reconstruct the missing values when it is directly applied to the level-4 block Hankel matrix. The approximation signal contains an important quantity of noise, whereas large values can recover the useful signal from its noisy observation. However, the recovered data lose an important amount of \dlo{data}\wen{signals} in one common midpoint gather. The results in \dlo{one}\wen{the} common-offset gather are \dlo{generally quite}acceptable.}
+\wen{As shown in Figure \dlo{\ref{fig:27}}\wen{\ref{fig:influence_operator_block_HMatrice}}, the S/N \dlo{diagram}\wen{values} using the STMA operator \dlo{outperforms}\wen{are higher than} both the ST and MA \wen{S/N} values. We deduce that by combining the ST and the MA operators (STMA), we can \dlo{profit to}\wen{benefit from} their individual performance and thus further influence the level-4 block Hankel matrix. In Figure \dlo{\ref{Figure:28}}\wen{\ref{fig:synth-hxhy-s-stma1,synth-hxhy-s-stma2,synth-xy-s-stma1,synth-xy-s-stma2}}, we plot the STMA results first, for $\mathbf{\beta}=80$, $e=0.999$, $T=2$, and then, $\mathbf{\beta}=15$, $e=0.999$, $T=17$. Figures \dlo{\ref{fig:28}(a) and \ref{fig:28}(c) and Figures \ref{fig:28}\dlo{(b)}\new{b} and \ref{fig:28}\dlo{(d)}\wen{d}} \wen{\ref{fig:synth-hxhy-s-stma1}\dlo{(a)} and \ref{fig:synth-xy-s-stma1}\old{(c)} and Figures \ref{fig:synth-hxhy-s-stma2}\dlo{(b)} and \ref{fig:synth-xy-s-stma2}\old{(d)}} show the results using both cases, respectively. The first case yields \wen{S/N =$4.07$} dB \dlo{as SNR}while the second situation \dlo{performs with $10.46$ dB}\wen{S/N = $8.00$} dB after $15$ iterations. From this comparison, we find that when applying the STMA operator directly on the level-4 block Hankel matrix, the larger values of $T$ can provide higher values in terms of S/N. However, the smoothing \dlo{degree} damages the useful signal in one common-midpoint gather (Figure \dlo{\ref{fig:28}}\wen{\ref{fig:synth-hxhy-s-stma2}}\dlo{(b)}). \dlo{Whereas}\wen{However}, the \dlo{one} common-offset gather result (Figure \dlo{\ref{fig:28}}\wen{\ref{fig:synth-xy-s-stma2}}\dlo{(d)}) is satisfactory. From this test, we find that the influence of the ST operator can be seen when it is combined with the MA operator.} \wen{From Figure \dlo{\ref{fig:27}}\ref{fig:influence_operator_block_HMatrice}, the RR operator demonstrates its superiority over the ST, MA, and STMA operators with \wen{a} rank \wen{of} six. From the different tests, we find that for $T=1$, the STMA operator provides the same result as the ST operator whatever the combination of the parameters when it is directly applied to the level-4 block Hankel matrix to recover the useful signal. STMA can simultaneous\new{ly} denoise and reconstruct the level-4 block Hankel matrix when $T>1$. However, all values of $T$ selected above $1$ induce some loss of data in one common-midpoint gather. From our experience, we find that STMA is not adequate to preserve all features of the useful signal when it is directly applied to the block Hankel matrix\wen{.}\dlo{ to denoise and reconstruct the missing traces.} STMA can be introduced in an existing algorithm of denoising and/or reconstruction to improve its performance.} 
 
-\wen{Then, to show the \wen{individual} contribution of each operator that uses our approach, we conducted the following combination: the RR and ST operators (RR + ST), the RR and MA operators (RR + MA), the RR operator and the damping factor (DRR method), the RR and STMA operators (RR + ST + MA), the DRR and ST operators (RR + damping + ST), the DRR and MA operators (RR + damping + MA), and the DRR and STMA operators (RR + damping + ST + MA, which corresponds to the proposed approach)\wen{.}\dlo{combine first, the RR and ST operators (RR + ST) in the same framework to see the effect of ST. Then, we mix the RR and MA operators (RR + MA) to see the performance of MA. Afterward; we introduce the damping factor into the conventional RR framework (RR + damping factor, which corresponds to the DRR method), to show the influence of the damping factor. In the same way, we remove the damping factor, and; we connect the STMA operator, to see the contribution of STMA. Besides, we remove the MA function from the proposed approach (RDRR), to analyze the result using the DRR with ST (DRR + ST). Similarly, we drop the ST and keep the DRR associated with the MA function (DRR + MA), to analyze the effect. Finally, the DRR and STMA operators (RR + damping factor + ST + MA, which corresponds to the proposed approach) are connected into the same framework to simultaneous denoise and reconstruct the missing trace.} Based on these experiments, the proposed approach can be regarded as a combination of the RR, damping, ST, and MA operators. We apply these mixed operators on the synthetic data of our first example (5D synthetic data having linear events corrupted by $ 0.3 $ as noise variance and $70 \% $ of missing traces). Because of the best quality of the result, we adopted rank 6 for the RR approach. We select $K=6$ and $\mathbf{\beta}=0$, for RR + ST, and $K=6$, ${d}=2$, $\mathbf{\beta}=0$, for RR + damping + ST. In both cases, we have adopted $\mathbf{\beta}=0$ because all values of $\mathbf{\beta}$ selected below or above $0$ influence negatively the S/N and hence affect the quality of the result. To restore the useful signal via RR + MA, we selected $K=6$, $e=0.982$, and $T=1$. For RR + ST + MA, we set $K$, $\mathbf{\beta}$, $T$, $e$ and  at $6$, $30$, $1$, and $0.964$, respectively. The parameters used by RR + damping + MA were set at $K=6$, $d=2$, $e=0.975$ and $T=1$. For the proposed approach (RR + damping + ST + MA), we selected $K=6$, $d=2$, $\mathbf{\beta}=3.3$, $e=0.972$ and $T=1$. We run all approaches with \dlo{ten}\wen{10} iterations. As can be seen, when STMA is \dlo{joined to}\wen{combined with} the RR or DRR approaches, we need to select the cooling factor $\mathbf{\beta} > 0$ to adjust the threshold parameter $\tau$. We deduce that the three parameters ($e$, $T$, and $\mathbf{\beta}$) that STMA uses are not negligible to achieve the goal of the proposed method. Table \ref{tbl:table2} displays the S/N values obtained by each operator and mixed operators after \old{ten}\wen{10} iterations. From the comparison of S/N\dlo{s} values, we find that only the ST operator is not able to improve the RR and DRR algorithm. Indeed, the results are almost the same. However, it is clear that only using the MA operator can improve the RR and the DRR algorithm. When we remove the damping factor from the proposed algorithm (RDRR), it corresponds to the RR + ST + MA approach. From Figures \dlo{\ref{29}(b) and \ref{32}(b)}\wen{\ref{synth-rrstma-s}\dlo{(b)} and \ref{synth-rrstma-xy-e-s}\old{(b)}}, we find that the introduced STMA function into the RR method framework after the TSVD process can \dlo{greatly}\wen{successfully} improve the result of the simultaneous denoising and reconstruction of 5D data. Compared to the damping operator (Figure \dlo{\ref{31}(a) and \ref{32}(a)}\wen{\ref{synth-rrdamping-s}\old{(a)} and \ref{synth-rrdamping-xy-e-s}\dlo{(a)}}), we find that RR + ST + MA operators can better reconstruct the missing traces than RR + damping operators. However, based on the visual comparison, the RR + damping operators can perfectly remove the residual noise from the noisy observation than the RR + ST + MA operators. Therefore, by introducing the damping and the STMA operators in the RR framework, we can greatly denoise while reconstructing the noisy and missing data from the noisy level-4 block Hankel matrix. Figures \dlo{\ref{31}(e) and \ref{32}(e)}\wen{\ref{synth-rrdampingstma-s}\dlo{(e)} and \ref{synth-rrdampingstma-xy-e-s}\dlo{(e)}} show the results obtained by combining the RR, damping and STMA operators. 
+\inputdir{./}
+\plot{influence_operator_block_HMatrice}{width=0.5\columnwidth}{Influence of the operators (ST, MA, STMA, and RR) on the level-4 block Hankel matrix under a noise variance of $0.3$ and $70\%$ as missing traces after \dlo{ten}\wen{$10$} iterations. The blue line corresponds to the ST operator. The dashed and solid gray lines are from the MA and STMA operators, respectively. The black line denotes the RR operator.}
+
+\inputdir{synth_stma_block_Hankel_matrix}
+\multiplot{4}{synth-hxhy-s-stma1,synth-hxhy-s-stma2,synth-xy-s-stma1,synth-xy-s-stma2}{width=0.35\textwidth}{Influence of the STMA operator on the level-4 block Hankel matrix. (a and c) The one common-midpoint and and common-offset gather\dlo{2-D figures}, respectively, for \wen{$\mathbf{\beta}=80$, $e=0.999$, $T=2$}. (b and d) The one common-midpoint and common-offset gather, respectively, for \wen{$\mathbf{\beta}=15$, $e=0.999$, \wen{and} $T=17$.}}
+
+\wen{To verify the adaptability of the STMA operator with some iterative denoising and reconstruction methods, we introduce the proposed STMA operator in the damped data-driven optimal singular value shrinkage algorithm \citep{siahsar2017simultaneous} framework for simultaneous denoising and interpolation of 3D seismic. Here, STMA is first applied to the block Hankel matrix before SVD, and then, to the singular values just after the SVD. For this test, we add a noise variance of $0.2$ to the 3D synthetic data and we decimate $50\%$. The S/N of the noisy data and the observed data is approximately $-8.40$ dB and $-5.98$ dB, respectively. Figures \dlo{\ref{Figure:29} and \ref{fig:30}}\wen{\ref{fig:syn3d-c-s,syn3d-n-s,syn3d-obs-s,syn3d-opshrinkdamped-s,syn3d-opshrinkdampedstma-s}}\dlo{and \ref{fig:25}} show the 2D slice comparison in the 5th crossline\dlo{ and inline sections, respectively}. Figures \dlo{\ref{fig:29}(a)-\ref{fig:29}(c)}\wen{\ref{fig:syn3d-c-s}\dlo{(a)}-\ref{fig:syn3d-obs-s}\dlo{(c)}} correspond to the clean data, noisy data, and observed data, respectively. Figures \dlo{\ref{fig:30}(d) and \ref{fig:30}(e)}\wen{\ref{fig:syn3d-opshrinkdamped-s}\dlo{(d)} and \ref{fig:syn3d-opshrinkdampedstma-s}\dlo{(e)}} display the recovered data using the damped data-driven optimal singular value shrinkage (damped optshrink) algorithm\wen{,} and the modified damped data-driven optimal singular value shrinkage algorithm, respectively. From the comparison of each sub-figure mentioned, the modified algorithm can obtain better recovery performance.\dlo{(Figures \ref{fig:29}(e) and \ref{fig:30})} The result of the modified algorithm is obtained with  $K=3$, $d=2$, $\mathbf{\beta}=2.10$, $e=0.991$, and $T=1$. The S/Ns are $7.77$ dB and $8.22$ dB for the damped data-driven optimal singular value shrinkage algorithm\wen{,} and the modified algorithm, respectively. We also analyze the contribution of the STMA operator by conducting two \dlo{significant}\wen{meaningful} numerical tests. First, by considering the S/N values as a function of iteration numbers. For this experiment, we range the iteration numbers from $5$ to $30$, and we plot the results in Figure \dlo{\ref{fig:31}}\wen{\ref{fig:snr_IterationN_DampedOpshrinkSTMA}}\dlo{(a)}. Then, we fix the noise level at $0.2$ and we vary the missing traces from $10\%$ to $90\%$. We \dlo{displays}\wen{display} the performance of each approach for the percentage of missing data in Figure \dlo{\ref{Figure:31}}\wen{\ref{fig:snr_missing_trace_DampedOpshrink_stma}}\dlo{(b)}. From both subfigures, we find that the STMA operator can effectively improve the damped data-driven optimal singular value shrinkage algorithm.} 
+
+\inputdir{optshrink_damped_stma}
+\multiplot{5}{syn3d-c-s,syn3d-n-s,syn3d-obs-s,syn3d-opshrinkdamped-s,syn3d-opshrinkdampedstma-s}{width=0.3\textwidth}{\dlo{Single slice comparison (5th crossline slice). (a-c) Clean, noisy, and observed data, respectively. (d and e) Recovered.} \wen{Single slice 2D figures comparison (fifth crossline slice). (a) Clean data. (b) Noisy data. (c) Observed data. (d and e) The recovered data obtained using the damped data-driven optimal singular value shrinkage algorithm and the modified algorithm, respectively.}}
+
+\inputdir{./}
+\multiplot{2}{snr_IterationN_DampedOpshrinkSTMA,snr_missing_trace_DampedOpshrink_stma}{width=0.35\textwidth}{S/N diagrams comparison between two approaches.\dlo{a noise level $0.2$ and $50\%$ as missing traces} (a) S/N\dlo{s} values for iteration numbers. (b) S/N\dlo{s} values as a function of missing traces after $15$ iterations. In both cases, the gray and black lines are from the damped data-driven optimal singular value shrinkage algorithm, and the modified algorithm, respectively.}
+
+\wen{Then, to show the \wen{individual} contribution of each operator that uses our approach, we conducted the following combination: the RR and ST operators (RR + ST), the RR and MA operators (RR + MA), the RR operator and the damping factor (DRR method), the RR and STMA operators (RR + ST + MA), the DRR and ST operators (RR + damping + ST), the DRR and MA operators (RR + damping + MA), and the DRR and STMA operators (RR + damping + ST + MA, which corresponds to the proposed approach)\wen{.}\dlo{combine first, the RR and ST operators (RR + ST) in the same framework to see the effect of ST. Then, we mix the RR and MA operators (RR + MA) to see the performance of MA. Afterward; we introduce the damping factor into the conventional RR framework (RR + damping factor, which corresponds to the DRR method), to show the influence of the damping factor. In the same way, we remove the damping factor, and; we connect the STMA operator, to see the contribution of STMA. Besides, we remove the MA function from the proposed approach (RDRR), to analyze the result using the DRR with ST (DRR + ST). Similarly, we drop the ST and keep the DRR associated with the MA function (DRR + MA), to analyze the effect. Finally, the DRR and STMA operators (RR + damping factor + ST + MA, which corresponds to the proposed approach) are connected into the same framework to simultaneous denoise and reconstruct the missing trace.} Based on these experiments, the proposed approach can be regarded as a combination of the RR, damping, ST, and MA operators. We apply these mixed operators on the synthetic data of our first example (5D synthetic data having linear events corrupted by $ 0.3 $ as noise variance and $70 \% $ of missing traces). Because of the best quality of the result, we adopted rank 6 for the RR approach. We select $K=6$ and $\mathbf{\beta}=0$, for RR + ST, and $K=6$, ${d}=2$, $\mathbf{\beta}=0$, for RR + damping + ST. In both cases, we have adopted $\mathbf{\beta}=0$ because all values of $\mathbf{\beta}$ selected below or above $0$ influence negatively the S/N and hence affect the quality of the result. To restore the useful signal via RR + MA, we selected $K=6$, $e=0.982$, and $T=1$. For RR + ST + MA, we set $K$, $\mathbf{\beta}$, $T$, $e$ and  at $6$, $30$, $1$, and $0.964$, respectively. The parameters used by RR + damping + MA were set at $K=6$, $d=2$, $e=0.975$ and $T=1$. For the proposed approach (RR + damping + ST + MA), we selected $K=6$, $d=2$, $\mathbf{\beta}=3.3$, $e=0.972$ and $T=1$. We run all approaches with \dlo{ten}\wen{10} iterations. As can be seen, when STMA is \dlo{joined to}\wen{combined with} the RR or DRR approaches, we need to select the cooling factor $\mathbf{\beta} > 0$ to adjust the threshold parameter $\tau$. We deduce that the three parameters ($e$, $T$, and $\mathbf{\beta}$) that STMA uses are not negligible to achieve the goal of the proposed method. Table \ref{tbl:table2} displays the S/N values obtained by each operator and mixed operators after \old{ten}\wen{10} iterations. From the comparison of S/N\dlo{s} values, we find that only the ST operator is not able to improve the RR and DRR algorithm. Indeed, the results are almost the same. However, it is clear that only using the MA operator can improve the RR and the DRR algorithm. When we remove the damping factor from the proposed algorithm (RDRR), it corresponds to the RR + ST + MA approach. From Figures \dlo{\ref{fig:29}(b) and \ref{fig:32}(b)}\wen{\ref{fig:synth-rrstma-s}\dlo{(b)} and \ref{fig:synth-rrstma-xy-e-s}\old{(b)}}, we find that the introduced STMA function into the RR method framework after the TSVD process can \dlo{greatly}\wen{successfully} improve the result of the simultaneous denoising and reconstruction of 5D data. Compared to the damping operator (Figure \dlo{\ref{fig:31}(a) and \ref{fig:32}(a)}\wen{\ref{fig:synth-rrdamping-s}\old{(a)} and \ref{fig:synth-rrdamping-xy-e-s}\dlo{(a)}}), we find that RR + ST + MA operators can better reconstruct the missing traces than RR + damping operators. However, based on the visual comparison, the RR + damping operators can perfectly remove the residual noise from the noisy observation than the RR + ST + MA operators. Therefore, by introducing the damping and the STMA operators in the RR framework, we can greatly denoise while reconstructing the noisy and missing data from the noisy level-4 block Hankel matrix. Figures \dlo{\ref{fig:31}(e) and \ref{fig:32}(e)}\wen{\ref{fig:synth-rrdampingstma-s}\dlo{(e)} and \ref{fig:synth-rrdampingstma-xy-e-s}\dlo{(e)}} show the results obtained by combining the RR, damping and STMA operators. 
 	
-We also analyze the influence of each approach by evaluating the S/N\dlo{s} values for iterations numbers (varying from $ 5 $ to $ 30 $). Figure \dlo{\ref{30}}\wen{\ref{Contribution_of_each_operator}} shows the S/N\dlo{s} diagrams obtained using the RR operator (the yellow line), RR + MA operator (the green line), RR + STMA operators (the gray line), RR + damping operators (DRR)(the blue line), DRR + MA operators (the black line) and DRR + STMA operators (RDRR)(the red line). From the S/N diagrams, we deduce that the proposed STMA operator can be used to greatly improve the conventional RR and the DRR methods. The comparison of each S/N diagram highlights the contribution of the proposed STMA operator in the RR and DRR methods.} 
+We also analyze the influence of each approach by evaluating the S/N\dlo{s} values for iterations numbers (varying from $ 5 $ to $ 30 $). Figure \dlo{\ref{fig:30}}\wen{\ref{fig:Contribution_of_each_operator}} shows the S/N\dlo{s} diagrams obtained using the RR operator (the yellow line), RR + MA operator (the green line), RR + STMA operators (the gray line), RR + damping operators (DRR)(the blue line), DRR + MA operators (the black line) and DRR + STMA operators (RDRR)(the red line). From the S/N diagrams, we deduce that the proposed STMA operator can be used to greatly improve the conventional RR and the DRR methods. The comparison of each S/N diagram highlights the contribution of the proposed STMA operator in the RR and DRR methods.} 
 
-%\new{
-%\AtEndDocument{
-%%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/offset_rr_0370ok}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/offset_RR_ST1}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/offset_MA_RR}
-%			\label{c}}\\
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/2D_offset_RR_damping_70_03}
-%			\label{d}}
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/offset_RR_STMA}
-%			\label{Fiigure:e}}
-%		\caption{Comparison in one common offset after 10 iterations. (a-e) denote the RR, RR+ST, RR+MA, RR+ damping (correspond to the DRR method) and RR+STMA (corresponds to the RDRR without the damping factor), respectively. We test these approaches on 5-D synthetic data corrupted by 0.3 as noise level and $ 70\% $ of missing traces.}
-%		\label{44}
-%	\end{figure}
-%}
-%}
-%\new{
-%\AtEndDocument{
-%	\begin{figure}[htb!]
-%		\centering
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/RMSE_RR_offset_rr03_70}
-%			\label{a}}
-%		\subfloat[]{\includegraphics[width=0.35\te%xtwidth]{Figures/RMSE_offset_RR_ST1}
-%			\label{b}}
-%		\subfloat[]{\includegraphics[width=0.35\textwidth]{Figures/RMSE_offset_RR_MA}
-%	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               		\label{c}}\\		
-%		\subfloat[]{\includegraphics[width=0.35\te%xtwidth]{Figures/2D_RMSE_offset_RR_damping%_70_03}
-%			\label{d}}
-%		\subfloat[]{\includegraphics[width=0.35\te%xtwidth]{Figures/RMSE_offset_rr_stma}
-%			\label{Fiigure:e}}
-%		\caption{RMSE figures comparison in one common offset after 10 iterations. (a-e) denote RR, RR + ST RR + MA, RR + damping (correspond to the DRR method), RR + STMA (RDRR without the damping factor), %respectively.}
-%		\label{45}
-%	\end{figure}
-%}
-%}
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdamping-s} 
-				\label{synth-rrdamping-s}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrstma-s} 
-				\label{synth-rrstma-s}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdampingst-s}
-				\label{synth-rrdampingst-s}}\\
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdampingma-s}
-				\label{synth-rrdampingma-s}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdampingstma-s}
-				\label{synth-rrdampingstma-s}}		
-			\caption{\wen{Common-offset 2D figures comparison after \wen{ten}\dlo{10} iterations.} (a) The RR + damping operators (DRR method). (b) The RR + ST + MA operators. (c) The result of RR + damping + ST operators. (d) The result provided by the RR + damping + MA operators. (e) The result of the proposed approach (RR + damping + ST+ MA). We have tested these approaches on 5D synthetic data corrupted by 0.3 as the noise level and $70\%$ of missing traces}.
-			\label{synth-rrdamping-s,synth-rrstma-s,synth-rrdampingst-s,synth-rrdampingma-s,synth-rrdampingstma-s}
-		\end{figure}}
-}%fig.26
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdamping-xy-e-s} 
-				\label{synth-rrdamping-xy-e-s}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrstma-xy-e-s} 
-				\label{synth-rrstma-xy-e-s}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdampingst-xy-e-s}
-				\label{synth-rrdampingst-xy-e-s}}\\
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdampingma-xy-e-s}
-				\label{synth-rrdampingma-xy-e-s}}
-			\subfloat[]{\includegraphics[width=0.33\textwidth]{synth_operators/Fig/synth-rrdampingstma-xy-e-s}
-				\label{synth-rrdampingstma-xy-e-s}}		
-			\caption{\wen{\dlo{2D figures c}\wen{C}omparison of the simultaneous denoising and reconstruction error in one common-offset gather after 10 iterations.} (a) RR + damping operators (the DRR method). (b) The error using the RR + ST + MA operators. (c) The error using the RR + damping + ST operators. (d) The RR + damping + MA operators. (e) The proposed approach (RR + damping + ST + MA).}
-			\label{synth-rrdamping-xy-e-s,synth-rrstma-xy-e-s,synth-rrdampingst-xy-e-s,synth-rrdampingma-xy-e-s,synth-rrdampingstma-xy-e-s}
-		\end{figure}
-	}
-}%fig.27
-\wen{
-	\AtEndDocument{
-		\begin{figure}[htb!]
-			\centering
-			\includegraphics[width=0.4\textwidth]{Fig/Contribution_of_each_operator}
-			\caption{Comparison of S/N\dlo{s} values as a function of ratio of missing traces between the RR (the yellow line), RR + MA (the green line), RR + STMA (the gray line), DRR (the blue line), DRR + MA (the black line), and DRR + STMA (the red line) under a noise variance of $0.3$ and $70\%$ as missing traces.  
-				\label{Contribution_of_each_operator}}
-		\end{figure}%fig.28
-}}\wen{The five key parameters \dlo{that use}\wen{in} the proposed approach are selected using the following strategy.} According to the Cadzow filtering method based on the linear event assumption, $K$ is defined as the number of different dip elements. \wen{In the condition of curved and complex events, $K$ should be approximately higher than the number of different dip components for producing more reliable results. The selection of $K$ generally influences substantially the performance of the RR-based methods. Indeed, the smaller values of $K$ will damage the signal, whereas higher values of $K$ will generate considerable noise in the result.} \dlo{Based on this assumption, we have conducted several tests to figure out the best results. The selection of $K$ influences substantially the performance of the proposed method. Indeed, the smaller value of $K$ will damage the signal whereas higher values of $K$ will generate considerable noise in the result. Because of the best quality of the signals obtained after applying the proposed method, it is better to choose rank $K$ = 6, for synthetic and field seismic data sets}\dlo{.}\wen{The damping factor can be selected in the interval \wen{of} $d\in[1,3]$}.\dlo{Concerning the damping factor,} \wen{In the case of data generally including linear events or no complex structures, $d = 1$ damages the useful signal. When $d = 3$, it produces some residual noise in the result. However, when we use $d = 2$, the results are perfect. Indeed, random noise can be greatly suppressed and the useful signal can be recovered for synthetic and field seismic data sets. However, when the data to be restored contains curved events or complex structures, $d = 3$ can be selected.} \dlo{When we use $d$ = 1, the proposed approach damages the useful signal. When $d$ = 3, it produces some residual noise in the result. However, when we use $d$ = 2, the results are \old{perfect}\new{better}. Indeed, random noise can be greatly suppressed and the useful signal can be recovered for synthetic and field seismic data sets}\dlo{.}\wen{Besides, the parameter $T$ should be a positive integer ($T>0$). It is important to know that when $T$ is too \dlo{long}\wen{larger}, it \dlo{creates}\wen{causes} some loss of useful signals (Figure \dlo{\ref{28}}\wen{\ref{synth-hxhy-s-stma2}\dlo{(b)}) even though the S/N can be improved. As a consequence, the amplitude of the signal can be seriously degraded. Moreover, if $T$ is \dlo{much short}\wen{too small} (Figure \ref{synth-hxhy-s-stma1}), it cannot attenuate residual noise well.\dlo{(Figures \dlo{\ref{30}(a and c)}\wen{\ref{31}(a) and \ref{31}(c)}).} However, the useful signal can be preserved. Therefore, in the proposed approach we should select a smaller value of $T$ to preserve the quality of the useful signal. To avoid \dlo{the signal damage}\wen{damaging signal}, we always select $T=1$ whatever the condition of noise and missing data and also the type (complex, linear or curved events) of the data to be reconstructed.
+\inputdir{synth_operators}
+\multiplot{5}{synth-rrdamping-s,synth-rrstma-s,synth-rrdampingst-s,synth-rrdampingma-s,synth-rrdampingstma-s}{width=0.29\textwidth}{Common-offset 2D figures comparison after \wen{10}\dlo{wen} iterations. (a) The RR + damping operators (DRR method). (b) The RR + ST + MA operators. (c) The result of RR + damping + ST operators. (d) The result provided by the RR + damping + MA operators. (e) The result of the proposed approach (RR + damping + ST+ MA). We have tested these approaches on 5D synthetic data corrupted by 0.3 as the noise level and $70\%$ of missing traces.}
+
+\inputdir{synth_operators}
+\multiplot{5}{synth-rrdamping-xy-e-s,synth-rrstma-xy-e-s,synth-rrdampingst-xy-e-s,synth-rrdampingma-xy-e-s,synth-rrdampingstma-xy-e-s}{width=0.3\textwidth}{Common-offset 2D figures comparison after \wen{ten}\dlo{10} iterations. (a) The RR + damping operators (DRR method). (b) The RR + ST + MA operators. (c) The result of RR + damping + ST operators. (d) The result provided by the RR + damping + MA operators. (e) The result of the proposed approach (RR + damping + ST+ MA). We have tested these approaches on 5D synthetic data corrupted by 0.3 as the noise level and $70\%$ of missing traces.}
+
+\inputdir{./}
+\plot{Contribution_of_each_operator}{width=0.5\columnwidth}{Comparison of S/N\dlo{s} values as a function of ratio of missing traces between the RR (the yellow line), RR + MA (the green line), RR + STMA (the gray line), DRR (the blue line), DRR + MA (the black line), and DRR + STMA (the red line) under a noise variance of $0.3$ and $70\%$ as missing traces.}
+
+\wen{The five key parameters \dlo{that use}\wen{in} the proposed approach are selected using the following strategy.} According to the Cadzow filtering method based on the linear event assumption, $K$ is defined as the number of different dip elements. \wen{In the condition of curved and complex events, $K$ should be approximately higher than the number of different dip components for producing more reliable results. The selection of $K$ generally influences substantially the performance of the RR-based methods. Indeed, the smaller values of $K$ will damage the signal, whereas higher values of $K$ will generate considerable noise in the result.} \dlo{Based on this assumption, we have conducted several tests to figure out the best results. The selection of $K$ influences substantially the performance of the proposed method. Indeed, the smaller value of $K$ will damage the signal whereas higher values of $K$ will generate considerable noise in the result. Because of the best quality of the signals obtained after applying the proposed method, it is better to choose rank $K$ = 6, for synthetic and field seismic data sets}\dlo{.}\wen{The damping factor can be selected in the interval \wen{of} $d\in[1,3]$}.\dlo{Concerning the damping factor,} \wen{In the case of data generally including linear events or no complex structures, $d = 1$ damages the useful signal. When $d = 3$, it produces some residual noise in the result. However, when we use $d = 2$, the results are perfect. Indeed, random noise can be greatly suppressed and the useful signal can be recovered for synthetic and field seismic data sets. However, when the data to be restored contains curved events or complex structures, $d = 3$ can be selected.} \dlo{When we use $d$ = 1, the proposed approach damages the useful signal. When $d$ = 3, it produces some residual noise in the result. However, when we use $d$ = 2, the results are \old{perfect}\new{better}. Indeed, random noise can be greatly suppressed and the useful signal can be recovered for synthetic and field seismic data sets}\dlo{.}\wen{Besides, the parameter $T$ should be a positive integer ($T>0$). It is important to know that when $T$ is too \dlo{long}\wen{larger}, it \dlo{creates}\wen{causes} some loss of useful signals (Figure \dlo{\ref{fig:28}}\wen{\ref{fig:synth-hxhy-s-stma2}\dlo{(b)}) even though the S/N can be improved. As a consequence, the amplitude of the signal can be seriously degraded. Moreover, if $T$ is \dlo{much short}\wen{too small} (Figure \ref{fig:synth-hxhy-s-stma1}), it cannot attenuate residual noise well.\dlo{(Figures \dlo{\ref{fig:30}(a and c)}\wen{\ref{fig:31}(a) and \ref{fig:31}(c)}).} However, the useful signal can be preserved. Therefore, in the proposed approach we should select a smaller value of $T$ to preserve the quality of the useful signal. To avoid \dlo{the signal damage}\wen{damaging signal}, we always select $T=1$ whatever the condition of noise and missing data and also the type (complex, linear or curved events) of the data to be reconstructed.
 The parameters $e$ and $\beta$ should be selected considering \dlo{some information about}the noise level, the percentage of missing traces, and the iteration numbers used to run the proposed algorithm. In general, $e$ should be \old{greater than $0$ but less or equal to $1$}$ 0 < e \leq 1$. \wen{The larger value of $e$}\dlo{If the value of $e$ is much large, it} may produce redundant data and cause new noise\dlo{.}\wen{, and t}he energy of the signal may be seriously affected. In addition, if $e$ is extremely small, it may yield \dlo{over-smoothing results}\wen{an overly smooth result} and signal distortion. After conducting many numerical tests on different synthetic data, we realize that it is better to always set $e$ around $1$ ($e \leq 1$). From these tests, we can deduce significant conclusions about this useful parameter. When the percentage of missing data decreases, $e$ must be selected very close to $1$ ($ e \leq 1 $). In other words, we have to select $e$ by decreasing $1$ very slightly until achieving the best result. For instance, when the 5D synthetic data \old{is}\new{are} corrupted by a noise level of $0.3$ with $20\%$ of missing data, we choose $e = 0.997$. However, for the $90\%$ decimation, we need to select $e$ by gradually moving away from $1$. For example, using a noise level of $0.2$ with $90\%$ of missing traces, we choose $e = 0.891$. This meaningful indication about $e$ can also be applied in the case of field data. For instance, we used $e = 0.9$ when recovering the real field data of this paper, which missed approximately $75\%$ of traces. Under the same condition of noise and missing traces, we should increase gradually the value of $e$ when the iteration numbers increase. For example, $e$ can be set from $0.95, 0.97,..,$ to $1$ for iteration varying from $5, 10,.., $ to $40$ based on the same noise level and missing data. This is verified for any type of data to be recovered}}. 
 To greatly impose sparsity into the level-4 block Hankel matrix \wen{after DTSVD}, we set the thresholding parameter $\tau$ as \dlo{the value}defined in the “The RDRR Method” section. From this approach, we use the cooling factor $\beta$ to adjust $\tau$. This useful tool helps to control the smoothing degree. According to our experience, it is better to select a small $\beta$ \wen{for data having linear events. All $\beta$ used for the synthetic data examples containing linear \wen{events} have been selected between values from \dlo{$2$}\wen{$2.0$} to $3.5$. In contrast, a relatively greater value of $\beta$ should be set for data that are composed of curved events. The values of $\beta$ have been selected from $5$ to $17$ for the different tests on curved data of this paper. As a general rule, when the percentage of missing traces, noise levels and iteration numbers decrease, a relatively larger value of $\beta$ should be selected.} Note that, \wen{if}\dlo{even though only} one parameter is not appropriately set, it may affect the simultaneous denoising and reconstruction performance. Thus, to reach the best trade-off between random noise \dlo{attenuating}\wen{attenuation} and useful signal preservation, we should choose the parameters properly.
 
@@ -1355,61 +678,6 @@ We would like to thank three anonymous reviewers for constructive suggestions. T
 \section{Data and materials availability}
 Data associated with this research are available and can be obtained by contacting the corresponding author.
 
-
 \bibliographystyle{apalike}
 \bibliography{rdrr}
-
-\newpage
-\listoftables
-
-\newpage
-\listoffigures
-
-%\end{document}
-
-%\AtEndDocument{}
-
-%\newpage
-%\listoffigures
-
-
-
-%\begin{figure}[htb!]
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.8\textwidth]{Fig/fig}}
-%	\caption{Caption.}
-%	\label{fig:fig}
-%\end{figure}
-
-%\begin{figure}[htb!]
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig1}
-%    \label{fig:fig1}}\\
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig2}
-%    \label{fig:fig2}}\\
-%	\caption{(a) Caption a. (b) Caption b.}
-%	\label{fig:fig1,fig2}
-%\end{figure}
-
-%\begin{figure*}[ht!]
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig1}
-%    \label{fig:fig1}}\\
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig2}
-%    \label{fig:fig2}}\\
-%	\caption{(a) Caption a. (b) Caption b.}
-%	\label{fig:fig1,fig2}
-%\end{figure*}
-
-%\begin{table}[h]
-%\caption{Table caption}
-%\begin{center}
-%     \begin{tabular}{|c|c|c|c|c|c|} 
-%	  \hline Column1 (unit)  & Column2 (unit) & Column3 (unit) \\ 
-%	  \hline 1 & 2  & 3 \\
-%       \hline
-%    \end{tabular} 
-%\end{center}
-%\label{tbl:table1}
-%\end{table}
 
