@@ -16,6 +16,8 @@
 % Chen, Y., J. Ma, and S. Fomel, 2016, Double-sparsity dictionary for seismic noise attenuation, Geophysics, 81, V17-V30.
 % Zu, S., H. Zhou, R. Wu, M. Jiang, and Y. Chen, 2019, Dictionary learning based on dip patch selection training for random noise attenuation, Geophysics, 84, V169?V183.
 % Zu, S., H. Zhou, R. Wu, and Y. Chen, 2019, Hybrid-sparsity constrained dictionary learning for iterative deblending of extremely noisy simultaneous-source data, IEEE Transactions on Geoscience and Remote Sensing, 57, 2249-2262.
+% Zhou et al., 2021, Statistics-guided dictionary learning for automatic coherent noise suppression, IEEE Transactions on Geoscience and Remote Sensing, doi: 10.1109/TGRS.2020.3039738.
+% Wang et al., 2021, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, 
 
 
 clc;clear;close all;
@@ -72,7 +74,8 @@ figure;imagesc(X);colormap(jet);
 figure;imagesc(X2);colormap(jet);
 
 %% K-SVD
-addpath(genpath('~/chenyk/dblend_dl/toolbox/Dictionary'));
+%% using others' ksvd
+% addpath(genpath('~/chenyk/dblend_dl/toolbox/Dictionary'));
 params.data = X;
 params.Tdata = 2;%sparsity level
 params.initdict=D;
@@ -82,8 +85,17 @@ params.codemode = 'sparsity';
 params.iternum = 30;
 params.memusage = 'high';
 
-rng(201819,'twister');
-[Dksvd,Gksvd,err] = ksvd(params,'');
+% rng(201819,'twister');
+%% using others' ksvd
+% [Dksvd,Gksvd,err] = ksvd(params,'');
+%% using our own ksvd
+param.T=2;      %sparsity level
+param.D=D;    %initial D
+param.niter=30; %number of K-SVD iterations to perform; default: 10
+param.mode=1;   %1: sparsity; 0: error
+param.K=c2;     %number of atoms, dictionary size
+[Dksvd,Gksvd]=yc_ksvd(X,param); 
+
 
 Gksvd0=Gksvd;
 Gksvd=yc_pthresh(Gksvd0,'ph',1);
@@ -270,6 +282,7 @@ for ia=1:50
 end
 print(gcf,'-depsc','-r300','syn2_atoms.eps');
 
+%% a little different with the published results (due to a different KSVD subroutine) (if the KSVD is revised to the original KSVD subroutine, the results are exactly the same)
 figure('units','normalized','Position',[0.2 0.4 0.8 2.0]);
 for ia=1:50
     subplot(10,5,ia);plot([1:l1],Dksvd(:,ia),'b','linewidth',2);
@@ -277,7 +290,7 @@ for ia=1:50
     if ia==1
         ylim([-0.5,0.5]);
     end
-    if ismember(ia,[1,2,3,4,5,13,14,28,37,43])
+    if ismember(ia,[1,2,3,4,5,6,8,21,23,31])
         subplot(10,5,ia);plot([1:l1],Dksvd(:,ia),'r','linewidth',2);
     end
     set(gca,'Linewidth',1.5,'Fontsize',16);

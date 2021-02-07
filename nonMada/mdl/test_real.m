@@ -17,6 +17,8 @@ clc;clear;close all;
 % Chen, Y., J. Ma, and S. Fomel, 2016, Double-sparsity dictionary for seismic noise attenuation, Geophysics, 81, V17-V30.
 % Zu, S., H. Zhou, R. Wu, M. Jiang, and Y. Chen, 2019, Dictionary learning based on dip patch selection training for random noise attenuation, Geophysics, 84, V169?V183.
 % Zu, S., H. Zhou, R. Wu, and Y. Chen, 2019, Hybrid-sparsity constrained dictionary learning for iterative deblending of extremely noisy simultaneous-source data, IEEE Transactions on Geoscience and Remote Sensing, 57, 2249-2262.
+% Zhou et al., 2021, Statistics-guided dictionary learning for automatic coherent noise suppression, IEEE Transactions on Geoscience and Remote Sensing, doi: 10.1109/TGRS.2020.3039738.
+% Wang et al., 2021, Fast dictionary learning for high-dimensional seismic reconstruction, IEEE Transactions on Geoscience and Remote Sensing, 
 
 load mdl_real.mat
 
@@ -74,7 +76,9 @@ print(gcf,'-depsc','-r300','real_G.eps');
 
 %% K-SVD
 %This will be subsituted by independent subroutines
-addpath(genpath('~/chenyk.data2/various/packages/toolbox'));
+% addpath(genpath('~/chenyk.data2/various/packages/toolbox'));
+%% others' package (if use ksvd instead of yc_ksvd, uncomment the below)
+% addpath(genpath('~/chenyk.data2/various/packages/toolbox'));
 
 params.data = X;
 params.Tdata = 5;%sparsity level
@@ -85,8 +89,17 @@ params.codemode = 'sparsity';
 params.iternum = 30;
 params.memusage = 'high';
 
-rng(201819,'twister');
-[Dksvd,Gksvd,err] = ksvd(params,'');
+%% using others' ksvd
+% rng(201819,'twister');
+% [Dksvd,Gksvd,err] = ksvd(params,'');
+
+%% using our own ksvd
+param.T=5;      %sparsity level
+param.D=D;    %initial D
+param.niter=30; %number of K-SVD iterations to perform; default: 10
+param.mode=1;   %1: sparsity; 0: error
+param.K=c2;     %number of atoms, dictionary size
+[Dksvd,Gksvd]=yc_ksvd(X,param); 
 
 Gksvd0=Gksvd;
 Gksvd=yc_pthresh(Gksvd0,'ph',1);
