@@ -21,6 +21,18 @@ function synth_linear_NV03_MT70(clean,noisy,obs,drr,rdrr)
 %  You should have received a copy of the GNU General Public License
 %  along with this program; if not, write to the Free Software
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
+%
+%  KEY REFERENCE
+%  Oboue et al., 2021, Robust damped rank-reduction method for simultaneous denoising and reconstruction of 5-D seismic data, Geophysics, 86, V71–V89.
+% 
+%  OTHER REFERENCES
+%  [1] Bai et al., 2020, Seismic signal enhancement based on the lowrank methods, Geophysical Prospecting, 68, 2783-2807.
+%  [2] Chen et al., 2020, Five-dimensional seismic data reconstruction using the optimally damped rank-reduction method, Geophysical Journal International, 222, 1824-1845.
+%  [3] Chen, Y., W. Huang, D. Zhang, W. Chen, 2016, An open-source matlab code package for improved rank-reduction 3D seismic data denoising and reconstruction, Computers & Geosciences, 95, 59-66.
+%  [4] Chen, Y., D. Zhang, Z. Jin, X. Chen, S. Zu, W. Huang, and S. Gan, 2016, Simultaneous denoising and reconstruction of 5D seismic data via damped rank-reduction method, Geophysical Journal International, 206, 1695-1717.
+%  [5] Huang, W., R. Wang, Y. Chen, H. Li, and S. Gan, 2016, Damped multichannel singular spectrum analysis for 3D random noise attenuation, Geophysics, 81, V261-V270.
+%  [6] Chen et al., 2017, Preserving the discontinuities in least-squares reverse time migration of simultaneous-source data, Geophysics, 82, S185-S196.
+%  [7] Chen et al., 2019, Obtaining free USArray data by multi-dimensional seismic reconstruction, Nature Communications, 10:4434.
 
 %% load data
 load ob_synth5d.mat
@@ -35,7 +47,7 @@ dn=d+var*randn(size(d));
 %% decimate
 [nt,nhx,nhy,nx,ny]=size(d);
 ratio=0.3;
-mask=genmask(reshape(d,nt,nhx*nhy*nx*ny),ratio,'c',201415);
+mask=yc_genmask(reshape(d,nt,nhx*nhy*nx*ny),ratio,'c',201415);
 mask=reshape(mask,nt,nhx,nhy,nx,ny);
 d0=dn.*mask;
 

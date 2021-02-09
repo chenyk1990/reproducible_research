@@ -37,7 +37,7 @@ dn=d+var*randn(size(d));
 %% decimate
 %[nt,nhx,nhy,nx,ny]=size(d);
 ratio=0.3;
-mask=genmask(reshape(d,nt,nhx*nhy*nx*ny),ratio,'c',201415);
+mask=yc_genmask(reshape(d,nt,nhx*nhy*nx*ny),ratio,'c',201415);
 mask=reshape(mask,nt,nhx,nhy,nx,ny);
 d0=dn.*mask;
 

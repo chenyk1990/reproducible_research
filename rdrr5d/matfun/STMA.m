@@ -14,6 +14,9 @@ function [dout]=STMA(Z, K, e, ws)
 % e    : rational tranfer function coefficient 
 % ws   : windows size
 % dout : approximation signal
+%
+%  KEY REFERENCE
+%  Oboue et al., 2021, Robust damped rank-reduction method for simultaneous denoising and reconstruction of 5-D seismic data, Geophysics, 86, V71–V89.
 
 D=Z;
 x=Z(:);
