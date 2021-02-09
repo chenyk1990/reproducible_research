@@ -1,0 +1,22 @@
+First download the raw 3D seismic data from 
+
+https://drive.google.com/file/d/1vGWj_5S_BKBnoMW7fUW-fvxwQfgzDVBG/view?usp=sharing
+
+and store it in DL_lithology/data/seis/
+
+NOTE: the code is based on python3 
+
+If you find it useful, please remember to cite the KEY REFERENCE listed below
+
+Zhang, G., Z. Wang, and Y. Chen, 2018, Deep Learning for Seismic Lithology Prediction, Geophysical Journal International, 215, 1368–1387.
+
+@Article{guoyin2018,
+  author={Guoyin Zhang and Zhizhang Wang and Yangkang Chen},
+  title = {Deep learning for Seismic Lithology Prediction},
+  journal={Geophysical Journal International},
+  year=2018,
+  volume=215,
+  pages={1368–1387},
+  doi={10.1093/gji/ggy344},
+}
+
