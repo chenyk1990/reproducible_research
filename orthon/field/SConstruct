@@ -1,0 +1,201 @@
+from rsf.proj import *
+sys.path.append('../hyper/')
+from radius2 import radius2
+
+def Wiggle(data,other): 
+	Result(data,'''
+				window j2=2 | wiggle transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=b wherexlabel=b %s clip=0.38 '''%other)
+
+def Grey(data,other): 
+	Result(data,'''
+				grey transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y color=g
+				wheretitle=b wanttitle=n wherexlabel=b screenratio=1.4 %s clip=0.38 '''%other)
+
+def Greyr(data,data1,other): 
+	Result(data,data1,'''
+				math output="input*2"|grey transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y color=g
+				wheretitle=b wanttitle=n wherexlabel=b screenratio=1.4 %s  mean=y scalebar=y barlabel=Radius barunit=samples '''%other)
+
+
+
+Flow('f2','image2d','cp')
+
+## fxdecon
+Flow('f2-fx','f2','fxdecon n2w=128 lenf=4 | transp plane=12 | mean nfw=3 | transp plane=12')
+Flow('f2-fx-n','f2-fx f2','add scale=-1,1 ${SOURCES[1]}')
+
+## Similarity
+Flow('f2-s','f2-fx-n f2-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+Flow('n','f2','noise rep=y seed=20202122 var=0.1| bandpass flo=5 fhi=30')
+Grey('n','')
+
+Flow('nn','f2','noise rep=y seed=10101112 var=0.1| bandpass flo=3 fhi=28')
+Grey('nn','')
+
+# ortho
+Flow('f2-ortho-n f2-ortho','f2-fx-n f2-fx','ortho rect1=50 rect2=50 eps=0.0 sig=${SOURCES[1]} sig2=${TARGETS[1]}')
+
+Flow('f2-s-ortho','f2-ortho-n f2-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('f2-s-orthon','f2-orthon-n f2-orthon','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+# non-stationary ortho
+Flow('f2-high','f2','cp')
+Flow('f2-low','f2','bandpass fhi=20')
+Grey('f2-high','')
+Grey('f2-low','')
+
+#sfpen Fig/high-smooth-spec00.vpl Fig/high-smooth-spec10.vpl Fig/high-smooth-spec20.vpl Fig/high-smooth-spec30.vpl Fig/high-smooth-spec40.vpl Fig/high-smooth-spec50.vpl
+
+radius2('f2-high','f2-low', 
+                niter=5, 
+#                 c=[0.7,0.45,0.35,0.35,0.5], #works fine
+                c=[0.7,0.4,0.2,0.1,0.05], #works fine
+                bias=-20, clip=30, 
+                rect1=30, rect2=20, 
+                theor=False, initial=1, 
+                minval=-20, maxval=20, 
+                titlehigh='High', titlelow='Low',
+                it=0 )
+                
+Flow('rect1','rect50','math output="input"')
+Flow('rect2','rect50','math output="input"')
+
+Greyr('f2-rect10','rect10','color=j scalebar=y')
+Greyr('f2-rect20','rect20','color=j scalebar=y')
+Greyr('f2-rect30','rect30','color=j scalebar=y')
+Greyr('f2-rect40','rect40','color=j scalebar=y')
+Greyr('f2-rect50','rect50','color=j scalebar=y')
+
+Greyr('f2-rect2','rect2','color=j scalebar=y')
+
+Flow('f2-orthon-n f2-orthon','f2-fx-n f2-fx rect1 rect2','orthon niter=100 sig=${SOURCES[1]} sig2=${TARGETS[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} eps=0.00')
+Grey('f2-orthon','')
+Grey('f2-orthon-n','')
+
+
+## ploting
+Grey('f2','')
+Grey('f2-fx','')
+Grey('f2-ortho','')
+Grey('f2-fx-n','')
+Grey('f2-ortho-n','')
+
+
+Grey('f2-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('f2-s-ortho','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('f2-s-orthon','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+
+## Creating framebox
+x=0
+y=0.45
+w=254
+w1=0.5
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=254 min2=0 max2=2.048 pad=n plotfat=15 plotcol=2 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.4
+	''')
+
+Result('f2-fx-n0','Fig/f2-fx-n.vpl frame1','Overlay')
+Result('f2-ortho-n0','Fig/f2-ortho-n.vpl frame1','Overlay')
+Result('f2-orthon-n0','Fig/f2-orthon-n.vpl frame1','Overlay')
+
+Flow('f2-fx-n-z1','f2-fx-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-ortho-n-z1','f2-ortho-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-orthon-n-z1','f2-orthon-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('f2-fx-n-z1','screenratio=0.8')
+Grey('f2-ortho-n-z1','screenratio=0.8')
+Grey('f2-orthon-n-z1','screenratio=0.8')
+
+## Creating framebox B
+x=0
+y=0.45
+w=254
+w1=0.5
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=254 min2=0 max2=2.048 pad=n plotfat=15 plotcol=2 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.4
+	''')
+
+Flow('f2-z1','f2','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-fx-z1','f2-fx','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-ortho-z1','f2-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-orthon-z1','f2-orthon','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('f2-z1','screenratio=0.8')
+Grey('f2-fx-z1','screenratio=0.8')
+Grey('f2-ortho-z1','screenratio=0.8')
+Grey('f2-orthon-z1','screenratio=0.8')
+
+Plot('label1',None,
+	'''
+	box x0=2.5 y0=3.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label2',None,
+	'''
+	box x0=10.5 y0=5.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label3',None,
+	'''
+	box x0=6.5 y0=7.0 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label4',None,
+	'''
+	box x0=9 y0=8.0 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+
+Result('f2-z1-0','Fig/f2-z1 label1 label2 label3 label4','Overlay')
+Result('f2-fx-z1-0','Fig/f2-fx-z1 label1 label2 label3 label4','Overlay')
+Result('f2-ortho-z1-0','Fig/f2-ortho-z1 label1 label2 label3 label4','Overlay')
+Result('f2-orthon-z1-0','Fig/f2-orthon-z1 label1 label2 label3 label4','Overlay')
+
+## Creating framebox C
+x=0
+y=1.0
+w=254
+w1=0.5
+
+Flow('frame3.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame3','frame3.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=254 min2=0 max2=2.048 pad=n plotfat=15 plotcol=2 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.4
+	''')
+	
+Flow('f2-z2','f2','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-fx-z2','f2-fx','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-ortho-z2','f2-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('f2-orthon-z2','f2-orthon','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('f2-z2','screenratio=0.8')
+Grey('f2-fx-z2','screenratio=0.8')
+Grey('f2-ortho-z2','screenratio=0.8')
+Grey('f2-orthon-z2','screenratio=0.8')
+
+Result('f2-0','Fig/f2.vpl frame2','Overlay')
+Result('f2-fx-0','Fig/f2-fx.vpl frame2','Overlay')
+Result('f2-ortho-0','Fig/f2-ortho.vpl frame2','Overlay')
+Result('f2-orthon-0','Fig/f2-orthon.vpl frame2','Overlay')	
+
+
+
+
+
+End()

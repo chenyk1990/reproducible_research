@@ -1,0 +1,294 @@
+from rsf.proj import *
+from math import *
+import os
+sys.path.append('../hyper/')
+from radius2 import radius2
+
+## module defining
+def Grey(data,other): 
+	Result(data,'grey label2="Trace" label1="Time" unit1=s unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t clip=0.2 screenratio=1.2 labelfat=4 font=2 color=g %s'%other)
+
+def Greyfk(data,data0,other): 
+	Result(data,data0,'put d2=1 |fft1 | fft3 axis=2 pad=1 |window max1=50 |cabs|grey label2="Normalized wavenumber" label1="Frequency" unit1=Hz unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t clip=0.1 screenratio=1.2 labelfat=4 font=2 color=g %s'%other)
+	
+def Greyr(data,data1,other): 
+	Result(data,data1,'grey label2="Trace" label1="Time" unit1=s unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t screenratio=1.2 labelfat=4 font=2  mean=y scalebar=y barlabel=Radius barunit=samples %s'%other)
+
+
+
+wf = 2*pi
+nt = 501
+dt = 0.004
+ot = 0
+nx = 501
+dx = 0.01
+ox = 0
+nw = 200
+dw = 0.0005
+ow = 0
+
+
+for eve in (1,2,3,4):
+    spike='spike%d' % eve
+    tpara='tpara%d'   % eve
+    para='para%d'     % eve
+    Flow(spike,None,
+        '''
+        spike n1=%d d1=%g o1=%g n2=%d d2=%g o2=%g nsp=1 k1=%d mag=1  p2=0| 
+        ricker1 frequency=15 | put unit2=km label2=Distance
+        ''' % (nt,dt,ot,nx,dx,ox,eve*80-30))
+
+    Flow(tpara,spike,
+        '''
+        window n1=1 | math output="-sqrt(%g*%g+(x1-2.5)*(x1-2.5)/%g/%g)+%g"
+        ''' % (0.004*(eve*80-30),0.004*(eve*80-30),2,2,0.004*(eve*80-30)))
+
+    Flow(para,[spike, tpara],
+        'datstretch datum=${SOURCES[1]} ')
+
+Flow('hyper','para1 para2 para3 para4','add ${SOURCES[1]} ${SOURCES[2]} ${SOURCES[3]} | window f2=128 n2=256 |put d2=1 o2=1 | scale axis=2 | window n1=400 | window j2=2')
+
+Flow('n','hyper','noise seed=202021 var=0.1 rep=y | bandpass fhi=50')
+Flow('hyper-n','hyper n','add scale=1,1 ${SOURCES[1]}')
+
+Grey('hyper','')
+Grey('n','')
+Grey('hyper-n','')
+
+## Stationary (Traditional way)
+Flow('hyper-smo','hyper-n','smooth rect1=5 ')
+Flow('hyper-smo-n','hyper-smo hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-smo','')
+Grey('hyper-smo-n','')
+
+
+## Stationary and Non-stationary (sfnsmooth)
+Flow('rect1-c','hyper-n','math output=5')
+Flow('rect2-c','hyper-n','math output=1')
+Flow('hyper-sm','hyper-n rect1-c rect2-c','smoothn rect1=${SOURCES[1]} rect2=${SOURCES[2]}')
+Flow('hyper-sm-n','hyper-sm hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-sm','')
+Grey('hyper-sm-n','')
+
+#
+Flow('rect1-n','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float  |math output="5-input*4"')
+#Flow('rect1-n','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float |math output="1"')
+Flow('rect2-n','hyper','math output=1')
+
+Flow('hyper-nsm','hyper-n rect1-n rect2-n','smoothn rect1=${SOURCES[1]} rect2=${SOURCES[2]}')
+Flow('hyper-nsm-1','hyper-n rect1-n rect2-n','nsmooth1 rect=${SOURCES[1]} rect2=${SOURCES[2]}')
+
+Flow('hyper-nsm-n','hyper-nsm hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-nsm','')
+Grey('hyper-nsm-1','')
+Grey('hyper-nsm-n','')
+
+Grey('rect1-n','color=j scalebar=y clip=6')
+
+
+## Orthogonalization
+Flow('hyper-fx','hyper-n','fxdecon lenf=6 n2w=128')
+Flow('hyper-fx-n','hyper-fx hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-fx','')
+Grey('hyper-fx-n','')
+
+Flow('hyper-ortho-n hyper-ortho','hyper-fx-n hyper-fx','ortho niter=100 rect1=30 rect2=30 sig=${SOURCES[1]} sig2=${TARGETS[1]} eps=0.00')
+Grey('hyper-ortho','')
+Grey('hyper-ortho-n','')
+
+## Constant radius, benchmark with stationary ortho (exactly the same)
+#Flow('rect1','hyper','math output="10"')
+#Flow('rect2','hyper','math output="10"')
+
+# Flow('rect1','rect1-n','cp | math output="input*3"')
+# Flow('rect2','rect1-n','cp | math output="input*3"')
+# Grey('rect1','color=j scalebar=y clip=6')
+# Grey('rect2','color=j scalebar=y clip=6')
+
+
+Flow('high','hyper-n','cp')
+Flow('low','hyper-n','bandpass fhi=10')
+#Flow('low','hyper-fx','cp')
+Grey('high','')
+Grey('low','')
+
+# Flow('high','hyper-fx','cp | noise var=0.05 seed=202021')
+# Flow('low','high','bandpass fhi=20')
+# Grey('high','')
+# Grey('low','')
+#sfpen Fig/high-smooth-spec00.vpl Fig/high-smooth-spec10.vpl Fig/high-smooth-spec20.vpl Fig/high-smooth-spec30.vpl Fig/high-smooth-spec40.vpl Fig/high-smooth-spec50.vpl
+
+radius2('high','low', 
+                niter=5, 
+#                 c=[0.7,0.45,0.35,0.35,0.5], #works fine
+                c=[0.7,0.4,0.2,0.1,0.05], #works fine
+                bias=-20, clip=30, 
+                rect1=30, rect2=20, 
+                theor=False, initial=1, 
+                minval=-20, maxval=20, 
+                titlehigh='High', titlelow='Low',
+                it=0 )
+                
+Flow('rect1','rect50','math output="input"')
+Flow('rect2','rect50','math output="input"')
+Greyr('hyper-rect10','rect10','color=j scalebar=y')
+Greyr('hyper-rect20','rect20','color=j scalebar=y')
+Greyr('hyper-rect30','rect30','color=j scalebar=y')
+Greyr('hyper-rect40','rect40','color=j scalebar=y')
+Greyr('hyper-rect50','rect50','color=j scalebar=y')
+
+Flow('hyper-orthon-n hyper-orthon','hyper-fx-n hyper-fx rect1 rect2','orthon niter=100 sig=${SOURCES[1]} sig2=${TARGETS[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} eps=0.00')
+Grey('hyper-orthon','')
+Grey('hyper-orthon-n','')
+
+
+#local similarity
+Flow('hyper-fx-s','hyper-fx-n hyper-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('hyper-ortho-s','hyper-ortho-n hyper-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('hyper-orthon-s','hyper-orthon-n hyper-orthon','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Grey('hyper-fx-s','clip=1 maxval=1 minval=0 color=j scalebar=y')
+Grey('hyper-ortho-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+Grey('hyper-orthon-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+
+Greyfk('hyper-f','hyper','color=j allpos=y clip=80')
+Greyfk('hyper-nf','hyper-n','color=j allpos=y clip=80')
+Greyfk('hyper-fxf','hyper-fx','color=j allpos=y clip=80')
+Greyfk('hyper-orthof','hyper-ortho','color=j allpos=y clip=80')
+Greyfk('hyper-orthonf','hyper-orthon','color=j allpos=y clip=80')
+
+
+# compute SNR (may differ in different computers)
+Flow('h-diff1','hyper hyper-n','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr1','hyper h-diff1','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff2','hyper hyper-fx','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr2','hyper h-diff2','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff3','hyper hyper-ortho','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr3','hyper h-diff3','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff4','hyper hyper-orthon','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr4','hyper h-diff4','snr2 noise=${SOURCES[1]}')
+
+
+
+# hyper-fx,hyper-ortho,hyper-orthon,hyper-fx-n,hyper-ortho-n,hyper-orthon-n,hyper-fx-s,hyper-ortho-s,hyper-orthon-s
+
+## Creating framebox
+x=0
+y=0
+w=100
+w1=0.5
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=1 max1=255 min2=0 max2=1.6 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.2
+	''')
+Plot('label1',None,
+	'''
+	box x0=2.5 y0=7.8 label="Strong residual noise" xt=0.5 yt=-0.5 length=2.5 
+	''')
+Plot('label11',None,
+	'''
+	box x0=2.5 y0=7.8 label="Weak residual noise" xt=0.5 yt=-0.5 length=2.5 
+	''')
+Plot('label2',None,
+	'''
+	box x0=2.8 y0=6.8 label="Strong signal leakage" xt=0.5 yt=-0.5 length=2.5 
+	''')
+Plot('label22',None,
+	'''
+	box x0=6.2 y0=6.8 label="" xt=-0.5 yt=-0.5 length=2.5 
+	''')
+Plot('label222',None,
+	'''
+	box x0=2.8 y0=6.8 label="Weak signal leakage" xt=0.5 yt=-0.5 length=2.5 
+	''')
+Result('hyper-fx0','Fig/hyper-fx.vpl frame1 label1','Overlay')
+Result('hyper-ortho0','Fig/hyper-ortho.vpl frame1 label1','Overlay')
+Result('hyper-orthon0','Fig/hyper-orthon.vpl frame1 label11','Overlay')
+
+Result('hyper-fx-n0','Fig/hyper-fx-n.vpl label22 label2','Overlay')
+Result('hyper-ortho-n0','Fig/hyper-ortho-n.vpl label22 label2','Overlay')
+Result('hyper-orthon-n0','Fig/hyper-orthon-n.vpl label22 label222','Overlay')
+
+
+
+#hyper-f, hyper-nf,hyper-fxf,hyper-orthof,hyper-orthonf
+
+## Creating framebox 2
+x=-0.1
+y=0
+w=0.2
+w1=10
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=-0.5 max1=0.5 min2=0 max2=50 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.2
+	''')
+Plot('label3',None,
+	'''
+	box x0=4.6 y0=8.2 label="Worse recovery" xt=0.2 yt=-0.5 length=1.5 
+	''')
+Plot('label30',None,
+	'''
+	box x0=4.6 y0=8.2 label="" xt=0.2 yt=-0.5 length=1.5 
+	''')
+Plot('label33',None,
+	'''
+	box x0=4.6 y0=8.2 label="Better recovery" xt=0.2 yt=-0.5 length=1.5 
+	''')
+			
+x=-0.5
+y=9
+w=0.25
+w1=16	
+Plot('label3',None,
+	'''
+	box x0=4.6 y0=8.2 label="Better recovery" xt=0.2 yt=-0.5 length=1.5 
+	''')
+Flow('frame3.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame3','frame3.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=-0.5 max1=0.5 min2=0 max2=50 pad=n plotfat=15 plotcol=5 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1.2
+	''')
+Plot('label4',None,
+	'''
+	box x0=2.2 y0=6.2 label="Stronger noise" xt=0.2 yt=-0.5 length=2.5 
+	''')
+Plot('label40',None,
+	'''
+	box x0=2.2 y0=6.2 label="" xt=0.2 yt=-0.5 length=2.5 
+	''')
+Plot('label44',None,
+	'''
+	box x0=2.2 y0=6.2 label="Weaker noise" xt=0.2 yt=-0.5 length=2.5 
+	''')
+
+Result('hyper-f0','Fig/hyper-f.vpl frame2 label30 frame3 label40','Overlay')
+Result('hyper-fxf0','Fig/hyper-fxf.vpl frame2 label3 frame3 label4','Overlay')
+Result('hyper-orthof0','Fig/hyper-orthof.vpl frame2 label3 frame3 label4','Overlay')
+Result('hyper-orthonf0','Fig/hyper-orthonf.vpl frame2 label33 frame3 label44','Overlay')
+
+
+
+
+
+
+
+
+End()

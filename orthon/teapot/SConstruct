@@ -1,0 +1,198 @@
+############
+#DATAPATH: 
+# for google drive: https://drive.google.com/file/d/1fJUXlBA512KJBGk16cyC3E0ucPYdj6ru/view?usp=sharing
+# for baidu disk:  link:https://pan.baidu.com/s/1j3YAjzAw515hRV5zU9FwBQ  pass:x1va 
+
+from rsf.proj import *
+sys.path.append('../hyper/')
+from radius2 import radius2
+
+
+def Grey2(data,other): 
+	Result(data,'grey label2="inline" label1="xline" unit1= unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t clip=0.9 screenratio=1.0 labelfat=4 font=2  max1=60 %s'%other)
+	
+def Grey(data,other):
+	Result(data,
+		'''
+		window f1=40 | byte gainpanel=all clip=0.9 | 
+		grey3 wanttitle=y label2=xline unit2=  
+		label3=inline unit3=  frame1=361 frame2=40 frame3=90 
+		title= screenratio=0.6 %s'''%other)
+
+def Greyr(data,data1,other):
+	Result(data,data1,
+		'''
+		window f1=40 | byte gainpanel=all  bar=bar.rsf mean=y | 
+		grey3 wanttitle=y label2=xline unit2=  
+		label3=inline unit3=  frame1=361 frame2=40 frame3=90 
+		title= screenratio=0.6 mean=y scalebar=y wherebarlabel=r barlabel=Radius barunit=samples  %s'''%other)
+		
+
+def Grey1(data,other):
+	Result(data,
+		'''
+		window f1=40 |byte gainpanel=all clip=0.5 bar=bar.rsf | 
+		grey3 color=j wanttitle=y label2=xline unit2=  
+		label3=inline unit3=  frame1=401 frame2=40 frame3=90 
+		title= screenratio=0.6 scalebar=y maxval=0.5 minval=0 %s '''%other)
+
+
+Flow('tea','teapot3d','window f1=100 f2=75 n2=75 f3=100 n3=150 | put o2=1 o3=1') 
+
+
+### Patch 
+Flow('patch','tea','patch w=100,75,150 p=9,1,1')
+
+tpres = []
+tpre2ds = []
+
+for nwt in range(0,9):
+    fd     = 'fd-%d' % nwt
+    shiftsa= 'shiftsa-%d' % nwt
+    sh1    = 'sh1-%d' % nwt
+    shifts = 'shifts-%d' % nwt
+    flt    = 'flt-%d' % nwt
+    pre    = 'pre-%d' % nwt
+    tpre   = 'tpre-%d' % nwt
+    Flow(fd,'patch','window n4=1 f4=%d | fft1 | transp plane=12  | transp plane=23 | window n3=30 '  % nwt )
+
+    Flow(shifts,fd,
+        '''
+        cshifts2 ns1=2 ns2=2 | transp plane=34 
+        ''' )
+
+    Flow([flt, pre],[shifts, fd],
+         '''
+         clpf match=${SOURCES[1]} pred=${TARGETS[1]} rect1=10 rect2=10 niter=10
+         ''')
+    Flow(tpre,pre,'transp plane=23 | transp plane=12  | pad end1=21 | fft1 inv=y ')
+    tpres.append(tpre)
+Flow('t-fxy',tpres,'cat ${SOURCES[1:%d]} axis=4 |patch inv=y weight=y dim=3 ' % len(tpres))
+
+
+Flow('t-fxy-n','t-fxy tea','add scale=-1,1 ${SOURCES[1]}')
+Flow('t-ortho-n t-ortho','t-fxy-n t-fxy','ortho niter=100 eps=1 rect1=20 rect2=20 rect3=20 sig=${SOURCES[1]} sig2=${TARGETS[1]}')
+
+
+
+# non-stationary ortho
+Flow('t-high','tea','cp')
+Flow('t-low','tea','bandpass fhi=40')
+#Flow('t-low','t-fx','cp')
+Grey('t-high','')
+Grey('t-low','')
+
+
+#sfpen Fig/high-smooth-spec00.vpl Fig/high-smooth-spec10.vpl Fig/high-smooth-spec20.vpl Fig/high-smooth-spec30.vpl Fig/high-smooth-spec40.vpl Fig/high-smooth-spec50.vpl
+
+radius2('t-high','t-low', 
+                niter=5, 
+#                 c=[0.7,0.45,0.35,0.35,0.5], #works fine
+                c=[0.7,0.4,0.2,0.1,0.05], #works fine
+                bias=-20, clip=30, 
+                rect1=30, rect2=20, 
+                theor=False, initial=1, 
+                minval=-20, maxval=20, 
+                titlehigh='High', titlelow='Low',
+                it=0 )
+                
+Flow('rect1','rect50','math output="input"')
+Flow('rect2','rect50','math output="input"')
+Flow('rect3','rect50','math output="input"')
+
+Greyr('t-rect10','rect10','color=j scalebar=y')
+Greyr('t-rect20','rect20','color=j scalebar=y')
+Greyr('t-rect30','rect30','color=j scalebar=y')
+Greyr('t-rect40','rect40','color=j scalebar=y')
+Greyr('t-rect50','rect50','color=j scalebar=y')
+
+
+Flow('t-orthon-n t-orthon','t-fxy-n t-fxy rect1 rect2 rect3','orthon niter=100 sig=${SOURCES[1]} sig2=${TARGETS[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} rect3=${SOURCES[4]} eps=0.00')
+
+
+Flow('t-ortho-s','t-ortho-n t-ortho','similarity rect1=3 rect2=3 rect3=3 other=${SOURCES[1]} eps=0.1')
+Flow('t-fxy-s','t-fxy-n t-fxy','similarity rect1=3 rect2=3 rect3=3 other=${SOURCES[1]} eps=0.1')
+
+Flow('tea-zero','tea','math output="0"')
+
+Plot('label1',None,
+	'''
+	box x0=3.2 y0=6.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+Plot('label2',None,
+	'''
+	box x0=3.9 y0=6.4 label="Signal" xt=0.5 yt=0.5 length=1.5 
+	''')
+Plot('label22',None,
+	'''
+	box x0=3.9 y0=6.4 label="" xt=0.5 yt=0.5 length=1.5 
+	''')
+Plot('label3',None,
+	'''
+	box x0=4.3 y0=5.8 label="" xt=0.5 yt=0.5 length=0.5 
+	''')
+		
+Grey('tea','')
+Grey('tea-zero','')
+Grey('t-fxy','')
+Grey('t-fxy-n','')
+Grey('t-ortho','')
+Grey('t-ortho-n','')
+Grey('t-orthon','')
+Grey('t-orthon-n','')
+Grey1('t-ortho-s','')
+Grey1('t-fxy-s','')
+
+Result('t-fxy-n0','Fig/t-fxy-n.vpl label1 label2 label3','Overlay')
+Result('t-ortho-n0','Fig/t-ortho-n.vpl label1 label2 label3','Overlay')
+Result('t-orthon-n0','Fig/t-orthon-n.vpl label1 label22 label3','Overlay')
+
+Flow('slice-fxy','t-fxy-n','window n1=1 f1=401')
+Flow('slice-ortho','t-ortho-n','window n1=1 f1=401')
+Flow('slice-orthon','t-orthon-n','window n1=1 f1=401')
+Grey2('slice-fxy','')
+Grey2('slice-ortho','')
+Grey2('slice-orthon','')
+
+## Noise
+x=1
+y=1
+w=75
+w1=20
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=1 max1=150 min2=1 max2=60 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n screenratio=1
+	''')
+	
+# Plot('label',None,
+# 	'''
+# 	box x0=10.0 y0=5.3 label="Signal" xt=-0.5 yt=0.5 length=1 
+# 	''')
+	
+##zooming
+Flow('slice-fxy-z','slice-fxy','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('slice-ortho-z','slice-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('slice-orthon-z','slice-orthon','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey2('slice-fxy-z','max1=20')
+Grey2('slice-ortho-z','max1=20')
+Grey2('slice-orthon-z','max1=20')
+
+
+Result('slice-fxy-0','Fig/slice-fxy.vpl frame2','Overlay')
+Result('slice-ortho-0','Fig/slice-ortho.vpl frame2','Overlay')
+Result('slice-orthon-0','Fig/slice-orthon.vpl frame2','Overlay')
+
+
+
+
+
+
+
+End()
+

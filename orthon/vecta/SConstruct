@@ -1,0 +1,276 @@
+from rsf.proj import *
+#google drive: https://drive.google.com/file/d/1hmLi3m7Q5XUvUOUJn9T5itNt0vI-1lWc/view?usp=sharing
+#
+sys.path.append('../hyper/')
+from radius2 import radius2
+
+
+def Wiggle(data,other): 
+	Result(data,'''
+				window j2=2 | wiggle transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=b wherexlabel=b %s clip=0.38 '''%other)
+
+def Grey(data,other): 
+	Result(data,'''
+				grey transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y color=g
+				wheretitle=b wanttitle=n wherexlabel=b %s clip=0.38 '''%other)
+
+def Greyr(data,data1,other): 
+	Result(data,data1,'''
+				grey transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y color=g
+				wheretitle=b wanttitle=n wherexlabel=b %s mean=y scalebar=y barlabel=Radius barunit=samples '''%other)
+
+
+Flow('pp','bend_l1_pmig_enhanc.sgy',
+         'segyread tape=$SOURCE read=data | window n2=471 | scale axis=2 | put label2=Trace',
+         stdin=0)
+
+## fxdecon
+Flow('pp-fx','pp','fxdecon n2w=471')
+Flow('pp-fx-n','pp-fx pp','add scale=-1,1 ${SOURCES[1]}')
+
+## Similarity
+Flow('pp-s','pp-fx-n pp-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+
+# ortho
+Flow('pp-ortho-n pp-ortho','pp-fx-n pp-fx','ortho rect1=2 rect2=2 sig=${SOURCES[1]} sig2=${TARGETS[1]}')
+Flow('pp-s-ortho','pp-ortho-n pp-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+
+# non-stationary ortho
+Flow('pp-high','pp','cp')
+Flow('pp-low','pp','bandpass fhi=40')
+#Flow('pp-low','pp-fx','cp')
+Grey('pp-high','')
+Grey('pp-low','')
+
+# Flow('pp-high','pp-fx','cp | noise var=0.05 seed=202021')
+# Flow('pp-low','pp-high','bandpass fhi=20')
+# Grey('pp-high','')
+# Grey('pp-low','')
+#sfpen Fig/high-smooth-spec00.vpl Fig/high-smooth-spec10.vpl Fig/high-smooth-spec20.vpl Fig/high-smooth-spec30.vpl Fig/high-smooth-spec40.vpl Fig/high-smooth-spec50.vpl
+
+radius2('pp-high','pp-low', 
+                niter=5, 
+#                 c=[0.7,0.45,0.35,0.35,0.5], #works fine
+                c=[0.7,0.4,0.2,0.1,0.05], #works fine
+                bias=-20, clip=30, 
+                rect1=30, rect2=20, 
+                theor=False, initial=1, 
+                minval=-20, maxval=20, 
+                titlehigh='High', titlelow='Low',
+                it=0 )
+                
+Flow('rect1','rect50','math output="input"')
+Flow('rect2','rect50','math output="input"')
+
+Greyr('pp-rect10','rect10','color=j scalebar=y')
+Greyr('pp-rect20','rect20','color=j scalebar=y')
+Greyr('pp-rect30','rect30','color=j scalebar=y')
+Greyr('pp-rect40','rect40','color=j scalebar=y')
+Greyr('pp-rect50','rect50','color=j scalebar=y')
+
+
+Flow('pp-orthon-n pp-orthon','pp-fx-n pp-fx rect1 rect2','orthon niter=100 sig=${SOURCES[1]} sig2=${TARGETS[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} eps=0.00')
+Grey('pp-orthon','')
+Grey('pp-orthon-n','')
+
+
+## ploting
+Grey('pp','')
+Grey('pp-fx','')
+Grey('pp-ortho','')
+Grey('pp-fx-n','')
+Grey('pp-ortho-n','')
+
+Grey('pp-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-s-ortho','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+
+
+
+## Creating framebox
+x=1300
+y=1.7
+w=250
+w1=0.5
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=2000 min2=0 max2=5 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+
+# Result('pp-fx-n0','Fig/pp-fx-n.vpl frame1','Overlay')
+# Result('pp-ortho-n0','Fig/pp-ortho-n.vpl frame1','Overlay')
+# Result('pp-orthon-n0','Fig/pp-orthon-n.vpl frame1','Overlay')
+Result('pp-fx-n0','Fig/pp-fx-n.vpl frame1 frame2 frame3','Overlay')
+Result('pp-ortho-n0','Fig/pp-ortho-n.vpl frame1 frame2 frame3','Overlay')
+Result('pp-orthon-n0','Fig/pp-orthon-n.vpl frame1 frame2 frame3','Overlay')
+
+## Creating framebox B
+x=150
+y=0.25
+w=100
+w1=0.5
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=470 min2=0 max2=2.046 pad=n plotfat=15 plotcol=2 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+
+Flow('pp-z','pp','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-fx-z','pp-fx','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-z','pp-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-orthon-z','pp-orthon','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('pp-z','')
+Grey('pp-fx-z','')
+Grey('pp-ortho-z','')
+Grey('pp-orthon-z','')
+
+Flow('pp-fx-n-z','pp-fx-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-n-z','pp-ortho-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-orthon-n-z','pp-orthon-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('pp-fx-n-z','clip=0.5')
+Grey('pp-ortho-n-z','clip=0.5')
+Grey('pp-orthon-n-z','clip=0.5')
+
+
+## Creating framebox C
+x=275
+y=1.2
+w=100
+w1=0.5
+
+Flow('frame3.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame3','frame3.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=470 min2=0 max2=2.046 pad=n plotfat=15 plotcol=3 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+Flow('pp-z1','pp','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-fx-z1','pp-fx','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-z1','pp-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-orthon-z1','pp-orthon','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('pp-z1','')
+Grey('pp-fx-z1','')
+Grey('pp-ortho-z1','')
+Grey('pp-orthon-z1','')
+
+Result('pp-0','Fig/pp.vpl frame2 frame3','Overlay')
+Result('pp-fx-0','Fig/pp-fx.vpl frame2 frame3','Overlay')
+Result('pp-ortho-0','Fig/pp-ortho.vpl frame2 frame3','Overlay')
+Result('pp-orthon-0','Fig/pp-orthon.vpl frame2 frame3','Overlay')	
+
+Flow('pp-fx-n-z1','pp-fx-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-n-z1','pp-ortho-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-orthon-n-z1','pp-orthon-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey('pp-fx-n-z1','clip=0.2')
+Grey('pp-ortho-n-z1','clip=0.2')
+Grey('pp-orthon-n-z1','clip=0.2')
+
+
+
+#labelnew
+Plot('labelnew0',None,
+	'''
+	box x0=7.2 y0=3.8 label="" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew00',None,
+	'''
+	box x0=4.2 y0=3.8 label="" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew000',None,
+	'''
+	box x0=10.2 y0=3.8 label="" xt=0 yt=-0.5 length=1.5 
+	''')
+
+Plot('labelnew2',None,
+	'''
+	box x0=7.2 y0=3.8 label="Weaker" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew22',None,
+	'''
+	box x0=4.2 y0=3.8 label="Weaker" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew222',None,
+	'''
+	box x0=10.2 y0=3.8 label="Weaker" xt=0 yt=-0.5 length=1.5 
+	''')
+
+Plot('labelnew3',None,
+	'''
+	box x0=7.2 y0=3.8 label="Stronger" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew33',None,
+	'''
+	box x0=4.2 y0=3.8 label="Stronger" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew333',None,
+	'''
+	box x0=10.2 y0=3.8 label="Stronger" xt=0 yt=-0.5 length=1.5 
+	''')
+		
+	
+Plot('labelnew1',None,
+	'''
+	box x0=7.2 y0=3.8 label="Noisier" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew10',None,
+	'''
+	box x0=4.2 y0=3.8 label="Noisier" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew100',None,
+	'''
+	box x0=10.2 y0=3.8 label="Noisier" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew11',None,
+	'''
+	box x0=7.2 y0=3.8 label="Cleaner" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew110',None,
+	'''
+	box x0=4.2 y0=3.8 label="Cleaner" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew1100',None,
+	'''
+	box x0=10.2 y0=3.8 label="Cleaner" xt=0 yt=-0.5 length=1.5 
+	''')
+
+# Plot('labelnew2',None,
+# 	'''
+# 	box x0=6.2 y0=6.8 label="Noisier" xt=-0.5 yt=-0.5 length=2.5 
+# 	''')
+# Plot('labelnew2',None,
+# 	'''
+# 	box x0=6.2 y0=6.8 label="Cleaner" xt=-0.5 yt=-0.5 length=2.5 
+# 	''')	
+
+Result('pp-fx-z10','Fig/pp-fx-z1.vpl labelnew2 labelnew22 labelnew222','Overlay')
+Result('pp-ortho-z10','Fig/pp-ortho-z1.vpl labelnew0 labelnew00 labelnew000','Overlay')
+Result('pp-orthon-z10','Fig/pp-orthon-z1.vpl labelnew3 labelnew33 labelnew333','Overlay')
+
+Result('pp-fx-z0','Fig/pp-fx-z.vpl labelnew0 labelnew00 labelnew000','Overlay')
+Result('pp-ortho-z0','Fig/pp-ortho-z.vpl labelnew1 labelnew10 labelnew100','Overlay')
+Result('pp-orthon-z0','Fig/pp-orthon-z.vpl labelnew11 labelnew110 labelnew1100','Overlay')
+
+
+
+End()
