@@ -1,0 +1,568 @@
+
+
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+
+\title{Non-stationary local signal-and-noise orthogonalization}
+\author{Yangkang Chen\footnotemark[1] and Sergey Fomel\footnotemark[2]}
+%\author{Authors}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\ms{GEO-2021} %\ms{GJI-2018}
+
+\address{
+\footnotemark[1]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+chenyk2016@gmail.com \\
+\footnotemark[2]Bureau of Economic Geology \\
+John A. and Katherine G. Jackson School of Geosciences \\
+The University of Texas at Austin \\
+University Station, Box X \\
+Austin, TX 78713-8924 \\
+sergey.fomel@beg.utexas.edu
+}
+
+\lefthead{Chen and Fomel, 2021}
+\righthead{Non-stationary orthogonalization}
+
+
+
+\begin{abstract}
+The local signal-and-noise orthogonalization method has been widely used in the seismic processing and imaging community. This method uses a fixed triangle smoother for regularizing the local orthogonalization weight, which is based on the assumption that the energy is homogeneously distributed across the whole seismic profile. The fixed triangle smoother limits the performance of the local orthogonalization method in processing complicated seismic datasets. Here, we propose a new local orthogonalization method that uses a variable triangle smoother. The non-stationary smoothing radius is obtained by solving an optimization problem, where the low-pass filtered seismic data are matched by the smoothed data in terms of the local frequency attribute. The new local orthogonalization method with non-stationary model smoothness constraint is called the non-stationary local orthogonalization method. We use several synthetic and field data examples to demonstrate the successful performance of the new method.
+\end{abstract}
+
+\maketitle
+
+
+\section{Introduction}
+\old{Signal and noise are two relative terms}\new{The definitions of signal and noise depend on the specific application}. Those components one treats as noise could be signals to others. For example, the multiple reflection waves that were long treated as noise in \old{conventional}\new{the traditional} seismic imaging workflow are signals in full wavefield seismic imaging \cite[]{verschuur2011}. \old{The spatially less discontinuous diffracted waves as compared with reflected waves}\new{Diffracted waves, which are often neglected or removed as spatially discontinuous noise,} are signals when it comes to diffraction imaging \cite[]{fomel2007}. The interfering ambient noise is treated as the signal when \old{it }is taken for passive seismic imaging \cite[]{de2011ambient}.  Here, we generalize the meaning of signal to refer to those desired components in the observed data, while using noise to refer to the \dlo{rest}\wen{remaining} unwanted components. Local signal-and-noise orthogonalization\dlo{, initially proposed in } \cite[]{yangkang2015ortho} is \old{a secondary processing step}\new{an effective method} to optimize the signal-and-noise separation after the initial \old{processing}\new{denoising} step, \old{in the sense that}\new{making} the resulted signal and noise \old{are }locally orthogonal to each other. 
+
+\cite{yangkang2015ortho} \old{introduced}\new{introduce} the concept of local signal-and-noise orthogonalization to deal with one commonly existing issue in all denoising methods, i.e., the signal leakage problem. \old{In a nutshell}\new{Simply speaking}, almost all denoising algorithms could cause more or less signal leakage because of either incorrect parameter selection or \old{inadequacy of}\new{inappropriate} denoising assumptions \cite[]{yangkang2015ortho}. The local signal-and-noise orthogonalization method can \old{supplement}\new{complement} a traditional denoising algorithm by applying an element-wise weighting operator to the noise to retrieve the lost signal energy. The element-wise weighting operator can be calculated by solving an inverse problem, where the model is constrained by a smoothing operator. For simplicity, we will omit the ``signal-and-noise'' when referring to the local orthogonalization method throughout the paper. \cite{yangkang2015ortho} \old{demonstrated}\new{demonstrate} the performance via a simple but representative seismic application, i.e., random noise attenuation. \old{Since then}\new{Then}, the local orthogonalization algorithm has been applied widely in the whole seismic data processing and imaging community. \cite{yangkang2015orthogroll} \old{applied}\new{apply} the local orthogonalization method to suppress the ground roll noise by first applying a simple low-pass filtering method to suppress all ground roll components and secondly applying the local orthogonalization method to retrieve all lost reflection \old{components}\new{energy} back to the low-pass filtered data. \cite{yangkang2015dbortho} \old{incorporated}\new{incorporates} the local orthogonalization method into the iterative simultaneous-source separation framework \cite[]{shaohuan2019} to better separate the useful signals and interfering blending noise in each step and thus improves the deblending performance and \old{accelerated}\new{accelerates} the convergence rate. \cite{weilin2018} \old{applied}\new{apply} the local orthogonalization method to decompose a microseismic trace (via the mathematical morphology algorithm) into quasi-orthogonal components for weak microseismic signal detection. \cite{sripanich2017elastic} \old{applied}\new{apply} the local orthogonalization method to separate the elastic wave modes in heterogeneous anisotropic media by compensating for the amplitude loss in each separated wave component.  \cite{jeong2019enhanced} \old{applied}\new{apply} the local orthogonalization method to separate the P and S wave \new{modes} in elastic modeling and multi-parameter full waveform inversion\old{ more robustly}. They \old{showed}\new{show} that the residual energy or crosstalk caused by divergence and curl operators in the P- and S-wave separation can be significantly decreased using the local orthogonalization method, and the resulted elastic multi-parametric inversion converges faster and is less likely to fall into the local minima. More recently, \cite{zhangdong2019ortho} \old{applied}\new{apply} the local orthogonalization method to retrieve the leaked multiples energy in the initially demultipled data based on the surface-related multiple elimination (SRME) framework and \old{obtained}\new{obtain} a successful separation between primaries and multiples even in the case of imperfect circumstances or built-in assumptions. \new{\cite{qu2020robust} apply the local orthogonalization method to mitigate the amplitude-variation-with-offset (AVO) effect in the one-way wave-equation based joint migration inversion framework. \cite{zhangdong2021geo} further apply the local orthogonalization method to leaked internal multiple crosstalk estimation and attenuation on full-wavefield migrated images. }
+
+Despite \new{of many}\old{ the} reported successes in the literature, the traditional local orthogonalization method still suffers from \old{one}\new{a} problem. The smoothing radius of the triangle smoother that regularizes the inverse problem and greatly affects the signal-and-noise separation performance \dlo{(as demonstrated in ?) }is fixed across the whole seismic dataset in the conventional framework. The fixed smoothing radius makes the local orthogonalization method when handling structurally complex seismic profiles. A larger smoothing radius tends to over-smooth the local orthogonalization weight and causes a failure in retrieving the \old{lost signals}\new{signal leakage} in complex areas. A smaller smoothing radius tends to \old{bring more noise back to}\new{cause more residual noise in} the denoised data and may also cause instability issues. Thus, one needs to adjust the \new{globally} constant smoothing radius carefully to obtain the best compromise. 
+
+In this paper, we introduce a non-stationary local signal-and-noise orthogonalization method that uses a spatially variable smoothing radius to deal with the structurally complex seismic data. The non-stationary local orthogonalization \old{requires applying}\new{applies} a non-stationary triangle smoother to regularize the ill-posed inverse problem for solving the local orthogonalization weight. While the spatially variable smoothing radius \old{could}\new{can} be obtained by incorporating \old{the}\new{some} a priori information, e.g., \dlo{longer}\wen{shorter} radius for more structurally complex areas and \dlo{shorter}\wen{longer} radius for simpler areas, we provide an elegant way to estimate the \old{optimal spatially variable smoothing radius}\new{optimal distribution of smoothing radius} by optimization. The \old{goal}\new{principle} is to match a low-pass filtered seismic data and a smoothed seismic data via the non-stationary smoothing operator in terms of minimal \old{local-frequency}\new{local frequency} difference. The optimization problem is solved by an iterative line-search method with a fast convergence. 
+
+We organize the paper as follows. We first introduce the basics of the local signal-and-noise orthogonalization method. Then, we introduce in detail the formulation of the non-stationary triangle smoother and the iterative optimization method to adaptively obtain the smoothing radius map. We use a set of representative examples to demonstrate the performance of the non-stationary local orthogonalization method. \old{Finally, we draw some key conclusions.}
+
+\section{Theory}
+\subsection{Stationary local orthogonalization}
+Given an initial estimation of the signal $\mathbf{s}$ and noise $\mathbf{n}$, the locally orthogonalized signal and noise can be expressed as\new{:}
+\begin{align}
+\label{eq:sn1}
+\hat{\mathbf{s}} = \mathbf{s} + \mathbf{w} \circ \mathbf{s}, \\
+\label{eq:sn2}
+\hat{\mathbf{n}} = \mathbf{n} - \mathbf{w} \circ \mathbf{s}, 
+\end{align}
+where $\hat{\mathbf{s}}$ and $\hat{\mathbf{n}}$ are the orthogonalized signal and noise, respectively; $\mathbf{w}$ denotes the local orthogonalization weight \cite[]{yangkang2015ortho}; and $\circ$ denotes the Hadamard product. 
+
+When the local orthogonalization weight is a constant $w$, equations \ref{eq:sn1} and \ref{eq:sn2} become the global orthogonalization formulas: 
+\begin{align}
+\label{eq:sn11}
+\hat{\mathbf{s}} = \mathbf{s} + w \mathbf{s}, \\
+\label{eq:sn22}
+\hat{\mathbf{n}} = \mathbf{n} - w \mathbf{s}. 
+\end{align}
+Following the Gram-Schmidt orthogonalization \cite[]{gram}, to make $\hat{\mathbf{s}}$ and $\hat{\mathbf{n}}$ orthogonal, 
+\begin{equation}
+\label{eq:gow}
+w=\frac{\mathbf{n}^T\mathbf{s}}{\mathbf{s}^T\mathbf{s}}.
+\end{equation} 
+$w$ in equation \ref{eq:gow} is called the global orthogonalization weight, and
+can be understood as the least-squares solution to the following optimization problem
+\begin{equation}
+\label{eq:gowo}
+\arg \min_{w} \parallel w \mathbf{s} - \mathbf{n} \parallel_2^2.
+\end{equation} 
+To draw an analogy, the local orthogonalization weight can be understood as the least-squares solution to the following problem
+\begin{equation}
+\label{eq:lowo}
+\arg \min_{\mathbf{w}} \parallel  \mathbf{w}\circ\mathbf{s} - \mathbf{n} \parallel_2^2.
+\end{equation} 
+
+To solve $\mathbf{w}$\old{ stably}, a regularization term is \dlo{required}\wen{added} to the objective function as follows:
+\begin{equation}
+\label{eq:lowr}
+\arg \min_{\mathbf{w}} \parallel  \mathbf{S}\mathbf{w} - \mathbf{n} \parallel_2^2 + \mathbf{R}(\mathbf{w}),
+\end{equation} 
+where $\mathbf{S}\mathbf{w}$ is used to substitute $\mathbf{w}\circ\mathbf{s}$.
+
+Based on the shaping regularization method \cite[]{fomel2007shape}, the solution can be obtained as\new{:}
+\begin{equation}
+\label{eq:lowr2}
+\hat{\mathbf{w}}_S = [\lambda^2 \mathbf{I} + \mathbf{T}_S (\mathbf{S}^T\mathbf{S} -\lambda^2 \mathbf{I})]^{-1}\mathbf{T}_S\mathbf{S}^T\mathbf{n}, 
+\end{equation} 
+where $\mathbf{T}_S$ denotes a stationary triangle smoothing operator; and $\mathbf{I}$ is an identity matrix. $\lambda=\parallel \mathbf{s} \parallel_2^2$.  The stationary local orthogonalization \old{is completed}\new{can be implemented} by substituting the inverted $\hat{\mathbf{w}}_S$ into equation \ref{eq:sn1}.
+
+
+\subsection{Non-stationary smoothing and local orthogonalization}
+The triangle smoothing operator is equivalent to applying a rectangle (box) smoothing operator twice. 
+The rectangle smoothing operator can be expressed in the Z-transform form as follows:
+\begin{equation}
+\label{eq:box}
+B(Z) = \frac{1}{N} ( 1+ Z + Z^2 +\cdots+Z^{N-1}) = \frac{1-Z^N}{N(1-Z)},
+\end{equation}
+where $N$ is the length for the rectangle smoothing operator, or the radius for the triangle smoothing operator. Correspondingly, the triangle smoothing operator in the Z-transform form is expressed as follows:
+\begin{equation}
+\label{eq:tri}
+T(Z) = B(Z)B(Z) = \frac{(1-Z^N)^2}{N^2(1-Z)(1-Z)} =\frac{2Z^N-Z^{2N}-1}{N^2(1-Z)(Z-1)}.
+\end{equation}
+In equation \ref{eq:tri}, the division by $1-Z$ corresponds to the following recursion
+\begin{equation}
+\label{eq:rec0}
+y_n=y_{n-1}+x_n,
+\end{equation}
+denoting a causal integration operation.
+Correspondingly, division by $Z-1$ denotes the reverse causal integration operation:
+\begin{equation}
+\label{eq:rec1}
+y_{n-1}=y_{n}+x_n.
+\end{equation}
+The numerator in equation \ref{eq:tri} denotes the following recursion:
+\wen{\begin{equation}
+\label{eq:rec2}
+y_{n}=2x_{n-N}-x_{n-2N}-x_{n}.
+\end{equation}}
+Thus, the triangle smoothing operator consists of the following steps: 
+1) Causal integration following equation \ref{eq:rec0}; 2) Reverse causal integration following equation \ref{eq:rec1}; 3) Recursion following equation \ref{eq:rec2}; 4) Division by $N^2$. 
+
+\new{Note that the reverse causal integration denoted by $1/(Z-1)$ and $y_{n-1}=y_{n}+x_n$ is a little different from the anticausal integration denoted by $1/(1-1/Z)$ and $y_{n-1}=y_{n}+x_{n-1}$. The anticausal integration is the exact adjoint of the causal integration. To apply consecutive causal and anticausal integrations, one needs to reformulate equation \ref{eq:tri} as $\frac{2Z^{N-1}-Z^{2N-1}-Z^{-1}}{N^2(1-Z)(1-Z^{-1})}$, and revise the recursion expressed in equation \ref{eq:rec2} correspondingly. }
+
+Because operator multiplication in the Z-transform domain is sequence independent (like the operator multiplication in the Fourier domain), there is no need for a given order for the above four steps. Note that for equation \ref{eq:rec2}, the recursion for each point depends on the smoothing radius $N$. When $N$ is fixed constantly, equation \ref{eq:rec2} corresponds to a stationary smoothing operator $\mathbf{T}_S$. When $N$ is spatially variable \old{controlled by}\new{with} the smoothing radius map $\mathbf{r}$, equation \ref{eq:rec2} corresponds to a non-stationary smoothing operator $\mathbf{T}_N$. Substituting $\mathbf{T}_S$ by $\mathbf{T}_N$ in equation \ref{eq:lowr}, we can obtain the non-stationary local orthogonalization weight: 
+\begin{equation}
+\label{eq:lowrn}
+\hat{\mathbf{w}}_N = [\lambda^2 \mathbf{I} + \mathbf{T}_N (\mathbf{S}^T\mathbf{S} -\lambda^2 \mathbf{I})]^{-1}\mathbf{T}_N\mathbf{S}^T\mathbf{n}, 
+\end{equation} 
+which is the base for the non-stationary \old{version of }local orthogonalization as defined by equations \ref{eq:sn1} and \ref{eq:sn2}.
+
+\subsection{Iterative smoothing radius estimation}
+We formulate the smoothing radius estimation as an optimization problem. Here, we use a global band-pass filtering method as a benchmark method to evaluate the smoothing effect \old{offered by}\new{from} the non-stationary smoothing operator. The basic assumption is that by using a local non-stationary smoothing operator, we obtain an equivalent smoothing effect as a global smoothing filter, e.g., the band-pass filter. To measure the match between two methods, we use the local frequency operator \cite[]{fomel2007localattr} as the metric. The objective function of the optimization problem is expressed as:
+\begin{equation}
+\label{eq:robj}
+J=\parallel \mathbf{L}(\mathbf{T}_N(\mathbf{r}) \mathbf{d}) -\mathbf{L}(\mathbf{d}_F)  \parallel_2^2,
+\end{equation}
+where $\mathbf{L}$ denotes the local frequency operator, as detailed in \new{\cite{fomel2007localattr}}. \wen{Generally speaking, the local frequency operator transforms the direct division of calculating the instantaneous frequency as a regularized inverse problem and then \old{use}\new{uses} the shaping regularization method to solve it. } $\mathbf{T}_N(\mathbf{r})$ denotes the non-stationary smoothing operator with an input spatially varying radius map $\mathbf{r}$. The non-stationary smoothing operator is a serial multi-dimensional filter, meaning that a 1D smoothing filter defined by equation \ref{eq:tri} is applied to each direction of the seismic data (e.g., time, space, offset) in a serial form. 
+ $\mathbf{d}$ is the observed noisy data. $\mathbf{d}_F$ denotes the low-pass filtered data with a cut-off high frequency of $F$, which is simply chosen as the dominant frequency of the seismic data.  Note that choosing a direct L2 metric could contain more local minima than choosing a local frequency operator. Thus, we \old{intend to choose}\new{choose a smoother}\old{ a smooth} function, which first highlights the frequency content of the data and secondly provides a sufficiently smooth evaluation of the distance between the two objects\old{ that ensures a fast convergence}, \new{to ensure a fast convergence}
+
+To obtain the optimal spatially varying smoothing radius, two basic assumptions should be kept in mind. First, if the local frequency of a point after smoothing the input data is still higher than the low-pass filtered data, meaning that the smoothing is not strong enough, then we increase the smoothing radius. Second, if the local frequency of a point after smoothing the input data is lower than the low-pass filtered data, meaning that it is over-smoothing, we decrease the smoothing radius. Following \cite{greer2018matching}, we use a line-search method to solve the optimization in equation \ref{eq:robj}:
+\begin{equation}
+\label{eq:r}
+\mathbf{r}_{n+1} = \mathbf{r}_{n} + \alpha_n \mathbf{s}_n,
+\end{equation}
+where $\mathbf{r}_{n}$ denotes the radius map after $n$ iterations, $\alpha_n$ is the step size, and $\mathbf{s}_n$ is the search direction. Here, we define the search direction as:
+\begin{equation}
+\label{eq:r}
+\mathbf{s}_{n} = \mathbf{L}(\mathbf{T}_N(\mathbf{r}_n) \mathbf{d}) -\mathbf{L}(\mathbf{d}_F).
+\end{equation}
+To facilitate a fast convergence, we linearly decrease\old{ the} $\alpha_n$ from a high value, e.g., 0.7, to a small value, e.g., 0.05, gradually. In this paper, we use  $\alpha_1=0.7$, and decrease it by a half at each iteration, and reach $\alpha_5=0.05$ at the 5th iteration. 
+
+\section{Examples}
+We apply the proposed non-stationary local orthogonalization method to one synthetic example and three field data examples. \old{We use two examples (first two field datasets) that were previously used in ? for  benchmark comparison.} We first test the performance of the proposed method on a synthetic dataset, for which we have the ground truth. The clean data are plotted in Figure \ref{fig:hyper}. We add some band-limited noise into the clean data and obtain the noisy data shown in Figure \ref{fig:hyper-n}. The cut-off high frequency for band-limitting the Gaussian white noise is 50 Hz. The dominant frequency for the signal is 15 Hz. We also use the signal-to-noise ratio (S/N) definition as defined in \cite{yangkang2015ortho} to measure the noise level and denoising performance. The S/N of the noisy data is 1.56 dB. We show the results in Figure \ref{fig:hyper-fx,hyper-ortho,hyper-orthon,hyper-fx-n,hyper-ortho-n,hyper-orthon-n,hyper-fx-s,hyper-ortho-s,hyper-orthon-s}. Here, we apply the FX method (first column), the traditional stationary orthogonalization method (second column), and the proposed method to denoise the data (third column). \old{Readers are referred to ? for more details about the FX method.} The first row in Figure \ref{fig:hyper-fx,hyper-ortho,hyper-orthon,hyper-fx-n,hyper-ortho-n,hyper-orthon-n,hyper-fx-s,hyper-ortho-s,hyper-orthon-s} plots a comparison of three denoised data. The second row in Figure \ref{fig:hyper-fx,hyper-ortho,hyper-orthon,hyper-fx-n,hyper-ortho-n,hyper-orthon-n,hyper-fx-s,hyper-ortho-s,hyper-orthon-s} plots a comparison of the removed noise using different methods. The artifacts in 1.5 s could be caused by the failure of the FX method to accurately estimate the prediction filter at the notch frequencies due to a superposition of several Ricker wavelets at different time positions. Because the orthogonalization method is a two-step technique. It \old{acts}\new{performs} on the result from the first-step denoising, \old{in this case,}\new{i.e.,} the FX method. Thus, two orthogonalization methods also \old{more or less }cause \new{more or less} such artifacts. The third row in Figure \ref{fig:hyper-fx,hyper-ortho,hyper-orthon,hyper-fx-n,hyper-ortho-n,hyper-orthon-n,hyper-fx-s,hyper-ortho-s,hyper-orthon-s} plots a comparison of the local similarity between denoised data and removed noise. Here, the local similarity is used as a complement metric for evaluating denoising performance, i.e., to evaluate the signal leakage \cite[]{yangkang2015ortho}. Larger \old{value}\new{values} in the local similarity map \old{indicates}\new{indicate} stronger signal leakage. It is clear that the stationary orthogonalization method improves the FX method by reducing the residual noise, also by significantly reducing the signal leakage. The non-stationary orthogonalization method further improves the stationary orthogonalization method by reducing more residual noise and signal leakage.  The leakage signal caused by the FX method is well highlighted by the high values in the local similarity map in Figure \ref{fig:hyper-fx-s}. The signal leakage caused by the stationary orthogonalization method is much less than the FX method, as indicated by the much smaller local similarity values. The proposed method obtains a negligible local similarity map, and demonstrates a strong signal-preserving capability. The calculated S/Ns of the FX, stationary orthogonalization, and non-stationary orthogonalization methods are 6.37 dB, 7.78 dB, and 9.41 dB, respectively. In this test, we use a prediction length of six points for the FX method, a constant smoothing radius of 30 samples for the stationary orthogonalization method, and an adaptively estimated smoothing radius map for the non-stationary orthogonalization method. A comparison of the FK spectra is shown in Figure \ref{fig:hyper-fs}. The FK spectra of the clean and noisy data are plotted on the top row. The bottom row plots the spectra of the denoised data using three aforementioned methods. It is clear that noise spectra becomes less from left to right in the bottom row. The low-frequency signal spectra are better recovered from left to right. The iteratively solved smoothing radius maps are plotted in Figure \ref{fig:hyper-rect10,hyper-rect20,hyper-rect30,hyper-rect40,hyper-rect50}. Figures \ref{fig:hyper-rect10}-\ref{fig:hyper-rect50} show the estimated smoothing radius maps after one to five iterations, respectively. From the smoothing radius maps, we can conclude two things. First, the smoothing radius map well captures the signal positions, where we should use a smaller radius, and the non-signal positions, where we should use a larger radius. Second, the iterative radius estimation method converges fast. After three iterations, the radius map is almost unchanged, as indicated by the color of the maps and range of the scalebars. 
+
+We then apply the proposed method to a field dataset that was previously studied in \cite{yangkang2015ortho}. For benchmark comparison, we use the exactly same parameters as those in \cite{yangkang2015ortho} for the FX and stationary orthogonalization methods. We add the result from the proposed non-stationary orthogonalization method to show the further improvement over the published ones. The field data are plotted in Figure \ref{fig:pp-0}. Figures \ref{fig:pp-z} and \ref{fig:pp-z1} plot the enlarged sections from the raw data, corresponding to the cyan and green frame boxes, respectively. The comparison of denoising performance is plotted in Figure \ref{fig:pp-fx-0,pp-ortho-0,pp-orthon-0,pp-fx-z,pp-ortho-z,pp-orthon-z,pp-fx-z1,pp-ortho-z1,pp-orthon-z1}. Same as the first test, we compare the proposed method (third column) with the FX method (first column) and the stationary orthogonalization method (second column). The second and third rows plot enlarged sections from the first row for the first frame box (cyan) and the second frame box (green), \old{correspondingly}\new{respectively}. From the second row in Figure \ref{fig:pp-fx-0,pp-ortho-0,pp-orthon-0,pp-fx-z,pp-ortho-z,pp-orthon-z,pp-fx-z1,pp-ortho-z1,pp-orthon-z1}, we observe that the orthogonalization method seems to be less continuous than the FX method because of a very small constant smoothing radius to reduce the signal leakage. The non-stationary orthogonalization method, however, is as continuous as the FX method. From the third row in Figure \ref{fig:pp-fx-0,pp-ortho-0,pp-orthon-0,pp-fx-z,pp-ortho-z,pp-orthon-z,pp-fx-z1,pp-ortho-z1,pp-orthon-z1}, we can observe that the energy of the FX method seems to be obviously weaker than the other two orthogonalization methods. Comparing the removed noise sections shown in Figure \ref{fig:pp-fx-n0,pp-ortho-n0,pp-orthon-n0}, we can see that the FX method tends to lose some small-scale signal components in the noise section, e.g., the dipping structure\dlo{ highlighted by the pink frame box}, and some observable low-frequency energy around 1.5 s between traces 200 and 350. \wen{The second and third rows in Figure \ref{fig:pp-fx-n0,pp-ortho-n0,pp-orthon-n0} show zoomed sections corresponding to the cyan and green frame boxes, respectively.} Both orthogonalization methods obtain a very good preservation of useful signals and cause negligible signal leakage. However, the energy of the removed noise using the stationary orthogonalization method seems to be weaker than the non-stationary orthogonalization method, indicating that the stationary method removes less noise than the proposed method. The iteratively estimated radius maps are plotted in Figure \ref{fig:pp-rect10,pp-rect20,pp-rect30,pp-rect40,pp-rect50}. It is clear that the smoothing radius map is updated dramatically from \new{the} first to \new{the} third iterations, and almost converges since the fourth iteration. The short and long radii in the finally estimated radius map correspond well to the structurally complex and simple areas in the raw seismic profile. 
+
+\dlo{We test another field example that was used in ?. We follow the example setup of ?, and only add a new result from the proposed non-stationary orthogonalization method for benchmark comparison. Figure \ref{fig:g-0,g-z,g-z1} shows the raw seismic data, two zoomed sections corresponding to frame boxes A and B, respectively. Figure \ref{fig:g-rna-0,g-ortho-0,g-orthon-0,g-rna-z-a,g-ortho-z-a0,g-orthon-z-a0,g-rna-z-b,g-ortho-z-b0,g-orthon-z-b0} plot a comparison of different methods. Here, following ?, we use a more advanced FX prediction method for dealing with the very complicated structures in this dataset, i.e., the FX regularization non-stationary autoregression (RNAR) method ?.  From the first to the third columns, the results correspond to the FX RNAR, stationary orthogonalization, and non-stationary orthogonalization methods, respectively. The second and third rows correspond to the zooming areas highlighted by the frame boxes A and B, respectively. From the second row of Figure \ref{fig:g-rna-0,g-ortho-0,g-orthon-0,g-rna-z-a,g-ortho-z-a0,g-orthon-z-a0,g-rna-z-b,g-ortho-z-b0,g-orthon-z-b0}, we can observe that both orthogonalization methods obtain a cleaner image with stronger energy compared with the FX RNAR method. However, if we observe carefully on the result from the stationary orthogonalization method, we can find some blank pixels, as highlighted by the labelled arrows in Figure \ref{fig:g-ortho-z-a0}. However, the non-stationary orthogonalization method has filled in these gaps, as highlighted by the labelled arrows in Figure \ref{fig:g-orthon-z-a0}. Here, the blank pixels are caused by the instability due to an over-small smoothing radius during the inversion for local orthogonalization weight. However, for the traditional orthogonalization method, if we use a larger fixed smoothing radius, the ability to retrieve the leaked signals is also weakened, as demonstrated by the aforementioned synthetic example. By using the non-stationary smoothing radius, we can overcome such a problem. \dlo{The same thing can also be observed}\wen{We also observe} from the third row in Figure \ref{fig:g-rna-0,g-ortho-0,g-orthon-0,g-rna-z-a,g-ortho-z-a0,g-orthon-z-a0,g-rna-z-b,g-ortho-z-b0,g-orthon-z-b0}\dlo{, where}\wen{ that} the stationary orthogonalization method causes some stability issues. A comparison of the removed noise is plotted in Figure \ref{fig:g-rna-n0,g-ortho-n0,g-orthon-n0,g-rna-n-z-a,g-ortho-n-z-a,g-orthon-n-z-a,g-rna-n-z-b,g-ortho-n-z-b,g-orthon-n-z-b}, where we can see that both orthogonalization methods successfully retrieve the leaked signals from the noise section initially obtained from the FX RNAR method. The iteratively solved smoothing radius maps for this dataset are plotted in Figure \ref{fig:g-rect10,g-rect20,g-rect30,g-rect40,g-rect50}.}
+Next, we apply the proposed method to another field data example. Figure \ref{fig:f2-0,f2-z1} shows the raw seismic data and one zoomed section corresponding to frame box. Figure \ref{fig:f2-fx-0,f2-ortho-0,f2-orthon-0,f2-fx-n0,f2-ortho-n0,f2-orthon-n0} plots a comparison of different methods. The first to the third columns correspond to the FX method, stationary orthogonalization, and non-stationary orthogonalization method results, respectively. The top row shows the denoised results of different methods. The bottom row shows the removed noise of different methods. From the comparison of denoised results, it is obvious that the non-stationary orthogonalization method obtains a better amplitude recovery. From comparison of removed noise, it we observe that the FX method damages the most signal energy. The stationary orthogonalization method recovers a lot of the leaked signals but still causes some remaining \old{leakages}\new{leakage}. The non-stationary orthogonalization method, however, causes the least signal \old{leakages}\new{leakage}. The leaked signals in Figure \ref{fig:f2-orthon-n0} are almost negligible. We plot a zoomed comparison of each frame box \old{of Figure}\new{from Figure} \ref{fig:f2-fx-0,f2-ortho-0,f2-orthon-0,f2-fx-n0,f2-ortho-n0,f2-orthon-n0} \new{and show the comparison} in Figure \ref{fig:f2-fx-z1-0,f2-ortho-z1-0,f2-orthon-z1-0,f2-fx-n-z1,f2-ortho-n-z1,f2-orthon-n-z1} for a better view, where the arrows on the top row indicate those areas with significant amplitude and coherence difference.  The bottom row of Figure \ref{fig:f2-fx-z1-0,f2-ortho-z1-0,f2-orthon-z1-0,f2-fx-n-z1,f2-ortho-n-z1,f2-orthon-n-z1} further confirms that the non-stationary orthogonalization method obtains a better recovery of leaked signals than the stationary orthogonalization method because the leaked spatially coherent energy in the noise becomes weaker from left to right.
+
+Finally, we apply the proposed method to a 3D Teapot Dome field data example, as shown in Figure \ref{fig:tea,t-fxy,t-ortho,t-orthon}. Figure \ref{fig:tea} plots the 
+initially stacked 3D seismic image that contains very strong noise. Figures \ref{fig:t-fxy}-\ref{fig:t-orthon} plot the results from the FXY RNAR method \cite[]{guochang2013,wanghang2021geo}, the stationary and non-stationary orthogonalization methods. It is clear that all three methods \old{obtain}\new{achieve a} successful removal of the random noise. Figure \ref{fig:t-fxy-n0,t-ortho-n0,t-orthon-n0} plots a comparison of the removed noise. As highlighted by the arrows on the top slice, the FXY RNAR method causes some signal leakage in Figure \ref{fig:t-fxy-n0}, which is slightly improved by the traditional stationary orthogonalization method in Figure \ref{fig:t-ortho-n0}. However, we can still see signal in Figure \ref{fig:t-ortho-n0}.  The proposed non-stationary orthogonalization method successfully retrieves the leaked signals and causes a negligible amount of signal leakage.  A constant time slice (corresponding to 1 s) comparison of the removed noise cubes is plotted in Figure \ref{fig:slice-fxy-0,slice-ortho-0,slice-orthon-0,slice-fxy-z,slice-ortho-z,slice-orthon-z}. Figures \ref{fig:slice-fxy-0}-\ref{fig:slice-orthon-0} plot the time slices using the FXY RNAR method, stationary orthogonalization method, and non-stationary orthogonalization method. Figures \ref{fig:slice-fxy-z}-\ref{fig:slice-orthon-z} plot the zoomed comparison of Figures \ref{fig:slice-fxy-0}-\ref{fig:slice-orthon-0}, corresponding to the frame boxes. It is \old{more clear}\new{clearer} that the signal leakage is reduced from left to right.
+
+
+
+
+\section{Discussion}
+The non-stationary orthogonalization method is more \dlo{convenient to adjust the parameter}\wen{adaptive}, i.e., \new{in choosing the} smoothing radius, than the traditional local orthogonalization method. For highly non-stationary seismic data, the traditional orthogonalization method can retrieve all the leaked signals only if one uses a very small smoothing radius\old{ (constantly through the whole profile)}\new{, which is constant throughout the whole dataset}. However, the \old{constantly}\new{constant} small smoothing radius could cause more \old{retrieved}\new{residual} noise. If one uses a \old{constantly}\new{constant} large smoothing radius, then the denoised data will be much smoother, but it is not possible to retrieve all the leaked signals. Thus, the noise removal and signal retrieval are always a compromise.  The non-stationary local orthogonalization method \old{just solves this contradiction problem}\new{overcomes this contradiction}, i.e., varying the smoothing radius adaptively. \old{The benefit is that it only retrieves the leaked signals.}
+
+The smoothing radius controls the stability of the inverse problem to calculate the local orthogonalization weight $\mathbf{w}$ in equations \ref{eq:lowr} and \ref{eq:lowr2}. Thus, when using a very small smoothing radius in the traditional local orthogonalization method, inversion of equation \ref{eq:lowr} could be unstable due to the singularities in $\mathbf{S}$. The unstable inversion could cause \old{the problem of missing samples}\new{the missing simples in the result}\old{ in the second field data example}. However, a larger smoothing radius could bring a less accurate inversion result. From this perspective, the non-stationary local orthogonalization method offers a more convenient way in compromising the stability and accuracy when solving the local orthogonalization weight. In the same time, a smaller smoothing radius indicates a higher resolution and a weaker anti-noise performance of the local orthogonalization weight, as illustrated by Figure 1 in \cite{yangkang2015ortho}. This effect makes the traditional local orthogonalization method obtain a noisier result than the FX method in the first field data example. From this perspective, the non-stationary local orthogonalization method offers a more convenient way in compromising the resolution and anti-noise ability when solving the local orthogonalization weight. 
+
+The non-stationary smoothing radius estimation approach introduced in this paper is only one option. This \old{method}\new{procedure} takes most of the computation time in the proposed non-stationary orthogonalization method. For example, for \old{the second field data example}\new{a 2D dataset of size $2501\times 1001$}, the FX RNAR method takes 49.3 s, the stationary orthogonalization method takes only 19.2 s, and the non-stationary orthogonalization method takes 283.9 s. But the smoothing radius calculation step takes 263.3 s and the non-stationary orthogonalization process only takes 20.6 s, which is comparable with the stationary one. The comparison is based on a Mac Pro Laptop with a 2.5 Ghz Intel Core i7 processor, and 16 GB LPDDR3 memory.  Other options that take the a priori information or structural complexity into consideration is also worth investigation\wen{, and is probably more computationally efficient}. For examples, there are some related strategies that have been published in the literature. \cite{liuyang2009tvmf} \old{used}\new{use} the signal energy criterion to design the spatially variable filter length for a median filtering operation. \cite{yangkang2015svmf} \old{use}\new{uses} the signal reliability criterion to design the non-stationary filter length according to the a priori information of the signal distribution. \cite{fuchao2020} \old{used}\new{use} the structural complexity criterion to design the non-stationary filter length in the FX method. All these strategies could also benefit the non-stationary local orthogonalization framework.
+
+
+\section{Conclusions}
+We introduced a novel non-stationary local signal-and-noise orthogonalization method to suppress random seismic noise without damaging useful signals. We show that the selection of smoothing radius in the traditional local orthogonalization method \new{greatly} affects the final denoising performance. A larger smoothing radius could fail in retrieving the \old{leakage signals back}\new{signal leakage} while a smaller smoothing radius tends to \old{bring back more}\new{cause more residual} random noise. The non-stationary smoothing radius \old{in the triangle smoothers}\new{for regularizing the local orthogonalization weight can be}\old{ is} obtained by solving an optimization problem that connects the smoothing radius with the smoothing performance, as benchmarked by a global low-pass filter. We demonstrate in detail that the optimally calculated smoothing radius \old{can have}\new{enjoys} a better compromise in reducing signal leakage and noise contamination simultaneously, and thus \new{helps} obtain a higher \old{signal-to-noise ratio}\new{S/N}. The non-stationary local orthogonalization method is not limited to application of seismic random noise attenuation and can be capable of better separating the desired ``signal" and unwanted ``noise" components when the signal leakage problem exists. 
+
+%\section{Acknowledgements}
+%We thank Danilo Velis and three anonymous reviewers for constructive suggestions. The research is supported by the starting funds from Zhejiang University and Tecas Consortium for Computational Seismology.
+
+%\inputdir{test}
+%\plot{test1}{width=\textwidth}{Separated x-component of the S1 elastic wavefield in the orthorhombic media.}
+%\multiplot{2}{test1,test2}{width=0.45\textwidth}{(a) Caption a. (b) Caption b.}
+
+\AtEndDocument{
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.3\textwidth]{hyper/Fig/hyper}
+   \label{fig:hyper}}
+   \subfloat[]{\includegraphics[width=0.3\textwidth]{hyper/Fig/hyper-n}
+   \label{fig:hyper-n}}\\
+\caption{Synthetic example. (a) Clean data. (b) Noisy data with band-limited noise. }
+\label{fig:hyper,hyper-n}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-fx0}
+   \label{fig:hyper-fx}}
+   \subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-ortho0}
+   \label{fig:hyper-ortho}}
+   \subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-orthon0}
+   \label{fig:hyper-orthon}}\\
+\subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-fx-n0}
+   \label{fig:hyper-fx-n}}
+   \subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-ortho-n0}
+   \label{fig:hyper-ortho-n}}
+   \subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-orthon-n0}
+   \label{fig:hyper-orthon-n}}\\  
+\subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-fx-s}
+   \label{fig:hyper-fx-s}}
+   \subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-ortho-s}
+   \label{fig:hyper-ortho-s}}
+   \subfloat[]{\includegraphics[width=0.25\textwidth]{hyper/Fig/hyper-orthon-s}
+   \label{fig:hyper-orthon-s}}\\ 
+\caption{\wen{Synthetic example. Denoised data using (a) FX method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method. Removed noise using (d) FX method, (e) stationary orthogonalization method, (f) non-stationary orthogonalization method. Local similarity using (g) FX method, (h) stationary orthogonalization method, (i) non-stationary orthogonalization method.} }
+\label{fig:hyper-fx,hyper-ortho,hyper-orthon,hyper-fx-n,hyper-ortho-n,hyper-orthon-n,hyper-fx-s,hyper-ortho-s,hyper-orthon-s}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-f0}
+   \label{fig:hyper-f}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-nf}
+   \label{fig:hyper-nf}}\\
+\subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-fxf0}
+   \label{fig:hyper-fxf}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-orthof0}
+   \label{fig:hyper-orthof}} 
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-orthonf0}
+   \label{fig:hyper-orthonf}} 
+\caption{\wen{Synthetic example. FK spectra of (a) clean data, (b) noisy data, (c) denoised data using FX method, (d) denoised data using stationary orthogonalization method, and (e) denoised data using the non-stationary orthogonalization method.}}
+\label{fig:hyper-fs}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-rect10}
+   \label{fig:hyper-rect10}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-rect20}
+   \label{fig:hyper-rect20}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-rect30}
+   \label{fig:hyper-rect30}}\\
+\subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-rect40}
+   \label{fig:hyper-rect40}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{hyper/Fig/hyper-rect50}
+   \label{fig:hyper-rect50}} 
+\caption{Synthetic example. Iteratively estimated non-stationary smoothing radius after (a) one iteration, (b) two iterations, (c) three iterations, (d) four iterations, and (e) five iterations.}
+\label{fig:hyper-rect10,hyper-rect20,hyper-rect30,hyper-rect40,hyper-rect50}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.45\textwidth]{vecta/Fig/pp-0}
+   \label{fig:pp-0}}\\
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{vecta/Fig/pp-z}
+   \label{fig:pp-z}}
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{vecta/Fig/pp-z1}
+   \label{fig:pp-z1}}\\
+\caption{\wen{Field data example. (a) Raw field data. (b) First zoomed section (cyan). (c) Second zoomed section (green).}  }
+\label{fig:pp-0,pp-z,pp-z1}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-0}
+   \label{fig:pp-fx-0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-0}
+   \label{fig:pp-ortho-0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-0}
+   \label{fig:pp-orthon-0}}\\
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-z0}
+   \label{fig:pp-fx-z}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-z0}
+   \label{fig:pp-ortho-z}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-z0}
+   \label{fig:pp-orthon-z}}\\ 
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-z10}
+   \label{fig:pp-fx-z1}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-z10}
+   \label{fig:pp-ortho-z1}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-z10}
+   \label{fig:pp-orthon-z1}}\\  
+\caption{\wen{Field data example. Denoised data using (a) FX method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method. Zoomed sections using (d) and (g) FX method, (e) and (h) stationary orthogonalization method, (f) and (i) non-stationary orthogonalization method. The second row corresponds to the cyan frame box and the third row corresponds to the green frame box.}}
+\label{fig:pp-fx-0,pp-ortho-0,pp-orthon-0,pp-fx-z,pp-ortho-z,pp-orthon-z,pp-fx-z1,pp-ortho-z1,pp-orthon-z1}
+\end{figure}
+
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-n0}
+%   \label{fig:pp-fx-n0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-n0}
+%   \label{fig:pp-ortho-n0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-n0}
+%   \label{fig:pp-orthon-n0}}  
+%\caption{\wen{Field data example. Removed noise using (a) FX method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method.} }
+%\label{fig:pp-fx-n0,pp-ortho-n0,pp-orthon-n0}
+%\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-n0}
+   \label{fig:pp-fx-n0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-n0}
+   \label{fig:pp-ortho-n0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-n0}
+   \label{fig:pp-orthon-n0}}  \\
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-n-z}
+   \label{fig:pp-fx-n-z}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-n-z}
+   \label{fig:pp-ortho-n-z}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-n-z}
+   \label{fig:pp-orthon-n-z}}\\ 
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-fx-n-z1}
+   \label{fig:pp-fx-n-z1}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-ortho-n-z1}
+   \label{fig:pp-ortho-n-z1}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-orthon-n-z1}
+   \label{fig:pp-orthon-n-z1}}\\  
+\caption{Field data example. Removed noise using (a) FX method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method. \wen{Zoomed sections using (d) and (g) FX method, (e) and (h) stationary orthogonalization method, (f) and (i) non-stationary orthogonalization method. The second row corresponds to the cyan frame box and the third row corresponds to the green frame box. The smaller pink frame box indicates the dramatic change of signal leakage before and after using the local orthogonalization methods.}}
+\label{fig:pp-fx-n0,pp-ortho-n0,pp-orthon-n0}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-rect10}
+   \label{fig:pp-rect10}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-rect20}
+   \label{fig:pp-rect20}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-rect30}
+   \label{fig:pp-rect30}}\\
+\subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-rect40}
+   \label{fig:pp-rect40}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{vecta/Fig/pp-rect50}
+   \label{fig:pp-rect50}} 
+\caption{Field data example. Iteratively estimated non-stationary smoothing radius after (a) one, (b) two, (c) three, (d) four, and (e) five iterations.}
+\label{fig:pp-rect10,pp-rect20,pp-rect30,pp-rect40,pp-rect50}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.45\textwidth]{field/Fig/f2-0}
+   \label{fig:f2-0}}\\
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{field/Fig/f2-z1}
+   \label{fig:f2-z1}}
+\caption{\wen{Field data example. (a) Raw field data. (b) Zoomed section. }  }
+\label{fig:f2-0,f2-z1}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-fx-0}
+   \label{fig:f2-fx-0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-ortho-0}
+   \label{fig:f2-ortho-0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-orthon-0}
+   \label{fig:f2-orthon-0}}\\
+\subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-fx-n0}
+   \label{fig:f2-fx-n0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-ortho-n0}
+   \label{fig:f2-ortho-n0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-orthon-n0}
+   \label{fig:f2-orthon-n0}}\\  
+\caption{\wen{Field data example. Denoised data using (a) FX method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method. (d)-(f) Removed noise corresponding to (a)-(c), respectively.}}
+\label{fig:f2-fx-0,f2-ortho-0,f2-orthon-0,f2-fx-n0,f2-ortho-n0,f2-orthon-n0}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-fx-z1-0}
+   \label{fig:f2-fx-z1-0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-ortho-z1-0}
+   \label{fig:f2-ortho-z1-0}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-orthon-z1-0}
+   \label{fig:f2-orthon-z1-0}}\\
+\subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-fx-n-z1}
+   \label{fig:f2-fx-n-z1}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-ortho-n-z1}
+   \label{fig:f2-ortho-n-z1}}
+   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-orthon-n-z1}
+   \label{fig:f2-orthon-n-z1}}\\  
+\caption{\wen{Field data example. (a)-(f) Zoomed sections corresponding to the frame boxes  in Figure \ref{fig:f2-fx-0,f2-ortho-0,f2-orthon-0,f2-fx-n0,f2-ortho-n0,f2-orthon-n0}.}}
+\label{fig:f2-fx-z1-0,f2-ortho-z1-0,f2-orthon-z1-0,f2-fx-n-z1,f2-ortho-n-z1,f2-orthon-n-z1}
+\end{figure}
+
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-rect10}
+%   \label{fig:f2-rect10}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-rect20}
+%   \label{fig:f2-rect20}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-rect30}
+%   \label{fig:f2-rect30}}\\
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-rect40}
+%   \label{fig:f2-rect40}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{field/Fig/f2-rect50}
+%   \label{fig:f2-rect50}} 
+%\caption{Field data example. Iteratively estimated non-stationary smoothing radius after (a) one iteration, (b) two iterations, (c) three iterations, (d) four iterations, and (e) five iterations.}
+%\label{fig:f2-rect10,f2-rect20,f2-rect30,f2-rect40,f2-rect50}
+%\end{figure}
+
+
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-0}
+%   \label{fig:g-0}}\\
+%   \subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-z-a}
+%   \label{fig:g-z}}
+%   \subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-z-b}
+%   \label{fig:g-z1}}\\
+%\caption{\wen{Field data example. (a) Raw field data. (b) First zoomed section (frame box A). (c) Second zoomed section (frame box B).}}
+%\label{fig:g-0,g-z,g-z1}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rna-0}
+%   \label{fig:g-rna-0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-ortho-0}
+%   \label{fig:g-ortho-0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-orthon-0}
+%   \label{fig:g-orthon-0}}\\
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rna-z-a}
+%   \label{fig:g-rna-z-a}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-ortho-z-a0}
+%   \label{fig:g-ortho-z-a0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-orthon-z-a0}
+%   \label{fig:g-orthon-z-a0}}\\ 
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rna-z-b}
+%   \label{fig:g-rna-z-b}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-ortho-z-b0}
+%   \label{fig:g-ortho-z-b0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-orthon-z-b0}
+%   \label{fig:g-orthon-z-b0}}\\  
+%\caption{\wen{Field data example. Denoised data using (a) FX RNAR method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method. Zoomed sections using (d)\&(g) FX  RNAR method, (e)\&(h) stationary orthogonalization method, (f)\&(i) non-stationary orthogonalization method. The second row corresponds to the frame box A and the third row corresponds to the frame box B.}}
+%\label{fig:g-rna-0,g-ortho-0,g-orthon-0,g-rna-z-a,g-ortho-z-a0,g-orthon-z-a0,g-rna-z-b,g-ortho-z-b0,g-orthon-z-b0}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rna-n0}
+%   \label{fig:g-rna-n0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-ortho-n0}
+%   \label{fig:g-ortho-n0}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-orthon-n0}
+%   \label{fig:g-orthon-n0}}\\
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rna-n-z-a}
+%   \label{fig:g-rna-n-z-a}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-ortho-n-z-a}
+%   \label{fig:g-ortho-n-z-a}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-orthon-n-z-a}
+%   \label{fig:g-orthon-n-z-a}}\\ 
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rna-n-z-b}
+%   \label{fig:g-rna-n-z-b}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-ortho-n-z-b}
+%   \label{fig:g-ortho-n-z-b}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-orthon-n-z-b}
+%   \label{fig:g-orthon-n-z-b}}\\  
+%\caption{\wen{Field data example. Removed noise using (a) FX RNAR method, (b) stationary orthogonalization method, (c) non-stationary orthogonalization method. Zoomed sections using (d)\&(g) FX  RNAR method, (e)\&(h) stationary orthogonalization method, (f)\&(i) non-stationary orthogonalization method. The second row corresponds to the frame box A and the third row corresponds to the frame box B.}}
+%\label{fig:g-rna-n0,g-ortho-n0,g-orthon-n0,g-rna-n-z-a,g-ortho-n-z-a,g-orthon-n-z-a,g-rna-n-z-b,g-ortho-n-z-b,g-orthon-n-z-b}
+%\end{figure}
+%
+%
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-ortho-z-aa}
+%   \label{fig:g-ortho-z-aa}}
+%   \subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-orthon-z-aa}
+%   \label{fig:g-orthon-z-aa}}\\
+%   \subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-ortho-z-bb}
+%   \label{fig:g-ortho-z-bb}}
+%\subfloat[]{\includegraphics[width=0.45\textwidth]{rna2/Fig/g-orthon-z-bb}
+%   \label{fig:g-orthon-z-bb}}
+%\caption{\wen{Demonstration of the stability issue. Left column: zoomed result using stationary orthogonalization method (from Figures \ref{fig:g-ortho-z-a0} and \ref{fig:g-orthon-z-a0}). Right column: zoomed result using non-stationary orthogonalization method (from Figures \ref{fig:g-ortho-z-b0} and \ref{fig:g-orthon-z-b0}). Note the blank pixels caused due to a small smoothing radius.} }
+%\label{fig:g-ortho-z-aa,g-orthon-z-aa,g-ortho-z-bb,g-orthon-z-bb}
+%\end{figure}
+%
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rect10}
+%   \label{fig:g-rect10}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rect20}
+%   \label{fig:g-rect20}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rect30}
+%   \label{fig:g-rect30}}\\
+%\subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rect40}
+%   \label{fig:g-rect40}}
+%   \subfloat[]{\includegraphics[width=0.33\textwidth]{rna2/Fig/g-rect50}
+%   \label{fig:g-rect50}} 
+%\caption{Field data example. Iteratively estimated non-stationary smoothing radius after (a) one iteration, (b) two iterations, (c) three iterations, (d) four iterations, and (e) five iterations.}
+%\label{fig:g-rect10,g-rect20,g-rect30,g-rect40,g-rect50}
+%\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/tea}
+   \label{fig:tea}}
+\subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/t-fxy}
+   \label{fig:t-fxy}}\\
+   \subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/t-ortho}
+   \label{fig:t-ortho}}
+   \subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/t-orthon}
+   \label{fig:t-orthon}}\\
+\caption{3D field data example. (a) Teapot Dome dataset. Denoised data using (b) FXY RNAR method, (c) stationary orthogonalization method, and (d) non-stationary orthogonalization method.}
+\label{fig:tea,t-fxy,t-ortho,t-orthon}
+\end{figure}
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/t-fxy-n0}
+   \label{fig:t-fxy-n0}}
+   \subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/t-ortho-n0}
+   \label{fig:t-ortho-n0}}\\
+   \subfloat[]{\includegraphics[width=0.5\textwidth]{teapot/Fig/t-orthon-n0}
+   \label{fig:t-orthon-n0}}
+\caption{3D Teapot Dome data example. Removed noise using (a) FXY RNAR method, (b) stationary orthogonalization method, and (c) non-stationary orthogonalization method.}
+\label{fig:t-fxy-n0,t-ortho-n0,t-orthon-n0}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.32\textwidth]{teapot/Fig/slice-fxy-0}
+   \label{fig:slice-fxy-0}}
+   \subfloat[]{\includegraphics[width=0.32\textwidth]{teapot/Fig/slice-ortho-0}
+   \label{fig:slice-ortho-0}}
+   \subfloat[]{\includegraphics[width=0.32\textwidth]{teapot/Fig/slice-orthon-0}
+   \label{fig:slice-orthon-0}} \\
+\subfloat[]{\includegraphics[width=0.32\textwidth]{teapot/Fig/slice-fxy-z}
+   \label{fig:slice-fxy-z}}
+   \subfloat[]{\includegraphics[width=0.32\textwidth]{teapot/Fig/slice-ortho-z}
+   \label{fig:slice-ortho-z}}
+   \subfloat[]{\includegraphics[width=0.32\textwidth]{teapot/Fig/slice-orthon-z}
+   \label{fig:slice-orthon-z}}\\
+\caption{3D Teapot Dome data example. Comparison of the constant time slice (1 s) using (a) FXY RNAR method, (b) stationary orthogonalization method, and (c) non-stationary orthogonalization method. \new{(d)-(f) Zoomed comparison (highlighted by the frame boxes) of the top row.}}
+\label{fig:slice-fxy-0,slice-ortho-0,slice-orthon-0,slice-fxy-z,slice-ortho-z,slice-orthon-z}
+\end{figure}
+}
+
+
+
+\bibliographystyle{seg}
+\bibliography{ortho}
+
+
+
+\newpage
+\listoffigures
+
+
+
+
