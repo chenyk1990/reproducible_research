@@ -185,7 +185,7 @@ w=100
 w1=0.5
 
 Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
 Plot('frame1','frame1.asc',
 	'''
 	dd type=complex form=native |
@@ -230,7 +230,7 @@ y=0
 w=0.2
 w1=10
 Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
 Plot('frame2','frame2.asc',
 	'''
 	dd type=complex form=native |
@@ -259,7 +259,7 @@ Plot('label3',None,
 	box x0=4.6 y0=8.2 label="Better recovery" xt=0.2 yt=-0.5 length=1.5 
 	''')
 Flow('frame3.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
 Plot('frame3','frame3.asc',
 	'''
 	dd type=complex form=native |
