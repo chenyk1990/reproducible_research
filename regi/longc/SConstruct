@@ -1,0 +1,414 @@
+from rsf.proj import *
+
+
+n1=400
+def Greyr(data,other):
+	Result(data,
+       '''
+       byte allpos=y bias=20 bar=bar.rsf|
+       grey3 flat=n frame1=%d frame2=50 frame3=49
+       color=j wanttitle=n
+       label1=Time unit1=s
+       label2="Relative stretch"
+       label3=Trace barlabel="Smoothing radius" barunit=
+       parallel2=n font=2  scalebar=y %s
+       ''' % (600-n1,other))#format2="%%3.1f"
+
+def Greys(data,other):
+	Result(data,
+       '''
+       byte allpos=y bar=bar.rsf|
+       grey3 flat=n frame1=%d frame2=50 frame3=20
+       color=j wanttitle=n
+       label1=Time unit1=s
+       label2="Relative stretch"
+       label3=Trace barlabel="Energy" barunit=
+       parallel2=n font=2 format2="%%3.1f" scalebar=y 
+       maxval=20 minval=0
+       %s
+       ''' % (600-n1,other))
+       
+# Vs and density
+Flow('vs','time1','math output=0')
+Flow('rho','time1','math output=1')
+
+g0=0.98  # starting change 
+g1=2-g0  # last change
+ng=101   # number of changes to scan
+dg = (g1-g0)/(ng-1)
+niter = 100 # number of iterations
+rect1 = 25 # vertical smoothing
+
+# time sampling
+dt = 0.002
+nt = int(1.75/dt+1.5)
+
+# anisotropy for picking
+an = 1000
+
+Fetch('vel_time1.rsf','long')
+Fetch('vel_time2.rsf','long')
+
+Flow('time1','vel_time1',
+     '''
+         dd form=native |
+         window f2=1 |
+         put label=Velocity unit=km/s label1=Depth unit1=km
+         ''')
+Flow('time2','vel_time2',
+     '''
+         dd form=native |
+         window f2=1 |
+         put label=Velocity unit=km/s label1=Depth unit1=km
+         ''')
+
+Result('time1',
+           '''
+           grey color=j allpos=y bias=1.5
+           scalebar=y label2=Trace wanttitle=n
+           barreverse=y parallel2=n font=2 format2="%3.1f"
+           ''')
+Result('time2',
+           '''
+           grey color=j allpos=y bias=1.5
+           scalebar=y label2=Trace wanttitle=n
+           barreverse=y parallel2=n font=2 format2="%3.1f"
+           ''')  
+        
+# model seismic (+ Gaussian random noise)
+Flow('c-seis-time1',['time1','vs','rho'],
+         '''
+         cat axis=3 ${SOURCES[1:3]} |
+         transp plane=23 |
+         modrefl2 dt=%g nt=%d |
+         window n2=1 |
+         ricker1 frequency=30 |
+         noise seed=%d var=0 5e-8
+         ''' % (dt,nt,10*0))
+Flow('c-seis-time2',['time2','vs','rho'],
+         '''
+         cat axis=3 ${SOURCES[1:3]} |
+         transp plane=23 |
+         modrefl2 dt=%g nt=%d |
+         window n2=1 |
+         ricker1 frequency=30 |
+         noise seed=%d var=0 5e-8
+         ''' % (dt,nt,10*1))
+Result('c-seis-time1','grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+Result('c-seis-time2','grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+Flow('tmp','c-seis-time1','cut max1=1.15')
+Flow('truth','c-seis-time2 tmp','cut min1=1.15| add scale=1,1 ${SOURCES[1]}')
+Result('truth','grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+Flow('trace1','c-seis-time1','window n2=1 f2=50')
+Flow('trace2','c-seis-time2','window n2=1 f2=50')
+Result('trace-comp','trace1 trace2','cat axis=2 ${SOURCES[1]} | graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t')
+
+
+Flow('trace-time1','c-seis-time1','window n2=1 f2=50')
+Flow('trace-time2','c-seis-time2','window n2=1 f2=50')
+
+
+Flow('mdif-time2',['time2','time1'],'add scale=1,-1 ${SOURCES[1]}')
+Result('mdif-time2',
+               '''
+               grey color=j 
+               scalebar=y label2=Trace wanttitle=n
+               barreverse=y barlabel="Velocity Change" minval=0
+               parallel2=n font=2 format2="%3.1f" formatbar="%3.2f"
+               ''')
+               
+# Analyze one trace
+# Take time-lapse difference
+Flow('tdif-time2',['trace-time2','trace-time1'],'add scale=1,-1 ${SOURCES[1]}')
+
+Result('tdif-time2',['trace-time1','trace-time2','tdif-time2'],
+               '''
+               cat axis=2 ${SOURCES[1:3]} |
+               dots labels=Before:After:Difference label1=Time unit1=s
+               yreverse=y gaineach=n 
+               ''')
+
+
+# Separate bottom part
+Flow('tbot-time2','trace-time2','window f1=%d' % n1)
+Flow('tbot0-time2','trace-time1','window f1=%d' % n1)
+Flow('ttop0-time2','trace-time2','window n1=%d' % n1)
+
+# Scan shifts computing local similarity
+Flow('tscan-time2',['tbot-time2','tbot0-time2'],
+     '''
+     warpscan other=${SOURCES[1]} niter=%d
+     ng=%d g0=%g dg=%g rect1=%d | 
+     math output='(1+input)^4'
+     ''' % (niter,ng,g0,dg,rect1))
+
+Plot('tscan-time2',
+     '''
+     grey allpos=y
+     color=j wanttitle=n
+     label1=Time unit1=s
+     label2="Relative stretch"
+     ''')
+
+# Pick the stretch
+Flow('tpick-time2','tscan-time2','pick rect1=%d vel0=1 | window' % rect1)
+Plot('tpick-time2',
+     '''
+     graph transp=y min2=%g max2=%g 
+     yreverse=y plotcol=7 plotfat=5 
+     wantaxis=n wanttitle=n pad=n
+     ''' % (g0,g1))
+Result('tscan-time2',['tscan-time2','tpick-time2'],'Overlay')
+
+# Convert stretch to shift
+Flow('tshift-time2','tpick-time2','math output="(input-1)*x1" ')
+
+
+# Smooth pick
+Flow('tpicks-time2','tscan-time2',
+     '''
+     pick rect1=%d vel0=1 an=%d |
+     window''' % (10*rect1,an))
+
+# Interval velocity ratio
+Flow('trat-time2',['ttop0-time2','tpicks-time2'],
+     '''
+     math output=1 |
+     cat axis=1 ${SOURCES[1]} |
+     math output="input*x1" |
+     smoothder eps=10
+     ''')
+
+# Apply the stretch
+Flow('twarp-time2',['tbot-time2','tbot0-time2','tshift-time2'],
+     '''
+     warp1 other=${SOURCES[1]} warpin=${SOURCES[2]}
+     verb=1 nliter=0 
+     ''')
+
+Flow('twarp2-time2',['ttop0-time2','twarp-time2'],'cat axis=1 ${SOURCES[1]}')
+
+# Take time-lapse difference
+Flow('tdif1-time2',['twarp2-time2','trace-time1'],'add scale=1,-1 ${SOURCES[1]}')
+Result('tdif1-time2',['trace-time1','twarp2-time2','tdif1-time2'],
+       '''
+       cat axis=2 ${SOURCES[1:3]} |
+       dots labels=Before:After:Difference label1=Time unit1=s
+       yreverse=y gaineach=n 
+       ''')
+
+
+######################################
+# 2-D work
+######################################
+# Take time-lapse difference
+Flow('c-dif-time2',['c-seis-time2','c-seis-time1'],'add scale=1,-1 ${SOURCES[1]}')
+
+Result('c-dif-time2',
+       'grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+Flow('bot-time2','c-seis-time2','window f1=%d' % n1)
+
+Flow('bot0-time2','c-seis-time1','window f1=%d' % n1)
+
+Flow('top0-time2','c-seis-time2','window n1=%d' % n1)
+
+Result('bot-time2',
+       'grey label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+Result('bot0-time2',
+       'grey label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+
+ ## smoothing parameters
+r_max=25 
+r_ref=20
+rg_max=4
+rg_ref=2
+rx_max=10 
+rx_ref=2
+
+# Scan shifts computing local similarity
+Flow('c-scan-time2',['bot-time2','bot0-time2'],
+     '''
+     warpscan other=${SOURCES[1]} niter=%d
+     ng=%d g0=%g dg=%g rect1=%d rect2=%d rect3=%d | 
+     math output='(1+input)^4'
+     ''' % (niter,ng,g0,dg,r_max,rg_max,rx_max))
+
+Flow('scan-time2-m',['bot-time2','bot0-time2'],
+     '''
+     warpscan other=${SOURCES[1]} niter=%d
+     ng=%d g0=%g dg=%g rect1=%d rect2=%d rect3=%d | 
+     math output='(1+input)^4'
+     ''' % (niter,ng,g0,dg,r_ref,rg_ref,rx_ref))
+     
+# Pick the stretch
+Flow('pick-time2','c-scan-time2',
+     'pick rect1=%d rect2=3 gate=100 vel0=1 | window' % (rect1/2))
+
+Result('c-pick-time2',['top0-time2','pick-time2'],
+       '''
+       math output=1 | cat axis=1 ${SOURCES[1]} |
+       grey color=j bias=1.0  scalebar=y clip=0.00207511 wanttitle=n
+       label1=Time unit1=s label2=Trace
+       barlabel="Relative stretch" barunit=
+       parallel2=n font=2 minval=0.998 maxval=1.0020
+       ''')#format2="%3.3f"
+#
+## Creating framebox
+x=1
+y=1.0
+w=25
+w1=0.6
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=99 min2=0 max2=1.75 pad=n plotfat=15 plotcol=1 
+	wantaxis=n wanttitle=n yreverse=y scalebar=y
+	''')
+Result('c-pick-time2-0','Fig/c-pick-time2.vpl frame','Overlay')
+	
+# Convert stretch to shift
+Flow('shift-time2','pick-time2','math output="(input-1)*x1" ')
+
+
+# Apply the stretch
+Flow('warp-time2',['bot-time2','bot0-time2','shift-time2'],
+     '''
+     warp1 other=${SOURCES[1]} warpin=${SOURCES[2]}
+     verb=1 nliter=0 
+     ''')
+
+Flow('warp2-time2',['top0-time2','warp-time2'],'cat axis=1 ${SOURCES[1]}')
+  
+# display
+Result('warp2-time2','grey label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f" ')
+
+# Take time-lapse difference
+Flow('c-dif2-time2',['warp2-time2','c-seis-time1'],'add scale=1,-1 ${SOURCES[1]}')
+
+Result('c-dif2-time2',
+       'grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+
+## Following is from YC
+Flow('c-rect1','c-scan-time2','math output="input-1"|scale axis=3| mask min=0.05 |dd type=float|math output="-%g*input+%g"'%(r_max-r_ref,r_max))
+Flow('c-rect2','c-scan-time2','math output="input-1"|scale axis=3| mask min=0.05|dd type=float|math output="-%g*input+%g"'%(rg_max-rg_ref,rg_max))
+Flow('c-rect3','c-scan-time2','math output="input-1"|scale axis=3| mask min=0.05|dd type=float|math output="-%g*input+%g"'%(rx_max-rx_ref,rx_max))
+
+## with different a priori information, i.e., trace<25 & trace>75 no(small) shift, gamma should be 1, smoothing should be very large
+# in case there are indeed some change, we still need the smoothing to find the abnormal gamma peak
+# Flow('large','c-scan-time2','math output="60"| cut f2=25 n2=50 ')
+# Flow('c-rect1','scan-time2 large','math output="input-1"|scale axis=3| cut n2=25 | cut f2=75|mask min=0.05 |dd type=float|math output="-%g*input+%g" | add scale=1,1 ${SOURCES[1]}'%(r_max-r_ref,r_max))
+# Flow('c-rect2','scan-time2 large','math output="input-1"|scale axis=3| cut n2=25 | cut f2=75|mask min=0.05|dd type=float|math output="-%g*input+%g" | add scale=1,1 ${SOURCES[1]}'%(rg_max-rg_ref,rg_max))
+# Flow('c-rect3','scan-time2 large','math output="input-1"|scale axis=3| cut n2=25 | cut f2=75|mask min=0.05|dd type=float|math output="-%g*input+%g" | add scale=1,1 ${SOURCES[1]}'%(rx_max-rx_ref,rx_max))
+
+Greyr('c-rect1','')
+Greyr('c-rect2','')
+Greyr('c-rect3','')
+
+# Scan shifts computing local similarity
+Flow('c-scan-time2-n',['bot-time2','bot0-time2','c-rect1','c-rect2','c-rect3'],
+     '''
+     warpscann other=${SOURCES[1]} mode=1 niter=%d 
+     ng=%d g0=%g dg=%g rect1=${SOURCES[2]} rect2=${SOURCES[3]} rect3=${SOURCES[4]} |
+     math output='(1+input)^4'
+     ''' % (niter,ng,g0,dg))
+
+Greys('c-scan-time2','')
+Greys('c-scan-time2-n','')
+
+Plot('label_1',None,
+	'''
+	box x0=5 y0=5.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+	
+Plot('label_2',None,
+	'''
+	box x0=5.5 y0=6.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+
+Plot('label_3',None,
+	'''
+	box x0=7 y0=7.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Result('c-scan-time2-0','Fig/c-scan-time2.vpl label_1 label_2 label_3','Overlay')
+Result('c-scan-time2-n0','Fig/c-scan-time2-n.vpl label_1 label_2 label_3','Overlay')
+
+
+# Pick the stretch
+Flow('pick-time2-n','c-scan-time2-n',
+     'pick rect1=%d rect2=3 gate=100 vel0=1 | window' % (rect1/2))
+
+Result('c-pick-time2-n',['top0-time2','pick-time2-n'],
+       '''
+       math output=1 | cat axis=1 ${SOURCES[1]} |
+       grey color=j bias=1.0  scalebar=y clip=0.00207511 wanttitle=n
+       label1=Time unit1=s label2=Trace
+       barlabel="Relative stretch" barunit=
+       parallel2=n font=2 minval=0.998 maxval=1.0020
+       ''')#format2="%3.3f"
+Result('c-pick-time2-n-0','Fig/c-pick-time2-n.vpl frame','Overlay')
+
+# Convert stretch to shift
+Flow('shift-time2-n','pick-time2-n','math output="(input-1)*x1" ')
+
+
+# Apply the stretch
+Flow('warp-time2-n',['bot-time2','bot0-time2','shift-time2-n'],
+     '''
+     warp1 other=${SOURCES[1]} warpin=${SOURCES[2]}
+     verb=1 nliter=0 
+     ''')
+
+Flow('c-warp2-time2-n',['top0-time2','warp-time2-n'],'cat axis=1 ${SOURCES[1]}')
+  
+# display
+Result('c-warp2-time2-n','grey label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f" ')
+
+# Take time-lapse difference
+Flow('c-dif2-time2-n',['c-warp2-time2-n','c-seis-time1'],'add scale=1,-1 ${SOURCES[1]}')
+
+Result('c-dif2-time2-n','c-dif2-time2-n',
+       'grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+
+Result('comp','Fig/c-dif2-time2.vpl Fig/c-dif2-time2-n.vpl','SideBySideAniso');
+Result('comp1','Fig/c-scan-time2.vpl Fig/c-scan-time2-n.vpl','SideBySideAniso');
+
+
+Plot('label1',None,
+	'''
+	box x0=5.8 y0=2.8 label="Error" xt=-0.5 yt=0.1 length=1.5
+	''')
+Plot('label2',None,
+	'''
+	box x0=5.8 y0=3.6 label="" xt=-0.5 yt=-0.1 length=1.5
+	''')
+Plot('label11',None,
+	'''
+	box x0=5.8 y0=2.8 label="" xt=-0.5 yt=0.1 length=1.5
+	''')
+	
+Result('c-long-dif','Fig/c-dif2-time2.vpl label1 label2','Overlay')
+Result('c-long-dif-n','Fig/c-dif2-time2-n.vpl label11 label2','Overlay')
+
+
+Flow('diff1','truth c-warp2-time2-n','add scale=1,-1 ${SOURCES[1]} |cut max1=1.15')
+Flow('snr1','truth diff1','cut max1=1.15|snr2 noise=${SOURCES[1]}')
+
+Flow('diff2','truth warp2-time2','add scale=1,-1 ${SOURCES[1]} |cut max1=1.15')
+Flow('snr2','truth diff2','cut max1=1.15|snr2 noise=${SOURCES[1]}')
+
+Result('diff1',
+       'grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+Result('diff2',
+       'grey color=g label2=Trace label1=Time unit1=s wanttitle=n parallel2=n font=2 format2="%3.1f"')
+       
+End()
+

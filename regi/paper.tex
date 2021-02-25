@@ -1,0 +1,242 @@
+\published{Geophysics, 86, no. XX, XX-XX, (2021)}
+
+\title{Time-lapse image registration by high-resolution \\ time-shift scan}
+
+\author{Xingye Liu\footnotemark[1], Xiaohong Chen\footnotemark[2], Min Bai\footnotemark[3], and Yangkang Chen\footnotemark[4]}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+%
+%\author{Authors}
+
+\ms{GEO-2021} %\ms{GJI-2019}
+
+\address{
+\footnotemark[1]
+College of Geology and Environment\\
+Xi’an University of Science and Technology\\
+Xi’an, Shaanxi Province, China, 710054 \\
+lwxwyh506673@126.com\\
+\footnotemark[2]State Key Laboratory of Petroleum Resources and Prospecting \\
+China University of Petroleum \\
+Fuxue Road 18th\\
+Beijing, China, 102200 \\
+\footnotemark[3]
+Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+Yangtze University\\
+Wuhan, Hubei Province, China, 430100 \\
+\footnotemark[4]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+%yangkang.chen@zju.edu.cn \\
+%Corresponding Author: Min Bai, baimin2016@126.com
+%chenxh@cup.edu.cn \\
+}
+
+%\lefthead{Liu et al.}
+\righthead{High-resolution time-shift scan}
+
+\begin{abstract}
+Seismic image registration is crucial for the joint interpretation of multi-vintage seismic images in time-lapse reservoir monitoring. Time-shift analysis is a commonly used method to estimate the warping function by creating a time-shift map, where the energy of each time-shift point in the 3D map indicates the probability of a correct registration. We propose a new method to obtain a high-resolution time-shift analysis spectrum, which can help both manual and automatic picking. The time-shift scan map is obtained by trying different local shifts and calculating the local similarity attributes between the shifted and reference images. We propose a high-resolution calculation of the time-shift scan map by applying the non-stationary model constraint in solving the local similarity attributes. The non-stationary model constraint ensures the time-shift scan map to be smooth in all physical dimensions, e.g., time, local shift, and space. In addition, it permits variable smoothing strength across the whole volume, which enables the high resolution of the calculated time-shift scan map. We use an automatic picking algorithm to demonstrate the accuracy of the high-resolution time-shift scan map and its positive influence on the  time-lapse image registration. Both synthetic (2D) and real (3D) time-lapse seismic images are used for demonstrating the better registration performance of the proposed method.
+\end{abstract}
+
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+
+%\lefthead{Liu et al.}
+%\section{Keywords}
+%key1,key2,key3
+\maketitle
+
+\section{Introduction}
+Time-lapse seismic refers to the process of monitoring oil and gas reservoir performance by different seismic \dlo{information}\wen{data} obtained from repeated seismic \dlo{observation}\wen{observations} in the same work area at different \dlo{times}\wen{stages} \wen{\cite[]{lumley2001time,zhang2013time,zhang2014time}}. 
+Because this method is usually carried out in the form of 3D observation, \dlo{that is to say}\wen{i.e.}, the same seismic observation system and \dlo{observation }parameters are used for more than two repeated 3D observations in different \dlo{time}\wen{stages} for the same exploration area,  \dlo{which is}\wen{it is} also called 4D seismic  \cite[]{Tucker2000time}. 
+With the exploitation of oil and gas resources, underground fluid field, pressure field, \new{coherent and random noise,} and reservoir physical properties will change\dlo{, then}\wen{. Then,} \old{the seismic data collected in different periods are different}\new{the seismic data acquired at different periods is thus different}, i.e., the change of properties of underground medium and reservoir will be reflected in the time-lapse seismic data  \cite[]{hicks2016time-lapse}.
+Therefore, \wen{the} time-lapse seismic response can represent the change of reservoir properties, \wen{which }then can be used as \dlo{the} effective  reservoir monitoring information.  Time-lapse seismic techniques have been widely applied in reservoir characterization to monitor and guide the management and adjustment of oil and gas fields, so as to  improve the recovery and development efficiency of oil and gas fields  \cite[]{landro2001discrimination}. 
+
+Theoretically, the static properties (such as structural and lithological properties) of the reservoir are eliminated after the subtraction of time-lapse seismic data, i.e., the difference between the two seismic data is the image of the dynamic fluid properties (such as fluid saturation, pressure, temperature, etc.) of the reservoir  \cite[]{grana2015bayesian}.
+However,  the inconsistency of surface conditions, environment noise, source type, firing position or shooting mode, and different types of acquisition instruments will lead to different instrument noise and different spectrum characteristics. 
+Moreover, it is impossible for the new seismic \wen{survey} to adopt the same acquisition parameters as the original one  \cite[]{Tucker2000time}. 
+At the same time, the difference of observation system\dlo{, etc.,} will also bring \dlo{difficulty}\wen{difficulties} \dlo{to}\wen{in} comparing the two data volumes. 
+\old{Besides}\new{In addition}, the difference \dlo{of}\wen{in} processing tools and parameters will also cause the difference \dlo{of}\wen{between} the two seismic \dlo{data}\wen{datasets}.
+Hence, in practice, time-lapse seismic data may be acquired and processed in different manners, and it is difficult to ensure that all factors are completely consistent in the two acquisition and processing \wen{stages}. \dlo{In other words, inconsistency caused by acquisition and processing is inevitable. }All \dlo{of above}\wen{these} factors impact the \old{traveltime and amplitude}\new{traveltimes and amplitudes} of time-lapse seismic data. Thus, the task is to separate changes caused by \wen{the} reservoir itself and by other factors, and \wen{to} minimize the inconsistency caused by various non-geological factors, i.e., \wen{to }register the time-lapse seismic data.
+
+Geophysicists have developed a wide range of techniques to register the time-lapse seismic data, \dlo{of}\wen{in} which time shifts estimation is one of the \dlo{the }\dlo{essential works}\wen{important methods}  \cite[]{bertrand2008detectability}. \wen{The} two most common methods for seismic image registration are local crosscorrelation \cite[]{hale2006fast} and dynamic time warping \cite[]{hale2013dynamic}.
+\cite{nguyen2015a} \old{reviewed}\new{review} the processing of time-lapse seismic data, and \old{emphasized}\new{emphasize} the \dlo{signification}\wen{significance} of time shifts estimation.
+Cross-equalization is a commonly used method that can estimate the time shifts and remove the differences between different seismic surveys \cite[]{ross1997time-lapse}. 
+However, \cite{rickett2001cross} \old{pointed}\new{point} out that cross-equalization \dlo{needed}\wen{requires} additional processes, and \old{introduced}\new{introduce} a residual migration operator to estimate the time shifts and register time-lapse images.
+\cite{huang2001seismic} \old{studied}\new{study} the method to correct the time shifts of time-lapse seismic data.
+\cite{Alismaili2002Non} \old{proposed}\new{propose} a non-linear cross-equalization method based on artificial neural networks to improve the accuracy of estimated time shifts, and matched the time-lapse seismic images. 
+\cite{vasco2004seismic} \old{analyzed}\new{analyze} the \dlo{time-lapse seismic amplitude changes}\wen{changes of time-lapse seismic amplitude} and suggested \wen{that} it should be estimated to improve the accuracy of reservoir monitoring.
+\cite{gallop2011midpoint} \old{developed}\new{develop} a midpoint match filter to match baseline and monitor data, and \old{reduced}\new{reduce} the effect of noise. \wen{Applying timeshifts in 4D seismic data dates back to \cite{barkved20034d} and \cite{hatchell2003whole}.} \cite{bertrand2008detectability} \old{used}\new{use} a 4D tuning method to remove the \old{change of traveltimes}\new{traveltime changes}. 
+\cite{hale2009a} \old{estimated}\new{estimate} the time displacements in time-lapse seismic images. 
+\cite{bergmann2014timelapse} \old{proposed}\new{propose} a prestack crosscorrelations to \old{correct the static}\new{remove the time-shift} differences between two time-lapse seismic images and applied the method to a \old{filed}\new{field} data. \old{It is a data-driven approach to remove the  time shifts of  individual time-lapse data. }\cite{hatchell2019matching} \old{compared}\new{compare} the spectrum balancing and \dlo{conventional}\wen{traditional} \dlo{least square}\wen{least-squares} filters for estimating time shifts and matching the time-lapse seismic data, and analyzed their advantages and disadvantages. There are many other modern image registration techniques used in industrial/\dlo{commerical}\wen{commercial} applications, including \cite{williamson2007new}, and \cite{phillips2016seismic}; as well as promising recent developments using machine learning, including \cite{dramsch2019deep}.
+
+However, \wen{most of} these mentioned methods directly estimated time shifts and matched the time-lapse seismic image.   \cite{ayeni2009optimized} \old{pointed}\new{point} out that the performance of these methods \dlo{were}\wen{was} limited by the stationary parameters and \old{could not assure to preserve the true amplitude}\new{cannot guarantee preservation of the true amplitude of the signal}\old{ of time-lapse seismic signals}. 
+\cite{fomel2005a} used a \dlo{muti-step}\wen{multi-step} method to register seismic images by rapidly scanning the data.  The most important step is scanning the map to estimate the time shifts. The method can analyze the time shifts,  register the multicomponent images in the time domain, and provide the velocity \dlo{radio}\wen{ratio}. However, it \dlo{demands}\wen{requires} an initial interpretation \dlo{about}\wen{of} the geologic features in the depth domain, thus is not completely automatic.
+Subsequently, \cite{fomel20094} \old{developed}\new{develop} an automatic time-lapse seismic images registration approach based on the local-similarity \cite[]{fomel2007local, yangkang2015ortho}, which \old{had intrigued some successful applications of this technology}\new{has inspired the application of this technology} to other geophysical data registration problems, including seismic-well ties \cite[]{bader2019missing} and image merging \cite[]{greer2018matching}. 
+One of the advantages is that the method can detect an optimal registration from the monitor image to \wen{the} base image by scanning and matching their local similarity.  After calculating and scanning the local similarity attributes of the whole seismic image, the strongest similarity trend is picked, then the corresponding time shift is applied to achieve time-lapse seismic \dlo{images}\wen{image} registration. 
+Through time-shift scan, the accuracy  is improved, which is helpful for fine dynamic characterization of reservoirs.
+Besides, the estimated local time shift is meaningful to evaluate reservoir compaction, and \wen{can intuitively reflect the reservoir change \cite[]{hatchell2005measuring, rickett20074d}}.
+Resolution of the map scan results will \dlo{impact}\wen{affect} the accuracy of the matching results. High-resolution scan results can better match the seismic images collected in different periods. 
+In addition, scanning results with high resolution can provide \wen{a} more accurate estimated velocity ratio that is important to excavate changes of reservoirs.
+\cite{ayeni2009optimized} \old{illustrated}\new{illustrate} the significance and superiority of map scan and match for time shift estimation, \dlo{and }proposed a local matching method based on the least-squares formulation\wen{,} and used \wen{an} evolutionary optimization algorithm to select the local parameters.
+\cite{zhang2014scan} \old{pointed}\new{point} out time-shift scan can detect small \dlo{delay}\wen{delays} and improve the resolution of image registration.
+\cite{decastro2016rapid} \old{presented}\new{present} a dual-channel scan approach to further  boost the performance of \wen{the} time-shift scan method, and \old{obtained}\new{obtain} \dlo{a }high resolution registration results.
+\dlo{Therefor}\wen{Therefore}, time-shift scan methods with high resolution are beneficial for time-lapse seismic data registration, then enhance the accuracy of reservoir monitor.
+
+In this paper, we propose a high-resolution time-shift scan method to improve the time-lapse image registration based on the general framework of \cite{fomel20094}. The image registration method in \cite{fomel20094} requires the calculation of local similarity between the reference and warped image. The local similarity is calculated by solving two inverse problems, where the accuracy and resolution of the model highly \dlo{depends}\wen{depend} on the smoothness constraint applied during the iterative inversion. A strong smoothing could cause over-smoothing of the model, i.e., local similarity, which further results in a time-shift scan map of too low resolution. A weak smoothing, however, could cause \dlo{the }instability and a less anti-noise ability during the inversion. Considering the contradiction in choosing an appropriate smoothing in the traditional method \cite[]{fomel20094}, we propose to apply a non-stationary smoothing constraint to the model, which ensures both the stability and \dlo{the }high resolution when calculating \wen{the} time-shift scan map. The non-stationary smoothing is applied in an efficient way and can utilize the \old{apriori}\new{a priori} information of the model, e.g., the probability distribution of the time-shift scan map, \new{and} signal/noise distribution\dlo{, etc}. The high-resolution time-shift scan map \old{is beneficial}\new{helps} \dlo{in reducing}\wen{to reduce} the uncertainty when picking the stretch curves from the map using either a manual or automatic way, and further will make the time-lapse images better matched. 
+
+We organize the paper as follows. We first introduce the time-shift scan method \wen{that was proposed in \cite{fomel20094}}, based on which we \dlo{apply}\wen{implement} the registration. Secondly, we introduce in detail the non-stationary method in calculating the time-shift scan map \wen{(the contribution of this paper)}. We use one carefully designed synthetic example and a 3D seismic dataset from multi-\dlo{stage}\wen{vintage} time-lapse seismic monitoring to demonstrate the performance of the proposed method. \old{Finally, we draw some key conclusions.}
+
+\section{Theory}
+\subsection{Time-shift scan}
+Let $u_1(t,x)$ denote the reference image, e.g., seismic image before reservoir development, \wen{and} $u_2(t,x)$ denote the image to be registered, e.g., seismic image after reservoir development. \old{Assume}\new{Assuming} that $u_1(t,x)$ and $u_2(t,x)$ can be registered via a warping function $w(t)$, then
+the goal is to solve the following optimization problem:
+\wen{\begin{equation}
+\label{eq:pro}
+\arg \max_{w} \text{S}(u_1(t,x),u_2(w(t,x),x)),
+\end{equation}}
+where $\text{S}$ denotes a metric measuring the similarity between the two images. To solve the optimization problem in equation \ref{eq:pro}, we use a time-shift analysis method \cite[]{fomel20094}. First, we define the ratio between the warped time axis and the reference time axis as the relative stretch:
+\begin{equation}
+\label{eq:str}
+\gamma(t,x)=\frac{w(t,x)}{t}.
+\end{equation}
+When $\gamma(t,x)>1$, it means stretching the time axis, and when $\gamma(t,x)<1$, it means squeezing the time axis. The local point is unchanged when $\gamma(t,x)=1$. 
+
+Then, we use a set of $\gamma$ values (e.g., starting $\gamma$: $\gamma_0=0.98$, interval of $\gamma$: $d\gamma=0.0004$, number of $\gamma$: $N_\gamma=101$), to squeeze and stretch the image:
+\wen{\begin{equation}
+\label{eq:gm}
+\overline{u}_2(t,x,\gamma)=u_2(t\gamma,x),
+\end{equation}}
+where the right term is calculated by a \old{simple }linear interpolation scheme (the stretched time $t\gamma$ is not on \old{the}\new{a} regular \old{grids}\new{grid}) from the regular-grid function $u_2(t\gamma,x)$. 
+
+
+Next, we calculate the local similarity between $u_1(t,x)$ and \wen{$\overline{u}_2(t,x,\gamma_i)$} to get a time-shift map, where we can pick the peaks in the map to find the optimal stretching values $\gamma(t,x)$, either using a manual way like in traditional NMO-based velocity analysis or using an automatic way \cite[]{fomel20091}. The time-shift analysis approach is not limited in 2D, but is applicable to problems of any dimensions. For example, in 3D problems, the scalar $x$ becomes a vector $\mathbf{x}$ denoting two lateral directions.
+
+\subsection{Non-stationary time-shift map calculation}
+The local similarity between the reference image $u_1(t,x)$ and the warped image $u_2(t,x)$ can be calculated by
+\begin{equation}
+\label{eq:simi}
+s(t,x)=\sqrt{s_1(t,x)s_2(t,x)},
+\end{equation}
+where $s_1(t,x)$ and $s_2(t,x)$ are calculated by solving
+\begin{equation}
+\label{eq:s1}
+\min \sum_{t,x}\left(u_1(t,x)-s_1(t,x)u_2(t\gamma,x)\right),
+\end{equation}
+and
+\begin{equation}
+\label{eq:s2}
+\min \sum_{t,x}\left(u_2(t\gamma,x)-s_2(t,x)u_1(t,x)\right).
+\end{equation}
+In a matrix-vector form, the solutions of equations \ref{eq:s1} and \ref{eq:s2} can be expressed as:
+\new{\begin{align}
+\label{eq:s11}
+\mathbf{s}_1 &= \left[\lambda_1^2\mathbf{I} +\mathbf{T}(\mathbf{U}_2^T\mathbf{U}_2-\lambda_1^2\mathbf{I}) \right]^{-1}\mathbf{T}\mathbf{U_2}^T\mathbf{u}_1, \\
+\label{eq:s22}
+\mathbf{s}_2 &= \left[\lambda_2^2\mathbf{I} +\mathbf{T}(\mathbf{U}_1^T\mathbf{U}_1-\lambda_2^2\mathbf{I}) \right]^{-1}\mathbf{T}\mathbf{U_1}^T\mathbf{u}_2,
+\end{align}}
+\old{Here,}\new{where} $\mathbf{s}_1$ and $\mathbf{s}_2$ denote the vectors composed of $s_1(t,x)$ and $s_2(t,x)$, respectively\old{.}\new{;} $\mathbf{u}_1$ and $\mathbf{u}_2$ denote the vectors composed of $u_1(t,x)$ and $u_2(t\gamma,x)$, respectively\old{.}\new{;} $\mathbf{U}_1$ and $\mathbf{U}_2$ denote the diagonal matrices composed of vectors $\mathbf{u}_1$ and $\mathbf{u}_2$, respectively\old{.}\new{; and} $\mathbf{T}$ denotes a triangle smoothing operator. The strength of $\mathbf{T}$ is controlled by the smoothing \old{radius. The smoothing radius}\new{radius, which} greatly affects the smoothness and resolution in the calculated time-shift scan map. A larger smoothing radius will cause a low resolution, which \old{further }causes a \old{large}\new{larger} uncertainty when picking the optimal stretch curves. A smaller smoothing radius will make the inversions in equations \ref{eq:s11} and \ref{eq:s22} less stable and also make the time-shift scan less anti-noising.  In this paper, we propose a flexible non-stationary smoothing scheme, where we can design a temporally and spatially variable smoothing radius to better control the resolution and the stability when calculating the time-shift scan map.
+
+We use a recursion-based method to apply the non-stationary smoothing. First, we consider the triangle smoother as the product of two rectangle smoothers in the Z-transform domain:
+\begin{equation}
+\label{eq:tri}
+T(Z)=R(Z)R(Z),
+\end{equation}
+where $T(Z)$ and $R(Z)$ denotes the Z-transform formulas of the triangle and rectangle smoothing operators. The rectangle smoothing operator can be explicitly formulated as:
+\wen{\begin{equation}
+\label{eq:ri}
+R(Z)=1+Z+Z^2+\cdots+Z^{N-1}=\frac{1-Z^N}{1-Z},
+\end{equation}}
+where $N$ denotes the smoothing radius for a 1D triangle smoother. Equation \ref{eq:ri} can be \old{splited}\new{split} into two parts: 
+\begin{enumerate}
+\item $1-Z^N$ corresponds to the recursion 
+\wen{\begin{equation}
+\label{eq:recur1}
+y_n=x_n-x_{n-N}
+\end{equation}}
+\item $\frac{1}{1-Z}$ corresponds to the recursion 
+\begin{equation}
+\label{eq:recur2}
+y_n=y_{n-1}+x_n
+\end{equation}
+\end{enumerate}
+From equations \ref{eq:recur1} and \ref{eq:recur2}, it is clear that the triangle smoothing operations can be applied efficiently based on \old{the simple recursions}\new{recursion}. Equations \ref{eq:tri}-\ref{eq:recur2} describe a 1D triangle smoother. A 2D or 3D triangle smoother is equivalent to applying a 1D triangle smoother consecutively along each dimension. When the smoothing radius varies \old{with time and space locations}\new{in time and space}, it can be expressed as $N_t(t,x)$ or $N_x(t,x)$, which denote the smoothing radius along the $t$ or $x$ axis at position $(t,x)$\wen{, respectively}. 
+
+In the proposed non-stationary calculation of local similarity, the aforementioned nonstationary  triangle smoothing operator is taken as the shaping operator $\mathbf{T}$ in equations \ref{eq:s11} and \ref{eq:s22}. The iterative inversion procedures to solve equations  \ref{eq:s11} and \ref{eq:s22} need to enable a multi-dimensional non-stationary smoothing operator following the recursion-based implementation to constrain the model in the shaping regularization framework \cite[]{fomel2007shape}. The success of the non-stationary time-shift map calculation relies on \old{a}\new{the} proper design of the smoothing radius based on the \old{apriori}\new{a priori} information, e.g., the probability distribution of the time-shift scan map, \new{and} signal/noise distribution\old{, etc}. For example, we can use the initially generated time-scan map as the reference to define a non-stationary map following the energy distribution of the initial result \cite[]{yangkang2015svmf}. It is also possible to estimate the non-stationary smoothing radius automatically, e.g., following the method developed in \cite{greer2018matching}. In the worst case, when the smoothing radius $N_{t/x}(t,x)$ is a constant, the proposed non-stationary method downgrades to the traditional method. If we can \dlo{extracts}\wen{extract} some \dlo{a priori}\old{apriori}\new{a priori} information of the model (time-shift scan map), e.g., using an initial estimation, we can design a radius map that better \dlo{compromise}\wen{compromises} the resolution and stability of the model to facilitate a higher resolution for picking. 
+
+
+\section{Examples}
+\subsection{2D synthetic example}
+\dlo{For better distinguishing between different methods}\wen{For comparing the different methods}, we use ``traditional'' \new{and ``proposed"} to refer to the method developed in \cite{fomel20094}, and \old{the ``proposed  method'' to refer to the new method}\new{herein, respectively}. The 2D synthetic example is plotted in Figure \ref{fig:time1,mdif-time2}\new{, which is similar to \cite{fomel20094}}. Figure \ref{fig:time1} \old{plots}\new{presents} the synthetic velocity model\old{. There are}\new{, which has} several horizontal layers and a narrow curving layer \old{in this model. The narrow curving layer corresponds to}\new{corresponding to} \old{an oil\&gas reservoir}\new{a petroleum reservoir}.  Figure  \ref{fig:mdif-time2} plots the velocity perturbation due to the reservoir development. \old{This synthetic model is close to the synthetic model demonstrated in } The synthetic seismic image is generated using a convolutional %reflectivity 
+modeling method. The synthetic seismic image before reservoir development is plotted in Figure \ref{fig:c-seis-time1}. Figure \ref{fig:c-seis-time2} plots the synthetic seismic image after reservoir development, taking the velocity perturbation into consideration. Figure \ref{fig:c-dif-time2} \old{plots}\new{presents} the time-lapse difference image before registration by directly subtracting Figure \ref{fig:c-seis-time2} from Figure \ref{fig:c-seis-time1}. In Figure \ref{fig:c-dif-time2}, the two horizontal reflectors below the reservoir area are obviously the artifacts of the time-lapse difference.
+
+By applying different stretches to the seismic image after reservoir development and \dlo{calculate}\wen{calculating} its local similarity with the reference image, we can obtain the time-shift scan map as shown in Figure \ref{fig:c-scan-time2-0}. Here, we use a constant smoothing radius of 25 samples to calculate the scan map. Then, we apply the proposed high-resolution method with non-stationary smoothing radius to calculate the scan map, which is plotted in Figure \ref{fig:c-scan-time2-n0}. The non-stationary smoothing radius is plotted in Figure \ref{fig:c-rect1}. It is \wen{obvious} that the proposed method obtains \dlo{an obviously}\wen{a} higher resolution along the stretch axis of the scan map, which facilitates a more accurate picking of the optimal stretch value. From the non-stationary smoothing radius distribution, we can see that the radius varies from the \dlo{minimum}\wen{minimal} 20 samples to the \dlo{maximum}\wen{maximal} 25 samples. Here, we use a simple example to show that even we use a simple binary non-stationary smoothing radius map, we can get a significantly better result. The threshold used to generate this binary smoothing radius map can be any small value (e.g., 0.05 in this example) that can reasonably separate the main energy clusters out in the initially generated time-scan map. However, \old{how to design a more appropriate }\new{designing an optimal} non-stationary smoothing radius map remains \dlo{as }an open question. The proposed method also offers us the freedom to choose a non-stationary smoothing radius map based on some \old{apriori}\new{a priori} information, e.g., according to the heterogeneity of the data. We use an automatic picking method introduced in \cite{fomel20091} to \old{pick}\new{determine} the optimal stretch value that corresponds to the highest value in the scan map. The picked stretch maps corresponding to the traditional and the high-resolution methods are plotted in Figure \ref{fig:c-pick-time2-0} and \ref{fig:c-pick-time2-n-0}, respectively. The closer to green, the \dlo{smallest}\wen{smaller} \new{the} stretch, \dlo{meaning}\wen{indicating} \old{less}\new{a poorer} registration. The closer to blue (squeezing) or red (stretching), the \old{larger level of registration}\new{more improved the registration}. From Figure \ref{fig:c-pick-time2-0,c-pick-time2-n-0}, it is clear that the traditional method causes more blue areas on the left and right parts of the maps. Note that the \old{more or less}\new{more-or-less} negative and positive polarities on the left and right sides in both Figure \ref{fig:c-pick-time2-0} and \ref{fig:c-pick-time2-n-0} are unavoidable using the automatic picking method introduced in \cite{fomel20091}. In addition, because we cannot explicitly express the time shift/stretch value in terms of the true velocity model or reflectivity model, we do not plot the ground-truth stretch map. But it is still straightforward to conclude that the stretch map obtained using the new method is more plausible than that using the traditional method.  However, from the ground truth plotted in Figure \ref{fig:c-seis-time1,c-seis-time2,c-dif-time2}, it is clear that the left and right parts of the images should have no registration stretch, which indicates that the traditional method may cause registration \dlo{erros}\wen{errors} on the left and right parts of the time-lapse difference image. The registration results, i.e., time-lapse difference images, of the two methods are plotted in Figure \ref{fig:c-long-dif,c-long-dif-n}. From the difference images, it is obvious that the traditional \dlo{methods}\wen{method} causes some errors (as highlighted by the \dlo{labelled}\wen{labeled} arrows) on the left, right, and below areas of the reservoir region. The proposed method, however, causes negligible registration \dlo{error}\wen{errors}. 
+
+To test the effect of noise \dlo{to}\wen{on} the time-shift analysis, we add some \new{additive random} noise into the synthetic seismic images of two time-lapse stages, as seen in Figure \ref{fig:seis-time1} and \ref{fig:seis-time2}. The \old{SNRs}\new{S/N}, as defined in \cite{yangkang2015ortho}, of Figure \ref{fig:seis-time1} and \ref{fig:seis-time2} are -3.25 dB and -2.91 dB, respectively. The difference image calculated by direct subtraction is plotted in Figure \ref{fig:dif-time2}. In this case, when calculating the time-shift scan map, to ensure \dlo{a }stable and anti-noise performance, we need to use a relatively larger smoothing radius, e.g., 30 samples along \wen{the} time axis, 8 samples along the $\gamma$ axis, 12 samples along the space axis. The resulted time-shift scan is shown in Figure \ref{fig:scan-time2}, which has a low resolution because of the over-smoothing. If we use a \dlo{relatively }smaller smoothing radius, the result could be highly unstable and seriously affected by noise. In  Figure \ref{fig:scan-time22}, we show a result using a smaller smoothing radius, e.g., \old{10}\new{ten} samples along the time axis, \old{2}\new{two} samples along the $\gamma$ axis, \old{4}\new{and four} samples along the space axis. It is clear that this result is heavily affected by the noise and is not acceptable for picking the optimal stretch map $\gamma(t,x)$. In Figure \ref{fig:scan-time2-n}, we show the high-resolution result using the proposed method, where \dlo{we can have a}\wen{we observe a} clean and high-resolution time-shift scan map. It is obvious that the result in Figure \ref{fig:scan-time2-n} is much more reliable for picking. The non-stationary smoothing radius we use to obtain the high-resolution result is plotted in Figure \ref{fig:rect1}. Note that here we only plot the non-stationary smoothing radius along the time axis. The proposed method also requires the smoothing radius along the $\gamma$ and space axes. In this example, we calculate the smoothing radius map by treating the result from the \dlo{conventional}\wen{traditional} method (with a relatively larger smoothing radius) as the \dlo{a priori}\old{apriori}\new{a priori} information, and set a smaller radius for smaller values in the initial scan map and a larger radius for larger values in the initial scan map. We select a relative stretch gather at the location of the 55th trace for comparing the detailed picking performance. \old{Figure \ref{fig:scan-time-test,scan-time-test-n} shows the comparison between the traditional (left) and the proposed (right) methods.}\new{Figure \ref{fig:scan-time-test} and \ref{fig:scan-time-test-n} show the comparison between the traditional and the proposed methods.} The \old{strings}\new{curves} on the scan map denote the automatically picked stretch \old{curve}\new{function}. Comparing with the ground truth in Figure \ref{fig:time1,mdif-time2}, we conclude that the \old{result in Figure \ref{fig:scan-time-test-n} is correct and the result in Figure \ref{fig:scan-time-test} is wrong.}\new{results in Figure \ref{fig:scan-time-test-n} and \ref{fig:scan-time-test} are correct and wrong, respectively.} The picked stretch maps corresponding to the traditional and the high-resolution methods are plotted in Figure \ref{fig:pick-time2} and \ref{fig:pick-time2-n}, respectively. In Figure \ref{fig:pick-time2}, it is clear that there is a vertical red anomaly around the 35th trace, which is obviously a wrong picked stretch (compared with the ground truth in Figure \ref{fig:time1,mdif-time2}). Using the picked stretch map based on the two methods, we can do the registration and obtain the results in Figure \ref{fig:long-dif,long-dif-n}. It is clear that the difference image obtained from the traditional method causes some artifacts below the reservoir layer and around the 35th traces where we observe the stretch anomaly in Figure \ref{fig:pick-time2,pick-time2-n}. \new{To quantitatively compare the difference between two methods, we calculate the S/N \cite[]{yangkang2015ortho} of the registered result using different methods. Here, the registered section is compared with the ground truth solution to evaluate the performance. For the clean data example, the S/N of the results using the traditional and proposed method are 19.02 dB and 25.25 dB, respectively. For the noisy data, the S/N of the results using the traditional and proposed method are -5.01 dB and -4.88 dB, respectively. It is clear that the proposed method obtains higher registration accuracy.}
+
+\subsection{3D real data example}
+Next, we apply the proposed method to a set of 3D seismic images that are recorded from steam-flood monitoring in the Duri field \cite[]{lumley19954,lumley1995seismic}. There are six images at different stages of the steam-flood monitoring project, i.e., before the monitoring, after \old{2}\new{two} months, \old{5}\new{five} months, \old{9}\new{nine} months, 13 months, and 19 months. The six seismic images (extracted 2D sections) are plotted in Figure \ref{fig:duri-slice}. Because of the steam-flood process, both shallow layers and reservoir properties are strongly affected. The time-shift scan maps (for registering the reference image and the image after a \old{2-month}\new{two-month} monitoring period) using the traditional and the proposed high-resolution methods are compared in Figure \ref{fig:scan1,scann1}. It is clear that the time-shift scan map of the proposed method (Figure \ref{fig:scann1}) is cleaner and has a higher resolution than that of the traditional method (Figure \ref{fig:scan1}). \new{Here, the higher resolution means that the energy clusters are more focused and appear to be sparser in the time-shift scan map. Although the 4D differencing noise can also appear as ``higher resolution", due to the smoothing applied when calculating the time-shift scan map, the noise can barely contribute to the energy clusters in the map.} The automatically picked stretch curves in different locations are plotted in Figure \ref{fig:pick1,pickn1}. \old{Compare the top and bottom panels in Figure \ref{fig:pick1,pickn1}}\new{Comparing the panels in Figure \ref{fig:pick1} and \ref{fig:pickn1}}, it is clear that the two methods are more similar in the shallow area, i.e., exhibiting a ``stretching'' pattern, but differ greatly in the deep area. The stretch map on the bottom seems to more consistent in the deep part, i.e., exhibiting a steadily ``squeezing'' pattern, while the stretch map on the top \dlo{are}\wen{is} much irregular in the deep part. The stretch map from the proposed method, however, is more consistent with \wen{the} physical process in the steam-flood monitoring, i.e., decreased velocity in the shallow area makes the seismic events ``collapse'' (stretching) and the increased velocity in the reservoir area makes the seismic events ``stand up'' (squeezing).  \old{Figure \ref{fig:duri-warp,duri-warp-n} compares the warped data using the traditional (top) and the proposed (bottom) methods.}\new{Figure \ref{fig:duri-warp} and \ref{fig:duri-warp-n} compare the warped data using the traditional and the proposed methods.} Although the registration using the proposed method makes the seismic events better aligned in different monitoring stages, the proposed method makes the events even better matched. For example, the labelled arrows in Figure \ref{fig:duri-warp,duri-warp-n} point out an area where the registration is significantly improved by the proposed method. \old{Figure \ref{fig:duri-dif,duri-dif-n} compares the time-lapse difference images in different stages using the  traditional (top) and the proposed (bottom) methods.}\new{Figure \ref{fig:duri-dif} and \ref{fig:duri-dif-n} compare the time-lapse difference images in different stages using the  traditional and the proposed methods.} It is clear that both methods obtain \old{very}\new{a} good registration in the shallow part, but the proposed method is \old{much }more successful in registering the deep part of these images, i.e., causing significantly \old{less}\new{fewer} difference artifacts below the reservoir layers.  The \old{much-}reduced difference artifacts using the proposed method are highlighted by the white arrows in Figure \ref{fig:duri-dif,duri-dif-n}. To quantitatively compare the difference between two methods, we calculate the root mean squares (RMS) of the difference images at the locations of the arrows. The RMS of the difference images using the traditional method after two months, five months, nine months, 13 months, and 19 months are 1.45, 1.88, 2.30, 1.80, 1.83, respectively, while the RMS of the difference images using the proposed method after two months, five months, nine months, 13 months, and 19 months are 1.42, 1.68, 2.09, 1.83, 1.80, respectively. The RMS of the difference images using the proposed method is generally smaller than using the traditional method, indicating a better registration.
+
+%\section{Discussions}
+
+
+
+
+\section{Conclusions}
+The time-shift analysis is an effective way \dlo{in}\wen{of} estimating the local shift for optimal \dlo{time-lase}\wen{time-lapse} image registration. The high resolution of the time-shift scan map is crucial for \old{the accurate estimation of}\new{accurately estimating} the warping function, especially when the seismic images contain strong random noise. We have proposed a useful method for obtaining a high-resolution time-shift scan map by modifying the inversion-based local similarity calculation during the registration process. The local similarity attribute is calculated iteratively by applying a model-driven non-stationary smoothing operator, which ensures a high-resolution time-shift scan map that facilitates \old{an }accurate time-shift scan. The non-stationary smoothing operator not only ensures the model in the inverse problem \old{to}\new{will} be smooth across the whole physical domain, but also maintains the heterogeneity of the model that is related \dlo{with}\wen{to} the high resolution of the final scan map. Synthetic examples show that the proposed method can obtain a more accurate time-shift scan map when there is \dlo{strong}\wen{stronger} background noise. The high-resolution time-shift scan map can significantly \dlo{improves}\wen{improve} the registration performance, i.e., causing \dlo{less}\wen{fewer} artifacts in the difference image. The real 3D time-lapse image registration example further validates the practical potential of the proposed method.   
+
+
+\section{DATA AND MATERIALS AVAILABILITY}
+Data associated with this research are available and can be obtained by contacting the corresponding author.
+
+\section{Acknowledgements}
+We would like to thank Mason Phillips and two anonymous reviewers for constructive suggestions. 
+
+%\inputdir{test}
+%\plot{test1}{width=\textwidth}{Separated x-component of the S1 elastic wavefield in the orthorhombic media.}
+%\multiplot{2}{test1,test2}{width=0.45\textwidth}{(a) Caption a. (b) Caption b.}
+
+\inputdir{long}
+\multiplot{2}{time1,mdif-time2}{width=0.45\textwidth}{Synthetic test. (a) \old{Velocity}\new{P-wave velocity} model before registration. (b) \old{Velocity}\new{P-wave velocity} perturbation due to the reservoir development. }
+
+\inputdir{longc}
+\multiplot{3}{c-seis-time1,c-seis-time2,c-dif-time2}{width=0.45\textwidth}{\old{Clean data test. }(a) Seismic image before reservoir development. (b) Seismic image after reservoir development. (c) Difference image before registration.}
+
+\multiplot{3}{c-scan-time2-0,c-scan-time2-n0,c-rect1}{width=0.45\textwidth}{\old{Clean data test. }Time-shift scan map using \old{(a) the}\new{the (a)} traditional \old{method }and (b) \old{the }high-resolution \old{method}\new{methods}. (c) Smoothing radius distribution used to obtain (b).  }
+
+\multiplot{2}{c-pick-time2-0,c-pick-time2-n-0}{width=0.45\textwidth}{\old{Clean data test. }Picked time shifts using \old{(a) the}\new{the (a)} traditional method and (b) \wen{the} high-resolution method.}
+
+\multiplot{2}{c-long-dif,c-long-dif-n}{width=0.45\textwidth}{\old{Clean data test. }Time-lapse difference images using \old{(a) the}\new{the (a)} traditional picking \old{method }and (b) \old{the }high-resolution picking \old{method}\new{methods}.}
+
+
+\inputdir{long}
+
+\multiplot{3}{seis-time1,seis-time2,dif-time2}{width=0.45\textwidth}{Noisy data test. (a) Seismic image before reservoir development. (b) Seismic image after reservoir development. (c) Difference image before registration.}
+
+\multiplot{4}{scan-time2,scan-time22,scan-time2-n,rect1}{width=0.45\textwidth}{Time-shift scan maps using (a)  \wen{the} \dlo{conventional}\wen{traditional} method with a relatively larger smoothing radius, (b)  \wen{the} \dlo{conventional}\wen{traditional} method with a relatively smaller smoothing radius, and (c) high-resolution method. (d) Smoothing radius distribution used to obtain (c). Note that the time-shift scan map in (b) is not considered acceptable.}
+
+\multiplot{2}{scan-time-test,scan-time-test-n}{width=0.45\textwidth}{Picking comparison for one relative stretch gather at the location of the 55th trace using (a)  the traditional \old{method }and (b)  the high-resolution \old{method}\new{methods}. The blue \old{strings}\new{curves} denote the automatically picked relative stretch curves. Comparing the picking results with the ground truth in Figure \ref{fig:time1,mdif-time2}, we confirm that (b) is accurate and (a) is wrong. }
+
+
+\multiplot{2}{pick-time2,pick-time2-n}{width=0.45\textwidth}{Picked time shifts using (a) \wen{the}  \dlo{conventional}\wen{traditional} method and (b) \wen{the}  high-resolution method.}
+
+\multiplot{2}{long-dif,long-dif-n}{width=0.45\textwidth}{Time-lapse difference images using (a) the traditional \old{picking method }and (b) \wen{the}  high-resolution picking \old{method}\new{methods}.}
+
+
+\inputdir{duri}
+\plot{duri-slice}{width=0.8\textwidth}{Stacked data in different time-lapse stages. }
+\multiplot{2}{scan1,scann1}{width=0.6\textwidth}{Time-shift scan maps (after a \old{2}\new{two}-month period) using \old{(a) the}\new{the (a)} traditional \old{method }and (b) \old{the }high-resolution \old{method}\new{methods}.}
+
+\multiplot{2}{pick1,pickn1}{width=0.7\textwidth}{Picked time shifts (after a \old{2}\new{two}-month period) using \old{(a) the}\new{the (a)} traditional \old{method }and (b) \old{the }high-resolution \old{method}\new{methods}.}
+
+\multiplot{2}{duri-warp,duri-warp-n}{width=0.8\textwidth}{Warped data using \old{(a) the}\new{the (a)} traditional \old{method }and (b) \old{the }high-resolution \old{method}\new{methods}.}
+
+\multiplot{2}{duri-dif,duri-dif-n}{width=0.8\textwidth}{Time-lapse difference images using \old{(a) the}\new{the (a)} traditional \old{method }and (b) \old{the }high-resolution \old{method}\new{methods}.}
+
+
+\bibliographystyle{seg}
+\bibliography{regi}
+
+
