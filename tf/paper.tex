@@ -1,0 +1,243 @@
+
+\published{Geophysics, 86, no. XX, XX-XX, (2021)}
+
+\title{Non-stationary local time-frequency transform}
+\author{Yangkang Chen}
+
+\ms{GEO-2021} %\ms{GJI-2019}
+
+\address{
+Key Laboratory of Geoscience Big Data and Deep Resource of Zhejiang Province\\
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+chenyk2016@gmail.com
+}
+
+\righthead{Non-stationary LTFT}
+
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+
+\begin{abstract}
+Time-frequency analysis is a fundamental approach to many seismic problems. Time-frequency decomposition transforms input seismic data from the time domain to the time-frequency domain, offering a new dimension to probe the hidden information inside the data. Considering the non-stationary nature of seismic data, time-frequency spectra can be obtained by applying a local time-frequency transform (LTFT) method, which matches the input data by fitting the Fourier basis with non-stationary Fourier coefficients in the shaping regularization framework. The key part in the LTFT is the temporal smoother with a fixed smoothing radius that guarantees the stability of the non-stationary least-squares fitting.  We propose a new LTFT method to \old{deal with}\new{handle} the non-stationarity in all time, frequency, and space (X and Y) directions of the input seismic data by extending the fixed-radius temporal smoothing to non-stationary smoothing with variable radius in all physical dimensions. The resulting time-frequency transform is referred to as the non-stationary LTFT method, which could significantly increase the resolution and anti-noise ability of time-frequency \dlo{transform}\wen{transformation}. There are two meanings of the non-stationarity, i.e., coping with the non-stationarity in the data by the local time-frequency transform and dealing with the non-stationarity in the model by the non-stationary smoothing. We demonstrate the performance of the proposed non-stationary LTFT method in several standard seismic applications via both synthetic and field datasets, e.g., arrival picking, quality factor estimation, low-frequency shadow detection, channel detection, multi-component data registration, and benchmark the results with the traditional stationary LTFT method.
+\end{abstract}
+
+%\section{Keywords}
+%key1,key2,key3
+
+\maketitle
+\section{Introduction}
+\dlo{Time-frequency transform plays an important role in analyzing non-stationary variations of frequency contents in seismic data, which could reveal significant hidden information of the data beyond the observation ability in time domain}\wen{The time-frequency transform plays an important role in analyzing non-stationary variations of frequency content in seismic data, which could reveal significant hidden information,  beyond the observation ability within the time domain} \cite[]{tary2014spectral}. In the past decades, many classic time-frequency analysis methods have been developed for achieving different purposes. The short-time Fourier transform (STFT) method \cite[]{allen1977unified} applies a short-time window along the time series to be analyzed and conducts many Fourier transforms in the time windows to create a localized Fourier analysis for each data point, resulting in a 2D time-frequency map showing the variations of frequency content in both time and frequency. The continuous wavelet transform (CWT) \cite[]{rioul1992fast} is another widely used method to calculate \dlo{the}\wen{a} time-frequency map. Instead of the Fourier basis functions, CWT uses different mother wavelets as the basis functions to match the input data and creates a 2D scale-time spectral map, where the scale axis can be further transformed into a frequency axis. When the time window is chosen as a Gaussian window, the STFT method is developed into a Gabor transform. Considering the \old{contradiction}\new{ambiguity} between window scales and resolution, \dlo{i.e., a larger window could decrease the resolution for high-frequency contents but increase the ability in analyzing low-frequency contents. The}\wen{the} Stockwell transform (ST) \cite[]{stockwell1996localization,zixiang2017bgs} varies time window length for conducting Fourier analysis in different frequency bands. There are also many other classic algorithms which are not used as commonly as the aforementioned methods, e.g., Wigner-Ville distribution \cite[]{boashash1987efficient}, matching pursuit \cite[]{mallat1993matching}, basis pursuit \cite[]{chen2001atomic}, short-time autoregression \cite[]{burg1972relationship} methods.
+
+One of the most important purposes of conducting the time-frequency transform is to locate or separate different components of the data in the time-frequency domain, i.e., obtaining \dlo{a }higher resolution \dlo{in the }spectra.  Analyzing the frequency contents based on a windowing strategy\dlo{, e.g., in those aforementioned classic methods,} has its inherent weakness \wen{\cite[]{tary2014spectral}}. Although the ST transform can relieve the contradiction between resolution and accuracy, all the window-based methods still suffer \wen{from} this problem. In other words, when a larger window is used, it tends to \dlo{decrease}\wen{increase} the frequency resolution \wen{but decreases the time resolution}\dlo{ or widen the main lobe of the dominant frequency}; when a smaller window is used, it better characterizes the non-stationarity in time but widens \wen{the} main lobe of the dominant frequency, leading to a decreased frequency resolution. To solve this problem, several relatively new methods have been developed based on the empirical mode decomposition (EMD) \cite[]{huangemd} and the synchrosqueezing technique \cite[]{daubechies2011}. In the EMD based method, the input data \old{is}\new{are} first decomposed into several modes, also known as intrinsic mode functions (IMF), each with a distinct oscillating frequency. The method is then combined with the Hilbert transform to extract the frequency contents and then to obtain a 2D time-frequency representation. The EMD method, however, suffers from the mode-mixing problem, meaning that different IMFs could share the same frequency \old{contents}\new{content}. \dlo{Then, a}\wen{A} number of variants of EMD are used to \dlo{conquer}\wen{mitigate} the mode-mixing problem, e.g., the ensemble empirical mode decomposition (EEMD) \cite[]{eemd}, the complete ensemble empirical mode decomposition (CEEMD) \wen{methods} \cite[]{torres2011complete}, and the improved CEEMD \cite[]{colominas2014improved}. Many EMD-like decomposition methods are also developed to substitute EMD to obtain better time-frequency spectra while maintaining the high-resolution merits of EMD, e.g., the empirical wavelet transform \cite[]{liuwei2016ewt,liuwei2019ewt}, variational mode decomposition (VMD) \cite[]{vmd2014,liuwei2016vmd,liuwei2018tgrs}, non-stationary autoregression decomposition \cite[]{fomel20132,guoning2018} \wen{methods}. While those EMD variants cannot be well controlled due to the lack of theoretical foundation, other EMD-like decompositions are mostly mathematically supported.  The synchrosqueezing wavelet transform (SSWT) \cite[]{daubechies2011,mostafa2016geo,mostafa2017geo} is another way to obtain a high resolution in the time-frequency map by narrowing the main lobe of the spectra in both time and frequency directions based on the continuous wavelet transform framework.
+
+
+\dlo{In a different way to}\wen{To} avoid the windowing strategy, \cite{liuyang2012} developed an invertible local time-frequency transform (LTFT) which is based on matching the input data by the Fourier basis in an inverse problem framework. The Fourier coefficients are \dlo{enforced}\wen{forced} to be time-variant \old{in order }to obtain a local representation of the Fourier basis functions, thereby achieving a local time-frequency analysis\old{ of the} data. The windowing strategy to regularize the non-stationary Fourier coefficients is effectively replaced with smoothing during inversion based on the shaping regularization framework.  In \cite{liuyang2012}, the smoothing is applied in the time direction to stabilize the inversion, where the smoothing radius is fixed, assuming that the model (i.e., time-frequency spectra) behavior is stationary along the time direction. However, a high-resolution time-frequency representation should be non-stationary in all time, frequency, and space dimensions. 
+
+In this paper, we further develop a non-stationary LTFT method, where we can apply smoothness constraints in all physical dimensions. Considering the heterogeneous \old{feature}\new{nature} of the model domain, the smoothing is applied in a non-stationary way, \dlo{i.e.,}\wen{thereby} ensuring a model-dependent pointwise variable smoothing radius in the time-frequency maps (for 2D) and cubes (for 3D). The non-stationary smoothing constraint ensures a significantly higher resolution and anti-noise ability of the LTFT method. Besides, the design of a smoothing radius in different physical dimensions offers great flexibility in constraining the model behavior according to any \dlo{a priori}\wen{a-priori} information. In the proposed non-stationary LTFT method, \dlo{there are two-fold meanings of the non-stationarity}\wen{we consider both data and model non-stationarity}. The non-stationary Fourier coefficients\dlo{, also}\wen{ as also used} in the traditional LTFT method, offers a way to characterize the non-stationarity in the data domain \wen{by non-stationary regression}, while the non-stationary smoothing offers a scheme to constrain the non-stationarity of the model domain, \dlo{which is preferred in obtaining the high resolution to locate}\wen{to obtain a high resolution for separating} different components.  
+
+We organize the paper as \old{follows: we first}\new{follows. First, we} introduce the principle of the LTFT framework and then extend \dlo{the traditional LTFT method}\wen{it} to its non-stationary version. \dlo{We focus on the next part, i.e., using}\wen{Then, we introduce} a variety of examples to demonstrate the potential of the proposed non-stationary LTFT method in a number of seismic applications, including (but not limited to) seismic phase arrival picking, quality factor estimation, low-frequency shadow detection, channel detection, and multi-component data registration. Finally, we draw some conclusions according to the findings in the paper.
+
+\section{Method}
+\wen{\subsection{Local time-frequency transform (LTFT)}}
+The LTFT uses the Fourier basis functions to represent the input data. An arbitrary continuous signal $d(t), t\in[0,T]$, can be represented using the Fourier series as follows:
+\begin{equation}
+\label{eq:fs}
+d(t) = \frac{a_0}{2} + \sum_{n=1}^{N}\left(a_n\cos(2\pi nt/T) + b_n\sin(2\pi nt/T) \right),
+\end{equation}
+where $N$ denotes the number of frequency components. Theoretically, $N$ should be large enough to minimize the mismatch between $d(t)$ and the Fourier series\dlo{.}\wen{, and} $a_n$ and $b_n$ are two Fourier coefficients. 
+
+Equation \ref{eq:fs} can also be expressed \dlo{briefly }as:
+\begin{equation}
+\label{eq:fs2}
+d(t) = \sum_{n=0}^{N} \mathbf{b}(t,n)\mathbf{a}(n),
+\end{equation}
+where
+\wen{
+\begin{equation}
+\label{eq:Bn}
+\mathbf{b}(t,n)=\left\{\begin{array}{ll}
+\left[\begin{array}{cc}
+\cos(2\pi nt/T) & \sin(2\pi nt/T)
+\end{array}\right], & n\ge 1, \\
+\left[\begin{array}{cc}
+1/2 & 0
+\end{array}\right], & n = 0,
+\end{array} \right.
+\end{equation}}
+and
+\begin{equation}
+\label{eq:Mn}
+\mathbf{a}(n)=\left[\begin{array}{c}
+a_n \\
+b_n
+\end{array}\right].
+\end{equation}
+Equation \ref{eq:fs2} refers to a stationary regression with the regression coefficients being $\mathbf{a}(n)$. The fixed regression coefficients along the time axis $\mathbf{a}(n)$ mean that equation \ref{eq:fs2} seeks a global fitting of the Fourier basis functions, i.e., equal to a Fourier transform. To ensure a local characterization in terms of the Fourier basis functions, equation \ref{eq:fs2} can be expressed in a non-stationary autoregression \wen{form} as follows:
+\begin{equation}
+\label{eq:fs3}
+d(t) = \sum_{n=0}^{N} \mathbf{b}(t,n)\mathbf{a}(t,n),
+\end{equation}
+where $\mathbf{a}(t,n)$ denotes the locally variable regression (or Fourier) coefficients. Solving equation \ref{eq:fs3} is much more challenging than \dlo{that in}\wen{solving} equation \ref{eq:fs2} since many more non-stationary coefficients need to be solved based on the following least-squares formula:
+\wen{\begin{equation}
+\label{eq:fs4}
+\min_{\mathbf{a}(t,n)} \sum_{t} \left( d(t) - \sum_{n=0}^{N} \mathbf{b}(t,n)\mathbf{a}(t,n) \right)^2,
+\end{equation}}
+\wen{where $\mathbf{a}(t,n)=[a_n(t),b_n(t)]^T$.} Reformulating equation \ref{eq:fs4} as a matrix-vector formula, we can obtain
+\begin{equation}
+\label{eq:fs44}
+\min_{\mathbf{m}} \parallel \mathbf{d} -  \mathbf{B}\mathbf{m} \parallel_2^2,
+\end{equation}
+where 
+\begin{align}
+\label{eq:dBm}
+\mathbf{d} = \left[\begin{array}{c}
+d(1) \\
+d(2) \\
+\vdots \\
+d(N_t)
+\end{array}
+\right], \mathbf{B}=\left[\begin{array}{cccc}
+\mathbf{B}_1 & \mathbf{B}_2 & \cdots & \mathbf{B}_N \\
+\end{array}
+\right], \text{and}\quad \mathbf{m}=\left[\begin{array}{c}
+\mathbf{m}_1\\
+\mathbf{m}_2\\
+\vdots\\
+\mathbf{m}_N\\
+\end{array}\right].
+\end{align}
+
+$\mathbf{B}_n$ in equation \ref{eq:dBm} denotes the diagonal matrix composed of $\mathbf{b}(t,n)$, $t\in[1,2,\cdots,N_t]$, and $\mathbf{m}_n$ denotes the column vector composed of $\mathbf{a}(t,n)$, $t\in[1,2,\cdots,N_t]$. 
+%\mathbf{B}=\left[\begin{array}{cccc}
+%B(1,1) & B(1,2) & \cdots & B(1,N) \\
+%B(2,1) & B(2,2) & \cdots & B(2,N) \\
+%\vdots & \vdots & \vdots & \vdots \\
+%B(N_t,1) & B(N_t,2) & \cdots & B(N_t,N) 
+%\end{array}
+%\right]
+The shaping regularization method \cite[]{fomel2007shape} can be used to solve equation \ref{eq:fs3} with the following iterative formula:
+\begin{equation}
+\label{eq:shape}
+\mathbf{m}_{k+1} = \mathbf{T}\left[\mathbf{m}_k + \alpha_k \mathbf{B}^T(\mathbf{d}-\mathbf{Bm}_k)\right],
+\end{equation}
+where $\mathbf{m}_{k}$ denotes the model after $k$ iterations, $\mathbf{T}$ is a smoothing operator, $\alpha_k$ denotes the step \old{length, which can be computed following}\new{length herein computed by} the conjugate gradient method, and $\mathbf{B}^T$ denotes the adjoint/\wen{complex} tranpose of the forward operator. The smoothing operator $\mathbf{T}$ is a serial multi-dimensional filter, meaning that a 1D smoothing filter \dlo{defined by equation \ref{eq:tri}} is applied to each \old{direction of the seismic data}\new{seismic dimension} (e.g., time and space) in a serial form. After solving the model, i.e., $\mathbf{a}(t,n)$, the complex spectra can be obtained by considering the first element in $\mathbf{a}(t,n)$ as the real value and the second element in $\mathbf{a}(t,n)$ as the imaginary value. \wen{Note that we can obtain a time-frequency map in the $t-n$ domain by solving equation \ref{eq:fs4}. To obtain the spectra in the $t-f$ domain, a}\dlo{A} final $n-f$ transformation should be done in order to obtain the normal time-frequency spectra map by considering $f=n\frac{1}{2Ndt}$.
+
+\subsection{Non-stationary LTFT}
+In the traditional LTFT method, \dlo{the smoothing operator }$\mathbf{T}$ is simply a triangle smoothing operator along the time axis to stabilize the inversion \dlo{of}\wen{in} equation \ref{eq:fs3}. \dlo{Besides}\wen{In addition}, assuming the \dlo{homogeneity of the time-frequency spectra along the time axis, the smoothing radius in the smoothing operator is fixed.}\wen{homogeneity of the time-frequency spectra along the time axis, the radius of the smoothing operator is fixed.} 
+
+Here, we propose to vary the time-only smoothing operator to a multi-dimensional \wen{triangular} smoothing operator $\mathbf{T}_N$, which can be used to smooth along all physical dimensions, e.g., frequency, time, and space\dlo{ (X and Y)}. \wen{The multi-dimensional smoothing operator ensures that the new method utilizes coherency along all dimensions, thus significantly improving the anti-noise ability of the LTFT method.}\dlo{Besides, because}\wen{ In addition, because} of the large heterogeneity in the model domain, \dlo{as required by a high-resolution time-frequency transform, the smoothing should not be stationary, i.e., using the same smoothing radius across the whole domain. We}\wen{we} propose to apply a non-stationary smoothing to all the physical domains. It means that we could vary the smoothing radius for each point of the multi-dimensional time-frequency map/cube according to the spectral energy distribution or other a-priori information. This non-stationary smoothing offers the flexibility of better locating those areas of the time-frequency domain having a higher resolution using a specifically designed smoothing radius map.  
+
+Due to the multidimensional smoothing applied onto the model, the non-stationary LTFT method \dlo{takes}\wen{considers} the whole input seismic data, e.g., a trace, a 2D section, or a 3D volume, as a single object. Unlike the traditional LTFT method expressed in equation \ref{eq:fs4} that can be solved trace-by-trace in parallel, the non-stationary LTFT method inverts for the time-frequency representations in all the dimensions, e.g., scale/frequency, time, space (X and Y), concurrently \wen{as follows},
+\begin{equation}
+\label{eq:fs5}
+\min_{\mathbf{m}(t,x,y,n)} \sum_{t} \left( d(t,x,y) - \sum_{n=0}^{N} \mathbf{b}(t,x,y,n)\mathbf{a}(t,x,y,n) \right)^2,
+\end{equation}
+where $d(t,x,y)$ and $\mathbf{a}(t,x,y,n)$ denote the data and model in all physical dimensions. 
+
+\dlo{Due to the large model space, an efficient smoothing should be applied. We apply the following efficient implementation of a triangle smoother. The triangle smoother with a smoothing radius $N$}\wen{Due to the large model space, an efficient smoothing should be applied. We apply the following implementation of a triangular smoother \cite[]{lumley1994anti,claerbout2008gee}. The triangular filter with a smoothing radius $R$} can be obtained by cascading two rectangle smoothers, which can be expressed in the Z-transform form as:
+\wen{
+\begin{equation}
+\label{eq:tri}
+\mathbf{T}=\frac{1}{R^2}(1+Z+Z^2+\cdots+Z^{R-1})(1+Z+Z^2+\cdots+Z^{R-1}) = \frac{Z^{2R}-2Z^R+1}{(1-Z)^2R^2}.
+\end{equation}}
+\dlo{The numerator of equation}\wen{Equation} \ref{eq:tri} can be efficiently implemented in a recursion form:
+\begin{equation}
+\label{eq:first}
+y_n = \frac{1}{R^2}(x_{n-2R} + x_n - 2x_{n-R}) +2y_{n-1}-y_{n-2},
+\end{equation}
+\new{where} $y_n$ and $x_n$ refer to the data samples in given directions. \wen{The recursion in equation \ref{eq:first} makes the smoothing efficient.} Equation \ref{eq:first} is directly related \dlo{with}\wen{to} the smoothing radius $R$, which makes the recursion method applicable to non-stationary smoothing.
+
+Note that when the smoothing radii in the frequency direction and space direction are both constantly set to be one point, the non-stationary  LTFT method downgrades to the traditional LTFT method. When the smoothing radius in the time direction is further increased to \dlo{the} infinity, the non-stationary  LTFT method \dlo{further downgrades}\wen{reverts} to the Fourier transform. 
+
+\subsection{A synthetic benchmark comparison}
+To demonstrate the merits of the non-stationary LTFT method in obtaining higher resolution and better anti-noise ability \wen{compared with state-of-the-art methods}, we conduct a benchmark comparison with the traditional LTFT method based on the same synthetic example in \cite{liuyang2012}. Figure \ref{fig:cchirpsc} shows the crossing-chirp signal \cite[]{liuyang2012} \dlo{(a)} and \wen{Figure \ref{fig:cchirps}} the noisy crossing-chirp signal \dlo{(b) }by adding some random noise. Figures \ref{fig:rect-n0} and \ref{fig:rect-n1} show the adaptively designed smoothing radius maps in the frequency and time directions, respectively. Here, we use the output from the traditional LTFT method as a reference and calculate the energy distribution of the LTFT spectra. Then, we set \dlo{as }a threshold of 5\% of the maximum energy, below which the smoothing radius is set as a smaller value and above which the smoothing radius is set a larger value. The ``larger and smaller'' values of the smoothing radius map depend on the level of smoothing one wants to apply. For example, \dlo{in}\wen{on} the time axis, we set the smoothing radius as either \old{7}\new{seven} points for a weaker smoothing of signal or 14 points for a stronger smoothing of noise. Here, ``signal'' means the target components in the spectrum and ``noise'' means the unwanted components. \old{In}\new{On} the frequency axis, since a \wen{smoothing} radius of \old{3}\new{three} points is strong\dlo{ for smoothing}, we only choose \old{1}\new{one} point for smoothing the signal and \old{3}\new{three} points for smoothing the noise.  This is only a simple example of designing the non-stationary smoothing radius\dlo{. Other}\wen{ and} better strategies can \dlo{also }be used. We compare the time-frequency spectra \old{in}\new{for} different scenarios in Figure \ref{fig:st,ltft_s,ltft_s3,ltft_s4,ltft_s2,ltft_n}. Figure \ref{fig:st} shows the result from the \wen{ST} transform. Figure \ref{fig:ltft_s} shows the result from the LTFT method with $R_t=7$ and $R_f=1$. Here, $R_t$ and $R_f$ denote the smoothing radii in time and frequency directions. Figure \ref{fig:ltft_s3} shows the result from the LTFT method with stationary smoothing radii $R_t=7$ and $R_f=2$. Figure \ref{fig:ltft_s4} shows the result from the LTFT method with stationary smoothing radii $R_t=7$ and $R_f=3$. Figure \ref{fig:ltft_s2} shows the result from the LTFT method with $R_t=14$ and $R_f=1$. Figure \ref{fig:ltft_n} shows the result from the LTFT method with the non-stationary smoothing radius maps shown in Figure \ref{fig:rect-n0,rect-n1}. In these time-frequency maps, the result from the ST method seems to be \old{very }affected by the noise and has a low resolution. The results corresponding to the traditional LTFT method \wen{with single smoothing in time}, i.e., Figures \ref{fig:ltft_s} and \ref{fig:ltft_s2}, improve the result a bit but \dlo{it is inconvenient to adjust the}\wen{is sensitive to the smoothing} parameter\dlo{: single smoothing in time}. The results from the \dlo{non-}stationary LTFT method (Figures \ref{fig:ltft_s3} and \ref{fig:ltft_s4}) with a stationary smoothing radius in frequency is dangerous in over-smoothing the spectra and causing a complete smearing along the frequency dimension. \dlo{The result from the non-stationary LTFT with non-stationary time and frequency smoothing radii obtains an excellent performance, i.e., high resolution and anti-noise ability, as shown in Figure \ref{fig:ltft_n}.}\wen{The proposed method with non-stationary time and frequency smoothing radii obtains a high-resolution and anti-noise performance, as shown in Figure \ref{fig:ltft_n}.} 
+
+
+\inputdir{cross}
+\multiplot{2}{cchirpsc,cchirps}{width=\textwidth}{(a) Clean chirp signal. (b) Noisy chirp signal.}
+
+\multiplot{2}{rect-n0,rect-n1}{width=\textwidth}{Non-stationary smoothing radius (a) along the frequency axis and (b) along the time axis (b).}
+
+\multiplot{6}{st,ltft_s,ltft_s3,ltft_s4,ltft_s2,ltft_n}{width=0.45\textwidth}{Time-frequency spectra of the noisy chirp signal using (a) S transform, (b) stationary LTFT with $R_t=7$ and $R_f=1$, (c) stationary LTFT with $R_t=7$ and $R_f=2$, (d) stationary LTFT with $R_t=7$ and $R_f=3$, (e) stationary LTFT with $R_t=14$, and (f) \wen{non-}stationary LTFT with smoothing radius in time and frequency shown in Figure \ref{fig:rect-n0,rect-n1}.}
+
+
+
+\inputdir{usarray}
+\plot{earth_pick}{width=\textwidth}{Earthquake data recorded from \old{the}\new{a} station at longitude=107.6$^o$W and latitude=37.7$^o$ corresponding to the January 18, 2009, Kermadec Islands, New Zealand, Mw 6.4 earthquake. The vertical lines indicate the manually picked arrival times for P, PP, S, SS, Rayleigh waves\old{ (from left to right)}.}
+
+\multiplot{2}{earth_rect-n0,earth_rect-n1}{width=\textwidth}{Non-stationary smoothing radius along the frequency axis (a) and along the time axis (b) for the earthquake data analysis example.}
+
+\multiplot{3}{earth_st_pick,earth_ltfts_pick,earth_ltftn_pick}{width=\textwidth}{Time-frequency spectra overlapped with the manually picked arrival times. (a) Result from the S transform. (b) Result from the stationary LTFT method ($R_t=20$). (c) Result from the proposed non-stationary LTFT method with the smoothing radius in time and frequency shown in Figure \ref{fig:earth_rect-n0,earth_rect-n1}.}
+
+\section{Applications}
+
+The first application of the proposed non-stationary LTFT method is to analyze the time-frequency features of an earthquake seismogram of the January 18, 2009, Kermadec Islands, New Zealand, Mw 6.4 earthquake, \old{which was }recorded from the station \new{located} at longitude 107.6$^o$W and latitude 37.7$^o$. \new{Figure \ref{fig:earth_pick} plots} the raw seismogram\old{, which is very noisy, is} borrowed from \cite{yangkang2019nc}\old{ and is plotted in Figure \ref{fig:earth_pick}}. There are 5400 samples in this trace\old{. The sampling rate is 1 s}\new{ at a 1 s sampling rate}. The seismogram is extracted from the continuous record starting from -586 s ahead of the earthquake event. The vertical lines from left to right correspond to the manually picked P, PP, S, SS, Rayleigh phases arrival times. 
+We design non-stationary smoothing radius maps in both frequency and time directions in the \wen{same} way as the aforementioned crossing-chirp signals. The \dlo{resulted}\wen{resulting} non-stationary smoothing radii are plotted in Figure \ref{fig:earth_rect-n0,earth_rect-n1}.  The maximum and minimum smoothing radii in the frequency direction are \old{3}\new{three} points and \old{1}\new{one} point, respectively. The maximum and minimum smoothing radii in the time direction are 40 points and 20 points \new{long}, respectively. We show a comparison of time-frequency spectra using different methods in Figure \ref{fig:earth_st_pick,earth_ltfts_pick,earth_ltftn_pick}. Figure \ref{fig:earth_st_pick} shows the time-frequency spectra using the ST method, where significant noise \dlo{spectra are}\wen{is} revealed around the frequency band 0.1-0.2 Hz. Figure \ref{fig:earth_ltfts_pick} \dlo{plots}\wen{displays} the time-frequency spectra using the traditional LTFT method, where the noise influence has been significantly mitigated due to the temporal smoothing and the resolution in the low-frequency band has also been enhanced compared with the ST method. Figure \ref{fig:earth_ltftn_pick} shows the time-frequency spectra using the proposed non-stationary LTFT method based on the non-stationary smoothing radius maps shown in Figure \ref{fig:earth_rect-n0,earth_rect-n1}. The result using the proposed method is surprisingly high-resolution and clean, showing a very good correlation between the \dlo{spectra}\wen{spectral} peaks and the manually picked phase arrivals. \dlo{Besides}\wen{In addition}, due to the \dlo{enabled }frequency smoothing, the proposed method shows an obviously higher resolution in time than the traditional LTFT method, which could be very helpful for phase arrival picking. Its application in arrival picking, either in a traditional scheme \cite[]{mostafa2016geo} or in a deep-learning based scenario \cite[]{chen2019ess,guoyin2020geo}, is\dlo{ worth investigating in the future}\wen{ a notable future area of investigation}.
+
+
+
+\inputdir{section}
+\multiplot{2}{tracesc,traces}{width=0.45\textwidth}{Multi-channel seismic data example. (a) Clean data. (b) Noisy data.}
+\multiplot{4}{tracesc-ltft,traces-ltft,traces-ltftn-no,traces-ltftn}{width=0.45\textwidth}{Time-frequency spectra of (a) clean data using stationary LTFT, (b) noisy data using stationary LTFT, (c) noisy data using non-stationary LTFT with no spatial smoothing, (d) noisy data using non-stationary LTFT with spatial smoothing.}
+\multiplot{4}{traces-ratio-S,traces-ratio-N,traces-lsfits-S2,traces-lsfits-N2}{width=0.45\textwidth}{\wen{(a) Spectral ratio (between $t=0.5$ s and $t=0.8$ s) using the traditional LTFT method. (b) Spectral ratio (between $t=0.5$ s and $t=0.8$ s) using the non-stationary LTFT method. (c) Spectral ratio \wen{(red)} and fitted \wen{(blue)} line for the 16th spatial trace using the traditional LTFT method. (d) Spectral ratio \wen{(red)} and fitted \wen{(blue)} line for the 16th spatial trace using the non-stationary LTFT method.}}
+\plot{traces-comp0}{width=\textwidth}{Quality factor estimation comparison. }
+
+
+The second application of the proposed non-stationary LTFT method is quality factor estimation. The application is based on a 2D seismic section \dlo{as }shown in Figure \ref{fig:tracesc,traces}. Figure \ref{fig:tracesc} \dlo{plots}\wen{shows} the clean seismic section and Figure \ref{fig:traces} \dlo{plots}\wen{displays} the noisy seismic section by adding random noise. The clean data \old{is}\new{are} used to calculate its time-frequency cube as plotted in Figure \ref{fig:tracesc-ltft} for benchmarking the time-frequency cubes of different methods. In this synthetic test, we simulate the attenuation between the seismic event at \dlo{time 0.5s and the seismic event at time 0.8s}\wen{t=0.5 s and seismic event at t=0.8 s} using a constant quality factor \dlo{$Q=60$}\wen{Q of 60}. Since we know \dlo{the exact quality factor of this example}\wen{Q}, we can estimate the quality factors using different methods based on the spectral ratio method (SRM)\old{ framework as} detailed in \cite{yangkang2019gjiQ}, and then compare them with the exact solution\dlo{ to evaluate the accuracy}. First, we calculate the time-frequency cubes corresponding to the noisy data using the traditional LTFT method and the proposed method. The result from the traditional LTFT method is shown in Figure \ref{fig:traces-ltft}, which contains many \dlo{artifacts}\wen{artefacts} due to the strong random noise. Figure \ref{fig:traces-ltftn-no} shows the result from the non-stationary LTFT method when setting a constant \old{3}\new{three}-point smoothing radius (same as the traditional LTFT method) in time, and a constant \old{1}\new{one}-point smoothing radius for both frequency and space directions. \dlo{It is clear that the two results in Figures \ref{fig:traces-ltft} and \ref{fig:traces-ltftn-no} are almost the same, confirming that the proposed non-stationary LTFT method downgrades to the traditional LTFT method when no smoothing in frequency and space is used, although the traditional LTFT method does the inversion (equation \ref{eq:fs4}) trace by trace and the proposed LTFT framework (equation \ref{eq:fs5}) does the inversion by utilizing all the traces at one time.}\wen{It is clear that the two results in Figures \ref{fig:traces-ltft} and \ref{fig:traces-ltftn-no} are almost the same, confirming that the proposed non-stationary LTFT method downgrades to the traditional LTFT method when no smoothing in frequency and space is used. Note that the traditional LTFT method does the inversion (equation \ref{eq:fs4}) trace by trace but the proposed LTFT framework (equation \ref{eq:fs5}) does the inversion by utilizing all the traces at one time.} Figure \ref{fig:traces-ltftn} shows the result from the proposed method by using a 30-point lateral smoothing radius and a \old{3}\new{three}-point temporal smoothing radius, which is very clean and accurate \dlo{as benchmarked}\wen{when compared} by the exact solution in Figure \ref{fig:tracesc-ltft}. We take the spectral ratio between the \dlo{0.5-sec slice and 0.8-sec}\wen{0.5 s slice and 0.8 s} slice based on the regularized inversion framework \cite[]{yangkang2019gjiQ} and show \dlo{the }comparisons between the traditional and proposed LTFT methods in Figure \ref{fig:traces-ratio-S,traces-ratio-N,traces-lsfits-S2,traces-lsfits-N2}. \old{The top row in Figure \ref{fig:traces-ratio-S,traces-ratio-N,traces-lsfits-S2,traces-lsfits-N2}}\new{Figures \ref{fig:traces-ratio-S} and \ref{fig:traces-ratio-N}} show the spectral division in the frequency-space domain using the traditional LTFT method \old{(left)}\new{(Figures \ref{fig:traces-ratio-S} and \ref{fig:traces-lsfits-S2})} and the proposed method \old{(right)}\new{(Figures \ref{fig:traces-ratio-N} and \ref{fig:traces-lsfits-N2})}. \old{The bottom row of Figure \ref{fig:traces-ratio-S,traces-ratio-N,traces-lsfits-S2,traces-lsfits-N2} shows}\new{Figures \ref{fig:traces-lsfits-S2} and \ref{fig:traces-lsfits-N2} show} the extracted one column from \old{each of the top row}\new{Figures \ref{fig:traces-ratio-S} and \ref{fig:traces-ratio-N}} and the least-squares fitted lines using the traditional \old{(left) }and the proposed \old{(right) }methods\new{, respectively}. The slope of the least-squares fitted line is used to calculate the quality factor. It is clear that the spectral ratio using the non-stationary LTFT method can be fitted well\dlo{, indicating a better physically explained spectral ratio}. \dlo{The}\wen{A} comparison of the estimated quality factors using the traditional\dlo{ and}\wen{,} proposed LTFT methods and \dlo{the }exact solution is shown in Figure \ref{fig:traces-comp0}. The pink horizontal line corresponds to the exact solution, i.e., $Q=60$. The blue line corresponds to the estimated Q from the proposed non-stationary LTFT method, which is very close to the pink line. The red line corresponds to the result using the traditional LTFT method, which is very oscillating and not stable. 
+
+The third application is low-frequency shadow detection. The low-frequency shadow refers to the phenomenon that the low-frequency slice shows evident anomalies in those reservoir-related areas while the high-frequency slice does not show these anomalies in the same areas due to high-frequency attenuation \cite[]{castagna2003instantaneous}. \old{We show}\new{Figure \ref{fig:old-1} shows} a field data example that is borrowed from \cite{guochang20113}\old{ in Figure \ref{fig:old-1}}. We extract three constant frequency slices, \old{i.e.,}\new{at} 15 Hz, 31 Hz, and 70 Hz, from the time-frequency cubes using the traditional and \old{the }proposed methods. \dlo{The}\wen{A} comparison is shown in Figure \ref{fig:lf-ltft1-0,lf-ltftn1-0,lf-ltft2-0,lf-ltftn2-0,lf-ltft3-0,lf-ltftn3-0}, with the \old{left}\new{left and right columns} showing the results from the traditional \old{LTFT method, and the right column showing the results from}\new{and} the non-stationary LTFT \old{method}\new{methods, respectively}. It is clear that the \old{non-stationary LTFT method}\new{latter} significantly increases the temporal and spatial resolution of the time-frequency spectra, making the low-frequency shadow more evident and better localized. The low-frequency shadow is highlighted by the frame boxes in Figure \ref{fig:lf-ltft1-0,lf-ltftn1-0,lf-ltft2-0,lf-ltftn2-0,lf-ltft3-0,lf-ltftn3-0}. In this example, we use the same way as the crossing-chirp signals to design the non-stationary smoothing radius. The maximum and minimum smoothing radii along the time direction are \old{10 samples and 8 samples}\new{ten and eight samples}, respectively. The maximum and minimum smoothing radii along the space direction are \old{5 samples and 3}\new{five and three} samples, respectively.
+
+\inputdir{lowf}
+\plot{old-1}{width=\textwidth}{2D field data for \new{a} low-frequency shadow detection test.}
+\multiplot{6}{lf-ltft1-0,lf-ltftn1-0,lf-ltft2-0,lf-ltftn2-0,lf-ltft3-0,lf-ltftn3-0}{width=0.4\textwidth}{\wen{Frequency slices at 15 Hz (a), 31 Hz (c), 70 Hz (e)  using the traditional LTFT. Frequency slices at 15 Hz (b), 31 Hz (d), 70 Hz (f)  using the non-stationary LTFT.}}
+
+
+The fourth application is channel detection. We apply the LTFT method to analyze a 3D seismic cube and then extract different constant-frequency horizontal slices, where the channels can be revealed. \new{Figure \ref{fig:flat} presents the}\old{The} 3D cube\old{ is} borrowed from \cite{guochang20113}\old{ and is plotted in Figure \ref{fig:flat}}. This field data \old{has}\new{have} been flattened using the predictive painting method \cite[]{fomel2010painting}. The flattening procedure can help reveal the stratigraphic features in the dataset. \old{More introduction about the}\new{The} preprocessing steps \old{is referred to}\new{are presented in} \cite{guochang20113}. Here, we simply use this dataset to show a benchmark comparison of the channel detection performance between the traditional and the proposed LTFT methods. In this example, \dlo{we use the same way as the last example to design the non-stationary radius maps in all directions. We}\wen{we} do not smooth along the frequency direction. The maximum and minimum smoothing radii along both time and space directions are \old{5 samples and 3 samples}\new{five and three samples}, respectively. Figure %\ref{fig:ltft-slice25-0,ltft-slice30-0,ltft-slice35-0,ltftn-slice25-0,ltftn-slice30-0,ltftn-slice35-0} 
+\ref{fig:ltft-slice25-0,ltft-slice35-0,ltft-slice50-0,ltftn-slice25-0,ltftn-slice35-0,ltftn-slice50-0}
+shows a comparison of \old{three constant-frequency slices corresponding to }\dlo{25 Hz, 30 Hz, and 35 Hz}\new{the 25Hz, 35 Hz, and 50 Hz frequency slices}.
+The top row corresponds to the results from the traditional LTFT method and the bottom row shows the results from the proposed method. It is clear that due to the spatial coherency constraint, the \old{resulted}\new{estimated} spectra is \old{much }cleaner and maintains the key stratigraphic features, e.g., the channels. The detected channels are \old{pointed}\new{shown} by the arrows in Figure %\ref{fig:ltft-slice25-0,ltft-slice30-0,ltft-slice35-0,ltftn-slice25-0,ltftn-slice30-0,ltftn-slice35-0}. 
+\ref{fig:ltft-slice25-0,ltft-slice35-0,ltft-slice50-0,ltftn-slice25-0,ltftn-slice35-0,ltftn-slice50-0}.
+It is apparent that the channel delineation is \old{much }clearer using the non-stationary LTFT method. For example, the channels using the traditional method are only clear in the 25 Hz slice, while the channels in the \dlo{30Hz}\wen{35 Hz} slice become \old{very }vague, and it is almost invisible from the \dlo{30Hz}\wen{50 Hz} slice \old{because of}\new{due to} the strong interference of high-frequency noise. However, the channels are clear in all three constant-frequency slices using the non-stationary LTFT method. Even in the \dlo{35Hz}\wen{50 Hz} slice, the proposed method still unveils the channels due to its much stronger anti-noise \old{ability}\new{capability}. 
+
+
+
+
+\inputdir{chev}
+\plot{flat}{width=\textwidth}{\wen{Flattened} 3D seismic volume. \new{The front face shows a constant time slice.}}
+%\multiplot{6}{ltft-slice25-0,ltft-slice30-0,ltft-slice35-0,ltftn-slice25-0,ltftn-slice30-0,ltftn-slice35-0}{width=0.3\textwidth}{Horizontal slice comparison of the time-frequency spectra. Top row: horizontal slices of 25 Hz (left), 30 Hz (middle), 35 Hz (right), respectively, using the traditional LTFT method. Bottom row: horizontal slices of 25 Hz (left), 30 Hz (middle), 35 Hz (right), respectively, using the non-stationary LTFT method. \wen{The arrows highlight the differences of depicted channels between two methods.}}
+
+\multiplot{6}{ltft-slice25-0,ltft-slice35-0,ltft-slice50-0,ltftn-slice25-0,ltftn-slice35-0,ltftn-slice50-0}{width=0.3\textwidth}{\wen{Horizontal slices comparison of the time-frequency spectra. Horizontal slices at 25 Hz (a), 35 Hz (b), 50 Hz (c), respectively, using the traditional LTFT method. Horizontal slices at 25 Hz (d), 35 Hz (e), 50 Hz (f), respectively, using the non-stationary LTFT method. The arrows highlight the differences of depicted channels between two methods.}}
+
+
+The fifth application is \old{the}\new{a} multi-component data registration example. As demonstrated in \cite{fomel20052}, the time-frequency transform can be used to balance the frequency contents between the PP and warped PS images \old{in order to get a better}\new{to obtain improved} image registration\old{ performance}. \new{Here, warping means temporally shifting each sample in the PS image to match the PP image.} The principle of the spectral balancing is to match the spectra of PP and PS images to that of a Ricker wavelet, after which the balanced PP and PS images share a closer \old{spectra}\new{spectral} content. We directly use the result from \cite{liuyang2012} using the traditional LTFT method as a benchmark comparison with the proposed non-stationary LTFT method. In this test, we use a fixed constant smoothing radius of 20 samples in time as the same as the traditional LTFT method. We use a smoothing radius of \old{5}\new{five} samples in space to utilize the spatial coherency to constrain the resolution of the spectra. The PP and PS images before registration are shown in Figures \ref{fig:vpp} and \ref{fig:vss}, respectively. Figures \ref{fig:ppltft-new} and \ref{fig:ppltftn-new} show the time-frequency spectra cubes of the PP image before matching obtained using the traditional and the proposed LTFT methods, respectively. The comparison for the warped PS image are shown on the bottom row of Figure \ref{fig:ppltft-new,ppltftn-new,pswltft-new,pswltftn-new}. It is clear that the non-stationary LTFT method obtains a better result with \old{a }higher resolution. Figures \ref{fig:before,after,after1} shows the interleaved data comparison. The interleaved data \old{is}\new{are} a way to evaluate the performance of multi-component data registration. The \old{principle}\new{idea} is that by interleaving the PP and PS traces one by one, it is easier to \old{find}\new{spot} the differences between them (especially the alignment of events in the time axis)\old{ between different results}. \old{It is intuitive}\new{Note} that the more spatially coherent registration result is better in aligning the PP and PS events. From the \old{highlighting }frame boxes in Figure \ref{fig:before,after,after1}, the non-stationary LTFT method obtains an obviously better result. \wen{The frame boxes are also zoomed in Figure \ref{fig:before-z,after-z,after1-z} for a better view.}
+
+\inputdir{vecta}
+\multiplot{2}{vpp,vss}{width=0.45\textwidth}{Multi-component data registration example. (a) PP image. (b) PS image. }
+
+\multiplot{4}{ppltft-new,ppltftn-new,pswltft-new,pswltftn-new}{width=0.45\textwidth}{Time-frequency spectra cubes using (a) traditional LTFT method and (b) non-stationary LTFT method for the PP image before matching, (c) traditional LTFT method and (d) non-stationary LTFT method for the warped PS image before matching.}
+
+\multiplot{3}{before,after,after1}{width=0.48\textwidth}{Interleaved data comparisons. Interleaved data before registration (a), after registration using the traditional LTFT method (b), and after registration using the non-stationary LTFT method (c). \wen{The green boxes highlight an area that shows apparent registration difference in these results. The green boxes are also zoomed for a better view in Figure \ref{fig:before-z,after-z,after1-z}.}}
+
+\multiplot{3}{before-z,after-z,after1-z}{width=0.5\textwidth}{\wen{Zoomed comparison of the green boxes in Figure \ref{fig:before,after,after1}. The coherency of the interleaved PP-PS image has been dramatically enhanced from top to bottom.}}
+
+
+
+
+
+\section{Conclusions}
+In an inversion-based time-frequency transform, seismic data \old{is}\new{are} highly non-stationary in both data and model (spectra) domains. While \old{the}\new{data} non-stationarity\old{ of the data} has been taken into account in the traditional LTFT method, \old{the}\new{model} non-stationarity\old{ of the model} has not been considered. We propose a non-stationary LTFT method to obtain the time-frequency spectra with a high resolution, where the data non-stationarity is characterized by non-stationary regression and the model non-stationarity is characterized by non-stationary smoothing. The non-stationary smoothing is applied to all the physical dimensions of the time-frequency spectra, i.e., frequency, time, and space. A synthetic test on the crossing-chirp signal shows that the proposed non-stationary LTFT method can significantly improve the resolution and anti-noise ability of the time-frequency analysis compared with the ST transform and the standard LTFT method. The non-stationary smoothing radius \old{maps/cubes}\new{maps and cubes} offer an effective way to apply \old{a-priori}\new{a priori} constraint to the time-frequency spectra so as to obtain a model domain that is more physically meaningful. The applications of the proposed non-stationary LTFT method to several field data examples with respect to different purposes demonstrate that the new method \old{is very}\new{has a lot of} potential in many practical problems.
+%\section{Acknowledgements}
+%The work is supported by the starting fund from Zhejiang University.
+
+\section{DATA AND MATERIALS AVAILABILITY}
+Data associated with this research are available and can be obtained by contacting the corresponding author.
+
+
+
+\bibliographystyle{seg}
+\bibliography{tf}
+
+
+

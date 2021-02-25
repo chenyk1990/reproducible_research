@@ -1,0 +1,191 @@
+from rsf.proj import *
+# from rsf.recipes.beg import server as private
+
+trace=300
+
+Flow('line.asc',None,
+     'echo %d 0 %d 4 n1=4 data_format=ascii_float in=$TARGET' %
+     (trace,trace))
+Plot('line','line.asc',
+     '''
+     dd form=native | dd type=complex |
+     graph min2=0 max2=4 min1=-0.5 max1=471.5 pad=n wantaxis=n wanttitle=n
+     ''')
+
+for mode in ['pp','ss']:
+    data = 'bend_l1_%cmig_enhanc.sgy' % mode[1]
+#     Fetch(data,'vecta',private)
+    Flow(mode,data,
+         '''
+         segyread tape=$SOURCE read=data |
+         window n2=471 | scale axis=2 | put label2=Trace
+         ''',stdin=0)
+    Result(mode,mode,'Overlay')
+#     Result('v'+mode,[mode,'line'],'Overlay')
+    Result('v'+mode,mode,'Overlay')
+
+nails = Split('''
+0.32 0.72
+0.57 1.22
+0.97 1.97
+''')
+
+Flow('nails0.asc',None,
+     'echo %s n1=2 n2=%d in=$TARGET data_format=ascii_float' %
+     (string.join(nails,' '),len(nails)/2))
+Flow('nails','nails0.asc','dd form=native')
+Flow('nreal','nails','window n1=1')
+Flow('nimag','nails','window f1=1')
+Plot('nails','nreal nimag',
+     '''
+     cmplx ${SOURCES[:2]} |
+     graph min1=0 max1=2 min2=0 max2=4 symbol='o' wanttitle=n
+     label1="PP time (s)" label2="PS time (s)" plotcol=5
+     symbolsz=15 labelfat=3 font=2 titlefat=3
+     ''',stdin=0)
+
+Flow('fit','nails pp1','linefit pattern=${SOURCES[1]}')
+Plot('fit',
+     '''
+     graph min1=0 max1=2 min2=0 max2=4 title="Line Fit"
+     labelfat=4 font=2 titlefat=4
+     ''')
+Result('vnails','fit nails','Overlay')
+
+Flow('fit0','fit','math output=input-x1 | spray o=0 d=1 n=471')
+
+import newwarp
+newwarp.nwarp2('vec','pp','ss','fit0',
+               nx=471,
+               inter=5,
+               tmax=1.5,
+               ss=1,
+               trace=trace,
+               gmax=2.3,
+               gmin=1.5,
+               dt=0.002,
+               g0=0.9,
+               ng=41,
+               rect1=50,
+               rect2=50,
+               fmax=50,
+               frect=40,
+               fmin=30,
+               frame1=285,
+               iter=2,
+               clip=0.39)
+
+Result('pi','ppi','Overlay')
+Result('si','vec-si-0','Overlay')
+
+
+box = '''
+      box x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=3
+      '''
+x = 199
+y = 245
+w = 1
+w1= 6
+
+Plot('label01',None,box % (8.2,4.5,"A",0.5,-0.5))
+Plot('label02',None,box % (8.2,4.5,"B",0.5,-0.5))
+Flow('frame.asc',None,
+     'echo %s n1=10 data_format=ascii_int in=$TARGET' % \
+     string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+     '''
+     dd type=complex form=native |
+     graph min1=198.75 max1=204 min2=233 max2=254 pad=n plotfat=10 plotcol=3
+     wantaxis=n wanttitle=n screenratio=0.6 screenht=8
+     ''')
+
+Result('before','vec-in0-0 frame','Overlay')
+# Result('before-z','vec-in0-0-z','Overlay')
+Result('after','vec-in1-1 frame','Overlay')
+# Result('after-z','vec-in1-1-z','Overlay')
+
+Result('after1','../vectan/Fig/vec-in1-1.vpl frame','Overlay')
+# Result('after1-z','../vectan/vec-in1-1-z.vpl','Overlay')
+# Result('after1','vec-in1-1 frame label02','Overlay')
+
+Result('ppltft','Fig/vec-ppltft-1.vpl','Overlay')
+Result('ppltftn','../vectan/Fig/vec-ppltft-1.vpl','Overlay')
+
+Result('pswltft','Fig/vec-pswltft-1.vpl','Overlay')
+Result('pswltftn','../vectan/Fig/vec-pswltft-1.vpl','Overlay')
+
+
+Result('before-w','vec-in0-0-zw','Overlay')
+Result('after-w','vec-in1-1-zw','Overlay')
+Result('after1-w','../vectan/vec-in1-1-zw.vpl','Overlay')
+
+
+## 
+Plot('label1',None,
+	'''
+	box x0=8 y0=5.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label2',None,
+	'''
+	box x0=9 y0=5.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label3',None,
+	'''
+	box x0=10 y0=5.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label4',None,
+	'''
+	box x0=11 y0=5.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label5',None,
+	'''
+	box x0=12 y0=5.8 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+
+Plot('label11',None,
+	'''
+	box x0=3 y0=4.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label22',None,
+	'''
+	box x0=4 y0=4.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label33',None,
+	'''
+	box x0=5 y0=4.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label44',None,
+	'''
+	box x0=6 y0=4.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label55',None,
+	'''
+	box x0=7 y0=4.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+
+Plot('label111',None,
+	'''
+	box x0=8 y0=3.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label222',None,
+	'''
+	box x0=9 y0=3.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label333',None,
+	'''
+	box x0=10 y0=3.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label444',None,
+	'''
+	box x0=11 y0=3.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+Plot('label555',None,
+	'''
+	box x0=12 y0=3.6 label="" xt=-0.5 yt=0.5 length=0.5 
+	''')
+		
+Result('before-z','vec-in0-0-z label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
+Result('after-z','vec-in1-1-z label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
+Result('after1-z','../vectan/vec-in1-1-z.vpl label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
+
+End()

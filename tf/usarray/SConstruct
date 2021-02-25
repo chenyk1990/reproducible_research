@@ -1,0 +1,198 @@
+from rsf.proj import *
+import math
+
+# %load us_recon_to_nam.mat
+# % ilon=12;
+# % dtest=squeeze(d3d(:,ilon,:));
+# % d=dtest(:,9); 
+# % 
+# %fid=fopen('usarray_trace.bin','w');%stla: 37.74; stlo:107.6W) %9th trace in Figure 10a, Chen, NC paper 
+# %fwrite(fid,d,'float');
+# %t0: -586.74s; dt=1s
+
+tp=790
+tpp=1050
+ts=1550
+tss=2100
+tr=2600
+
+nt=501
+dt = 0.008
+nf = 300
+ot=0
+df = 1/(nt*dt)
+wf = 2*math.pi
+
+def Grey(data,other):
+	Result(data,'grey grid=n labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 label2=Trace  unit2="" label1=Time unit1="s" title="" wherexlabel=b scalebar=n wheretitle=t clip=0.4 screenratio=1.2 %s'%other)
+
+def Greyr(data,other):
+	Result(data,
+	'''
+       grey transp=n yreverse=n color=j label1=Time unit1=s
+       crowd1=0.75 crowd2=0.25 labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2
+       labelfat=1 font=2 titlefat=1 parallel2=n title= %s'''%(other))
+
+def Greyf(data,other):
+	Result(data,
+	   '''
+       cabs|
+       grey transp=n yreverse=n color=j label1=Time unit1=s
+       crowd1=0.75 crowd2=0.25 labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2
+       labelfat=1 font=2 titlefat=1 parallel2=n %s'''%(other))
+
+def Graph(data,other):
+	Result(data,'graph grid=n label2=Amplitude  unit2="" labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 label1=Time unit1="s" title="" wherexlabel=b scalebar=n wheretitle=t  title=Input labelfat=1 font=2 titlefat=1 crowd1=0.75 crowd2=0.25 parallel2=n wherexlabel=t wheretitle=b plotfat=1 min1=-586.74 max1=4812.26 %s'%other)
+
+def Graphplot(data,other):
+	Plot(data,'graph grid=n label2=Amplitude  unit2="" labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 label1=Time unit1="s" title="" wherexlabel=b scalebar=n wheretitle=t  title=Input labelfat=1 font=2 titlefat=1 crowd1=0.75 crowd2=0.25 parallel2=n wherexlabel=t wheretitle=b plotfat=1 min1=-586.74 max1=4812.26 %s'%other)
+
+
+def Grey3(data,other):
+	Result(data,'cabs|byte allpos=y clip=0.01 | grey3 flat=n color=j frame2=50 frame1=120 frame3=15 grid=n label1=Time  unit1="s" label3=Trace label2=Frequency unit2="Hz"  unit3= title="" wherexlabel=b scalebar=n wheretitle=t labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 screenratio=1.2 point1=0.8 point2=0.8 %s'%other)
+	
+#tp
+Flow('tpx',None,'spike n1=100 n2=1 |math output=%g'%tp)
+Flow('tpy',None,'spike n1=100 o1=-0.1 d1=0.002 n2=1 |math output=x1')
+Flow('tp','tpx tpy','cmplx ${SOURCES[1]}')
+Graphplot('tp','wantaxis=n wanttitle=n plotcol=1')
+
+
+#tpp
+Flow('tppx',None,'spike n1=100 n2=1 |math output=%g'%tpp)
+Flow('tppy',None,'spike n1=100 o1=-0.1 d1=0.002 n2=1 |math output=x1')
+Flow('tpp','tppx tppy','cmplx ${SOURCES[1]}')
+Graphplot('tpp','wantaxis=n wanttitle=n plotcol=2')
+
+#ts
+Flow('tsx',None,'spike n1=100 n2=1 |math output=%g'%ts)
+Flow('tsy',None,'spike n1=100 o1=-0.1 d1=0.002 n2=1 |math output=x1')
+Flow('ts','tsx tsy','cmplx ${SOURCES[1]}')
+Graphplot('ts','wantaxis=n wanttitle=n plotcol=3')
+
+#tss
+Flow('tssx',None,'spike n1=100 n2=1 |math output=%g'%tss)
+Flow('tssy',None,'spike n1=100 o1=-0.1 d1=0.002 n2=1 |math output=x1')
+Flow('tss','tssx tssy','cmplx ${SOURCES[1]}')
+Graphplot('tss','wantaxis=n wanttitle=n plotcol=4')
+
+#tr
+Flow('trx',None,'spike n1=100 n2=1 |math output=%g'%tr)
+Flow('try',None,'spike n1=100 o1=-0.1 d1=0.002 n2=1 |math output=x1')
+Flow('tr','trx try','cmplx ${SOURCES[1]}')
+Graphplot('tr','wantaxis=n wanttitle=n plotcol=5')
+
+
+
+Flow('earth','usarray_trace.bin','bin2rsf bfile=${SOURCES[0]} n1=5400 n2=1 d1=1 o1=-586.74 d2=1 o2=0')
+Graph('earth','title="Earthquake data"')
+
+Result('earth_pick','Fig/earth.vpl tp tpp ts tss tr lp lpp ls lss lr','Overlay')
+
+# # S transform
+Flow('earth_st','earth','st')
+
+# test sfltft
+Flow('earth_ltfts','earth','ltfts rect=20 alpha=0 verb=n niter=10')
+
+# Flow('cchirpsc',None,
+#      '''
+#      spike n1=%d d1=1 o1=0 |
+#      math output="cos(%g*(10+x1/7)*x1/%d)+cos(%g*(%d/2.8-x1/6.0)*x1/%d)" |
+#      pad end1=11 
+#      ''' % (nt,2*math.pi,nt,2*math.pi,nt,nt))
+#      
+# Flow('cchirps',None,
+#      '''
+#      spike n1=%d d1=1 o1=0 |
+#      math output="cos(%g*(10+x1/7)*x1/%d)+cos(%g*(%d/2.8-x1/6.0)*x1/%d)" |
+#      pad end1=11| noise var=0.2 seed=201920
+#      ''' % (nt,2*math.pi,nt,2*math.pi,nt,nt))
+# 
+# 
+# # S transform
+# Flow('st','cchirps','st')
+# 
+# # test sfltft
+# Flow('ltft_s scbasiss','cchirps','ltfts rect=7 alpha=0 verb=n niter=10 basis=${TARGETS[1]}')
+# 
+Flow('rect0','earth','spray axis=2 n=5402 d=1 o=0 | math output=1')#frequency smooth
+Flow('rect1','earth','spray axis=2 n=5402 d=1 o=0 | math output=20')#time smooth
+
+# ## Create non-stationary smoothing radius
+r_ref=20 #reference radius
+r_max=40 #reference radius
+Flow('earth_ltft_se','earth_ltfts','cabs')#energy
+Flow('earth_rect-n0','earth_ltft_se','math output="input*input"|scale axis=2|mask min=0.002|dd type=float|math output="-%g*input+%g"'%(3-1,3))
+Flow('earth_rect-n1','earth_ltft_se','math output="input*input"|scale axis=2|mask min=0.002|dd type=float|math output="-%g*input+%g"'%(r_max-r_ref,r_max))
+
+Grey('earth_ltft_se','color=j scalebar=y clip=0.0001')
+Greyr('earth_rect-n1','color=j scalebar=y bias=20 clip=40 barlabel=Radius barunit=Point')
+Greyr('earth_rect-n0','color=j scalebar=y bias=1 clip=3 barlabel=Radius barunit=Point')
+
+Flow('rect00','earth_rect-n0','cat axis=2 ${SOURCES[0]}')
+Flow('rect11','earth_rect-n1','cat axis=2 ${SOURCES[0]}')
+
+Flow('earth_ltftn','earth rect00 rect11','ltftn rect=7 alpha=0 niter=10 verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}')
+
+
+Plot('lp',None,
+	'''
+	box x0=4.85 y0=5.1 label="P" xt=-0.5 yt=0.5 length=0.75 
+	''')
+Plot('lpp',None,
+	'''
+	box x0=5.36 y0=5.6 label="PP" xt=-0.5 yt=0.5 length=0.75 
+	''')
+Plot('ls',None,
+	'''
+	box x0=6.3 y0=5.6 label="S" xt=-0.5 yt=0.5 length=0.75 
+	''')
+Plot('lss',None,
+	'''
+	box x0=7.35 y0=5.6 label="SS" xt=-0.5 yt=0.5 length=0.75 
+	''')
+Plot('lr',None,
+	'''
+	box x0=8.35 y0=5.0 label="Rayleigh" xt=0.5 yt=0.5 length=1.5 
+	''')
+Greyf('earth_st','title="ST"') 
+Greyf('earth_ltfts','title="Stationary"') 
+Greyf('earth_ltftn','title="Non-stationary"') 
+
+Result('earth_st_pick','Fig/earth_st.vpl tp tpp ts tss tr lp lpp ls lss lr','Overlay')
+Result('earth_ltfts_pick','Fig/earth_ltfts.vpl tp tpp ts tss tr lp lpp ls lss lr','Overlay')
+Result('earth_ltftn_pick','Fig/earth_ltftn.vpl tp tpp ts tss tr lp lpp ls lss lr','Overlay')
+
+
+# 
+# # choose parameters
+# Flow('ltft_s2','cchirps','ltfts rect=14 verb=n')
+# 
+# # With frequency smoothing
+# Flow('rect03','cchirps','spray axis=2 n=514 d=1 o=0 | math output=2')#frequency smooth
+# Flow('rect13','cchirps','spray axis=2 n=514 d=1 o=0 | math output=7')#time smooth
+# Flow('rect04','cchirps','spray axis=2 n=514 d=1 o=0 | math output=3')#frequency smooth
+# Flow('rect14','cchirps','spray axis=2 n=514 d=1 o=0 | math output=7')#time smooth
+# Flow('ltft_s3 scbasissn3','cchirps rect03 rect13','ltftn rect=7 alpha=0 niter=10 verb=n basis=${TARGETS[1]} rect0=${SOURCES[1]} rect1=${SOURCES[2]}')
+# Flow('ltft_s4 scbasissn3','cchirps rect03 rect13','ltftn rect=7 alpha=0 niter=10 verb=n basis=${TARGETS[1]} rect0=${SOURCES[1]} rect1=${SOURCES[2]}')
+# 
+# ## plot figures
+# Graph('cchirpsc','')
+# Graph('cchirps','')
+# 
+# Grey('rect-n1','color=j scalebar=y bias=7 clip=15')
+# Grey('rect-n0','color=j scalebar=y bias=1 clip=3')
+# 
+# Greyf('st','title="ST"') 
+# Greyf('ltft_s','title="Stationary LTFT  (Rt=7, Rf=1)"') 
+# Greyf('ltft_s2','title="Stationary LTFT (Rt=14, Rf=1)"')
+# Greyf('ltft_s3','title="Stationary LTFT  (Rt=7, Rf=2)"') 
+# Greyf('ltft_s4','title="Stationary LTFT  (Rt=7, Rf=3)"')  
+# Greyf('ltft_n','title="Non-stationary LTFT"') 
+# 
+
+
+
+End()
+

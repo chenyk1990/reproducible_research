@@ -1,0 +1,204 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+import math
+
+def Grey(data,other):
+	Result(data,'grey grid=n labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 label2=Trace  unit2="" label1=Time unit1="s" title="" wherexlabel=b scalebar=n wheretitle=t clip=0.4 screenratio=1.2 %s'%other)
+
+def Wig(data,other):
+	Result(data,'wiggle transp=y poly=y yreverse=y grid=n labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 label2=Trace  unit2="" label1=Time unit1="s" title="" wherexlabel=b scalebar=n wheretitle=t clip=0.4 screenratio=1.2 %s'%other)
+
+
+def Graph(data,other):
+	Result(data,'graph grid=n label2=Amplitude  unit2="" labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 label1=Time unit1="s" title="" wherexlabel=b scalebar=n wheretitle=t %s'%other)
+
+def Grey3(data,other):
+	Result(data,'cabs|byte allpos=y clip=0.01 | grey3 flat=y color=j frame2=50 frame1=120 frame3=15 grid=n label1=Time  unit1="s" label3=Trace label2=Frequency unit2="Hz"  unit3= title="" wherexlabel=b scalebar=n wheretitle=t labelsz=8 titlesz=8 titlefat=1 labelfat=1 font=2 screenratio=1.2 point1=0.8 point2=0.8 %s'%other)
+	
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Gentrace'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+
+pi=math.pi
+t1=0.5
+t2=0.8
+dt=0.004
+k1=t1/dt
+k2=t2/dt
+nt=252
+f0=50
+Q=60
+fhi=1/dt/2
+flo=0
+
+############################################################
+## generate and process synthetic data
+############################################################
+Flow('trace0',[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s(%(t1)g,%(t2)g,%(dt)g,%(nt)g,%(f0)g,%(Q)g,'${TARGETS[0]}');quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('trace','trace0','put d1=%g d2=1 o1=0 o2=0'%dt)
+#Graph('trace','max2=1.25 min2=-0.75')
+
+
+Flow('trace-st','trace','noise seed=201516 var=0.02 | st fhi=%g flo=%g | cabs | transp'%(fhi,flo))
+Grey('trace-st','label1=Frequency unit1=Hz label2=Time unit2=s color=j clip=0.4')
+
+i=0
+sts=[]
+traces=[]
+N=30
+for var in range(N):
+	s=0.02
+	i=i+1
+	Flow('trace-%d'%i,'trace','noise seed=%d var=%g'%(i+201516,s))	
+	traces.append('trace-%d'%i)
+Flow('traces',traces,'cat axis=2 ${SOURCES[1:%d]} | put o2=1 d2=1'%len(traces))
+Flow('tracesc','trace','spray axis=2 n=30 d=1 o=1')
+
+#Grey('traces','label1=Time unit1=s label2=Trace unit2= clip=0.4 screenratio=1.2 wherexlabel=t')
+#Grey('tracesc','label1=Time unit1=s label2=Trace unit2= clip=0.4 screenratio=1.2 wherexlabel=t')
+
+Wig('traces','label1=Time unit1=s label2=Trace unit2= clip=0.4 screenratio=1.2 wherexlabel=t')
+Wig('tracesc','label1=Time unit1=s label2=Trace unit2= clip=0.4 screenratio=1.2 wherexlabel=t')
+
+
+### Stationary Local TF Transform
+Flow('traces-ltft','traces','ltfts rect=3 alpha=0')
+Flow('tracesc-ltft','tracesc','ltfts rect=3 alpha=0')
+
+# Result('traces-ltft','traces-ltft','cabs | grey color=j')
+# Result('tracesc-ltft','tracesc-ltft','cabs | grey color=j')
+
+
+### Non-Stationary Local TF Transform
+Flow('rect0','traces','spray axis=2 n=129 d=1 o=1| spray axis=4 n=2 d=1 o=1 | math output=1') #frequency axis
+Flow('rect1','traces','spray axis=2 n=129 d=1 o=1|spray axis=4 n=2 d=1 o=1 | math output=3') #time axis
+Flow('rect2','traces','spray axis=2 n=129 d=1 o=1|spray axis=4 n=2 d=1 o=1 | math output=30') #space axis
+
+# Option 1: No "rect2=" provided means no smoothing in the space direction
+Flow('traces-ltftn-no','traces rect0 rect1 rect2','ltftn alpha=0 rect0=${SOURCES[1]} rect1=${SOURCES[2]}')
+# Option 2: "rect2=" provided means smoothing in the space direction
+Flow('traces-ltftn','traces rect0 rect1 rect2','ltftn alpha=0 rect0=${SOURCES[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} |transp plane=23')
+
+# Result('traces-ltftn-no','traces-ltftn-no','cabs | grey color=j')
+# Result('traces-ltftn','traces-ltftn','cabs | grey color=j')
+
+
+# Grey('traces','')
+# Grey('tracesc','')
+Grey3('traces-ltft','')
+Grey3('tracesc-ltft','')
+Grey3('traces-ltftn-no','')
+Grey3('traces-ltftn','')
+
+### Q estimation (Reference: Chen, 2019, Multi-channel quality factor Q estimation)
+#-S means stationary
+#-N means non-stationary
+Flow('freq-N',None,'spike d1=0.976562 n1=129 o1=0 n2=1 d2=1 o2=0 | math output="x1" | window min1=20 max1=80|spray axis=2 n=%d o=1 d=1'%N)
+Flow('ones','freq-N','window n2=1 |math output=1')
+
+##for stationary
+Flow('traces-f-t1-S','traces-ltft','cabs|transp plane=12|window n2=1 f2=%g '%(k1))
+Flow('traces-f-t2-S','traces-ltft','cabs|transp plane=12|window n2=1 f2=%g '%(k2))
+Flow('traces-ratio-S','traces-f-t2-S traces-f-t1-S','divn rect1=3 rect2=3 den=${SOURCES[1]} eps=0.1 | math output="log(input)" |  window min1=20 max1=80')
+
+Flow('traces-ratio-S-1','traces-ratio-S','window n2=1 f2=15')
+Graph('traces-ratio-S-1','label1=Frequency unit1=Hz label2="Regularized division ratio"')
+
+Grey('traces-f-t2-S','label1=Frequency unit1=Hz title="Numerator" color=j allpos=y clip=0.01')
+Grey('traces-f-t1-S','label1=Frequency unit1=Hz title="Denominator" color=j allpos=y clip=0.01')
+
+##for non-stationary
+
+Flow('traces-f-t1-N','traces-ltftn','cabs|transp plane=12|window n2=1 f2=%g '%(k1))
+Flow('traces-f-t2-N','traces-ltftn','cabs|transp plane=12|window n2=1 f2=%g '%(k2))
+Flow('traces-ratio-N','traces-f-t2-N traces-f-t1-N','divn rect1=3 rect2=3 den=${SOURCES[1]} eps=0.1 | math output="log(input)" |  window min1=20 max1=80')
+
+Flow('traces-ratio-N-1','traces-ratio-N','window n2=1 f2=15')
+Graph('traces-ratio-N-1','label1=Frequency unit1=Hz label2="Regularized division ratio"')
+
+Grey('traces-f-t2-N','label1=Frequency unit1=Hz title="Numerator" color=j allpos=y clip=0.01')
+Grey('traces-f-t1-N','label1=Frequency unit1=Hz title="Denominator" color=j allpos=y clip=0.01')
+
+
+
+i=0#for stationary
+lsfits=[]
+coefs=[]
+for var in range(N):
+	i=i+1
+	Flow('traces-ratio-S-%d'%i,'traces-ratio-S','window n2=1 f2=%d'%(i-1))
+	Flow('freq-S-%d'%i,'freq-N ones','window n2=1 f2=%d | cat axis=2 ${SOURCES[1]}'%(i-1))
+	Flow(['lsfit-S-%d'%i,'coef-S-%d'%i],['traces-ratio-S-%d'%i,'freq-S-%d'%i],'lsfit coef=${TARGETS[1]} fit=${SOURCES[1]}')
+	lsfits.append('lsfit-S-%d'%i)
+	coefs.append('coef-S-%d'%i)
+Flow('traces-lsfits-S',lsfits,'cat axis=2 ${SOURCES[1:%d]}'%len(lsfits))
+Flow('traces-coef-S',coefs,'cat axis=2 ${SOURCES[1:%d]} |window n1=1'%len(coefs))
+Flow('traces-Q-esti-S','traces-coef-S','math output="-%g*%g/input"'%(pi,t2-t1))
+Grey('traces-ratio-S','barlabel=Amplitude label1=Frequency unit1=Hz label2=Trace color=j scalebar=y bias=-0.6 clip=0.6')
+Grey('traces-lsfits-S','label1=Frequency unit1=Hz label2=Trace color=j scalebar=y bias=-0.6 clip=0.6')
+Graph('traces-coef-S','min2=-0.02 max2=-0.01 label2="Value" label1=Trace unit1= plotfat=10')
+Graph('traces-Q-esti-S','min2=20 max2=180 label2="Quality factor" label1=Trace unit1= plotfat=10')
+Flow('traces-lsfits-S-1','traces-lsfits-S','window n2=1 f2=15')
+Flow('traces-lsfits-S2','traces-lsfits-S-1 traces-ratio-S-1','cat axis=2 ${SOURCES[1]}')
+Graph('traces-lsfits-S2','dash=0,3 label1=Frequency unit1=Hz label2="Regularized division ratio"')
+
+
+i=0#for non-stationary
+lsfits=[]
+coefs=[]
+for var in range(N):
+	i=i+1
+	Flow('traces-ratio-N-%d'%i,'traces-ratio-N','window n2=1 f2=%d'%(i-1))
+	Flow('freq-N-%d'%i,'freq-N ones','window n2=1 f2=%d | cat axis=2 ${SOURCES[1]}'%(i-1))
+	Flow(['lsfit-N-%d'%i,'coef-N-%d'%i],['traces-ratio-N-%d'%i,'freq-N-%d'%i],'lsfit coef=${TARGETS[1]} fit=${SOURCES[1]}')
+	lsfits.append('lsfit-N-%d'%i)
+	coefs.append('coef-N-%d'%i)
+Flow('traces-lsfits-N',lsfits,'cat axis=2 ${SOURCES[1:%d]}'%len(lsfits))
+Flow('traces-coef-N',coefs,'cat axis=2 ${SOURCES[1:%d]} |window n1=1'%len(coefs))
+Flow('traces-Q-esti-N','traces-coef-N','math output="-%g*%g/input"'%(pi,t2-t1))
+
+Grey('traces-ratio-N','barlabel=Amplitude  label1=Frequency unit1=Hz label2=Trace color=j scalebar=y bias=-0.6 clip=0.6')
+Grey('traces-lsfits-N','label1=Frequency unit1=Hz label2=Trace color=j scalebar=y bias=-0.6 clip=0.6')
+Graph('traces-coef-N','min2=-0.02 max2=-0.01 label2="Value" label1=Trace unit1= plotfat=10')
+Graph('traces-Q-esti-N','min2=20 max2=180 label2="Quality factor" label1=Trace unit1= plotfat=10')
+Flow('traces-lsfits-N-1','traces-lsfits-N','window n2=1 f2=15')
+Flow('traces-lsfits-N2','traces-lsfits-N-1 traces-ratio-N-1','cat axis=2 ${SOURCES[1]}')
+Graph('traces-lsfits-N2','dash=0,3 label1=Frequency unit1=Hz label2="Regularized division ratio"')
+
+
+
+
+
+# Comparison with stationary LTFT and true
+Flow('traces-true',None,'spike n1=30 d1=1 o1=0 |math output="60"')
+Graph('traces-true','min2=20 max2=180 label2="Quality factor" label1=Trace unit1= ')
+
+Flow('traces-comp','traces-Q-esti-N traces-Q-esti-S traces-true','cat axis=2 ${SOURCES[1:3]}')
+Graph('traces-comp','min2=0 max2=400 label2="Quality factor" label1=Trace unit1= dash=0,3,5')
+
+Plot('label1',None,
+	'''
+	box x0=5 y0=2.45 label="True" xt=-0.5 yt=-0.5 length=1 
+	''')
+Plot('label2',None,
+	'''
+	box x0=9.6 y0=4.8 label="Stationary LTFT" xt=-0.5 yt=0.5 length=1 
+	''')
+Plot('label3',None,
+	'''
+	box x0=8 y0=2.6 label="Non-stationary LTFT" xt=-0.5 yt=0.5 length=1 
+	''')
+Result('traces-comp0','Fig/traces-comp.vpl label1 label2 label3','Overlay')
+
+End()

@@ -1,0 +1,211 @@
+from rsf.proj import *
+from math import *
+
+def Grey(data,data0,f,other):
+     Result(data,data0,
+     '''
+     window n2=1 min2=%g | scale axis=2 | put d2=0.01|
+     grey color=j allpos=y labelsz=8 titlesz=8 titlefat=2 labelfat=2 font=2 scalebar=y title="70HZ" label2="Distance" unit2=km clip=0.8 barlabel=Amplitude %s
+     '''%(f,other))
+
+def Grey2d(data,other):
+     Result(data,
+     ''' 
+     grey color=j allpos=y scalebar=y title="70HZ" label2="Distance" unit2=km clip=1 %s
+     '''%(other))
+
+def Grey3d(data,clip,other):
+     Result(data,
+     ''' 
+     byte %s bar=bar.rsf|
+     grey3 flat=n color=j allpos=y scalebar=y title="" label2="Frequency" unit2=Hz  
+     point1=0.8 point2=0.8 %s
+     '''%(clip,other))
+         
+#-----read data from segy file
+Flow('old','ln472_old.sgy',
+     '''
+     segyread bfile=/dev/null hfile=/dev/null read=data |  
+     put n1=751 n2=201 o1=0 d1=0.002 02=1 d2=0.01 label1="Time" unit1="s" 
+     label2="X" unit2="km" | window min1=0
+     ''')
+     
+ns=80
+
+ 
+def ref(trace):
+    out = 'ref%d' % trace
+    Flow(out+'.asc',None,
+         '''
+         echo %d 0 %d 1 n1=4 in=$TARGET data_format=ascii_float
+         ''' % (trace,trace))
+    Plot(out,out+'.asc',
+         '''
+         dd form=native type=complex | 
+         graph min1=0 max1=201 min2=0 title="" wantaxis=n scalebar=y pad=n plotfat=4 dash=2
+         ''')
+    return out
+
+
+
+Plot('old','old','grey title=" " labelsz=8 titlesz=8 titlefat=2 labelfat=2 font=2 scalebar=n label2="Distance" label1=Time unit1=s ')
+# Result('old-1',['old',ref(ns)],'Overlay')
+Result('old-1',['old'],'Overlay')
+
+
+Result('spectra','old','spectra all=y | scale axis=1 | graph pad=n label2="Scaled amplitude" wanttitle=n unit2="" plotfat=4')
+
+############################### LTFT
+
+Flow('ltft','old',
+     '''
+     timefreq rect=8 verb=n nw=377 dw=0.665779 niter=100
+     ''')
+
+Result('tf-l','ltft',
+       '''
+       window n3=1 f3=%d max2=180 | smooth rect2=5 | scale axis=2 | 
+       grey color=j allpos=y scalebar=y wanttitle=n screenratio=1.5 
+       ''' % ns)
+### Freq slice
+Result('l1','ltft',
+       '''
+       window n2=1 min2=15 | scale axis=2 | 
+       sfgrey color=j allpos=y scalebar=y title="15HZ" label2="Distance" unit2=km clip=1
+
+       ''')
+
+Result('l2','ltft',
+       '''
+       window n2=1 min2=31 | scale axis=2 | 
+       sfgrey color=j allpos=y scalebar=y title="31HZ" label2="Distance" unit2=km clip=1
+
+       ''')
+
+Result('l3','ltft',
+       '''
+       window n2=1 min2=70 | scale axis=2 | 
+       sfgrey color=j allpos=y scalebar=y title="70HZ" label2="Distance" unit2=km clip=1
+
+       ''')
+       
+# Average frequency
+Flow('num-l','ltft','window max2=110 | math output="input*x2" | stack axis=2 ')
+
+Flow('num-l-1','num-l','window f1=200 | smooth rect1=1 rect2=1')
+Flow('num-l-2','num-l','window n1=200 ')
+Flow('num-l-a','num-l-2 num-l-1','cat ${SOURCES[1]} axis=1 o=0 d=0.002')
+
+Flow('den-l','ltft','window max2=110 | stack axis=2')
+Flow('lcf-l','num-l den-l','divn den=${SOURCES[1]} rect1=1  rect2=1')
+
+Result('lcf-l','lcf-l',
+       '''
+        grey allpos=y scalebar=y  clip=86  barunit=Hz  color=j title="" label2="Distance" label1=Time unit1=s
+       ''')
+
+
+
+
+############## ST
+Flow('st','old','st  | math output="abs(input)" | real ')
+Result('tf-s','st',
+       '''
+       window n3=1 f3=%d max2=180| scale axis=2 | 
+       grey color=j allpos=y scalebar=y wanttitle=n screenratio=1.5
+       ''' % ns)
+       
+# Freq Slice
+Result('s1','st',
+       '''
+       window n2=1 min2=15 | scale axis=2 | 
+       sfgrey color=j allpos=y scalebar=y title="15HZ" label2="Distance" unit2=km clip=1
+
+       ''')
+
+Result('s2','st',
+       '''
+       window n2=1 min2=31 | scale axis=2 | 
+       sfgrey color=j allpos=y scalebar=y title="31HZ" label2="Distance" unit2=km clip=1
+
+       ''')
+
+Result('s3','st',
+       '''
+       window n2=1 min2=70 | scale axis=2 | 
+       grey color=j allpos=y scalebar=y title="70HZ" label2="Distance" unit2=km clip=1
+       ''')
+
+## stationary
+Flow('lf-ltft','old','ltfts rect=10 nw=377 dw=0.665779 niter=20|cabs')
+
+## non-stationary
+## Create non-stationary smoothing radius
+rt_ref=8 #reference radius
+rt_max=10 #reference radius
+rx_ref=3 #reference radius
+rx_max=5 #reference radius
+
+Flow('lf-ltfte','lf-ltft','cp')#energy
+Flow('lf-rect-n0','lf-ltfte','math output="input*input"|scale axis=2|mask min=0.01|dd type=float|math output="-%g*input+%g"'%(1-1,1))
+Flow('lf-rect-n1','lf-ltfte','math output="input*input"|scale axis=2|mask min=0.01|dd type=float|math output="-%g*input+%g"'%(rt_max-rt_ref,rt_max))
+Flow('lf-rect-n2','lf-ltfte','math output="input*input"|scale axis=2|mask min=0.01|dd type=float|math output="-%g*input+%g"'%(rx_max-rx_ref,rx_max))
+
+
+Flow('lf-rect00','lf-rect-n0','cat axis=2 ${SOURCES[0]}')
+Flow('lf-rect11','lf-rect-n1','cat axis=2 ${SOURCES[0]}')
+Flow('lf-rect22','lf-rect-n2','cat axis=2 ${SOURCES[0]}')
+
+Grey3d('lf-ltfte','clip=100 allpos=y','color=j scalebar=y')
+Grey3d('lf-rect-n0','clip=3 allpos=y bias=1','color=j scalebar=y')
+Grey3d('lf-rect-n1','clip=14 allpos=y bias=7','color=j scalebar=y')
+Grey3d('lf-rect-n2','clip=10 allpos=y bias=5','color=j scalebar=y')
+
+Flow('lf-ltftn','old lf-rect00 lf-rect11 lf-rect22','ltftn rect=10 nw=377 dw=0.665779 niter=20 rect0=${SOURCES[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]}|transp plane=23 | cabs')
+
+# Flow('lf-ltft','old','ltfts rect=10 nw=377 dw=0.665779 niter=100 ')
+
+Grey('lf-tf1','ltft',15,'title="15 HZ"')
+Grey('lf-tf2','ltft',31,'title="30 HZ"')
+Grey('lf-tf3','ltft',70,'title="70 HZ"')
+
+
+Grey('lf-ltft1','lf-ltft',15,'title="15 HZ"')
+Grey('lf-ltft2','lf-ltft',31,'title="31 HZ"')
+Grey('lf-ltft3','lf-ltft',70,'title="70 HZ"')
+
+Grey('lf-ltftn1','lf-ltftn',15,'title="15 HZ"')
+Grey('lf-ltftn2','lf-ltftn',31,'title="31 HZ"')
+Grey('lf-ltftn3','lf-ltftn',70,'title="70 HZ"')
+
+
+## Creating framebox
+x=0.5
+y=1.1
+w=0.5
+w1=0.25
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=2 min2=0 max2=1.5 pad=n plotfat=15 plotcol=2 scalebar=y
+	wantaxis=n wanttitle=n yreverse=y 
+	''')
+
+Plot('label',None,
+	'''
+	box x0=5.3 y0=3.4 label="Low-frequency shadow" xt=0.5 yt=0.5 length=1 
+	''')
+	
+Result('lf-ltft1-0','Fig/lf-ltft1.vpl frame label','Overlay')
+Result('lf-ltft2-0','Fig/lf-ltft2.vpl frame','Overlay')
+Result('lf-ltft3-0','Fig/lf-ltft3.vpl frame','Overlay')
+Result('lf-ltftn1-0','Fig/lf-ltftn1.vpl frame label','Overlay')
+Result('lf-ltftn2-0','Fig/lf-ltftn2.vpl frame','Overlay')
+Result('lf-ltftn3-0','Fig/lf-ltftn3.vpl frame','Overlay')
+
+
+End()
+
