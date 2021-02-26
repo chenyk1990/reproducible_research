@@ -213,15 +213,15 @@ It is apparent that the channel delineation is \old{much }clearer using the non-
 
 The fifth application is \old{the}\new{a} multi-component data registration example. As demonstrated in \cite{fomel20052}, the time-frequency transform can be used to balance the frequency contents between the PP and warped PS images \old{in order to get a better}\new{to obtain improved} image registration\old{ performance}. \new{Here, warping means temporally shifting each sample in the PS image to match the PP image.} The principle of the spectral balancing is to match the spectra of PP and PS images to that of a Ricker wavelet, after which the balanced PP and PS images share a closer \old{spectra}\new{spectral} content. We directly use the result from \cite{liuyang2012} using the traditional LTFT method as a benchmark comparison with the proposed non-stationary LTFT method. In this test, we use a fixed constant smoothing radius of 20 samples in time as the same as the traditional LTFT method. We use a smoothing radius of \old{5}\new{five} samples in space to utilize the spatial coherency to constrain the resolution of the spectra. The PP and PS images before registration are shown in Figures \ref{fig:vpp} and \ref{fig:vss}, respectively. Figures \ref{fig:ppltft-new} and \ref{fig:ppltftn-new} show the time-frequency spectra cubes of the PP image before matching obtained using the traditional and the proposed LTFT methods, respectively. The comparison for the warped PS image are shown on the bottom row of Figure \ref{fig:ppltft-new,ppltftn-new,pswltft-new,pswltftn-new}. It is clear that the non-stationary LTFT method obtains a better result with \old{a }higher resolution. Figures \ref{fig:before,after,after1} shows the interleaved data comparison. The interleaved data \old{is}\new{are} a way to evaluate the performance of multi-component data registration. The \old{principle}\new{idea} is that by interleaving the PP and PS traces one by one, it is easier to \old{find}\new{spot} the differences between them (especially the alignment of events in the time axis)\old{ between different results}. \old{It is intuitive}\new{Note} that the more spatially coherent registration result is better in aligning the PP and PS events. From the \old{highlighting }frame boxes in Figure \ref{fig:before,after,after1}, the non-stationary LTFT method obtains an obviously better result. \wen{The frame boxes are also zoomed in Figure \ref{fig:before-z,after-z,after1-z} for a better view.}
 
-\inputdir{vecta}
-\multiplot{2}{vpp,vss}{width=0.45\textwidth}{Multi-component data registration example. (a) PP image. (b) PS image. }
-
-\multiplot{4}{ppltft-new,ppltftn-new,pswltft-new,pswltftn-new}{width=0.45\textwidth}{Time-frequency spectra cubes using (a) traditional LTFT method and (b) non-stationary LTFT method for the PP image before matching, (c) traditional LTFT method and (d) non-stationary LTFT method for the warped PS image before matching.}
-
-\multiplot{3}{before,after,after1}{width=0.48\textwidth}{Interleaved data comparisons. Interleaved data before registration (a), after registration using the traditional LTFT method (b), and after registration using the non-stationary LTFT method (c). \wen{The green boxes highlight an area that shows apparent registration difference in these results. The green boxes are also zoomed for a better view in Figure \ref{fig:before-z,after-z,after1-z}.}}
-
-\multiplot{3}{before-z,after-z,after1-z}{width=0.5\textwidth}{\wen{Zoomed comparison of the green boxes in Figure \ref{fig:before,after,after1}. The coherency of the interleaved PP-PS image has been dramatically enhanced from top to bottom.}}
-
+%\inputdir{vecta}
+%\multiplot{2}{vpp,vss}{width=0.45\textwidth}{Multi-component data registration example. (a) PP image. (b) PS image. }
+%
+%\multiplot{4}{ppltft-new,ppltftn-new,pswltft-new,pswltftn-new}{width=0.45\textwidth}{Time-frequency spectra cubes using (a) traditional LTFT method and (b) non-stationary LTFT method for the PP image before matching, (c) traditional LTFT method and (d) non-stationary LTFT method for the warped PS image before matching.}
+%
+%\multiplot{3}{before,after,after1}{width=0.48\textwidth}{Interleaved data comparisons. Interleaved data before registration (a), after registration using the traditional LTFT method (b), and after registration using the non-stationary LTFT method (c). \wen{The green boxes highlight an area that shows apparent registration difference in these results. The green boxes are also zoomed for a better view in Figure \ref{fig:before-z,after-z,after1-z}.}}
+%
+%\multiplot{3}{before-z,after-z,after1-z}{width=0.5\textwidth}{\wen{Zoomed comparison of the green boxes in Figure \ref{fig:before,after,after1}. The coherency of the interleaved PP-PS image has been dramatically enhanced from top to bottom.}}
+%
 
 
 

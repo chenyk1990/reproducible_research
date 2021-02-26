@@ -1,4 +1,12 @@
 from rsf.proj import *
+# google: 
+# https://drive.google.com/file/d/1t2xunRAghGsyxOR86RkjaKqwBZOe_Ctv/view?usp=sharing
+# https://drive.google.com/file/d/1hmLi3m7Q5XUvUOUJn9T5itNt0vI-1lWc/view?usp=sharing
+# Baidu:
+# link:https://pan.baidu.com/s/1I_W8-OpyUPPiJmmUC8GUbw  pass:ukct
+# link:https://pan.baidu.com/s/1pkrcxAVPFbieiJIeQKCFLQ  pass:uv8l
+# 
+# or
 # from rsf.recipes.beg import server as private
 
 trace=300
@@ -74,7 +82,30 @@ newwarp.nwarp2('vec','pp','ss','fit0',
                frame1=285,
                iter=2,
                clip=0.39)
-
+               
+Flow('npp','pp','cp')
+Flow('nss','ss','cp')
+Flow('nfit0','fit0','cp')
+newwarp.nwarp3('nvec','npp','nss','nfit0',
+               nx=471,
+               inter=5,
+               tmax=1.5,
+               ss=1,
+               trace=trace,
+               gmax=2.3,
+               gmin=1.5,
+               dt=0.002,
+               g0=0.9,
+               ng=41,
+               rect1=50,
+               rect2=50,
+               fmax=70,
+               frect=20,
+               fmin=20,
+               frame1=285,
+               iter=2,
+               clip=0.39)
+               
 Result('pi','ppi','Overlay')
 Result('si','vec-si-0','Overlay')
 
@@ -104,20 +135,20 @@ Result('before','vec-in0-0 frame','Overlay')
 Result('after','vec-in1-1 frame','Overlay')
 # Result('after-z','vec-in1-1-z','Overlay')
 
-Result('after1','../vectan/Fig/vec-in1-1.vpl frame','Overlay')
-# Result('after1-z','../vectan/vec-in1-1-z.vpl','Overlay')
-# Result('after1','vec-in1-1 frame label02','Overlay')
+Result('after1','Fig/nvec-in1-1.vpl frame','Overlay')
+# Result('after1-z','nvec-in1-1-z.vpl','Overlay')
+# Result('after1','nvec-in1-1 frame label02','Overlay')
 
 Result('ppltft','Fig/vec-ppltft-1.vpl','Overlay')
-Result('ppltftn','../vectan/Fig/vec-ppltft-1.vpl','Overlay')
+Result('ppltftn','Fig/nvec-ppltft-1-t.vpl','Overlay')
 
 Result('pswltft','Fig/vec-pswltft-1.vpl','Overlay')
-Result('pswltftn','../vectan/Fig/vec-pswltft-1.vpl','Overlay')
+Result('pswltftn','Fig/nvec-pswltft-1-t.vpl','Overlay')
 
 
 Result('before-w','vec-in0-0-zw','Overlay')
 Result('after-w','vec-in1-1-zw','Overlay')
-Result('after1-w','../vectan/vec-in1-1-zw.vpl','Overlay')
+Result('after1-w','nvec-in1-1-zw.vpl','Overlay')
 
 
 ## 
@@ -186,6 +217,6 @@ Plot('label555',None,
 		
 Result('before-z','vec-in0-0-z label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
 Result('after-z','vec-in1-1-z label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
-Result('after1-z','../vectan/vec-in1-1-z.vpl label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
+Result('after1-z','nvec-in1-1-z.vpl label1 label2 label3 label4 label5 label11 label22 label111 label222 label333 label444 label555','Overlay')
 
 End()

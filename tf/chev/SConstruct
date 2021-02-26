@@ -1,8 +1,7 @@
 from rsf.proj import *
 # 
 # Google: https://drive.google.com/file/d/1naNHe4gKSAXVpAcXGt_wZQF50OVXvL-b/view?usp=sharing
-# Baidu:
-# 
+# Baidu:  link:https://pan.baidu.com/s/1uR-7y61UcPNal62gv_8zQQ  pass:b8hs
 
 Flow('chev','chev.bin',
      '''
@@ -285,7 +284,6 @@ Result('ltftn-slice40-0','Fig/ltftn-slice40.vpl label1 label2 label3 label3C lab
 Result('ltftn-slice45-0','Fig/ltftn-slice45.vpl label1 label2 label3 label3C label4 label5C label55 label6','Overlay')
 Result('ltftn-slice50-0','Fig/ltftn-slice50.vpl label1 label2 label3 label3C label4 label5C label55 label6','Overlay')
 
-# ltft-slice25,ltftn-slice25,ltft-slice30,ltftn-slice30,ltft-slice35,ltftn-slice35
 
 
 End()
