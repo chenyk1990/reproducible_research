@@ -981,11 +981,11 @@ def nwarp3(name,       # name prefix
 
         ppltft = n('ppltft') #
         ppltft0 = nn('ppltft') #
-        Flow(ppltft+'-t',[pp,ppr0,ppr1,ppr2], 
-             '''
-             ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
-             rect2=${SOURCES[3]} | transp plane=23| transp plane=12
-             ''' % frect)
+#         Flow(ppltft+'-t',[pp,ppr0,ppr1,ppr2], 
+#              '''
+#              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
+#              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
+#              ''' % frect)
         Flow(ppltft+'-part1',ppltft+'-t','cut min2=0.5 |cut min3=120')
         Flow(ppltft+'-part2',ppltft0,'cut max2=0.5 max3=120')
         Flow(ppltft,[ppltft+'-part1',ppltft+'-part2'],'add scale=1,1 ${SOURCES[1]}|sfput o3=0')
@@ -1010,17 +1010,17 @@ def nwarp3(name,       # name prefix
                labelfat=3 font=2 titlefat=3
                ''')
         ppltftspe = n('ppltftspe')
-        Flow(ppltftspe,ppltft,
+        Flow(ppltftspe,ppltft+'-t',
              '''
              math output="abs(input)" | real 
              ''')
         pswltft = n('pswltft')
         pswltft0 = nn('pswltft')
-        Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
-             '''
-             ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
-             rect2=${SOURCES[3]} | transp plane=23| transp plane=12
-             ''' % frect)
+#         Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
+#              '''
+#              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
+#              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
+#              ''' % frect)
         Flow(pswltft+'-part1',pswltft+'-t','cut min2=0.5 |cut min3=120 ')
         Flow(pswltft+'-part2',pswltft0,'cut max2=0.5 max3=120')
         Flow(pswltft,[pswltft+'-part1',pswltft+'-part2'],'add scale=1,1 ${SOURCES[1]}|sfput o3=0')
@@ -1071,7 +1071,7 @@ def nwarp3(name,       # name prefix
                labelfat=3 font=2 titlefat=3
                ''')
         pswltftspe = n('pswltftspe')
-        Flow(pswltftspe,pswltft,
+        Flow(pswltftspe,pswltft+'-t',
              '''
              math output="abs(input)" | real 
              ''')
@@ -1256,8 +1256,8 @@ def nwarp3(name,       # name prefix
 
         if i == iter-1:
             in1 = n('in1')
-#             Flow(pr+'in1',pr,interg)
-#             Flow(psw+'2in1',psw+'2',interg)
+            Flow(pr+'in1',pr,interg)
+            Flow(psw+'2in1',psw+'2',interg)
 #sfcut<vec-psw-12in1.rsf min1=0.5 |sfcut min2=25 > vec-psw-12in1-part1.rsf  
 #sfcut<../vecta/vec-psw-12in1.rsf max1=0.5 max2=25 > vec-psw-12in1-part2.rsf     
 #sfadd<vec-psw-12in1-part1.rsf vec-psw-12in1-part2.rsf  scale=1,1 >vec-psw-12in1-new.rsf
@@ -1458,8 +1458,8 @@ def warp2(name,      # name prefix
         Flow(pr,ppft+'b','transp plane=12  | ltfts inv=y')
         Flow(sr,psft+'b','transp plane=12  | ltfts inv=y')
 
-        Plot(psw+'1',[sr,pr],dplot)
-        Result(psw+'1',[gamma,psw+'1'],'OverUnderAniso')
+#         Plot(psw+'1',[sr,pr],dplot)
+#         Result(psw+'1',[gamma,psw+'1'],'OverUnderAniso')
 
         ############
         # GAMMA SCAN
@@ -1502,8 +1502,8 @@ def warp2(name,      # name prefix
         Flow([warp,psw+'2'],[sr,pr,pik,wrp],warpit,stdout=-1)
         Flow(gamma+'2',warp,warp2gamma(ss))
         Plot(gamma+'2',graph)
-        Plot(psw+'2',[psw+'2',pr],dplot)
-        Result(psw+'2',[gamma+'2',psw+'2'],'OverUnderAniso')
+#         Plot(psw+'2',[psw+'2',pr],dplot)
+#         Result(psw+'2',[gamma+'2',psw+'2'],'OverUnderAniso')
         
         g0 = (g0+1)*0.5
 
