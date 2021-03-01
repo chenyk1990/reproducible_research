@@ -40,7 +40,7 @@ nails = Split('''
 
 Flow('nails0.asc',None,
      'echo %s n1=2 n2=%d in=$TARGET data_format=ascii_float' %
-     (string.join(nails,' '),len(nails)/2))
+     (" ".join(nails,' '),len(nails)/2))
 Flow('nails','nails0.asc','dd form=native')
 Flow('nreal','nails','window n1=1')
 Flow('nimag','nails','window f1=1')
@@ -122,7 +122,7 @@ Plot('label01',None,box % (8.2,4.5,"A",0.5,-0.5))
 Plot('label02',None,box % (8.2,4.5,"B",0.5,-0.5))
 Flow('frame.asc',None,
      'echo %s n1=10 data_format=ascii_int in=$TARGET' % \
-     string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+     " ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
 Plot('frame','frame.asc',
      '''
      dd type=complex form=native |
