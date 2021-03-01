@@ -96,8 +96,8 @@ def nwarp2(name,       # name prefix
            ):
     
 
-    if version.old_version():
-        return # think how to do it better
+ #    if version.old_version():
+#         return # think how to do it better
 
     interg = '''
     pad n2=%d | put n2=%d n3=%d | stack
@@ -819,8 +819,8 @@ def nwarp3(name,       # name prefix
     Flow(ppr1,None,'spike n1=1024 n2=1026 n3=471 d1=1 d2=1 d3=1|math output=%d'%frect)
     Flow(ppr2,None,'spike n1=1024 n2=1026 n3=471 d1=1 d2=1 d3=1|math output=5')
 
-    if version.old_version():
-        return # think how to do it better
+#     if version.old_version():
+#         return # think how to do it better
 
 	#apply MF because there might be some extra noise (think about a more robust way?)
     interg = '''
