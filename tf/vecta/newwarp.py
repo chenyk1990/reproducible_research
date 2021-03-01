@@ -1021,6 +1021,13 @@ def nwarp3(name,       # name prefix
 #              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
 #              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
 #              ''' % frect)
+        if i==1:
+           Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
+             '''
+             ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
+             rect2=${SOURCES[3]} | transp plane=23| transp plane=12
+             ''' % frect)	
+		
         Flow(pswltft+'-part1',pswltft+'-t','cut min2=0.5 |cut min3=120 ')
         Flow(pswltft+'-part2',pswltft0,'cut max2=0.5 max3=120')
         Flow(pswltft,[pswltft+'-part1',pswltft+'-part2'],'add scale=1,1 ${SOURCES[1]}|sfput o3=0')
@@ -1089,7 +1096,7 @@ def nwarp3(name,       # name prefix
         
         ppshape = n('ppshape')
         pswshape = n('pswshape')
-        Flow([ppshape,pswshape],[ppltft,pswltft,pprick,pswrick],
+        Flow([ppshape,pswshape],[ppltft+'-t',pswltft+'-t',pprick,pswrick],
              '''
              freshape in2=${SOURCES[1]} ma=${SOURCES[2]}
              ma2=${SOURCES[3]} out2=${TARGETS[1]}
@@ -1258,11 +1265,13 @@ def nwarp3(name,       # name prefix
             in1 = n('in1')
             Flow(pr+'in1',pr,interg)
             Flow(psw+'2in1',psw+'2',interg)
-#sfcut<vec-psw-12in1.rsf min1=0.5 |sfcut min2=25 > vec-psw-12in1-part1.rsf  
-#sfcut<../vecta/vec-psw-12in1.rsf max1=0.5 max2=25 > vec-psw-12in1-part2.rsf     
-#sfadd<vec-psw-12in1-part1.rsf vec-psw-12in1-part2.rsf  scale=1,1 >vec-psw-12in1-new.rsf
-            Plot(in1,[pr+'in1',psw+'2in1-new'],giplot('Non-stationary'))
-            Plot(in1+'-z',[pr+'in1',psw+'2in1-new'],giplotz('Non-stationary'))
+#sfcut<nvec-psw-12in1.rsf min1=0.5 |sfcut min2=25 > nvec-psw-12in1-part1.rsf  
+#sfcut<vec-psw-12in1.rsf max1=0.5 max2=25 > nvec-psw-12in1-part2.rsf     
+#sfadd<nvec-psw-12in1-part1.rsf nvec-psw-12in1-part2.rsf  scale=1,1 >nvec-psw-12in1-new.rsf
+#             Plot(in1,[pr+'in1',psw+'2in1-new'],giplot('Non-stationary'))
+#             Plot(in1+'-z',[pr+'in1',psw+'2in1-new'],giplotz('Non-stationary'))
+            Plot(in1,[pr+'in1',psw+'2in1'],giplot('Non-stationary'))
+            Plot(in1+'-z',[pr+'in1',psw+'2in1'],giplotz('Non-stationary'))
             Plot(in1+'-zw',[pr+'in1',psw+'2in1-new'],wiplot('Non-stationary'))
             Flow(pr+'in1w',pr,interw)
             Flow(psw+'2in1w',psw+'2',interw)
