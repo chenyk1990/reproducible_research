@@ -563,8 +563,8 @@ def warp1(name,      # name prefix
           ss=0
           ):
 
-    if version.old_version():
-        return # think how to do it better
+#     if version.old_version():
+#         return # think how to do it better
 
     graph = '''
     graph wanttitle=n min2=%g max2=%g min1=%g max1=%g
@@ -1383,8 +1383,8 @@ def warp2(name,      # name prefix
     Flow(ppr0,None,'spike n1=1024 n2=1026 n3=471 d1=1 d2=1 d3=1|math output=1')
     Flow(ppr1,None,'spike n1=1024 n2=1026 n3=471 d1=1 d2=1 d3=1|math output=%d'%frect)
     Flow(ppr2,None,'spike n1=1024 n2=1026 n3=471 d1=1 d2=1 d3=1|math output=5')
-    if version.old_version():
-        return # think how to do it better
+#     if version.old_version():
+#         return # think how to do it better
 
     graph = '''
     graph wanttitle=n min2=%g max2=%g min1=%g max1=%g
