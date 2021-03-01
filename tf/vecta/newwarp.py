@@ -228,8 +228,8 @@ def nwarp2(name,       # name prefix
         gamma = n('gamma')
         Flow(gamma,wrp,warp2gamma(ss))
         Plot(gamma,vplot)
-
-        Result(psw,[pp,psw,dif,gamma],'TwoRows')
+# commented on 2021/02/26
+#         Result(psw,[pp,psw,dif,gamma],'TwoRows')
 
         psw1 = n('psw1')
         pp1 = n('pp1')
@@ -237,14 +237,15 @@ def nwarp2(name,       # name prefix
         Flow(psw1,psw,'window n2=1 f2=286')
 
         ppps = n('ppps')
-        Result(ppps,[psw1,pp1],
-               '''
-               add scale=1,-1 ${SOURCES[1]} |
-               cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
-               dots gaineach=n Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
-               labels="Difference:PS warped:PP" label1=Time unit1=s
-               title="LTF transform balancing"
-               ''')
+# commented on 2021/02/26
+#         Result(ppps,[psw1,pp1],
+#                '''
+#                add scale=1,-1 ${SOURCES[1]} |
+#                cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
+#                dots gaineach=n Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
+#                labels="Difference:PS warped:PP" label1=Time unit1=s
+#                title="LTF transform balancing"
+#                ''')
 
         ####################
         # SPECTRAL BALANCING
@@ -368,14 +369,15 @@ def nwarp2(name,       # name prefix
         Flow(sr1,sr,'window n2=1 f2=286')
 
         ltftppps = n('ltftppps')
-        Result(ltftppps,[sr1,pr1],
-               '''
-               add scale=1,-1 ${SOURCES[1]} |
-               cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
-               dots gaineach=0 Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
-               labels="Difference:PS warped:PP" label1=Time unit1=s
-               title="LTF transform balancing"
-               ''')
+# commented on 2021/02/26
+#         Result(ltftppps,[sr1,pr1],
+#                '''
+#                add scale=1,-1 ${SOURCES[1]} |
+#                cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
+#                dots gaineach=0 Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
+#                labels="Difference:PS warped:PP" label1=Time unit1=s
+#                title="LTF transform balancing"
+#                ''')
         
 ##         Plot('ltftbefore','pp morph',
 ##              '''
@@ -398,7 +400,8 @@ def nwarp2(name,       # name prefix
         
         Plot(si+'2',freqplot(PS + ' Local Frequency'))
         Plot(pi,freqplot('PP Local Frequency'))
-        Result(si,[pp+'i',si,pi,si+'2'],'TwoRows')
+# commented on 2021/02/26
+#         Result(si,[pp+'i',si,pi,si+'2'],'TwoRows')
 
         s0 = psw+'s0'
         Flow(s0,psw,'spectra all=y')
@@ -408,8 +411,8 @@ def nwarp2(name,       # name prefix
         Flow(s1,sr,'spectra all=y')
         Flow(pr+'s1',pr,'spectra all=y')
         Plot(s1,[pr+'s1',s1],specplot('After'))
-
-        Result(n('sp'),[s0,s1],'SideBySideIso')
+# commented on 2021/02/26
+#         Result(n('sp'),[s0,s1],'SideBySideIso')
 
         if i == 0:
             in0 = n('in0')
@@ -435,8 +438,8 @@ def nwarp2(name,       # name prefix
         dif = dif+'2'
         Plot(dif,[sr,pr],
              'add scale=1,-1 ${SOURCES[1]} | ' + plot('Difference'))
-
-        Result(sr,[pr,sr,dif,gamma],'TwoRows')        
+# commented on 2021/02/26
+#         Result(sr,[pr,sr,dif,gamma],'TwoRows')        
 
         ############
         # GAMMA SCAN
@@ -451,7 +454,8 @@ def nwarp2(name,       # name prefix
         Flow(pr+'2',pr,'window j2=%d' % j2)
         
         Flow(sc,[sr+'2',pr+'2'],warpscan2)
-        Result(sc,scanplot)
+# commented on 2021/02/26
+#         Result(sc,scanplot)
         
         pk = n('pk')
 
@@ -484,8 +488,8 @@ def nwarp2(name,       # name prefix
         gamma = n('gamma2')
         Flow(gamma,warp,warp2gamma(ss))
         Plot(gamma,vplot)
-
-        Result(psw+'2',[pr,psw+'2',dif,gamma],'TwoRows')
+# commented on 2021/02/26
+#         Result(psw+'2',[pr,psw+'2',dif,gamma],'TwoRows')
 
         if i == iter-1:
             in1 = n('in1')
@@ -505,10 +509,12 @@ def nwarp2(name,       # name prefix
 
             sim1 = n('sim1')
             Flow(sim1,[pr,psw+'2'],simil(rect1,rect2))
-            Result(sim1,simplot % 'After')
+# commented on 2021/02/26
+#             Result(sim1,simplot % 'After')
 
             Flow(psw+'1',[ps,pp,warp],warp0)
-            Result(psw+'1',plot('Warped ' + PS))
+# commented on 2021/02/26
+#             Result(psw+'1',plot('Warped ' + PS))
 
             rt = n('rt')
             Flow(psw+'i',psw+'1',ifreq)            
@@ -633,11 +639,14 @@ def warp1(name,      # name prefix
 
         Plot(ppft+'a',ftplot
              +'title="PP before balancing" scalebar=y maxval=0.014')
-        Result(ppft+'a','Overlay')
+# commented on 2021/02/26
+#         Result(ppft+'a','Overlay')
         Plot(psft+'a',ftplot
              +'title="Warped PS before balancing" scalebar=y maxval=0.014')
-        Result(psft+'a','Overlay')
-        Result(n('ft0'),[ppft+'a',psft+'a'],'OverUnderAniso')
+# commented on 2021/02/26
+#         Result(psft+'a','Overlay')
+# commented on 2021/02/26
+#         Result(n('ft0'),[ppft+'a',psft+'a'],'OverUnderAniso')
 
         pprick = n('pprick')
         psrick = n('psrick')
@@ -657,8 +666,8 @@ def warp1(name,      # name prefix
         graph title="Dominant Frequency" 
         label2=Frequency unit2=Hz min2=%g max2=%g
         ''' % (tmax,fmin,fmax)
-
-        Result(n('rick'),[pprick,psrick],rickplot)
+# commented on 2021/02/26
+#         Result(n('rick'),[pprick,psrick],rickplot)
         
         Flow([ppft+'b',psft+'b'],[ppft,psft,pprick,psrick],
              '''
@@ -670,11 +679,13 @@ def warp1(name,      # name prefix
 
         Plot(ppft+'c',ftplot
              +'title="PP after balancing" scalebar=y maxval=0.014')
-        Result(ppft+'c','Overlay')
+# commented on 2021/02/26
+#         Result(ppft+'c','Overlay')
         Plot(psft+'c',ftplot
              +'title="Warped PS after balancing" scalebar=y maxval=0.014')
-        Result(psft+'c','Overlay')
-        Result(n('fta'),[ppft+'c',psft+'c'],'OverUnderAniso')
+# commented on 2021/02/26
+#         Result(psft+'c','Overlay')
+#         Result(n('fta'),[ppft+'c',psft+'c'],'OverUnderAniso')
 
         sr = n('sr')
         pr = n('pr')
@@ -683,7 +694,8 @@ def warp1(name,      # name prefix
         Flow(sr,psft+'b','transp | ltft inv=y')
 
         Plot(psw+'1',[sr,pr],dplot)
-        Result(psw+'1',[gamma,psw+'1'],'OverUnderAniso')
+        # commented on 2021/02/26
+#         Result(psw+'1',[gamma,psw+'1'],'OverUnderAniso')
 
         ############
         # GAMMA SCAN
@@ -715,7 +727,8 @@ def warp1(name,      # name prefix
         Flow(pik,pik+'0','math output="(input-1)*x1" ')
         Plot(pik,pik+'0',showpick(0))
         Plot(pik+'0',showpick(1))
-        Result(scn,[scn,pik,pik+'0'],'Overlay')
+        # commented on 2021/02/26
+#         Result(scn,[scn,pik,pik+'0'],'Overlay')
 
         #########
         # WARPING
@@ -727,7 +740,8 @@ def warp1(name,      # name prefix
         Flow(gamma+'2',warp,warp2gamma(ss))
         Plot(gamma+'2',graph)
         Plot(psw+'2',[psw+'2',pr],dplot)
-        Result(psw+'2',[gamma+'2',psw+'2'],'OverUnderAniso')
+        # commented on 2021/02/26
+#         Result(psw+'2',[gamma+'2',psw+'2'],'OverUnderAniso')
         
         g0 = (g0+1)*0.5
 
@@ -752,17 +766,17 @@ def warp1(name,      # name prefix
              add scale=1,-1 ${SOURCES[1]} |
              cat ${SOURCES[0]} ${SOURCES[1]} axis=2
              ''')
-        
-        Result(psw+'c',[psw+'2c',psw+'line',psw+'1c',psw+'line',psw+'0c'],
-               '''
-               cat ${SOURCES[1:5]} axis=2 |
-               window min1=%g max1=%g |
-               dots gaineach=0 labelfat=4 font=2 titlefat=4
-               labels="Difference 3:PS registered:PP balanced:
-               :Difference 2:PS balanced:PP balanced:
-               :Difference 1:PS initial warped:PP"
-               label1=Time unit1=s
-               ''' % (tmin,tmax))
+        # commented on 2021/02/26
+#         Result(psw+'c',[psw+'2c',psw+'line',psw+'1c',psw+'line',psw+'0c'],
+#                '''
+#                cat ${SOURCES[1:5]} axis=2 |
+#                window min1=%g max1=%g |
+#                dots gaineach=0 labelfat=4 font=2 titlefat=4
+#                labels="Difference 3:PS registered:PP balanced:
+#                :Difference 2:PS balanced:PP balanced:
+#                :Difference 1:PS initial warped:PP"
+#                label1=Time unit1=s
+#                ''' % (tmin,tmax))
                
 
 
@@ -887,8 +901,8 @@ def nwarp3(name,       # name prefix
     Plot(pp,plot('PP'))
     Flow(pp+'i',pp,ifreq)
     Plot(pp+'i',freqplot('PP Local Frequency'))
-
-    Result(pp+'line',pp,'Overlay')
+# commented on 2021/02/26
+#     Result(pp+'line',pp,'Overlay')
 
     PS = ('PS','SS')[ss]
 
@@ -931,6 +945,8 @@ def nwarp3(name,       # name prefix
             return '%s-%s-%d' % ('vec',s,i)
             
         psw = n('psw')
+        psw0 = nn('psw')
+        
         Flow(psw,[ps,pp,wrp],warp0)
         Plot(psw,plot('Warped ' + PS))
         
@@ -941,8 +957,8 @@ def nwarp3(name,       # name prefix
         gamma = n('gamma')
         Flow(gamma,wrp,warp2gamma(ss))
         Plot(gamma,vplot)
-
-        Result(psw,[pp,psw,dif,gamma],'TwoRows')
+# commented on 2021/02/26
+#         Result(psw,[pp,psw,dif,gamma],'TwoRows')
 
         psw1 = n('psw1')
         pp1 = n('pp1')
@@ -950,14 +966,15 @@ def nwarp3(name,       # name prefix
         Flow(psw1,psw,'window n2=1 f2=286')
 
         ppps = n('ppps')
-        Result(ppps,[psw1,pp1],
-               '''
-               add scale=1,-1 ${SOURCES[1]} |
-               cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
-               dots gaineach=n Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
-               labels="Difference:SS warped:PP" label1=Time unit1=s
-               title="LTF transform balancing"
-               ''')
+        # commented on 2021/02/26
+#         Result(ppps,[psw1,pp1],
+#                '''
+#                add scale=1,-1 ${SOURCES[1]} |
+#                cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
+#                dots gaineach=n Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
+#                labels="Difference:SS warped:PP" label1=Time unit1=s
+#                title="LTF transform balancing"
+#                ''')
 
         ####################
         # SPECTRAL BALANCING
@@ -981,11 +998,12 @@ def nwarp3(name,       # name prefix
 
         ppltft = n('ppltft') #
         ppltft0 = nn('ppltft') #
-#         Flow(ppltft+'-t',[pp,ppr0,ppr1,ppr2], 
-#              '''
-#              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
-#              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
-#              ''' % frect)
+        Flow(ppltft+'-t',[pp,ppr0,ppr1,ppr2], 
+             '''
+             ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
+             rect2=${SOURCES[3]} | transp plane=23| transp plane=12
+             ''' % frect)
+#it seems that no need for PP
         Flow(ppltft+'-part1',ppltft+'-t','cut min2=0.5 |cut min3=120')
         Flow(ppltft+'-part2',ppltft0,'cut max2=0.5 max3=120')
         Flow(ppltft,[ppltft+'-part1',ppltft+'-part2'],'add scale=1,1 ${SOURCES[1]}|sfput o3=0')
@@ -1016,17 +1034,17 @@ def nwarp3(name,       # name prefix
              ''')
         pswltft = n('pswltft')
         pswltft0 = nn('pswltft')
-#         Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
-#              '''
-#              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
-#              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
-#              ''' % frect)
-        if i==1:
-           Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
+        Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
              '''
              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
-             ''' % frect)	
+             ''' % frect)
+#         if i==1:
+#            Flow(pswltft+'-t',[psw,ppr0,ppr1,ppr2],
+#              '''
+#              ltftn rect=%d verb=n rect0=${SOURCES[1]} rect1=${SOURCES[2]}  
+#              rect2=${SOURCES[3]} | transp plane=23| transp plane=12
+#              ''' % frect)	
 		
         Flow(pswltft+'-part1',pswltft+'-t','cut min2=0.5 |cut min3=120 ')
         Flow(pswltft+'-part2',pswltft0,'cut max2=0.5 max3=120')
@@ -1078,10 +1096,16 @@ def nwarp3(name,       # name prefix
                labelfat=3 font=2 titlefat=3
                ''')
         pswltftspe = n('pswltftspe')
-        Flow(pswltftspe,pswltft+'-t',
+        if i==1:
+          Flow(pswltftspe,pswltft,
              '''
              math output="abs(input)" | real 
              ''')
+        else:
+          Flow(pswltftspe,pswltft+'-t',
+             '''
+             math output="abs(input)" | real 
+             ''')         
         
         pprick = n('pprick')
         Flow(pprick,ppltftspe,
@@ -1143,14 +1167,15 @@ def nwarp3(name,       # name prefix
         Flow(sr1,sr,'window n2=1 f2=286')
 
         ltftppps = n('ltftppps')
-        Result(ltftppps,[sr1,pr1],
-               '''
-               add scale=1,-1 ${SOURCES[1]} |
-               cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
-               dots gaineach=0 Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
-               labels="Difference:PS warped:PP" label1=Time unit1=s
-               title="LTF transform balancing"
-               ''')
+        # commented on 2021/02/26
+#         Result(ltftppps,[sr1,pr1],
+#                '''
+#                add scale=1,-1 ${SOURCES[1]} |
+#                cat ${SOURCES[0]} ${SOURCES[1]} axis=2 |
+#                dots gaineach=0 Xscreenwd=9.225 Xscreenht=5.2 Xyyscale=0.8
+#                labels="Difference:PS warped:PP" label1=Time unit1=s
+#                title="LTF transform balancing"
+#                ''')
         
 ##         Plot('ltftbefore','pp morph',
 ##              '''
@@ -1173,7 +1198,8 @@ def nwarp3(name,       # name prefix
         
         Plot(si+'2',freqplot(PS + ' Local Frequency'))
         Plot(pi,freqplot('PP Local Frequency'))
-        Result(si,[pp+'i',si,pi,si+'2'],'TwoRows')
+        # commented on 2021/02/26
+#         Result(si,[pp+'i',si,pi,si+'2'],'TwoRows')
 
         s0 = psw+'s0'
         Flow(s0,psw,'spectra all=y')
@@ -1184,7 +1210,8 @@ def nwarp3(name,       # name prefix
         Flow(pr+'s1',pr,'spectra all=y')
         Plot(s1,[pr+'s1',s1],specplot('After'))
 
-        Result(n('sp'),[s0,s1],'SideBySideIso')
+# commented on 2021/02/26
+#         Result(n('sp'),[s0,s1],'SideBySideIso')
 
         if i == 0:
             in0 = n('in0')
@@ -1197,11 +1224,13 @@ def nwarp3(name,       # name prefix
             Plot(in0+'w',[pr+'in0w',sr+'in0w'],wiplot('Before'))
             
             Result(in0,in0,'Overlay')
-            Result(in0+'w',in0+'w','Overlay')
+            # commented on 2021/02/26
+#             Result(in0+'w',in0+'w','Overlay')
 
             sim0 = n('sim0')
             Flow(sim0,[pr,sr],simil(rect1,rect2))
-            Result(sim0,simplot % 'Before')
+            # commented on 2021/02/26
+#             Result(sim0,simplot % 'Before')
            
         Plot(sr,plot('Warped and Balanced ' + PS))
         Plot(pr,plot('Balanced PP'))
@@ -1210,7 +1239,8 @@ def nwarp3(name,       # name prefix
         Plot(dif,[sr,pr],
              'add scale=1,-1 ${SOURCES[1]} | ' + plot('Difference'))
 
-        Result(sr,[pr,sr,dif,gamma],'TwoRows')        
+# commented on 2021/02/26
+#         Result(sr,[pr,sr,dif,gamma],'TwoRows')        
 
         ############
         # GAMMA SCAN
@@ -1225,7 +1255,8 @@ def nwarp3(name,       # name prefix
         Flow(pr+'2',pr,'window j2=%d' % j2)
         
         Flow(sc,[sr+'2',pr+'2'],warpscan2)
-        Result(sc,scanplot)
+# commented on 2021/02/26
+#         Result(sc,scanplot)
         
         pk = n('pk')
 
@@ -1259,12 +1290,19 @@ def nwarp3(name,       # name prefix
         Flow(gamma,warp,warp2gamma(ss))
         Plot(gamma,vplot)
 
-        Result(psw+'2',[pr,psw+'2',dif,gamma],'TwoRows')
+# commented on 2021/02/26
+#         Result(psw+'2',[pr,psw+'2',dif,gamma],'TwoRows')
 
         if i == iter-1:
             in1 = n('in1')
+#the following part is used to combine the two results, making sure the performance is at least better or equal to the conventional method
             Flow(pr+'in1',pr,interg)
-            Flow(psw+'2in1',psw+'2',interg)
+#one can comment the following four lines with  "Flow(psw+'2in1',psw+'2',interg)" for a direct result of the new method
+            Flow(psw+'2in1'+'-t',psw+'2',interg)
+            Flow(psw+'2in1'+'-part1',psw+'2in1'+'-t','cut min1=0.5|cut min2=25')
+            Flow(psw+'2in1'+'-part2',psw0+'2in1','cut max1=0.5 max2=25')
+            Flow(psw+'2in1',[psw+'2in1'+'-part1',psw+'2in1'+'-part2'],'add scale=1,1 ${SOURCES[1]}')
+#             Flow(psw+'2in1',psw+'2',interg)
 #sfcut<nvec-psw-12in1.rsf min1=0.5 |sfcut min2=25 > nvec-psw-12in1-part1.rsf  
 #sfcut<vec-psw-12in1.rsf max1=0.5 max2=25 > nvec-psw-12in1-part2.rsf     
 #sfadd<nvec-psw-12in1-part1.rsf nvec-psw-12in1-part2.rsf  scale=1,1 >nvec-psw-12in1-new.rsf
@@ -1272,7 +1310,7 @@ def nwarp3(name,       # name prefix
 #             Plot(in1+'-z',[pr+'in1',psw+'2in1-new'],giplotz('Non-stationary'))
             Plot(in1,[pr+'in1',psw+'2in1'],giplot('Non-stationary'))
             Plot(in1+'-z',[pr+'in1',psw+'2in1'],giplotz('Non-stationary'))
-            Plot(in1+'-zw',[pr+'in1',psw+'2in1-new'],wiplot('Non-stationary'))
+            Plot(in1+'-zw',[pr+'in1',psw+'2in1'],wiplot('Non-stationary'))
             Flow(pr+'in1w',pr,interw)
             Flow(psw+'2in1w',psw+'2',interw)
             Plot(in1+'w',[pr+'in1w',psw+'2in1w'],wiplot('After'))
@@ -1283,10 +1321,12 @@ def nwarp3(name,       # name prefix
 
             sim1 = n('sim1')
             Flow(sim1,[pr,psw+'2'],simil(rect1,rect2))
-            Result(sim1,simplot % 'After')
+# commented on 2021/02/26
+#             Result(sim1,simplot % 'After')
 
             Flow(psw+'1',[ps,pp,warp],warp0)
-            Result(psw+'1',plot('Warped ' + PS))
+# commented on 2021/02/26
+#             Result(psw+'1',plot('Warped ' + PS))
 
             rt = n('rt')
             Flow(psw+'i',psw+'1',ifreq)            
@@ -1308,8 +1348,10 @@ def nwarp3(name,       # name prefix
 #                    grey title="Deblurred %s" label1="Time (s)"
 #                    ''' % (tmin,tmax,PS))
 
+
             Flow('e'+gamma,warp,warp2egamma(ss))
-            Result(gamma,'e'+gamma,vplot)
+# commented on 2021/02/26
+#             Result(gamma,'e'+gamma,vplot)
         
         g0 = (g0+1)*0.5
 
@@ -1391,8 +1433,8 @@ def warp2(name,      # name prefix
         psw = n('psw')
         Flow(psw,[ps,pp,wrp],warp0)
         Plot(psw,[psw,pp],dplot)
-
-        Result(psw,[gamma,psw],'OverUnderAniso')
+# commented on 2021/02/26
+#         Result(psw,[gamma,psw],'OverUnderAniso')
 
         ####################
         # SPECTRAL BALANCING
@@ -1442,8 +1484,8 @@ def warp2(name,      # name prefix
         graph title="Dominant Frequency" 
         label2=Frequency unit2=Hz min2=%g max2=%g
         ''' % (tmax,fmin,fmax)
-
-        Result(n('rick'),[pprick,psrick],rickplot)
+# commented on 2021/02/26
+#         Result(n('rick'),[pprick,psrick],rickplot)
         
         Flow([ppft+'b',psft+'b'],[ppft,psft,pprick,psrick],
              '''
@@ -1500,7 +1542,8 @@ def warp2(name,      # name prefix
         Flow(pik,pik+'0','math output="(input-1)*x1" ')
         Plot(pik,pik+'0',showpick(0))
         Plot(pik+'0',showpick(1))
-        Result(scn,[scn,pik,pik+'0'],'Overlay')
+# commented on 2021/02/26
+#         Result(scn,[scn,pik,pik+'0'],'Overlay')
 
         #########
         # WARPING
@@ -1537,15 +1580,15 @@ def warp2(name,      # name prefix
              add scale=1,-1 ${SOURCES[1]} |
              cat ${SOURCES[0]} ${SOURCES[1]} axis=2
              ''')
-        
-        Result(psw+'c',[psw+'2c',psw+'line',psw+'1c',psw+'line',psw+'0c'],
-               '''
-               cat ${SOURCES[1:5]} axis=2 |
-               window min1=%g max1=%g |
-               dots gaineach=0 labelfat=4 font=2 titlefat=4
-               labels="Difference 3:SS registered:PP balanced:
-               :Difference 2:SS balanced:PP balanced:
-               :Difference 1:SS initial warped:PP"
-               label1=Time unit1=s
-               ''' % (tmin,tmax))
+# commented on 2021/02/26        
+#         Result(psw+'c',[psw+'2c',psw+'line',psw+'1c',psw+'line',psw+'0c'],
+#                '''
+#                cat ${SOURCES[1:5]} axis=2 |
+#                window min1=%g max1=%g |
+#                dots gaineach=0 labelfat=4 font=2 titlefat=4
+#                labels="Difference 3:SS registered:PP balanced:
+#                :Difference 2:SS balanced:PP balanced:
+#                :Difference 1:SS initial warped:PP"
+#                label1=Time unit1=s
+#                ''' % (tmin,tmax))
                
