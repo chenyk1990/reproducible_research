@@ -2,13 +2,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Written in Dec, 2019
+Created on Tue Sep 18 21:42:51 2018
 
-@author: Yangkang Chen and Mi Zhang
+@author: mi
 """
 import numpy as np
 import tensorflow as tf
-from Autoencoder import Autoencoder
+from library.Autoencoder import Autoencoder
 
 def next_batch_random(train_data, batch_size):  
     index = [ i for i in range(0,len(train_data)) ]  
@@ -18,14 +18,14 @@ def next_batch_random(train_data, batch_size):
         batch_data.append(train_data[index[i]]);         
     return batch_data
 
-Dtrain=np.fromfile("Datapre/syn_A.dat",dtype=np.float64)
-Dtrain=Dtrain.reshape(6000,1600)
+Dtrain=np.fromfile("Datapre/Real2-10000-1600-n-edge2.dat",dtype=np.float64)
+Dtrain=Dtrain.reshape(10000,1600)
 
-Dtest11=np.fromfile("Datapre/syn_A0.dat",dtype=np.float64)
-Dtest11=Dtest11.reshape(60,1600)
+Dtest11=np.fromfile("Datapre/Real2-150-1600-edge.dat",dtype=np.float64)
+Dtest11=Dtest11.reshape(150,1600)
 
 n_samples=len(Dtrain)
-training_epochs =10
+training_epochs =5
 batch_size = 15
 display_step = 1
 
@@ -37,9 +37,9 @@ n_hidden = 3200
 
 ae = Autoencoder(n_layers=[n_inputs, n_hidden],
                           transfer_function = tf.nn.sigmoid,
-                          optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate = 0.001),ae_para = [corruption_level, sparse_reg])
-init = tf.compat.v1.global_variables_initializer()
-sess = tf.compat.v1.Session()
+                          optimizer = tf.optimizers.Adam(learning_rate = 0.001),ae_para = [corruption_level, sparse_reg])
+init = tf.global_variables_initializer()
+sess = tf.Session()
 sess.run(init)
 for epoch in range(training_epochs):
     avg_cost = 0
@@ -61,7 +61,7 @@ for epoch in range(training_epochs):
     if epoch % display_step == 0:
         print("Epoch:", '%d,' % (epoch + 1),
               "Cost:", "{:.9f}".format(avg_cost))
-        
+
 ae_test_cost = sess.run(ae.calc_total_cost(), feed_dict={ae.x: Dtest11, ae.keep_prob : ae.in_keep_prob})
 print("Total cost: " + str(ae_test_cost))
 
@@ -69,4 +69,4 @@ print("Total cost: " + str(ae_test_cost))
 drecon11 = sess.run(ae.reconstruct(), feed_dict={ae.x: Dtest11, ae.keep_prob : ae.in_keep_prob})
 Drecon11=drecon11.astype(np.float)
 
-Drecon11.tofile("Datapre/syn_A1.dat")
+Drecon11.tofile("Datapre/denoised-real2-150-1600-edge2.dat")
