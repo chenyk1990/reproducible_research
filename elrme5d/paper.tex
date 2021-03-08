@@ -1,0 +1,388 @@
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+%\usepackage{xspace}
+% combine suggestions from @bdh_dtu and @egreg with xspace
+\newcommand{\R}{\textup{\textrm{R}}\xspace}
+\newtheorem{Assumption}{Assumption}
+
+\title{Enhanced low-rank matrix estimation for simultaneous denoising and reconstruction of five-dimensional seismic data}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\author{Yapo Abol{\'e} Serge Innocent Obou{\'e} and Yangkang Chen}
+
+\ms{GEO-2021} 
+
+\address{Zhejiang University\\
+	School of Earth Sciences\\
+	Hangzhou, Zhejiang, China\\
+	obouesonofgod1@gmail.com \& chenyk2016@gmail.com\\
+	Corresponding Author: Yangkang Chen (chenyk2016@gmail.com) 
+}
+
+\lefthead{Obou{\'e} and Chen}
+\righthead{Enhanced low-rank matrix estimation}
+
+\maketitle
+
+\begin{abstract}			
+  Noise and missing traces usually influence the quality of multidimensional seismic data. It is, therefore, necessary to estimate the useful signal from its noisy observation. The damped rank-reduction (DRR) method has emerged as an effective method to reconstruct the useful signal matrix from\dlo{its} noisy \wen{and incomplete  observations}\dlo{observation}. However, the higher the noise level and the \wen{larger} ratio of missing traces, the weaker the DRR operator becomes. Consequently, the estimated low-rank signal matrix includes a \dlo{meaningful}\dlo{unignorable}\wen{significant} amount of residual noise that influences the \dlo{next}\wen{following} processing steps. \dlo{In this paper, we focus}\dlo{This paper focuses}\wen{Therefore, we focus} on the problem of estimating a low-rank signal matrix from its noisy observation. To elaborate on the novel algorithm, we formulate an improved proximity function by mixing the moving-average filter and the arctangent penalty function. We first apply the proximity function to the level-4 block Hankel matrix before the singular value decomposition (SVD), and then, to singular values, during the damped truncated SVD process. The \dlo{relationship between}\wen{combination of} the novel proximity function and the DRR framework leads to an optimization problem, which results in better recovery performance. The proposed algorithm aims at producing an enhanced rank-reduction operator to estimate the useful signal matrix with a higher quality. Experiments are conducted on synthetic and real 5-D seismic data to compare the effectiveness of our approach to the DRR approach. The proposed approach \dlo{is shown to obtain}\wen{obtains} better performance since the estimated low-rank signal matrix is cleaner and contains \dlo{less amount of}\wen{fewer} artifacts compared to \dlo{the}\wen{that reconstructed by the} DRR algorithm.
+\end{abstract}
+
+
+\section{Introduction}
+
+High\dlo{er} quality of seismic data is valuable for all processing steps in exploration seismology. However, physical limitations and \dlo{probably financial costs}\wen{economical considerations} in \dlo{a}multidimensional seismic data acquisition \dlo{process}often \dlo{induce}\wen{introduce} noisy and \dlo{sub-sampled}\wen{poorly sampled} data \citep{chiu2014multidimensional}. Therefore, the recovery \wen{of the useful signal} from noisy and incomplete data becomes one of the most significant tasks confronted by seismic data processing researchers. \dlo{Over the years, m}\wen{M}any useful algorithms have been introduced in seismic data processing literature to solve the multidimensional seismic data acquisition problems. Otherwise, the incompleteness of the raw data could seriously affect the processing and imaging steps \citep{chen2015random,lopez2015closed,ikelle2016up}.
+
+In this context, approaches like wave-equation methods \citep{ronen1987wave,fomel2003seismic} that \dlo{need some basic knowledge of the subsurface}\wen{require subsurface knowledge} such as the velocity model have been proposed to restore the incomplete data. \dlo{Besides, several}\wen{Numerous} researchers \citep{spitz1991seismic,porsani1999seismic,crawley2000seismic,curry2003interpolation,liu2015adaptive,fomel2016streaming,wanghang2021geo} have introduced approaches based on the linear prediction-error filters (PEFs) to recover the useful signal. \cite{fomel2016streaming} introduce\dlo{d} the streaming PEFs and propose\dlo{d} a fast method for missing data restoration. \cite{li2017multidimensional} propose\dlo{d} a multidimensional adaptive PEF in the frequency domain for aliased seismic data interpolation. Based on the shaping regularization, this approach enhances the \dlo{computation}\wen{computational} performance. Generally, the rank of the seismic data tensor or matrix increases because of the \dlo{noise level and the ratio of sub-sampled traces}\wen{existence of noise and missing traces}. This assumption has motivated the \dlo{invention}\wen{development} of the low-rank methods for seismic data restoration. Low-rank \wen{(LR)} methods \dlo{can be seen as approaches based on}\wen{may be thought of as} decomposition techniques, for instance, higher-order singular value decomposition (HO-SVD) introduce\dlo{d} by \cite{de2000multilinear}. \dlo{Such a}\wen{This} method works directly on the seismic data tensor to restore the useful signal \citep{kreimer2012tensor,kreimer2013tensor,ely20155d,carozzi2019robust}. \dlo{We mention}\dlo{There is also a}\wen{A}nother subgroup of LR methods \dlo{Then, as approaches} \dlo{that include}\wen{includes} all the seismic data components into a matrix such as the Hankel or Toeplitz matrix \citep{gao2013fast,siahsar2017simultaneous,zhang2017hybrid,oboue2020robust}. Here, the algorithms restore the whole seismic data volume by the low-rank approximation strategy, and then apply the averaging function \citep{chen2016open} on the resulting approximation signal matrix. Finally, the weighted POCS-like algorithm based on the rank-reduction method is utilized to complete the missing values \wen{\citep{oropeza2011simultaneous}}. 
+\dlo{Over time, the seismic data components have been inserted into a designed texture-patch matrix and the matrix completion (MC) algorithm has been applied to solve the optimization problem. This approach has shown its efficiency compared with the Hankel matrix-based approaches.}\dlo{Researchers like}\cite{oropeza2011simultaneous}, \cite{gan2015simultaneous}, \cite{gao2015parallel}, \cite{chen2016simultaneous} and \cite{oboue2020robust}\dlo{brought their contribution in}\wen{contributed to} the research area of simultaneous denoising and reconstruction to solve the multidimensional seismic data interpolation problem. Furthermore, five-dimensional \wen{(5-D)} seismic data restoration \citep{ely20155d,chen2016simultaneous}\dlo{appeared and, \dlo{become}\wen{became}}\wen{has become} more common since it considers all the physical coordinates of the seismic data to restore the useful signal matrix or tensor. Although almost all low-rank methods demonstrate\dlo{d} their \dlo{performance}\wen{ability} to perfectly denoise and/or reconstruct the seismic data, computation time remains a problem for most\dlo{ of them}. 
+Therefore, some efficient approaches \dlo{: for instance,}\wen{like the randomized singular value decomposition (RSVD) \citep{oropeza2011simultaneous,halko2011finding}, the SVD-free techniques \citep{gao2015parallel} and the Lanczos bidiagonalization \citep{gao2013fast} are more often applied to \dlo{enhance}\wen{decrease} the computation cost}. Besides, mixed approaches based on the sparsity transforms and rank-reduction approaches \citep{zhang2017hybrid} have been proposed to restore the seismic signal while reducing the computation cost. On the other hand, some \dlo{meaningful}\wen{sparsity-promoting} transform\dlo{s} techniques such as Fourier transform \citep{zwartjes2007fourier}, \dlo{Random}\wen{Radon} transform \citep{xue2017amplitude}, curvelet transform \citep{liu2016effective}, seislet transform \citep{gan2015dealiased,gan2016compressive,liu2016one}, and sparse wavelet transform \citep{liu2015seismic,mostafa2016bssa,mostafa2016geo} have appeared to successfully recover the seismic data. \wen{\cite{wanghang2020tgrs3} introduce\dlo{d} the fast dictionary learning for high-dimensional seismic reconstruction.} 
+
+\wen{The damped rank-reduction (DRR) method \citep{chen2016simultaneous} has been proposed to further enhance the quality of the simultaneous denoising and reconstruction of seismic data. The DRR method successfully improve\wen{s}\dlo{d} the quality of the low-rank signal matrix even when the land seismic data are affected by strong noise and missing traces. As outlined in \cite{chen2016simultaneous}, the damped TSVD (DTSVD) process aims to produce the closest approximation to the useful signal matrix from its noisy observation. However, the DTSVD operator, which uses essentially the rank constraint and the damping factor, becomes \dlo{weak}\wen{less effective} when the noise level and the percentage of missing traces increase. As a result, the estimated signal matrix is still corrupted with a significant amount of residual noise after the DTSVD operation. Therefore, it is necessary to enhance the quality of the estimated signal matrix by implementing a new approach.} 
+	
+\wen{The \dlo{${l}_{1}$}\wen{${l}_{1}$-}norm minimization technique that can be regarded as applying the proximity operator associated with the soft-threshold function \citep{donoho1995noising} has been used to promote sparsity, and thus, enhance\dlo{d} seismic data restoration. This proximity function can minimize the non-null signal values when it is applied to promote sparsity \citep{nadakuditi2014optshrink}. However, the non-convex regularization function such as the arctangent penalty function has been preferred to compute the non-null signal values carefully \citep{parekh2017improved} because of its abilities \dlo{Furthermore, it has been demonstrated that the non-convex penalty functions can}\wen{to further} induce sparsity of the singular values more effectively than the nuclear norm \citep{chartrand2012nonconvex,parekh2016enhanced,parekh2017improved}. Therefore, i}\dlo{I}n this work, we \dlo{favor}\wen{leverage} the proximity operator using the arctangent penalty function \citep{selesnick2014sparse,parekh2017improved} \wen{to restore the low-rank signal matrix more accurately}. 
+
+\wen{To achieve the goal of this work,} we formulate first, a proximity function using the moving-average filter \citep{schafer1989discrete} and the arctangent penalty function \citep{selesnick2014sparse,parekh2017improved}. Then, by introducing the proposed proximity function in the DRR algorithm workflow, we discuss the problem of computing a signal matrix from its noisy and incomplete observation. We introduce an optimization problem composed of a noisy and incomplete seismic signal, the DRR operator, and the \wen{proposed} proximity operator. We derive an algorithm called enhanced low-rank matrix estimation (ELRME) for 5-D seismic data recovery to solve the optimization problem. \dlo{Our}\wen{The proposed ELRME} approach will benefit from the use\wen{s} of the rank constraint and the damping factor \citep{chen2016simultaneous}, and the proposed proximity function to provide a more accurate low-rank signal matrix. \wen{In addition to the key parameters of the DRR method, the proposed ELRME method uses a valid combination of parameters of the proposed proximity function for the estimation of the useful signal matrix. The proposed ELRME method produces an improved low-rank operator to compute the useful signal matrix correctly compared to the DRR algorithm.} 
+
+The paper starts by briefly emphasizing the essential steps of the DRR algorithm. Afterward, we develop the proposed algorithm. Then, we conduct numerical experiments using synthetic and field 5-D seismic data to compare the effectiveness of the proposed approach to the DRR approach. \dlo{The results show a better performance of the proposed ELRME algorithm. Finally, discussion and conclusions are given.}
+
+\section{Theory}
+
+\subsection{Damped rank-redcution method (DRR)}
+
+The DRR algorithm \dlo{computes}\wen{estimates} the signal matrix $\mathbf{B}\in R^{I \times J}$ from its noisy observation \dlo{$\mathbf{A}$}{\wen{$\mathbf{D}\in R^{I \times J}$}}. The matrix \dlo{$\mathbf{A}$}\wen{$\mathbf{D}$} \dlo{written as follows} is a blend of the matrix $\mathbf{B}$ and random noise $\mathbf{N}\in R^{I \times J}$ acquired \dlo{during}\wen{by} the acquisition process\wen{, which can be expressed as follows:}
+\begin{equation}
+\mathbf{D} = \mathbf{B}+\mathbf{N}.  
+\label{eq:eq1}                  
+\end{equation}
+Consider an observed 5-D seismic data denoted by $\mathbf{D}(t, hx, hy, x, y)$. $t$ corresponds to the time \dlo{compoment}\wen{component}. $hx$, $hy$, $x$ and $y$ correspond to $x$ and $y$ offsets and $x$ and $y$ midpoints. To restore the useful signal matrix $\mathbf{B}$ from such noisy observation, the DRR algorithm converts first, the observed data defined in time domain into $\mathbf{D}(f, hx, hy, x, y)$, where $f$ denotes the frequency component\dlo{s}. In this process, each observed noisy and incomplete data for a known frequency band is modeled by a four-dimensional spatial multilevel cube $\mathbf{D}_{n_1,n_2,n_3,n_4}$ with $n_v = 1 \cdot\cdot\cdot T_v$, {$v = 1,2,3,4$}. As outlined in \cite{chen2016simultaneous}, the DRR algorithm for \dlo{the estimation of the}\wen{estimating} signal $\mathbf{B}$ is achieved by constructing the level-four block Hankel matrix. Let {$\textbf{A}$} be this target matrix. We summarize the Hankelization process via equation \ref{eq:eq2}:
+\begin{equation}
+\mathbf{A}={\mathcal{H}}\mathbf{D},     
+\label{eq:eq2}               
+\end{equation}
+where ${\mathcal{H}}$ is the Hankelization operator \citep{oropeza2011simultaneous,chen2016simultaneous}. 
+\wen{Equation \ref{eq:eq2} can be rewritten as follows:}
+\begin{equation}
+\mathbf{A} = \mathbf{B}+\mathbf{N}.  
+\label{eq:eq3}                  
+\end{equation}
+The DRR approach assumes that $\mathbf{A}$ and $\mathbf{N}$ have complete rank unlike $\mathbf{B}$. Hence, we suppose that $rank(\mathbf{A})=rank(\mathbf{N}) = J$, and $rank(\mathbf{B})= K < J$. The estimated signal $\mathbf{X}$ using the damped rank-reduction algorithm \wen{\citep{chen2016simultaneous}} is given as follows:
+\begin{align}
+\mathbf{B}=\mathbf{U}^{\mathbf{A}}_1{\Sigma^{\mathbf{A}}_1}\ell\left(\mathbf{V}^{\mathbf{A}}_1\right)^{{r}},
+\label{eq:eq4}
+\end{align}
+where ${\Sigma^{\mathbf{A}}_1}$ corresponds to the diagonal matrix which is composed of larger singular values. The \dlo{matrix}\wen{matrices} $\mathbf{U}^{\mathbf{A}}_1$ and $\left(\mathbf{V}^{\mathbf{A}}_1\right)$ have singular vectors. $\left(\cdot\right)^{{r}}$ corresponds to the conjugate transpose. Equation \ref{eq:eq4} is known as \dlo{the damped truncated singular values decomposition (}DTSVD\dlo{)} used in the DRR algorithm. \wen{The DTSVD process is based on the damping operator $\ell$ given by:}
+\begin{align}
+\ell= \mathbf{I} - (\Sigma^{\mathbf{A}}_1 )^{-{q}}{{\gamma}^{q}},
+\label{eq:eq5}
+\end{align} 
+\wen{where} ${\gamma}$ represents the maximum element of the smaller singular values, \dlo{and}${q}$ corresponds to the damping factor\dlo{.}\wen{, and} \wen{$\mathbf{I}$ denotes an identity matrix.} 
+
+The process of obtaining the estimated signal matrix $\mathbf{B}$ from $\mathbf{A}$ using the DRR method formula (see equation \ref{eq:eq4}) is summarized by:
+\begin{equation}
+\mathbf{B}={R_\ell}{\mathbf{{A}}}, 
+\label{eq:eq6}
+\end{equation}
+where ${R_\ell}$ is the DRR operator \wen{\citep{chen2016open,chen2016simultaneous}}.
+ 
+\subsection{Enhanced low-rank matrix estimation for 5-D seismic data recovery}
+
+\dlo{Our experience with the DRR algorithm shows that ${R_\ell}$ becomes weak when the noise level and the percentage of missing traces increase. This operator cannot estimate the low-rank matrix $\mathbf{B}$ well}\wen{The operator ${R_\ell}$ bases essentially on the rank constraint and the damping factor to further recover the useful signal matrix, which is still blended with the noisy matrix after the TSVD process. As explained in \cite{chen2016simultaneous}, the aim of the DTSVD process is to provide the closest approximation to the low-rank matrix $\mathbf{B}$ based on the noisy observation matrix $\mathbf{A}$. As shown in equation \dlo{\ref{eq:eq4}}\wen{\ref{eq:eq5}}, the damping factor is directly applied to the singular values of the noisy observation matrix $\mathbf{A}$ after TSVD to drop the noise components. \wen{However, our experience with the DTSVD process reveals that the ${R_\ell}$ operator becomes weak when the noise level and the percentage of missing traces increase.} \dlo{However, as the noise level and the percentage of missing traces increase, the diagonal matrix that includes the singular values becomes noisier and sparse. Hence,}\wen{Indeed,} the damping factor loses its power to ease the contribution of noise. As a result, the DRR algorithm cannot obtain an approximation signal $\mathbf{B}$ closest to the original signal matrix. In this work, we assume that the DRR algorithm becomes less effective because of the weakness of \wen{the performance of} its operator (${R_\ell}$) to further shrink the singular values in a condition of strong noise and a high level of missing traces.} This paper intends to estimate an improved low-rank matrix signal $\mathbf{B}$ based on a new strategy. \wen{We first formulate an improved proximity function by mixing the moving average filter and the arctangent penalty function. \dlo{The resulted proximity function aims to enhance the DTSVD process.} Next, we apply the new proximity function to the level-4 block Hankel matrix before SVD, and then, to the singular values, during the DTSVD process. This \dlo{novel}\wen{modified} strategy produces an enhanced RR operator to further shrink the singular values, even when the noise level and the ratio missing traces increase\dlo{s}.}
+
+\wen{The moving average filter \wen{for the noisy observation matrix $\mathbf{A}$} is given by}: 
+\begin{equation}
+\mathbf{A}[i] =\frac{1}{\varphi}\sum_{j=0}^{\varphi-1}\mathbf{A}\left[i-j\right],
+\label{eq:eq7}
+\end{equation}
+where $\varphi$ corresponds to the filter length and $\varphi-1$ denotes the filter order.
+
+\wen{Equation \ref{eq:eq7}} uses the following rational transfer function to minimize the unwanted values in ${\mathbf{{A}}}$:
+\begin{equation}
+{P(h)=\frac{c(1)+c(2)h^{-1}+...+c(l_c + 1)h^{-l_c}}{1+d(2)h^{-1} +...+ d(l_d+1)h^{-l_d}}}{Q(h)}.
+\label{eq:eq8}
+\end{equation}
+Equation \ref{eq:eq8} establishes a relationship between the rational transfer function $P(h)$ of a discrete-time filter's output $P(i)$ and rational transfer function $Q(h)$ of the input $Q(i)$. ${c_i}$ and ${d_i}$ are the filter coefficients. $l_d$ denotes the feedback filter order, and $l_c$ corresponds to the feed forward filter order. We set $d(1) = 1$ because of the normalization \citep{schafer1989discrete}. \wen{In this work, we set $d(1) = \beta$ and $l_d=0$. $\beta$ corresponds to a given filter coefficient of the moving average filter\wen{, which can be}\dlo{ It can be} regarded as a scaling factor.}
+
+We simplify the moving-average function via the following notation: 
+\begin{equation}
+\mathbf{A}=\mathbf{{A}_{(\varphi,\beta)}},   
+\label{eq:eq9} 
+\end{equation}
+where $\varphi$ and $\beta$ denote the filter length and the rational transfer function coefficient, respectively.
+
+The proximity operator joined with the arctangent penalty function \citep{selesnick2014sparse,parekh2017improved}, is given by:
+\begin{align}
+\textrm{prox}_{\psi}(\mathbf{A};\lambda,{c}) = \textrm{arg}\min_{\mathbf{B} \in R}\left\lbrace \frac{1}{2}\left(\mathbf{A}-\mathbf{B} \right) ^2 +\lambda\psi\left(\mathbf{B},{c} \right)\right\rbrace,
+\label{eq:eq10}
+\end{align}	
+where $\lambda$ denotes the threshold parameter. The term \dlo{$ \psi\left(\mathbf{X},{c} \right)$}\wen{$ \psi\left(\mathbf{B},{c} \right)$} correspond\dlo{s}\wen{ing} to the arctangent penalty function \citep{selesnick2014sparse} \wen{is} given by:
+\begin{equation}
+\psi\left(\mathbf{B},{c} \right)=\frac{2}{{c} \sqrt{3}}\left(\textrm{atan}\left( \dfrac{1+2{c} \left|\mathbf{B}\right|}{\sqrt{3}}\right) -\frac{\pi}{6}\right),
+\label{eq:eq11}
+\end{equation}	
+where ${c}>0 $ denotes the penalty convexity parameter. The value of ${c}$ produces the level of the non-convexity of the penalty functions $ \left(\psi\right) $ \citep{parekh2017improved}.
+
+Equation \ref{eq:eq11} satisfies \wen{the following} $\mathbf{Assumption}$ $\mathbf{1}$. $\psi\left(\mathbf{B},{c} \right)$ is asymptotically near the identity function \citep{selesnick2014sparse}. \dlo{Mention that, contrary}\wen{Unlike} the proximity operator using the \dlo{${l}_{1}$}\wen{${l}_{1}$-}norm known as the soft-threshold function \citep{donoho1995noising}, which minimizes non-zero values, the proximity operator expressed in equation \ref{eq:eq11} considers the non-zero values more correctly than the soft-threshold function \citep{parekh2017improved}.
+
+\begin{Assumption}
+$\psi$ : $R \rightarrow R $ obeys the following\\
+	1. $\psi$ is continuous on R, twice differentiable on $R\backslash\left\lbrace 0\right\rbrace$ and symmetric, \dlo{e.i.,}\wen{i.e.,} $\psi\left(-B,c \right) = \psi\left(\mathbf{B},c \right)$\\
+	2. $ \psi^{'}\left(\mathbf{B},c \right)>0, \mathbf{B}>0 $\\	
+	3. $ \psi^{''}\left(\mathbf{B},c \right)\leq 0, \mathbf{B}>0 $\\	
+	4. $ \psi^{'}\left(0^{+}\right) = 1 $\\
+	5. $\inf_{\mathbf{B}\neq 0}\psi^{''}\left(\mathbf{B},c \right)= \psi^{''}\left( 0^{+};c \right)=-c$
+\end{Assumption}
+
+The performance of \dlo{both aforementioned operators}\wen{the moving average filter and the proximity operator joined with the arctangent penalty function} motivates us to combine the\wen{ir} advantages \dlo{of each}to better enhance the estimation of the matrix $\mathbf{B}$. From equation\wen{s} \ref{eq:eq8} and\dlo{equation} \ref{eq:eq9}, we can obtain a compromise between the moving-average filter and the arctangent penalty function. By combining these equations, we formulate an improved proximity operator defined as follows:
+\begin{align}
+\textrm{prox}_{\psi}(\mathbf{A};\varphi,\beta,\lambda,{b}) = \textrm{arg}\min_{\mathbf{B} \in R}\left\lbrace \frac{1}{2}\left(\mathbf{A}-\mathbf{B} \right)^2 +\omega\beta\lambda\psi\left( \mathbf{B},{b} \right)\right\rbrace\dlo{,}\new{.}
+\label{eq:eq12}
+\end{align}		
+Equation \dlo{\ref{eq:eq11}}\wen{\ref{eq:eq12}} denotes the proposed proximity operator based on the moving-average filter and the arctangent penalty function. The following parameters characterize this function: the window size $\omega$, the rational transfer function coefficient $\beta$, the threshold parameter $\lambda$ and the penalty convexity parameter ${b}$. \wen{The proposed proximity function aims to enhance the DTSVD process.}
+
+To estimate the signal matrix $\mathbf{B}$ from $\mathbf{A}$, we introduce the function defined in equation \ref{eq:eq11} into the DRR algorithm framework and \dlo{we}propose the following optimization problem:
+\begin{align}
+\textrm{arg}\min_{\mathbf{B} \in R}\left\lbrace F(\mathbf{B}):=\frac{1}{2}
+\left\|\mathbf{A} - \mathbf{B}\right\|_F^2 + \varphi_0\beta_0\lambda_0
+\sum_{i=1}^{k}\psi\left(\sigma_i\left( \mathbf{B}\right),{b_0} \right) + \varphi_1\beta_1\lambda_1\sum_{i=1}^{I}\sum_{j=1}^{J}\psi\left(\mathbf{B_{i,j}},{b_1} \right)\right\rbrace.
+\label{eq:eq13}
+\end{align}	
+Equation \ref{eq:eq13} corresponds to the optimization problem based on the proposed proximity function and the damped rank-reduction operator. Hence, the rank constraint and the damping factor are some key parameters to solve it. The term $\sigma_i\left(\mathbf{B}\right)$ denotes the singular values of the matrix $\mathbf{B}^{I \times J} $. $\psi : R \rightarrow R$ denote\wen{s} a parameterized non-convex penalty function with $k = min \left( I, J\right) $. $\lambda_i \geq 0$ correspond to the regularization parameters. ${b_i} > 0$ are the penalty convexity parameters. The window size and the rational transfer function coefficients are denoted by $\varphi_i$ and $\beta_i$, respectively.
+
+\wen{We solve \dlo{equation}the optimization problem in the following way: \dlo{first,}the proposed proximity function is directly applied to the input noisy and incomplete matrix $\mathbf{{A}}$ after the Hankelization operation (before SVD) and then, to the larger singular values of (${\Sigma^{\mathbf{A}}_1}$) during the ${R}_{\ell}$ process.}
+
+To reach the goal of this work, we set the regularization parameters $\lambda_i$ as:   
+\begin{equation}
+\lambda_0 = \delta_0\times\sqrt{\textrm{length}(\sigma_i\left( \mathbf{B}\right))}\slash{\textrm{length}(\sigma_i\left(\mathbf{B}\right))},
+\label{eq:eq14}
+\end{equation}
+\begin{equation}
+\lambda_1=\frac{\delta_1\times \left\| \textrm{max}\left(\mid \mathbf{A} \mid \right) \right\|_0 .}{\sigma \times \left(\left\| \textrm{max}\left(\mid \mathbf{A} \mid \right) \right\|_0 + \sqrt{\textrm{length}(\mathbf{A})} \right)},
+\label{eq:eq15}
+\end{equation}
+where $\left\|\cdot\right\|_0$ corresponds to the $l_0$ norm and $\sigma$ stands for the noise standard deviation in $\mathbf{A}$. $\delta_0$ and $\delta_1 \in R$ are the values used to regulate and control $\lambda_0$ and $\lambda_1$, respectively. \dlo{We solve equation \ref{eq:eq13} in the following way: first, the proposed proximity function is directly applied to the input noisy and incomplete matrix $\mathbf{{A}}$ after the Hankelization operation (before SVD) and then, to the larger singular values of (${\Sigma^{\mathbf{A}}_1}$) during the ${R}_{\ell}$ process.} 
+
+By solving equation \ref{eq:eq13}, we enhance the DRR operator to provide an improved estimated low-rank signal matrix: 	 
+\begin{equation}
+\mathbf{\tilde{B}}={R}_{e\ell}{\mathbf{{A}}}, 
+\label{eq:eq16}
+\end{equation}
+where $\mathbf{\tilde{B}}$ denotes the estimated signal matrix using the proposed algorithm. ${R}_{e\ell}$ is the enhanced damped rank-reduction operator used to solve equation \ref{eq:eq13}.
+
+The averaging function is then applied along the anti-diagonal of the estimated signal matrix $\mathbf{\tilde{B}}$:
+\begin{equation}
+\mathbf{\hat{D}}={M}\mathbf{\tilde{B}}={M}{R_{e\ell}}\mathbf{A}={M}{{R_{e\ell}}}\mathbf{{\mathcal{H}}\mathbf{D}}={F}_{e\ell}\mathbf{{D}},
+\label{eq:eq17}
+\end{equation}
+where ${M}$ and ${F}_{e\ell}$ correspond to the averaging operator and the proposed\dlo{approach} filter, respectively.
+\label{eq:eq18}
+Then, the enhanced filter ${F}_{e\ell}$ is used to update the weighted iterative algorithm based on the DRR method as follows: 
+\begin{equation}
+\mathbf{D}_i= a_{i}\mathbf{D}_o + (1 - a_{i}{L})\circ{F}_{e\ell}\mathbf{D}_{i - 1},  i = 1, 2, 3, . . . , i_{max}, 
+\end{equation}
+where $\mathbf{D}_0=\mathbf{D}_o$ corresponds to the observation matrix. The iteration scalar denoted by $a_{i}$, diminishes gradually from $a_1=1$ to $a_{i_{max}}=0$. ${L}$ corresponds to the sampling operator. Moreover, the elements of ${L}$ correspond to \dlo{$ 1 $}\wen{one} when the observation is non-zero, otherwise \dlo{$0$}\wen{zero} when missing values. $\circ$ is the Hadamard product.\dlo{utilized to multiply two matrices having the same size.}
+
+The solution for the proposed enhanced low-rank matrix estimation (ELRME) for \dlo{five-dimensional}\wen{5-D} seismic data interpolation can be outlined as follows:
+
+\begin{center}
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		$\mathbf{D}_o(f, hx, hy, x, y)\leftarrow \mathbf{D}_o(t, hx, hy, x, y)$ via 1-D forward FFT\;    
+		$\mathbf{D}_0\leftarrow\mathbf{D}_o$\;
+		\For{$f\leftarrow 1,2,\dots,{F}$}{
+			\For{$i\leftarrow 1,2,\dots,i_{max}$}{
+				$\mathbf{D}^f_i \leftarrow a_i\mathbf{D}^f_{o} + (1 - a_i){LF}_{e\ell}\mathbf{D}^f_{i-1} + (1 - {L}){F}_{e\ell}\mathbf{D}^f_{i-1}$\;
+				\If{$\left\|\mathbf{D}^f_i - \mathbf{D}^f_{i-1}\right\|_F^2\leq Tol$}{
+					\textbf{return} $\mathbf{D}^f_i$\;
+				}
+				\textbf{return} $\mathbf{D}^f_{i_{max}}$\;
+			}
+			\textbf{return} $\mathbf{D}_{restored}$\;
+		}
+		$\mathbf{D}_{restored}(t,h_{x}, h_{y}, x, y)\leftarrow \mathbf{D}_{restored}(f,h_{x}, h_{y}, x, y)$ via 1-D inverse FFT\;
+		
+		\caption{Enhanced low-rank matrix estimation (ELRME) algorithm ({${L}$}, {${F}_{e\ell}$}, {$\mathbf{D}_{o}$}, {$a_{i}$}, {$Tol$}, {$i_{max}$}, {${F}$})}
+		
+	\end{algorithm}
+\end{center} 
+
+After the completion of the given frequency band ${F}$, \dlo{the process of iteration ceases and,} the code stops running when the maximum number of iteration ({$i_{max}$}) is reached or when {$\left\|\mathbf{D}^f_i - \mathbf{D}^f_{i-1}\right\|_F^2\leq Tol$} for each ${F}$. The \wen{given} tolerance and the Frobenuis norm are denoted by $Tol$ and {$\left\|\cdot\right\|_F$}, respectively.
+
+\section{Examples}
+
+We use two \wen{highly decimated} 5-D synthetic data \wen{sets}\dlo{seriously decimated} ($80\%$ missing traces)\dlo{and} contaminated with random noise ($0.2$ as noise variance), and one 5-D field seismic data (about $75\%$ missing traces) to show the performance of our approach. The size\wen{s} of the three data matrices \dlo{is}\wen{are} given by $t\times h_{x}\times h_{y}\times x \times y$, where $ h_{x}\times h_{y}\times x \times y $ indicates the size of the four spatial dimensions of the model with $t$ time samples per trace. The first synthetic data \wen{set} includes linear events, and the second includes curved events. 
+
+
+\subsection{Synthetic data examples}
+
+The \dlo{first 5-D synthetic data matrix model is $100\times 10\times10\times10\times10$}\wen{size of the first 5-D synthetic data matrix model is $100\times 10\times10\times10\times10$}. Figures \ref{fig:synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-elrme-hxhy} and \ref{fig:synth-clean-xy,synth-noisy-xy,synth-obs-xy,synth-drr-xy,synth-elrme-xy} illustrate the effectiveness in \old{one}common midpoint and \old{one}common offset gathers, respectively. The true data \old{is}\new{are} displayed in Figures \ref{fig:synth-clean-hxhy} and \ref{fig:synth-clean-xy}. We synthetically generate noisy data by adding \old{a}\new{the} noise \old{of}\new{with} 0.2 variance \dlo{of $0.2$}to the true data. We plot the noisy data in Figures \ref{fig:synth-noisy-hxhy} and \ref{fig:synth-noisy-xy}. Then, we randomly decimate $80\%$ of traces of the noisy data to produce the noisy observation data matrix displayed in Figures \ref{fig:synth-obs-hxhy} and \ref{fig:synth-obs-xy}. Using \old{$10$}\new{ten} weighted POCS-like iterations and a band of frequencies \old{varied}\new{varying} from $0$ to $125$ Hz, we apply both algorithms to estimate the useful signal. We apply the DRR algorithm with rank ${n}=3$ and damping factor ${q}=3$. Figures \ref{fig:synth-drr-hxhy} and \ref{fig:synth-drr-xy} \old{display the results. From these figures, we find that even}\new{show that} though the results are acceptable, the coherent events are not well restored, mainly because of residual noise. Therefore, the use of the proposed algorithm becomes more necessary to enhance the quality of the estimated signal. We select the following parameters: rank ${n}=3$, damping factor ${q}=3$, windows size ${\varphi_0=\varphi_1}=1$, rational transfer function coefficients ${\beta_0}=0.971$ and ${\beta_1}=0.977$, cooling factors $\delta_0 = 3.75$ and $\delta_1 = 3.25$, penalty convexity parameters ${b_0}=25$ and ${b_1}=23$. The results using our algorithm are plotted in Figures \ref{fig:synth-elrme-hxhy} and \ref{fig:synth-elrme-xy}. Compared to that of the DRR method, our results are much better. \dlo{The signal events are cleaner and well restored.}It is visible that the ELRME algorithm can better recover the detailed features of the signal matrix than the DRR algorithm.
+
+\inputdir{synth_linear}
+\multiplot{5}{synth-clean-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-drr-hxhy,synth-elrme-hxhy}{width=0.3\textwidth}{Common midpoint 3-D figures comparison ($x$ = 5, $y$ = 5) between two algorithms after \old{10}\new{ten} iterations and frequency band from 0 to 125 Hz. (a) Original data. (b) Noisy data with $0.2$ as noise variance. (c) Observed noisy and incomplete data with $80\%$ of missing traces. (d) Simultaneously denoised and reconstructed data using the DRR approach. (e) Simultaneously denoised and reconstructed data using the proposed approach.}
+
+\inputdir{synth_linear}
+\multiplot{5}{synth-clean-xy,synth-noisy-xy,synth-obs-xy,synth-drr-xy,synth-elrme-xy}{width=0.3\textwidth}{Common offset 3-D figures comparison ($hx$ = 5, $hy$ = 5) between two algorithms after \old{10}\new{ten} iterations and frequency band from $0$ to $125$ Hz. (a) Original data. (b) Noisy data with $0.2$ as noise variance. (c) Observed noisy and incomplete data with $80\%$ of missing traces. (d) Simultaneously denoised and reconstructed data using the DRR approach. (e) Simultaneously denoised and reconstructed data using the proposed approach.}
+
+We further highlight the performance of the proposed algorithm by deducting each recovered data from the original data. Such results that correspond to the recovery error of each approach in one common midpoint and\old{one} common offset gathers are displayed in Figure \ref{fig:synth-drr-hxhy-e,synth-elrme-hxhy-e,synth-drr-xy-e,synth-elrme-xy-e}. Figures \ref{fig:synth-drr-hxhy-e} and \ref{fig:synth-drr-xy-e} are \old{from}\new{obtained by} the DRR algorithm. The recovery error using the our algorithm is displayed in Figures \ref{fig:synth-elrme-hxhy-e} and \ref{fig:synth-elrme-xy-e}. \old{From this result, it is more obvious that the proposed algorithm works better with less denoising and reconstruction error.} 
+
+\inputdir{synth_linear}
+\multiplot{4}{synth-drr-hxhy-e,synth-elrme-hxhy-e,synth-drr-xy-e,synth-elrme-xy-e}{width=0.35\textwidth}{Simultaneous denoising and reconstruction error comparison in one common midpoint ($x$ = 5, $y$ = 5) and one common offset ($hx$ = 5, $hy$ = 5) gathers after \old{10}\new{ten} iterations and frequency band from $0$ to $125$ Hz between two algorithms. (a and c) display the error using the DRR approach. (b and d) denote the error of the proposed approach.}
+
+To make a quantitative comparison, we conduct the quality evaluation first in term of SNR measurement \citep{zhang2017hybrid} defined as\new{:}
+\begin{equation}
+SNR=10\log_{10}\frac{\Vert \mathbf{X^{o}} \Vert^2_2}{\Vert \mathbf{X^{o}}-\mathbf{X^{r}}\Vert^2_2}\old{,}\new{.}
+\label{eq:eq22}
+\end{equation}
+Then, in term of normalized root square error (RSE) \citep{parekh2017improved} expressed as
+\begin{equation}
+RSE=\frac{\left\|\mathbf{X^r} - \mathbf{X^o}\right\|_\mathbf{F}}{\left\|\mathbf{X^o}\right\|_\mathbf{F}}\old{,}\new{.}
+\label{eq:eq23}
+\end{equation}
+In both cases (equations \ref{eq:eq22} and \ref{eq:eq23}), $\mathbf{X^{o}}$ and $\mathbf{X^{r}}$ are the vectorized original data and the vectorized estimated signal, respectively. The range of RSE values is from $0$ to $1$. The smaller values will show better recovery quality.
+
+\wen{Additionally, we display the simultaneous denoising and reconstruction performance of each approach by using the local similarity map \citep{chen2015random}. \old{The comparison using the local similarity}\new{This} allows us to measure the damage that each method can produce to the signal matrix. The \old{better signal}\new{improved signal estimate} is shown by the lower local similarity between the restored data and the suppressed noise.}
+
+The SNR values of the noisy data, the observed data, the recovered data via the DRR approach, and the proposed approach are $-6.68$ dB, $-2.39$ dB, $9.10$ dB and $13.57$ dB, respectively. The DRR approach and the proposed approach obtain RSE values of $0.35$ and $0.21$, respectively. From the comparison of the SNR and RSE values, we can deduce that the quality of the estimated signal matrix using our approach is better than that of the DRR approach. 
+
+We further analyze the quality of both estimated signals from another viewpoint by comparing their frequency-wavenumber spectra. Figure \ref{fig:synth-clean-hxhy-fkk,synth-noisy-hxhy-fkk,synth-obs-hxhy-fkk,synth-drr-hxhy-fkk,synth-elrme-hxhy-fkk} displays the frequency-wavenumber representations in one common midpoint gather. The detailed comparison of each sub-figure reveals that the spectrum using our approach displayed in Figure \ref{fig:synth-elrme-hxhy-fkk} is better than that of the DRR algorithm shown in Figure \ref{fig:synth-drr-hxhy-fkk}. The proposed approach can attenuate the residual noise in the whole frequency band and preserve the useful signal better than the DRR approach. The frequency analysis further confirms the best quality of the estimated low-rank matrix signal of \dlo{our}\wen{the proposed} algorithm. 
+
+\inputdir{synth_linear}
+\multiplot{5}{synth-clean-hxhy-fkk,synth-noisy-hxhy-fkk,synth-obs-hxhy-fkk,synth-drr-hxhy-fkk,synth-elrme-hxhy-fkk}{width=0.3\textwidth}{Common midpoint frequency-wavenumber spectrum comparison of each five-dimensional synthetic data ($x$ = 5, $y$ = 5) after \old{10}\new{ten} iterations in a frequency band from $ 0 $ to $ 125 $ Hz between two algorithms. (a) is from the true data. (b) is from the noisy data. (c) corresponds to the observed data. (d) plots the DRR approach result. (e) shows the spectrum of the proposed approach.}
+
+\wen{To \old{additionally}\new{further} show the difference between the two methods, we display the removed noise and the corresponding local similarity map using each approach in one common offset gather. The removed noise and the local similarity map from the DRR method are displayed in Figure\old{s} \ref{fig:synth-n-drr-hxhy} and \ref{fig:synth-simi1}, respectively. Figure\old{s} \ref{fig:synth-n-elrme-hxhy} and \ref{fig:synth-simi2} are \dlo{from}\wen{corresponding to the proposed algorithm}\dlo{the proposed approach}. Based on the comparison of the local similarity map, we find that the proposed approach can preserve the main features of the signal matrix, while the DRR algorithm can cause signal leakage. The smaller local similarity shows the better performance of the proposed approach compared with the DRR approach.} 
+
+\inputdir{synth_linear}
+\multiplot{4}{synth-n-drr-hxhy,synth-n-elrme-hxhy,synth-simi1,synth-simi2}{width=0.35\textwidth}{Comparison of simultaneous denoising and reconstruction performance. (a) Removed noise \dlo{from}\wen{corresponding to} the DRR method. (b) Removed noise \dlo{from}\wen{corresponding to} the proposed method. (c) plots the local similarity of the DRR approach. (d) is from the proposed approach.}
+
+Next, we provide another example of 5-D synthetic data containing curved events. The four spatial sizes of this synthetic data (with 101 times samples per trace) are $32\times32\times5\times5$. We compare both approaches based on the same noise level and the ratio of missing traces like \new{those} in the previous experiment. To restore the useful events, we run the DRR and the proposed methods with \old{$10$}\new{ten} weighted POCS-like iterations. We use a portion of the frequency \old{varied}\new{varying} from $0$ to $125$ Hz. We apply the DRR algorithm with ${n} = 12$ and ${q} = 3$. By using the same values of ${n}$ and ${q}$, we perform the proposed algorithm with the following parameters: ${\varphi_0 = \varphi_1} = 1$, ${\beta_0} = 0.972$ and ${\beta_1} = 0.98$, ${\delta_0} = 8.20$ and ${\delta_1} = 7.40$, ${b_0} = 3.75$ and ${b_1} = 0.50$. Figure\dlo{s} \ref{fig:hyper-clean-hxhy,hyper-obs-hxhy,hyper-drr-hxhy,hyper-elrme-hxhy}\dlo{ and \ref{fig:hyper-True-hxhy,hyper-obs-hxhy,hyper-drr-hxhy,hyper-elrme-hxhy}} displays the performance in one common midpoint gather. 
+\new{The true, the observed and the restored data using the DRR method are plotted in Figure\old{s} \ref{fig:hyper-clean-hxhy}, \ref{fig:hyper-obs-hxhy} and \ref{fig:hyper-drr-hxhy}, respectively.} 
+\old{The true data is plotted in Figure\old{s} \ref{fig:hyper-clean-hxhy}\old{and \ref{fig:hyper-True2d}}. The observed data is displayed in Figure\old{s} \ref{fig:hyper-obs-hxhy}\old{and \ref{fig:hyper-obs2d}}. The restored data using the DRR is plotted in Figure\old{s} \ref{fig:hyper-drr-hxhy}\old{and \ref{fig:hyper-drr2d}}.} From the comparison of each sub-figure, the estimated signal matrix using the DRR approach is acceptable \new{since the useful signal is well restored}. However, there is still an \old{important}\new{obvious} amount of residual noise that can severely affect some significant properties, for instance, the amplitude of the estimated signal matrix. In contrast, as demonstrated in Figure\old{s} \ref{fig:hyper-elrme-hxhy}\old{and \ref{fig:hyper-elrme2d}}, the proposed approach produces much better results. The coherent events of the reconstructed data are cleaner. The SNR values of the observed data, the restored data using the DRR, and the proposed methods are $0.58$ dB, $10.94$ dB, and $18.72$ dB, respectively. The DRR approach and the proposed approach complete the simultaneous denoising and reconstruction process with normalized RSE values of $0.28$ and $0.11$, respectively. Based on the numerical and visual analysis, the estimated signal from the proposed algorithm contains the least artifacts compared to that of the DRR.  
+
+\inputdir{synth_hyper}
+\multiplot{4}{hyper-clean-hxhy,hyper-obs-hxhy,hyper-drr-hxhy,hyper-elrme-hxhy}{width=0.35\textwidth}{Common midpoint 3-D figures comparison ($x$ = 16, $y$ = 16) between two algorithms after \old{10}\new{ten} iterations in a frequency band from $0$ to $125$ Hz. (a) True data. (b) Observed noisy and incomplete data with $0.2$ as noise variance and $80\%$ of missing traces. (c) Simultaneously denoised and reconstructed data using the DRR. (d) Simultaneously denoised and reconstructed data using the proposed approach.}
+
+Figure \ref{fig:hyper-drr-e,hyper-elrme-e} shows the \dlo{recovery}\wen{reconstruction} error using each approach. Figure\old{s} \ref{fig:hyper-drr-e}\old{ and \ref{fig:hyper-drrErrorHyper2d}} show\new{s} the \dlo{recovery}\wen{reconstruction} error of the DRR algorithm. From the least \dlo{recovery}\wen{reconstruction} error that is displayed in Figure\old{s} \ref{fig:hyper-elrme-e}\old{ and \ref{fig:hyper-elrmeerrorhyp2d}}, we find that the proposed approach can enhance the quality of the useful signal \old{with high fidelity}even though the \old{observed seismic}\new{synthetic} data \old{having}\new{with} curved events is affected by a high level of missing traces and random noise.  
+
+\inputdir{synth_hyper}
+\multiplot{2}{hyper-drr-e,hyper-elrme-e}{width=0.35\textwidth}{Simultaneous denoising and reconstruction errors comparison in common midpoint after \old{10}\new{ten} iterations and frequency band from 0 to 125 Hz between two algorithms. (a)\new{is}\old{and (c) are} from the DRR approach. (b)\new{is}\old{ and (d) are} from the proposed approach.}
+
+We then analyze the quality of each estimated signal by comparing their corresponding frequency-wavenumber spectra. The comparison for frequency range of $0 - 60$ Hz is presented in Figure \ref{fig:hyper-True-fkk,hyper-obs-fkk,hyper-drr-fkk,hyper-elrme-fkk}. Figures \ref{fig:hyper-True-fkk} and \ref{fig:hyper-obs-fkk} display the spectra of the true and\old{the} observed data, respectively. The restored data of the DRR and the proposed methods are presented in Figures \ref{fig:hyper-drr-fkk} and \ref{fig:hyper-elrme-fkk}, respectively. A quick visual analysis of each sub-figure highlights the largest difference between both methods. The spectrum using \dlo{our}\wen{the proposed} algorithm is cleaner than that of the DRR algorithm. The spectrum using the DRR algorithm reveals significant residual noise. The analysis of this result reveals that the proposed approach can drop the noise energy to a weaker level and improve the signal energy compared to the DRR algorithm. This test further shows the excellent quality of the estimated signal using \dlo{our}\wen{the proposed} algorithm.
+
+\inputdir{synth_hyper}
+\multiplot{4}{hyper-True-fkk,hyper-obs-fkk,hyper-drr-fkk,hyper-elrme-fkk}{width=0.35\textwidth}{Common midpoint frequency-wavenumber spectrum comparison of each data displayed in Figure \ref{fig:hyper-clean-hxhy,hyper-obs-hxhy,hyper-drr-hxhy,hyper-elrme-hxhy}. (a) and (b) show the frequency-wavenumber spectra of the true and the observed data, respectively. (c) and (d) show the frequency-wavenumber spectra using the DRR approach and the proposed approach, respectively.}
+
+\wen{Figures \ref{fig:hyper-n-drr-hxhy} \wen{and} \ref{fig:hyper-n-elrme-hxhy} plot the removed noise \dlo{from}\wen{corresponding to} each method. From the local similarity map displayed in Figure \ref{fig:hyper-n-drr-hxhy}, it \wen{is} clear that the DRR method can cause significant signal leakage compared to the proposed method (Figure \ref{fig:hyper-n-elrme-hxhy}). The proposed approach perfoms with lower local similarity values. This comparison shows the \old{better}\new{improved} denoising performance of the proposed approach on \new{the} data \new{with}\old{having} curved events.} 
+
+\inputdir{synth_hyper}
+\multiplot{4}{hyper-n-drr-hxhy,hyper-n-elrme-hxhy,hyper-simi1,hyper-simi2}{width=0.35\textwidth}{Comparison of simultaneous denoising and reconstruction performance. (a) Removed noise \old{from}\wen{corresponding to} the DRR method. (b) Removed noise \old{from}\wen{corresponding to} the proposed method. (c) plots the local similarity of the DRR approach. (d) is from the proposed approach.}
+
+We further conduct two types of tests to assess the recovery performance of our approach: first, SNR as a function of percentage (\%) of missing data then, SNR as a function of noise variances. For the first test, we fix the noise level at $0.2$ while ranging the missing traces from $10\%$ to $90\%$. For the second experiment, we randomly remove $80\%$ of traces, and we \old{handle}\new{implement} ten tests with noise variances ranging: 0.1, 0.2, ..., 1. Figures \ref{fig:snr_missing_traceslinear_eventsokok,snr_missing_tracesCurved_eventsokok} and \ref{fig:snr_noise_varianceslinearEventsokok,snr_noise_variancesCurvedEventsokok} show the results for the first and the second tests, respectively. Figures \ref{fig:snr_missing_traceslinear_eventsokok} and \ref{fig:snr_noise_varianceslinearEventsokok} are from the 5-D \old{data having linear events}\new{linear event data}. The SNR values of the 5-D \old{data containing curved events}\new{curved-event data} are displayed in Figures \ref{fig:snr_missing_tracesCurved_eventsokok} and \ref{fig:snr_noise_variancesCurvedEventsokok}. In each figure, the magenta and green lines denote the SNR diagrams of the DRR approach and the proposed approach, respectively. The comparison shows the superiority of the proposed \wen{approach} in different \new{noise} levels and ratios of missing traces.
+
+\inputdir{./}
+\multiplot{2}{snr_missing_traceslinear_eventsokok,snr_missing_tracesCurved_eventsokok}{width=0.45\textwidth}{Comparison of SNRs as a function of missing traces after \old{10}\new{ten} iterations between two algorithms. (a) Data containing linear events. (b) Data having curved events. In both cases, the green and magenta lines correspond to the proposed and DRR algorithms, respectively. We used a noise variance of $0.2$, and then, we varied the missing traces from $10\%$to $90\%$.}
+
+\inputdir{./}
+\multiplot{2}{snr_noise_varianceslinearEventsokok,snr_noise_variancesCurvedEventsokok}{width=0.45\textwidth}{Comparison of SNRs as a function of noise level after \old{10}\new{ten} iterations between two algorithms. (a) Data containing linear events. (b) Data having curved events. In both cases, the magenta and green lines correspond to the proposed and DRR approaches, respectively. We decimated $80\%$ of traces, and then\new{,} we varied the noise levels from 0.1, 0.2, ..., 1 to evaluate the performance of each approach.}
+
+Moreover, by ranging the iteration numbers from $5$ to $40$, we examine the performance and the efficiency of both approaches. For this experiment, we use the observed noisy and incomplete data of the first example (5-D synthetic data \old{having}\new{with} linear events corrupted by a noise variance of $0.2$ and $80\%$ of traces missing). Here, we run both algorithms for frequenc\new{y}\old{ies} band $0 - 100$ Hz. For each iteration number ($ 5 $, $ 10 $, ..., and $ 40 $), we \old{perform}\new{run} $6$ times each algorithm and, we record the computing time that corresponds to the highest SNR value. Figure \ref{fig:snr_iteration_lenearEventsokok} shows the performance of each approach. As \old{demonstrated in this test, the more the number of iterations increases, the higher are the SNR values using the proposed approach than those of the DRR approach}\new{the number of iterations increases, the SNR values using the proposed approach outperform those of the DRR approach}. Furthermore, as the number of iterations increases, the proposed approach produces relatively identical SNR values. We can, therefore, deduce that the proposed algorithm perform well with a wide range of iteration numbers. 
+
+\inputdir{./}
+\plot{snr_iteration_lenearEventsokok}{width=0.5\columnwidth}{SNR as a function of iteration numbers between both algorithms for frequency band 0-100 Hz. The \old{black and grey}\new{green and magenta} lines correspond to the proposed and DRR algorithms, respectively. We use a noise variance of $ 0.2 $, and decimated $ 80\% $ of traces.}
+
+The average \old{running time}\new{runtime} that corresponds to the most suitable combination of the parameters using each approach is displayed in Table \ref{tbl:table1}. All methods were executed in MATLAB R2017a on a Windows $10$ computer having an Intel Core i7 7th generation, and $8$ GB RAM. From the results presented in Table \ref{tbl:table1}, we find that as the iteration number increases, the computation time of both approaches becomes expensive and almost similar.
+\AtEndDocument{
+	\begin{center}
+		\begin{table}[htb!]
+			\caption{Computing time \old{(second (s))}comparison between two approaches for frequency band $0-100$ Hz. We used a noise variance of $0.2$, and decimated $80\%$ of traces.}
+			\begin{tabular}{c c c c c c} 
+				\hline Iteration numbers  & DRR (s) & & ELRME (s)&\\ 
+				\hline 5 &246.5 & &298.78&\\
+				10 &493.9 & &583.20&\\
+				15 &740.37& &797.99&\\
+				20 &1009.94& &1055.89&\\
+				25 &1219.67& &1297.78&\\
+				30 &1467.98& &1497.98&\\
+				35 &1620.16& &1695.97&\\
+				40 &1798.78& &1809.67&\\
+				\hline
+			\end{tabular} 
+			\label{tbl:table1}
+		\end{table}
+	\end{center}
+}\wen{We also analyse the efficiency of both methods regarding different data sizes\old{. We analyse the running time} after \old{10}\new{ten} iterations and a frequency band of $0-125$ Hz. As displayed in Table \ref{tbl:table2}, the computation time of both methods increases when the data size increases. \old{But,}\new{However} from the comparison of the running time, we find that the DRR approach is less expensive compared to the proposed approach.}
+\AtEndDocument{
+	\begin{center}
+		\begin{table}[h]
+			\caption{Comparison of computation time \old{(second (s))}of the DRR and the proposed ELRME approaches regarding different data sizes after \old{10}\new{ten} iterations and a frequency band of $0-125$ Hz based on an Intel Core i7 7th Gen.}
+			\begin{tabular}{c c c c c c} 
+				\hline Test &$100\times8\times8\times8\times8$
+				& $100\times9\times9\times9\times9$  & $100\times10\times10\times10\times10$ & \\ 
+				\hline \wen{DRR} (s) & 101.55 & 395.7 & 755.98\\
+				ELRME (s) & 125.97 & 456.98 & 797.78 \\
+				\hline
+			\end{tabular} 
+			\label{tbl:table2}
+		\end{table}
+	\end{center}
+}
+
+\subsection{Field data examples}
+
+The proposed ELRME algorithm is tested on a field 5-D seismic data to show its performance. The effectiveness is shown through qualitative analysis. To restore the signal matrix from the observed data missing $75\%$ of traces, we select {${n} = 6$}, {${q} = 2$}, ${\varphi_0 = \varphi_1} = 1$, ${\beta_0} = 0.90$, ${\beta_1} = 0.995$, ${\delta_0} = 12.5$, ${\delta_1} = 12$, ${b_0} = 20$ and ${b_1} = 19$ for the proposed approach, and we adopt the same value\new{s} of rank and damping factor for the DRR. We run both algorithms for frequencies from $ 0 $ to $ 125 $ Hz and $10$ weighted POCS-like iterations. Figures \ref{fig:fieldObserved-hxhy,fielddrr-hxhy,fieldelrme-hxhy} and \ref{fig:fieldObserved-xy,fielddrr-xy,fieldelrme-xy} correspond to the results in one common midpoint and offset gathers. We display the observed data in Figures \ref{fig:fieldObserved-hxhy} and \ref{fig:fieldObserved-xy}. The estimated signal using the DRR algorithm is displayed in Figures \ref{fig:fielddrr-hxhy} and \ref{fig:fielddrr-xy}. The result\new{s} obtained through the proposed method is plotted in Figures \ref{fig:fieldelrme-hxhy} and \ref{fig:fieldelrme-xy}. \old{From the comparison of each sub-figure, we find that the useful signal estimated by \dlo{our}\wen{the proposed} approach is better than that of the DRR method.} As seen in the 3-D cubes of the proposed method, all signal events are well recovered and can be identified easily. \dlo{For more details, we conduct a 2-D section comparison of each data plotted in Figure \ref{fig:12}. \dlo{Figure \ref{fig:14} shows the comparison.} Figure \ref{fig:Field-Observed-s} corresponds to the observed data. Figures \ref{fig:Field-drr-s} and \ref{fig:Field-elrme-s} are from the DRR and the proposed approaches, respectively. 
+This example further shows the better performance of our algorithm. We can, therefore, deduce that the proposed method provides better results than the DRR method.}
+
+\inputdir{./}
+\multiplot{3}{fieldObserved-hxhy,fielddrr-hxhy,fieldelrme-hxhy}{width=0.30\textwidth}{Common midpoint gather 3-D figures comparison after \old{10}\new{ten} iterations in a frequency band from 0 to 125 Hz between two algorithms. (a) show the observed data. (b and c) show the data using the DRR approach and the proposed approach, respectively.}
+
+\inputdir{./}
+\multiplot{3}{fieldObserved-xy,fielddrr-xy,fieldelrme-xy}{width=0.30\textwidth}{Common offset gather 3-D figures comparison after \old{10}\new{ten} iterations in a frequency band from 0 to 125 Hz between two algorithms. (a) \old{show the o}\new{O}bserved data. (b and c) \old{show the d}\new{D}ata using the DRR approach and the proposed approach, respectively.}
+
+\old{To explore the performance of the proposed approach, we display the 2-D figures in one common offset gather. \dlo{From Figure \ref{fig:offset_field_data_Obs} to Figure \ref{fig:Proposed_offset_field} to have}\wen{Figure\old{s} \ref{fig:offset_field_data_Obs}-\ref{fig:Proposed_offset_field} show} the observed data, the estimated signal using the DRR and the proposed methods, respectively. The comparison of each figure reveals all significant events restored by the proposed method. For more details, we plot in Figure \ref{fig:17} the zoomed section of each data shown by the green frame boxes in Figure \ref{fig:16}. Figure \ref{fig:Zoomed_offset_field_data_Obs} is from the observed noisy and incomplete data. Figures \ref{fig:Zoomed_DRR_offset_field} and \ref{fig:Zoomed_Proposed_offset_field} are from the DRR and the proposed approaches, respectively. This example further shows the better performance of the proposed algorithm even when the field data includes curved events in some sections. We can, therefore, deduce that the proposed method provides better results than the DRR method.}  
+
+Then, we conduct another analysis using the frequency-wavenumber spectrum of each result displayed in Figure \ref{fig:field-Observed-fkk,field-drr-fkk,field-elrme-fkk}. Figure \ref{fig:field-Observed-fkk} is from the observed data. Figure \ref{fig:field-drr-fkk} is from the DRR algorithm. Figure \ref{fig:field-elrme-fkk} displays the estimated signal using the proposed approach. According to these spectra comparisons, both approaches can remove the residual noise. When we consider the low-frequency band (frequency $< 70$ Hz), we \old{see}\new{can find} that the ELRME algorithm enhances the signal energy better than the DRR method. This illustration shows the high quality of the estimated low-rank signal matrix using the proposed method.
+
+\inputdir{./}
+\multiplot{3}{field-Observed-fkk,field-drr-fkk,field-elrme-fkk}{width=0.30\textwidth}{Common midpoint frequency-wavenumber spectrum comparison of each data plotted in Figure \ref{fig:fieldObserved-hxhy,fielddrr-hxhy,fieldelrme-hxhy} \old{data} after \old{$10$}\new{ten} iterations in a frequency band from $0$ to $125$ Hz between two algorithms. (a) \old{shows the f}\new{F}requency-wavenumber spectrum of the observed data. (b and c) \old{display the f}\new{F}requency-wavenumber spectra using the DRR approach and the proposed approach, respectively.}
+
+\wen{The following example shows the local similarity between different restored data sets, and the observed data. Here, we conduct this quantitative analysis regarding the observed data because we do not have the noisy field data. \old{We plot the result in Figure \ref{fig:19}.}Figure \ref{fig:field-simi1} displays the local similarity between the result from the DRR method and the observed data. Figure \ref{fig:field-simi2} displays the local similarity between the result from the proposed method, and the observed data. The local similarity shows that both approaches can \dlo{take care of the useful signal}\wen{preserve the useful signal}.}
+
+\inputdir{./}
+\multiplot{2}{field-simi1,field-simi2}{width=0.4\textwidth}{Common midpoint local similarity comparison of each restored data displayed in Figure \ref{fig:fieldObserved-xy,fielddrr-xy,fieldelrme-xy}. (a) \old{plots the l}\new{L}ocal similarity of the DRR approach. (b) \old{is from the p}\new{P}roposed ELRME approach.}
+
+\section{discussion}
+
+The quality of the estimated signal matrix provided by the DRR method depends on the DRR operator (${R}_{\ell}$). Our experience with the DRR method reveals that \new{when the noise level and the ratio of missing traces increase, the operator ${R}_{\ell}$ becomes inadequate}\old{the higher is the noise level and the ratio of missing traces, the more inadequate the operator ${R}_{\ell}$ is}, and the estimated signal matrix contains meaningful noise\old{s}. The amplitude of the useful signal could also be severely affected. To overcome this problem, we introduce a novel proximity function in the DRR approach framework to enhance the estimation of the signal matrix. The goal of \dlo{our}\wen{the proposed} approach is to restore and preserve the features of the useful signal matrix, even though the ratio of missing data and noise level increases.  
+
+From the various tests conducted on synthetic and field 5-D seismic data sets, we can obtain significant conclusions about how to set the parameters of the proposed method. The ELRME algorithm needs the specification of the rank constraint ${n}$, the damping factor ${q}$, two windows size (${\varphi_0}$ and ${\varphi_1}$), two rational transfer function coefficient (${\beta_0}$ and ${\beta_1}$), two cooling factors (${\delta_0}$ and ${\delta_1}$) to control the regularization parameters (${\lambda_0}$ and ${\lambda_1}$), and two penalties parameters (${b_0}$ and ${b_1}$). 
+
+We focus first on the parameters that the proposed proximity operator requires. The parameter $\varphi_i$ \wen{should be}\dlo{is} a positive integer $(\varphi_i>0)$. \wen{To see its influence \old{in}\new{on} the proposed algorithm, we set ${n}=3$, ${q}=3$, ${\beta_0}=0.971$ and ${\beta_1}=0.977$, $\delta_0 = 3.75$ and $\delta_1 = 3.25$, ${b_0}=25$ and ${b_1}=23$\old{ by trial}, and we vary the value of $\varphi_i$ from $1$ to $5$ when estimating the low-rank signal matrix of the first synthetic data example. Figure \ref{fig:WindowsSizeφi} shows the SNRs diagram with different values of ${\varphi_i}$. We find that all values of ${\varphi_i}$ selected above $1$ weaken the \new{performance of the }proposed operator}\dlo{This parameter}\old{$\varphi_i$ produces some signal damages of data when it is greater than $1$}. To achieve the best quality of the result, we propose to set \old{$\varphi_0$ and $\varphi_1$ equal to $1$}\new{${\varphi_0}={\varphi_1}=1$} for any noisy and incomplete data to be estimated. \wen{In the same perspective, we keep the values of parameters mentioned including ${\varphi_0}={\varphi_1}=1$, and we show the strength of both ${\beta_0}$ and ${\beta_1}$ in Figure \ref{fig:RationalTransfertFunctionCoefficientbeta0and1}. From $0.900$ to $0.970$, ${\beta_0}$ helps to produce better results compared with ${\beta_1}$. In contrast, ${\beta_1}$ becomes better than ${\beta_0}$ from $0.980$ to $1$. Both parameters yield the same values of SNR around ${\beta_i = 0.974}$. But this value is not the best trade-off to achieve the performance of the proposed approach. Therefore, we need to adjust ${\beta_0}$ and ${\beta_1}$ around $0.970$ and $0.980$, respectively. After some trials we adopted ${\beta_0 = 0.971}$ and ${\beta_1 = 0.977}$ to estimate the signal matrix.} Usually, when $\beta_i$ is large, the smoothing level degrades the significant feature of the useful signal. If $\beta_i$ is too small, it generates extra noise in the data. Therefore, we usually choose $\beta_i \in \left[0, 1\right]$. As a general rule, $\beta_0$ should always be less than or equal to $\beta_1$ ($\beta_0 \leq \beta_1$) whatever the data to be restored is. \wen{Also}, as the iteration numbers and the noise levels increase, we should set $\beta_i$ by increasing gradually the values towards $1$. However, when the percentage of missing traces becomes high (from $10\% $ to $90\%$), we should select $\beta_i$ progressively from $1$ to $0$. The couples of parameters ($\varphi_0$, $\beta_0$) and ($\varphi_1$, $\beta_1$) are used to filter out the unwanted values that the singular values contain and the elements of the matrix to be estimated, respectively. \wen{This guideline is also verified for data \old{including}\new{with} curved events and/or complex structures like almost all field seismic data}. Then, we set the regularization parameters $\lambda_i$ as we proposed in the theory section. We use the regulating parameters called cooling factor $\delta_i$ to adjust $\lambda_i$. When the ratio of missing traces increases, the values of $\delta_i$ should decrease gradually. In contrast, when the noise level increases (from $0.1$ to $1$), the values of $\delta_i$ should increase gradually. The cooling factors $\delta_i$ provide us some flexibility to control the estimation of the low-rank matrix. The proposed regularization parameters $\lambda_i$ allow\old{s} exploiting sparsity along all dimensions of multidimensional seismic data. \wen{Figure \ref{fig:CoolingfactorsSigma0and1} shows the contribution of $\delta_0$ and $\delta_1$ in obtaining the result of the proposed strategy. As shown, from $0$ to $4$, the parameter $\delta_0$ (magenta line) aids at producing almost the same SNRs value. Its SNRs diagram seems to be invariable compared to that of $\delta_1$ (green line), which becomes stable from $20$ to $25$. Here,} to achieve a best trade-off with other parameters, we propose to set $\delta_0 \geq \delta_1$. \wen{Therefore, we have selected $\delta_0 = 3.75$ and $\delta_1 = 3.25$ when estimating the low-rank signal matrix having linear events. Relatively small values of $\delta_i$ can be selected for data, including curved events or complex structures.} Besides, the penalty convexity parameters $b_i$ should be greater than zero (${b_i} > 0 $). \wen{For this parameter, we analyze the simultaneous denoising and reconstruction quality of the ELRME algorithm by keeping all other parameters, while varying ${b_0}$ and ${b_1}$ from $1, 2, 3,..,$ to $25$. From Figure \ref{fig:PenaltyConvexityParametersb0b1}, the best values of both parameters can be selected around $23$. But we suggest setting ${b_0}\geq {b_1}$ for obtaining the best trad-off with the other parameters. Here, we selected ${b_0}=25$ and ${b_1}=23$ to recover the signal matrix. This analysis reveals that larger values of ${b_i}$ can be adopted for the restoration of data, including linear events. In contrast, in case of data including curved events, smaller values are demanded}. Note that, if ${b_i}$ is too small (${b_i} < 1e^{-10}$), there is no advantage in applying the arctangent penalty function, and the result is almost the same as applying the soft-thresholding function. It is important to know that when $\delta_i$ and ${b_i}$ are very large, it may degrade the amplitude of the estimated signal. ${b_0}$ and ${b_1}$ affect the sparsity of the singular values, and the elements of the noisy matrix, respectively. The rank ${n}$ needs to be set according to the number of different dip components, \old{with}\new{for} data \old{having}\new{with} linear events. For data containing curved events, ${n}$ needs to be relatively higher than the number of different dip components \citep{oropeza2010randomized}. \wen{Figure \ref{fig:rankn} highlights the effects of ${n}$ in our results for different input values. We adopted ${n}=3$ because of the best quality of the results. The 5D synthetic data used in this paper includes $3$ linear events. Thus, ${n} = 3$ confirms the linear events assumption. We display the influence of the damping factor for different values in Figure \ref{fig:dampingFactorq}. From this figure, we find that the damping operator of the proposed approach loses its ability when the parameter ${q}$ is very large. \old{The damping operator used in the DRR algorithm and that of the new algorithm behave, therefore, in the same way.} Based on this remark, ${q}$ should be chosen in the interval of ${q} \in \left[2, 3\right]$ for 5-D synthetic data and field data sets having linear or curved events as suggested in \cite{chen2016open} and \cite{chen2016simultaneous}}. 
+
+\new{How to select the parameters is generally true for all types (linear, curved, and complex events) of data as explained above. We have illustrated the selection of the parameters by using the examples conducted in the paper}. An adequate combination of the parameters described above leads to the construction of the novel improved rank-reduction operator (${R}_{e\ell}$) that aims to estimate the signal matrix properly. The new operator can deal with the residual noise and preserve the features of the useful signal in a large frequency band effectively. The proposed proximity function can successfully address the shortcomings of the DRR operator (${R}_{\ell}$). 
+
+\wen{The ELRME method mixes the DRR method and the new proximity function for the restoration of the useful signal. It is, therefore, SVD-based because of the DRR operator (${R}_{\ell}$). Thus, we can understand that the main running time of the proposed approach is the singular values decomposition of the level-4 block Hankel matrix. As shown in Table \ref{tbl:table1}, the computation time of the proposed approach is slightly higher than that of the DRR approach for different value\old{s} of iteration numbers. The difference in terms of computation cost can be justified because the ELRME operator (${R}_{e\ell}$) applies the proximity function first, to the level-4 block Hankel matrix, and then to the singular values just after SVD. We find that such a process can be a little more expensive compared with the damped RR process.}
+
+\inputdir{./}
+\multiplot{6}{rankn,dampingFactorq,WindowsSizeφi,RationalTransfertFunctionCoefficientbeta0and1,CoolingfactorsSigma0and1,PenaltyConvexityParametersb0b1}{width=0.3\textwidth}{Weight of each parameter. (a) rank constraint (n). (b) Damping factor (q). (c) Windows size ($\varphi_i$). (d) Rational transfert function coefficient ($\beta_i$). (e) Cooling factor ($\delta_i$). (f) Penalty convexity parameters ${b_i}$.}
+
+
+\section{conclusions}
+
+By introducing the proximity operator into the DRR framework, we develop a new simultaneous 5-D denoising and reconstruction method, which is called enhanced low-rank matrix estimation (ELRME) method. We focus on the problem of computing a signal matrix from its noisy and incomplete observation. The ELRME algorithm uses an improved rank-reduction operator to further eliminate the random noise and reconstruct the missing traces. We use many examples of synthetic and real 5-D seismic data to demonstrate the performance of the new method. As demonstrated \old{from}\new{by} the detailed examples, the proposed algorithm performs better than the DRR approach. The ELRME algorithm can solve the multidimensional seismic data recovery problem even in the situation of very high noise levels and large ratios of missing traces.	
+
+%\section{DATA AVAILABILITY STATEMENT}
+%All datasets and source codes associated with this research will be made available online (www.ahay.org) as a reproducible article.
+
+%\section{acknowledgments}
+
+%	The authors would like to thank Hang Wang for constructive
+%	comments and suggestions, which have helped to improve this manuscript. The authors also thank Min Bai, Dong Zhang, Mi Zhang, Weilin Huang, and Yatong Zhou for fruitful discussions on the rank-reduction method.
+		
+\bibliographystyle{seg}
+\bibliography{elrme}
+
+
+\newpage
+\listoftables
+
+\newpage
+\listoffigures 
