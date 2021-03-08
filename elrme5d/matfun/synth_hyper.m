@@ -23,7 +23,7 @@ function synth_hyper(clean,noisy,obs,drr,rdrr)
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
 %% load data
 
-load hyper5dcyk.mat
+load yc_hyper5d.mat
 d=hyper5d;d=d/max(max(max(max(max(d)))));
 [nt,nhx,nhy,nx,ny]=size(d);
 
