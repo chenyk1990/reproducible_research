@@ -4,7 +4,8 @@
 %
 % References
 % Huang, G., M. Bai, Q. Zhao, W. Chen, and Y. Chen, 2021, Erratic noise suppression using iterative structure-oriented space-varying median filtering with sparsity constraint, Geophysical Prospecting, 69, 101-121.
-% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2019, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 216, 1214?1232.
+% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2020, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 222, 1805Ð1823.
+% Zhao, Q., Q. Du, X. Gong, and Y. Chen, 2018, Signal-preserving erratic noise attenuation via iterative robust sparsity-promoting filter, IEEE Transactions on Geoscience and Remote Sensing, 56, 1558-0644.
 
 clc;clear;close all;
 
