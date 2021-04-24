@@ -1,0 +1,167 @@
+from rsf.proj import *
+from rsf.prog import RSFROOT
+
+def Grey3(data,other):
+	Result(data,
+       '''
+       byte gainpanel=all clip=2000|
+       grey3 title="Seismic data" frame1=27 frame2=125 frame3=100
+       flat=y point1=0.25  %s
+       ''' %other)
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.5 title=
+       screenratio=1.0 color=g wherexlabel=b wheretitle=t %s'''%other)
+
+#C-ordered 3D array, little-endian signed 16-bit int
+#NX: 250
+#NY: 200
+#NZ: 55
+#Inline min: 1207.0
+#Inline max: 1456.0
+#Crossline min: 1253.0
+#Crossline max: 1452.0
+#Time min: 116.0 ms
+#Time max: 2092.0 ms
+#Sample rate: 4.0 milliseconds
+
+Fetch('penobscot_subset.bin','data',
+      server='https://github.com',
+      top='seg/tutorials-2015/raw/master/1512_Semblance_coherence_and_discontinuity')
+
+Flow('penobscot','penobscot_subset.bin',
+     '''
+     echo in=$SOURCE n1=55 n2=200 n3=250
+     o1=0.116 d1=0.004 unit1=s label1=Time
+     o2=1253 d2=1 label2=Crossline
+     o3=1207 d3=1 label3=Inline
+     data_format=native_short |
+     dd type=float | transp plane=23
+     ''',stdin=0)
+Flow('p','penobscot','cp')
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Peno'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=3
+niter=12
+nniter=10
+K=64
+ll1=6
+ll2=4
+ll3=4
+ss1=2
+ss2=2
+ss3=2
+perc=4
+
+put='n1=55 d1=0.004 o1=0.116 n2=250 d2=1 o2=1207 n3=200 d3=1 o3=1253'
+############################################################
+## with parameter
+############################################################
+
+Flow(['p-sgrdl-0','p-mf-0','p-dl-0','p-drr-0'],[os.path.join(matROOT,matfun+'.m'),'p'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}');quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+
+## Load data
+Flow('p-sgrdl','p-sgrdl-0','put %s'%put)
+Flow('p-mf','p-mf-0','put %s'%put)
+Flow('p-dl','p-dl-0','put %s'%put)
+Flow('p-drr','p-drr-0','put %s'%put)
+
+Grey3('p','')
+Grey3('p-sgrdl','title=SGRDL')
+Grey3('p-mf','title="MF"')
+Grey3('p-dl','title="DL"')
+Grey3('p-drr','title="DRR"')
+
+
+Flow('p-sgrdl-n','p p-sgrdl','add scale=1,-1 ${SOURCES[1]}')
+Flow('p-mf-n','p p-mf','add scale=1,-1 ${SOURCES[1]}')
+Flow('p-dl-n','p p-dl','add scale=1,-1 ${SOURCES[1]}')
+Flow('p-drr-n','p p-drr','add scale=1,-1 ${SOURCES[1]}')
+
+Grey3('p-sgrdl-n','title=SGRDL')
+Grey3('p-mf-n','title="MF"')
+Grey3('p-dl-n','title="DL"')
+Grey3('p-drr-n','title="DRR"')
+
+Plot('labela',None,
+	'''
+	box x0=4.2 y0=7.1 label="Footprint noise" xt=0.5 yt=0.5 length=2 
+	''')
+Plot('labelaa',None,
+	'''
+	box x0=5.2 y0=7.1 label="" xt=0.5 yt=0.5 length=2 
+	''')
+		
+Plot('labelb',None,
+	'''
+	box x0=3.3 y0=5.6 label="" xt=0.5 yt=0.5 length=2 
+	''')
+Plot('labelc',None,
+	'''
+	box x0=5.8 y0=5.8 label="Too many signals" xt=-0.5 yt=0.5 length=2 
+	''')
+	
+
+Plot('labelbb',None,
+	'''
+	box x0=3.4 y0=6.3 label="Discontinuous" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('labelcc',None,
+	'''
+	box x0=5.6 y0=4.3 label="Discontinuous" xt=-0.5 yt=0.5 length=1 
+	''')
+# Result('p-sgrdl-n-0','Fig/p-sgrdl-n.vpl','Overlay')
+Result('p-drr-n-0','Fig/p-drr-n.vpl labelb labelc','Overlay')
+Result('p-mf-n-0','Fig/p-mf-n.vpl labelbb labelcc','Overlay')
+Result('p-dl-0','Fig/p-dl.vpl labelaa labela ','Overlay')
+
+
+
+
+
+
+Flow('p-t','p','window n1=1 f1=27 min1=13210 max2=1400')
+Flow('p-sgrdl-t','p-sgrdl','window n1=1 f1=27 min1=13210 max2=1400')
+Flow('p-mf-t','p-mf','window n1=1 f1=27 min1=13210 max2=1400')
+Flow('p-dl-t','p-dl','window n1=1 f1=27 min1=13210 max2=1400')
+Flow('p-drr-t','p-drr','window n1=1 f1=27 min1=13210 max2=1400')
+
+Flow('p-sgrdl-n-t','p-t p-sgrdl-t','add scale=1,-1 ${SOURCES[1]}')
+Flow('p-mf-n-t','p-t p-mf-t','add scale=1,-1 ${SOURCES[1]}')
+Flow('p-dl-n-t','p-t p-dl-t','add scale=1,-1 ${SOURCES[1]}')
+Flow('p-drr-n-t','p-t p-drr-t','add scale=1,-1 ${SOURCES[1]}')
+
+
+Grey('p-t','title=Noisy screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+Grey('p-sgrdl-t','title=SGRDL screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+Grey('p-mf-t','title="MF" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000 ')
+Grey('p-dl-t','title="DL" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+Grey('p-drr-t','title="DRR" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+
+Grey('p-sgrdl-n-t','title=SGRDL screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+Grey('p-mf-n-t','title="MF" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000 ')
+Grey('p-dl-n-t','title="DL" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+Grey('p-drr-n-t','title="DRR" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=4000')
+
+
+
+
+
+End()

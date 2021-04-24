@@ -1,0 +1,297 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+from math import pi
+      
+def Grey3(data,other):
+	Result(data,
+       '''
+       byte clip=0.3 |
+       grey3 flat=n frame1=40 frame2=17 frame3=6 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.6 color=g %s'''%other)
+
+def Grey3s(data,other,clip):
+	Result(data,
+       '''
+       byte clip=%g  gainpanel=all  bar=bar.rsf|
+       grey3 flat=n frame1=40 frame2=15 frame3=6 
+       point1=0.8 point2=0.8 label2=X label3=Y label1="Time" unit1=s title=
+       screenratio=1.4 color=j scalebar=y maxval=1 minval=0 %s'''%(clip,other))
+       
+def Grey(data,other):
+	Result(data,
+       '''
+       grey label2=Trace label1="Time" unit1=s clip=0.5 title=
+       screenratio=1.4 color=g wherexlabel=b wheretitle=t %s'''%other)
+
+# def Grey(data,other):
+# 	Result(data,
+#        '''
+#        wiggle poly=y transp=y yreverse=y label2=Trace label1="Time" unit1=s clip=0.4 title=
+#        screenratio=1.4 color=g %s'''%other)
+
+def Graph(data,other):
+	Result(data,'graph label1="Time" label2="Amplitude" unit2= unit1="s" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t screenratio=0.5 %s' %other)
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Synth'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=3
+niter=12
+nniter=10
+K=64
+ll1=6
+ll2=4
+ll3=4
+ss1=2
+ss2=2
+ss3=2
+perc=4
+
+put='n1=300 d1=0.004 o1=0 n2=40 d2=1 o2=1 n3=40 d3=1 o3=1'
+############################################################
+## with parameter
+############################################################
+
+Flow(['syn-c-0','syn-nft-0','syn-n-0','syn-sgrdl-0','syn-mf-0','syn-dl-0','syn-drr-0'],[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}','${TARGETS[6]}');quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+
+## Load data
+Flow('syn-c','syn-c-0','put %s'%put)
+Flow('syn-nft','syn-nft-0','put %s'%put)
+Flow('syn-n','syn-n-0','put %s'%put)
+Flow('syn-sgrdl','syn-sgrdl-0','put %s'%put)
+Flow('syn-mf','syn-mf-0','put %s'%put)
+Flow('syn-dl','syn-dl-0','put %s'%put)
+Flow('syn-drr','syn-drr-0','put %s'%put)
+
+Grey3('syn-c','title=Clean')
+Grey3('syn-nft','title="Footprint noise"')
+Grey3('syn-n','title=Noisy')
+Grey3('syn-sgrdl','title=SGRDL')
+Grey3('syn-mf','title="MF"')
+Grey3('syn-dl','title="DL"')
+Grey3('syn-drr','title="DRR"')
+
+Plot('label1',None,
+	'''
+	box x0=2 y0=4.8 label="Footprint" xt=0.5 yt=0.5 length=2 
+	''')
+
+Plot('label11',None,
+	'''
+	box x0=2 y0=5.8 label="Signal" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label22',None,
+	'''
+	box x0=3 y0=5.3 label="Signal" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label33',None,
+	'''
+	box x0=4 y0=4.8 label="Signal" xt=0.5 yt=0.5 length=1 
+	''')	
+Result('syn-sgrdl-n-0','Fig/syn-sgrdl-n.vpl label1','Overlay')
+Result('syn-mf-n-0','Fig/syn-mf-n.vpl label11 label22 label33','Overlay')
+
+Plot('label111',None,
+	'''
+	box x0=2 y0=6.2 label="Weaker" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label222',None,
+	'''
+	box x0=3 y0=5.7 label="Weaker" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label333',None,
+	'''
+	box x0=4 y0=5.2 label="Weaker" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label1111',None,
+	'''
+	box x0=2 y0=6.2 label="Stronger" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label2222',None,
+	'''
+	box x0=3 y0=5.7 label="Stronger" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label3333',None,
+	'''
+	box x0=4 y0=5.2 label="Stronger" xt=0.5 yt=0.5 length=1 
+	''')
+Result('syn-sgrdl-0','Fig/syn-sgrdl.vpl label1111 label2222 label3333','Overlay')
+Result('syn-mf-0','Fig/syn-mf.vpl label111 label222 label333','Overlay')
+
+	
+	
+Flow('syn-nrand','syn-n syn-nft syn-c','add scale=1,-1,-1 ${SOURCES[1]} ${SOURCES[2]}')
+Flow('syn-sgrdl-n','syn-n syn-sgrdl','add scale=1,-1 ${SOURCES[1]}')
+Flow('syn-mf-n','syn-n syn-mf','add scale=1,-1 ${SOURCES[1]}')
+Flow('syn-dl-n','syn-n syn-dl','add scale=1,-1 ${SOURCES[1]}')
+Flow('syn-drr-n','syn-n syn-drr','add scale=1,-1 ${SOURCES[1]}')
+
+Grey3('syn-nrand','title="Random noise"')
+Grey3('syn-sgrdl-n','title=SGRDL')
+Grey3('syn-mf-n','title="MF"')
+Grey3('syn-dl-n','title="DL"')
+Grey3('syn-drr-n','title="DRR"')
+
+# Xline=4
+Flow('syn-s-c','syn-c','window n3=1 f3=20')
+Flow('syn-s-n','syn-n','window n3=1 f3=20')
+Flow('syn-s-sgrdl','syn-sgrdl','window n3=1 f3=20')
+Flow('syn-s-mf','syn-mf','window n3=1 f3=20')
+Flow('syn-s-dl','syn-dl','window n3=1 f3=20')
+Flow('syn-s-drr','syn-drr','window n3=1 f3=20')
+
+Flow('syn-s-sgrdl-n','syn-sgrdl-n','window n3=1 f3=20')
+Flow('syn-s-mf-n','syn-mf-n','window n3=1 f3=20')
+Flow('syn-s-dl-n','syn-dl-n','window n3=1 f3=20')
+Flow('syn-s-drr-n','syn-drr-n','window n3=1 f3=20')
+
+# Inline=4
+Flow('syn-s-c-i','syn-c','window n2=1 f2=20')
+Flow('syn-s-n-i','syn-n','window n2=1 f2=20')
+Flow('syn-s-sgrdl-i','syn-sgrdl','window n2=1 f2=20')
+Flow('syn-s-mf-i','syn-mf','window n2=1 f2=20')
+Flow('syn-s-dl-i','syn-dl','window n2=1 f2=20')
+Flow('syn-s-drr-i','syn-drr','window n2=1 f2=20')
+
+Grey('syn-s-c','title=Clean')
+Grey('syn-s-n','title=Noisy')
+Grey('syn-s-sgrdl','title=SGRDL')
+Grey('syn-s-mf','title="MF"')
+Grey('syn-s-dl','title="DL"')
+Grey('syn-s-drr','title="DRR"')
+Grey('syn-s-sgrdl-n','title=SGRDL')
+Grey('syn-s-mf-n','title="MF"')
+Grey('syn-s-dl-n','title="DL"')
+Grey('syn-s-drr-n','title="DRR"')
+
+Grey('syn-s-c-i','title=Clean')
+Grey('syn-s-n-i','title=Noisy')
+Grey('syn-s-sgrdl-i','title=SGRDL')
+Grey('syn-s-mf-i','title="MF"')
+Grey('syn-s-dl-i','title="DL"')
+Grey('syn-s-drr-i','title="DRR"')
+
+
+
+Plot('labela',None,
+	'''
+	box x0=2 y0=7.0 label="Weaker" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('labelb',None,
+	'''
+	box x0=3 y0=6.5 label="Weaker" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('labelc',None,
+	'''
+	box x0=4 y0=6.0 label="Weaker" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('labelaa',None,
+	'''
+	box x0=2 y0=7.0 label="Stronger" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('labelbb',None,
+	'''
+	box x0=3 y0=6.5 label="Stronger" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('labelcc',None,
+	'''
+	box x0=4 y0=6.0 label="Stronger" xt=0.5 yt=0.5 length=1 
+	''')
+Result('syn-s-sgrdl-0','Fig/syn-s-sgrdl.vpl labelaa labelbb labelcc','Overlay')
+Result('syn-s-mf-0','Fig/syn-s-mf.vpl labela labelb labelc','Overlay')
+
+
+Plot('label3a',None,
+	'''
+	box x0=2 y0=6.6 label="Signal" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label3b',None,
+	'''
+	box x0=3 y0=6.1 label="Signal" xt=0.5 yt=0.5 length=1 
+	''')
+Plot('label3c',None,
+	'''
+	box x0=4 y0=5.6 label="Signal" xt=0.5 yt=0.5 length=1 
+	''')
+Result('syn-s-mf-n-0','Fig/syn-s-mf-n.vpl label3a label3b label3c','Overlay')
+
+
+
+Flow('syn-c-t','syn-c','window n1=1 f1=200')
+Flow('syn-n-t','syn-n','window n1=1 f1=200')
+Flow('syn-sgrdl-t','syn-sgrdl','window n1=1 f1=200')
+Flow('syn-mf-t','syn-mf','window n1=1 f1=200')
+Flow('syn-dl-t','syn-dl','window n1=1 f1=200')
+Flow('syn-drr-t','syn-drr','window n1=1 f1=200')
+
+Grey('syn-c-t','title=Clean screenratio=1 unit1= unit2= label1="X" label2="Y" clip=0.3')
+Grey('syn-n-t','title=Noisy screenratio=1 unit1= unit2= label1="X" label2="Y" clip=0.3')
+Grey('syn-sgrdl-t','title=SGRDL screenratio=1 unit1= unit2= label1="X" label2="Y" clip=0.3')
+Grey('syn-mf-t','title="MF" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=0.3 ')
+Grey('syn-dl-t','title="DL" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=0.3')
+Grey('syn-drr-t','title="DRR" screenratio=1 unit1= unit2= label1="X" label2="Y" clip=0.3')
+
+
+
+Flow('syn-n-s','syn-c syn-n','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('syn-sgrdl-s','syn-c syn-sgrdl','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('syn-mf-s','syn-c syn-mf','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('syn-dl-s','syn-c syn-dl','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+Flow('syn-drr-s','syn-c syn-drr','similarity other=${SOURCES[1]} rect1=3 rect2=1 rect3=1')
+
+Grey3s('syn-n-s','title=Noisy',1.0)
+Grey3s('syn-sgrdl-s','title=SGRDL',1.0)
+Grey3s('syn-mf-s','title=MF',1.0) 
+Grey3s('syn-dl-s','title=DL',1.0) 
+Grey3s('syn-drr-s','title=DRR',1.0) 
+
+
+
+
+Flow('syn-ss','syn-c syn-n syn-sgrdl syn-mf syn-dl syn-drr','cat axis=4 ${SOURCES[1:6]} | window n3=1 f3=4 | window n2=1 f2=10')
+Graph('syn-ss','plotfat=10 plotcol="7,3,5,4,6,2" max2=0.5 min2=-0.35 min1=0 max1=1.2')
+
+#black: clean
+#green: noisy
+#red:   SGRDL
+#magenta: MF
+#blue:  DL
+#cyan:  DRR.
+
+x=0
+y=-0.35
+w=0.25
+w1=0.85
+
+Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame','frame.asc',
+	'''
+	dd type=complex form=native |
+	graph max2=0.5 min2=-0.35 min1=0 max1=1.2 pad=n plotfat=15 plotcol=1 screenratio=0.5 wantaxis=n wanttitle=n yreverse=n 
+	''')
+	
+Result('syn-ss-0','Fig/syn-ss.vpl frame','Overlay')
+
+
+Flow('syn-ss-z','syn-c syn-n syn-sgrdl syn-mf syn-dl syn-drr','cat axis=4 ${SOURCES[1:6]} | window n3=1 f3=4 | window n2=1 f2=10 | window min1=%g max1=%g' %(x,x+w))
+Graph('syn-ss-z','plotfat=10 plotcol="7,3,5,4,6,2" max2=0.05 min2=-0.2')
+
+
+
+
+End()
