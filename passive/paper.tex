@@ -14,40 +14,40 @@ source-location imaging}
 \ms{SRL-2021} %\ms{GJI-2019}
 
 \address{
-%\footnotemark[1]
-%School of Earth Sciences\\
-%Zhejiang University\\
-%Hangzhou, Zhejiang Province, China, 310027\\
-%chenyk2016@gmail.com\\
-%%yangkang.chen@zju.edu.cn \\
-%\footnotemark[2]
-%ENSN Lab \\
-%Seismology Department \\
-%National Research Institute of Astronomy and Geophysics (NRIAG)\\
-%Helwan 11731, Egypt\\
-%engomar91@ gmail.com\\
-%\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
-%Yangtze University\\
-%Daxue Road No.111\\
-%Caidian District\\
-%Wuhan, China, 430100 \\
-%\footnotemark[4]
-%College of Geology and Environment\\
-%Xi’an University of Science and Technology\\
-%Xi’an, Shaanxi Province, China, 710054 \\
-%lwxwyh506673@126.com\\
-%\footnotemark[5]Bureau of Economic Geology \\
-%John A. and Katherine G. Jackson School of Geosciences \\
-%The University of Texas at Austin \\
-%University Station, Box X \\
-%Austin, TX 78713-8924 \\
-%sergey.fomel@beg.utexas.edu\\
+\footnotemark[1]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+chenyk2016@gmail.com\\
+%yangkang.chen@zju.edu.cn \\
+\footnotemark[2]
+ENSN Lab \\
+Seismology Department \\
+National Research Institute of Astronomy and Geophysics (NRIAG)\\
+Helwan 11731, Egypt\\
+engomar91@ gmail.com\\
+\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+Yangtze University\\
+Daxue Road No.111\\
+Caidian District\\
+Wuhan, China, 430100 \\
+\footnotemark[4]
+College of Geology and Environment\\
+Xi’an University of Science and Technology\\
+Xi’an, Shaanxi Province, China, 710054 \\
+lwxwyh506673@126.com\\
+\footnotemark[5]Bureau of Economic Geology \\
+John A. and Katherine G. Jackson School of Geosciences \\
+The University of Texas at Austin \\
+University Station, Box X \\
+Austin, TX 78713-8924 \\
+sergey.fomel@beg.utexas.edu\\
 Corresponding Author: Yangkang Chen (chenyk2016@gmail.com) 
 }
 
 %\lefthead{Liu et al.}
-\righthead{3D passive imaging\\
-Declaration of Competing Interests: The authors acknowledge there are no conflicts of interest recorded.}
+%\righthead{3D passive imaging\\
+%Declaration of Competing Interests: The authors acknowledge there are no conflicts of interest recorded.}
 
 \begin{abstract}
 Microseismic source-location imaging is important for inferring the dynamic status of reservoirs during hydraulic fracturing. The accuracy and resolution of the located microseismic sources are closely related to the imaging technique. We present an open-source program for high-fidelity and high-resolution 3D microseismic source-location imaging. The presented code is compact in the sense that all required subroutines are included in one single C program, based on which the seismic wavefields can be propagated either forward during a synthetic test, or backward during a real time-reversal imaging process. The compact C program is accompanied by a python script known as the SConstruct file in the Madagascar open-source platform to compile and run the C program. The velocity model and recorded microseismic data can be input using the python script. \wen{This compact program is useful for educational purposes and for future algorithm development.} We introduce the basics of the imaging method used in the presented package and present one representative synthetic example and a field data example. The results show that the presented program can be reliably used to locate source locations using a passive seismic dataset.
@@ -255,37 +255,37 @@ The research is supported by the starting funds from Zhejiang University. We tha
 \bibliographystyle{seg}
 \bibliography{micro}
 
-\clearpage
-Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[1]\footnotemark[2], Min Bai\footnotemark[3],  Xingye Liu\footnotemark[4], Sergey Fomel\footnotemark[5]  \\
-\footnotemark[1]
-School of Earth Sciences\\
-Zhejiang University\\
-Hangzhou, Zhejiang Province, China, 310027\\
-chenyk2016@gmail.com\\
-%yangkang.chen@zju.edu.cn \\
-\footnotemark[2]
-ENSN Lab \\
-Seismology Department \\
-National Research Institute of Astronomy and Geophysics (NRIAG)\\
-Helwan 11731, Egypt\\
-engomar91@ gmail.com\\
-\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
-Yangtze University\\
-Daxue Road No.111\\
-Caidian District\\
-Wuhan, China, 430100 \\
-\footnotemark[4]
-College of Geology and Environment\\
-Xi’an University of Science and Technology\\
-Xi’an, Shaanxi Province, China, 710054 \\
-lwxwyh506673@126.com\\
-\footnotemark[5]Bureau of Economic Geology \\
-John A. and Katherine G. Jackson School of Geosciences \\
-The University of Texas at Austin \\
-University Station, Box X \\
-Austin, TX 78713-8924 \\
-sergey.fomel@beg.utexas.edu\\
-
+%\clearpage
+%Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[1]\footnotemark[2], Min Bai\footnotemark[3],  Xingye Liu\footnotemark[4], Sergey Fomel\footnotemark[5]  \\
+%\footnotemark[1]
+%School of Earth Sciences\\
+%Zhejiang University\\
+%Hangzhou, Zhejiang Province, China, 310027\\
+%chenyk2016@gmail.com\\
+%%yangkang.chen@zju.edu.cn \\
+%\footnotemark[2]
+%ENSN Lab \\
+%Seismology Department \\
+%National Research Institute of Astronomy and Geophysics (NRIAG)\\
+%Helwan 11731, Egypt\\
+%engomar91@ gmail.com\\
+%\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+%Yangtze University\\
+%Daxue Road No.111\\
+%Caidian District\\
+%Wuhan, China, 430100 \\
+%\footnotemark[4]
+%College of Geology and Environment\\
+%Xi’an University of Science and Technology\\
+%Xi’an, Shaanxi Province, China, 710054 \\
+%lwxwyh506673@126.com\\
+%\footnotemark[5]Bureau of Economic Geology \\
+%John A. and Katherine G. Jackson School of Geosciences \\
+%The University of Texas at Austin \\
+%University Station, Box X \\
+%Austin, TX 78713-8924 \\
+%sergey.fomel@beg.utexas.edu\\
+%
 
 %\AtEndDocument{}
 
