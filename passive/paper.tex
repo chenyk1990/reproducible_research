@@ -1,0 +1,335 @@
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+
+\title{A compact program for 3D passive seismic \\
+source-location imaging}
+
+\author{Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[1]\footnotemark[2], Min Bai\footnotemark[3],  Xingye Liu\footnotemark[4], Sergey Fomel\footnotemark[5] }
+%\author{Authors}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+%\author{Authors}
+
+\ms{SRL-2021} %\ms{GJI-2019}
+
+\address{
+%\footnotemark[1]
+%School of Earth Sciences\\
+%Zhejiang University\\
+%Hangzhou, Zhejiang Province, China, 310027\\
+%chenyk2016@gmail.com\\
+%%yangkang.chen@zju.edu.cn \\
+%\footnotemark[2]
+%ENSN Lab \\
+%Seismology Department \\
+%National Research Institute of Astronomy and Geophysics (NRIAG)\\
+%Helwan 11731, Egypt\\
+%engomar91@ gmail.com\\
+%\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+%Yangtze University\\
+%Daxue Road No.111\\
+%Caidian District\\
+%Wuhan, China, 430100 \\
+%\footnotemark[4]
+%College of Geology and Environment\\
+%Xi’an University of Science and Technology\\
+%Xi’an, Shaanxi Province, China, 710054 \\
+%lwxwyh506673@126.com\\
+%\footnotemark[5]Bureau of Economic Geology \\
+%John A. and Katherine G. Jackson School of Geosciences \\
+%The University of Texas at Austin \\
+%University Station, Box X \\
+%Austin, TX 78713-8924 \\
+%sergey.fomel@beg.utexas.edu\\
+Corresponding Author: Yangkang Chen (chenyk2016@gmail.com) 
+}
+
+%\lefthead{Liu et al.}
+\righthead{3D passive imaging\\
+Declaration of Competing Interests: The authors acknowledge there are no conflicts of interest recorded.}
+
+\begin{abstract}
+Microseismic source-location imaging is important for inferring the dynamic status of reservoirs during hydraulic fracturing. The accuracy and resolution of the located microseismic sources are closely related to the imaging technique. We present an open-source program for high-fidelity and high-resolution 3D microseismic source-location imaging. The presented code is compact in the sense that all required subroutines are included in one single C program, based on which the seismic wavefields can be propagated either forward during a synthetic test, or backward during a real time-reversal imaging process. The compact C program is accompanied by a python script known as the SConstruct file in the Madagascar open-source platform to compile and run the C program. The velocity model and recorded microseismic data can be input using the python script. \wen{This compact program is useful for educational purposes and for future algorithm development.} We introduce the basics of the imaging method used in the presented package and present one representative synthetic example and a field data example. The results show that the presented program can be reliably used to locate source locations using a passive seismic dataset.
+\end{abstract}
+
+%\section{Keywords}
+%key1,key2,key3
+
+\section{Introduction}
+The microseismic technology\dlo{, as an advanced technology,} has been applied in water reservoirs monitoring, mining engineering, CO$_2$ injection monitoring, and petroleum and gas exploration field \new{\cite[]{Phillips2002, Parotidis2004Back, 2005Characterization, Rongmao2010Microseismic, Xia2013Twin, 2016Discrimination, 2016Adaptive, 2016Hybrid}}. It focuses on the characteristics of microseismic sources, i.e., newly created or activated micro-cracks and fractures that may be caused by fracturing or mining processes, etc. The occurrence of microseismic events is always accompanied by propagating \dlo{the }seismic waves. For example, due to fluid injection of shale gas development, high injection pressure that exceeds \dlo{a certain level}\wen{the minimum tensile strength of the rock} will interact with fluid pressure in the existing fractures, open or create new fractures, then induce microseismic events.  When the dynamic information of the source carried by seismic waves is received by geophones, \old{one}\new{engineers} can localize the microseismic event and infer the spatial extent of induced fractures. As a result, microseismic imaging is significant to accurately reflect the location and spatial range of fractures with high resolution, then to optimize the production plan and avoid related hazards \cite[]{Nidhal2015}.
+
+Microseismic event tracking or imaging is a typical passive seismic source-location imaging problem. 
+A wide range of methods have been developed for passive seismic source-location imaging \wen{\cite[]{Husen2003, Nidhal2015, Steve2015, Anton2015, 2015Microseismic, Chuntao2016Joint}}. In general, localizing a passive source (e.g., earthquake hypocenter, microseismic event) can be regarded as an \old{inversion}\new{inverse} problem and \old{can be }solved by various inversion approaches. 
+\cite{Waldhauser2000A} propose a double-difference technique and \old{localized}\new{localize} the passive sources by minimizing the least-squares error between computed and observed traveltime.
+Then, \cite{2003Double} estimate the microseismic event locations and the corresponding velocity model by using the double-difference technique. 
+These arrival \old{times}\new{time} based inversion algorithms aim to obtain the solution that makes the misfit function between the observed and calculated traveltimes reach the minimum. 
+However, it heavily depends on accurate arrival \old{times}\new{time} picking, which is used to analyze the mechanism of microseismic events.  The short-term-average-to-long-term-average ratio method \cite[]{1978Automatic}, autoregression based method \cite[]{1999Multi}, Akaike information criterion method \cite[]{SLEEMAN1999265}, etc., have been developed for arrival times picking. 
+However, the process is highly nonlinear, and \dlo{local optimization models}\wen{models that represent local minima of the objective function}, which are not the actual location of the hypocenter, are unavoidably considered as the solution \cite[]{Husen2003, Poliannikov2013A, Gesret2014Propagation, Nidhal2015}. Besides, the microseismic data are always accompanied by noise, which makes arrival times picking very challenging, and many approaches are sensitive to the noise \cite[]{Chen2018fast}. Therefore, it is necessary to suppress the noise as much as possible before applying the arrival times  based methods \cite[]{2015Microseismic, Juli2016A, 2016Hybrid}. The stacking location methods perform relatively better than the traditional arrival times picking  based approaches \cite[]{2005Reverse, 2007Localization, 2013Locating}. Nevertheless, the uncertainty is too strong when the records contain polarity reversal, and addressing this issue usually requires huge calculation resources \cite[]{2014Joint, Chuntao2016Joint}. 
+
+For passive source-location estimation, other commonly used methods are based on the \dlo{wave equation}\wen{waveform modeling}, which attracts more and more attention due to the improvements in computing power. \dlo{These methods assume that the wave modes remain identical during seismic wave propagation.} The time-reversal extrapolation can be conducted by solving the wave equation when the velocity model is \dlo{obtained}\wen{available} \cite[]{2005Reverse}. \cite{2008Time} track the earthquake location and the focal mechanism by using time-reversal imaging methods.  \cite{2010Source} point out that the problem of passive source-location imaging can be solved by the auto-correlation imaging condition because it could be regarded as a migration problem. They borrowed the imaging condition from the active-source seismic imaging to passive seismic source-location imaging. For microseismic imaging, \wen{\cite{2015Focusing}} improve the resolution in the horizontal and vertical directions with a deconvolution operator by using an accurate velocity model. 
+\cite{Nori2015} use the geometric mean as the imaging condition in microseismic imaging based on the reverse time migration algorithm. This practice was similar to that of active-source seismic imaging. Geometric mean based reverse time migration methods are promising in retrieving velocity information, which is achieved by analyzing space and time lags of cross-correlation. 
+\cite{LIN201688} develop a microseismic reverse time migration method on scattering waves for microseismic imaging and demonstrated the effectiveness by using some synthetic experiments. For continuous data, \cite{Norimitsu2016} repeatedly \dlo{utilized}\wen{use} the Green's function to extrapolate the observed data, reducing the calculation time. Then, they used multi-dimensional cross-correlation as an imaging condition and output an accurate source-location image.
+However, some unwanted components (e.g., noise) are also received by geophone arrays, causing uncertainties of the passive sources by waveform based methods. 
+For Woodford and Bakken shale reservoirs, \cite{Grechka2017High} \dlo{utilized}\wen{use} Kirchhoff migration to image hydraulic fractures. 
+ \cite{Chen2018fast} \old{develop}\new{develops} a method based on machine learning to detect the signal waveforms automatically, then \old{eliminated}\new{eliminates} the influence of unwanted components contained in microseismic data. 
+\cite{Jianlong2020} analyze several imaging conditions based on synthetic examples and \old{pointed}\new{point} out that the auto-correlation imaging condition is more proper to assure  resolution and noise resistance. \new{Another group of source-location imaging methods are based on full-waveform inversion (FWI). FWI can invert for the source image and velocity simultaneously, and has been intensively studied in the field of passive seismic imaging \cite[]{kaderli2015microseismic,sun2016full,wang2018microseismic,song2019microseismic2}. }
+In addition, machine learning \old{technologies}\new{techniques} have  shown their potential in passive seismic source-location imaging recently, e.g.,  \cite{Jubran2017, qushan2020gji, Hanchen2020, Omar2020, Yatong2020}, etc.  
+
+Traditional methods either depend on accurate arrival times picking, or tend to be impacted by strong noise based on the waveforms and time-reversal imaging.  Inspired by both active and passive \old{sources}\new{source} seismic imaging, \cite{Junzhe2015} investigate the possibility of microseismic source-location imaging for data collected by distributed sensor networks. They concluded that borrowing the cross-correlation imaging condition from active \old{sources}\new{source} seismic imaging to passive seismic source-location imaging \old{does not need the information of arrival times}\new{does not require to pick the first arrival times}, and could simultaneously locate multiple microseismic events with a relatively high resolution. %\old{\cite{zhu2019hybrid} further apply this method to a real test of the Marcellus shale microseismic data.}
+
+\wen{We extend the 2D passive seismic imaging method previously developed by \cite{Junzhe2015}, to a 3D version and provide a compact open-source program. Not only the forward propagated seismic wavefields (e.g., for synthetic tests), but also the backward propagation (required by time-reversal imaging) can be simulated by using the program. Even if the signal-to-noise ratio (S/N) is low, it is able to produce a microseismic imaging result with high fidelity and a high resolution while not requiring to pick the arrival times.} In the following section, we briefly review the new method and introduce the construction of the compact C program and the python script compiling and running it. Then, we demonstrate its effectiveness by a 3D synthetic experiment and a field data example. Next, we discuss various aspects that could affect the imaging performance and its wide applications. Finally, we summarize the method and the program\old{ in the end}.
+
+
+
+\section{Method}
+\subsection{Forward modeling method}
+The second-order acoustic wave equation with constant density can be expressed as:
+\begin{equation}
+\label{eq:we}
+\frac{1}{v^2}\frac{\partial^2 p}{\partial t^2} = \frac{\partial^2 p}{\partial z^2} + \frac{\partial^2 p}{\partial x^2} + \frac{\partial^2 p}{\partial y^2},
+\end{equation}
+where $v(z,x,y)$ denotes the heterogeneous velocity distribution, $p(z,x,y,t)$ denotes the acoustic wavefield.
+
+A second-order temporal finite difference scheme to solve the acoustic wave equation can be expressed as:
+\begin{equation}
+\label{eq:we2}
+p^{n+1}=2p^{n}-p^{n-1}+v^2\Delta t^2\left(\frac{\partial^2 p}{\partial z^2} + \frac{\partial^2 p}{\partial x^2} + \frac{\partial^2 p}{\partial y^2}\right),
+\end{equation}
+where $p^{n}$ denotes the wavefield at the $n$th time step. The spatial derivatives on the right side of equation \ref{eq:we2} can be calculated either by the Fourier method, i.e., the pseudo-spectral method, or by the finite difference method. In the presented program, we use the pseudo-spectral method to solve the acoustic wave equation: 
+\begin{equation}
+\label{eq:we22}
+p^{n+1}=2p^{n}-p^{n-1}+v^2\Delta t^2\left(\mathcal{F}^{-1}[(-k_z^2-k_x^2-k_y^2)\mathcal{F}(p^n)]\right),
+\end{equation}
+where $\mathcal{F}$ and $\mathcal{F}^{-1}$ denote the forward and inverse 3D Fourier transform. $k_i$ denotes the wavenumber in the $i=z,x,y$ dimension. 
+
+
+\subsection{Absorbing boundary condition}
+We use a simple sponge (or Gaussian decaying) absorbing boundary condition (ABC) for the wavefield simulation \cite[]{cerjan1985nonreflecting}. The sponge ABC takes the following form:
+\begin{equation}
+\label{eq:abc}
+w(x)=e^{-\alpha(x-x_n)},
+\end{equation}
+where $w(x)$ denotes a 1D weighting or decaying vector applied onto the wavefield in the boundary region. $\alpha$ is the decaying parameter controlling the strength of the decay. $x_n$ denotes the location of the nearest boundary of the non-absorbing region. 
+
+\subsection{Imaging condition}
+The imaging condition of traditional time-reversal imaging is similar to that of an exploding reflector, which is commonly used in the active-source imaging  \cite[]{2005Reverse}. 
+Assuming there are $N$ receivers, the conventional time-reversal imaging condition $I_1(z,x,y)$ can be expressed by adding all backward propagated seismic wavefields at the same time: 
+\begin{equation}\label{eq:ic1}
+I_1(z,x,y)=\sum_{t}\sum_{n=0}^{N-1} p_{n}(z,x,y,t),
+\end{equation}
+where $p_n(z,x,y,t)$ represents the backward propagated seismic wavefield corresponding to $n$th recorded trace. $(z, x, y)$ denotes the spatial location and $t$ denotes the time. It is necessary to pick the arrival times for localizations of multiple passive sources. However, it is challenging when the energy of the noise is strong. Note that, the whole dataset received by all the receivers is added at once, causing only one calculation of the backward propagation process. Nevertheless, the resolution is limited \wen{for a surface acquisition geometry}, especially when the wavefield is complicated for \old{a complex problem}\new{a complicated velocity model}.  
+
+Inspired by the active-source imaging, the new method utilizes the cross-correlation imaging condition that is commonly used in prestack migration. It assumes that the backward propagated seismic wavefields from different receivers do not interact with each other, i.e., being independent \cite[]{Junzhe2015}.  When the recorded wavefield coincides with the source wavefield in both the time and space dimensions, the microseismic hypocenters are detected \cite[]{Nori2015}.
+The \new{time-domain} cross-correlation imaging condition $I_2(z,x,y)$ can be expressed by multiplying instead of adding the backward propagated seismic wavefields of receivers: 
+\begin{equation}\label{eq:ic2}
+I_2(z,x,y)=\sum_{t}\prod_{n=0}^{N-1} p_{n}(z,x,y,t).
+\end{equation}
+If the velocity model is accurate, $I_2(z,x,y)$ will be zero except for the locations of microseismic events. The influence of noise can be \old{thresholded}\new{minimized} because the noise is usually random and the corresponding energy in the images is weaker than that of the effective signals. The resolution of the imaging condition expressed in equation \ref{eq:ic2} depends on the dominant frequency of the coherent signals. Although the resolution is relatively high when it is compared with the traditional time-reversal imaging condition, its computational cost is high, because the backward propagated seismic wavefield of each receiver is individually calculated \cite[]{Junzhe2015}. 
+
+Therefore, we can combine the two aforementioned image conditions, then obtain a compromise by forming a hybrid imaging condition as follows: 
+\begin{equation}\label{eq:ic3}
+I_3(z,x,y)=\sum_{t}\prod_{n_2=0}^{N_g-1}\sum_{n_1=0}^{(N/N_g)-1} p_{n_2*(N/N_g)+n_1}(z,x,y,t),
+\end{equation}
+where $N_g$ denotes the group number, i.e., dividing all the receivers into $N_g$ groups. \new{The idea of using receiver groups is proposed in \cite{sun2016full}.} The number of traces within each group is $N/N_g$. Equation \ref{eq:ic3} is referred to as the grouped cross-correlation imaging condition.  Then, the advantages of summation-based and cross-correlation-based imaging conditions are integrated into the hybrid imaging method. As a result, it can produce localization results of microseismic events or earthquake hypocenters with a high resolution and high fidelity in moderate calculation time. Besides, the hybrid imaging condition saves more human effort because it does not require the picking of arrival times.
+
+\section{Code description}
+\subsection{C program}
+The C program is designed to be run in the Madagascar open-source platform. The C program implements the pseudo-spectral method introduced above for modeling acoustic wavefield that is required by the grouped cross-correlation-based passive seismic source-location imaging. For the purposes of education and methodological developments, the C program is designed as a compact and standard-alone program (except for several simple Madagascar library functions for I/O) for both forward acoustic wave simulation and time-reversal imaging using the surface-recorded passive seismic data. The C program can be divided into five parts. All parts are clearly documented in the program.  Note that all these components are necessary for any wave-equation based imaging and inversion applications. 
+\begin{itemize}
+\item Part I: 	Ricker wavelet \\
+This part is responsible for generating the well-known Ricker wavelet.
+\item Part II: 	 Absorbing boundary condition\\
+This part implements the ABC method introduced above.
+\item Part III: Fourier transform\\
+This part implements the 3D Fourier transform as required by the pseudo-spectral method.
+\item Part IV: Pseudo-spectral wave extrapolation \\
+This part details the implementation of the pseudo-spectral method for acoustic wave propagation, as well as designing a new struct type for storing the parameters required by the pseudo-spectral method.
+\item Part V: Main program \\
+This part handles the I/O and calls the subroutines of the pseudo-spectral method for either forward wave propagation in \old{synthetic tests}\new{simulation} or backward  wave propagation in time-reversal imaging.
+\end{itemize}
+
+
+\subsection{Python script (SConstruct)}
+The python script provides a template for compiling the C program and making it runnable for realistic passive seismic source-location imaging applications. The template python script included in the code package is composed of seven parts. All parts are clearly documented in the python script.
+\begin{itemize}
+\item Part I: 	Specifying parameters\\
+There are two types of parameters, i.e., parameters for field data applications and parameters for synthetic tests. 
+\item Part II: 	Compiling the C program\\
+We use the ``Program'' command in the Madagascar environment to compile the C program: exe=Program(`mod3d.c').
+\item Part III: Creating/Inputing the velocity model\\
+For synthetic tests, we can generate any velocity models we like, or segment a part from any open-source benchmark velocity models, like the SEG/EAGE salt/overthrust models, and the SEAM model. In the same time, we also specify the predefined source locations here. The velocity model and source locations can be plotted in a 3D format in this part. For field data applications, this part can be omitted, and the available velocity model can be input directly for time-reversal imaging. 
+\item Part IV: 	Generating/Inputing the recorded passive seismic data \\
+For synthetic tests, we use the compiled C program to generate the recorded passive seismic data on the surface based on a pseudo-spectral method. For field data applications, this part can be omitted, and the recorded real passive seismic data are directly input into the imaging module. 
+\item Part V: 	Backward propagating of the grouped receiver wavefield \\
+In this part, the recorded passive seismic data are divided into several groups for individual backward propagation. The backward propagations of grouped receiver wavefields are also known as the hybrid summation-based and cross-correlation-based time-reversal imaging. 
+\item Part VI: 	Applying the cross-correlation imaging condition\\
+The backward propagated grouped receiver wavefields are cross-correlated with each other to output the final source-location image.
+\item Part VII: Plotting the source locations\\
+The obtained source location image is plotted in a 3D format in this part.
+\end{itemize}
+
+\section{Examples}
+We use one synthetic example, which is included in the code package as the python script, and one field data example to demonstrate the applicability of the presented program. 
+\subsection{Synthetic example}
+The synthetic example is illustrated in Figures \ref{fig:data}-\ref{fig:vel1,location-tr1,location1,vel2,location-tr2,location2,vel3,location-tr3,location3}. Figure \ref{fig:data} plots the recorded synthetic passive seismic data. We create a synthetic velocity model with vertically increasing velocity to simulate the recorded seismic data. \new{The velocity range is [1500-4860] m/s.} We use three seismic sources, which are located at $(1000,1000,1000)$m, $(1400,1200,1200)$m, $(1800,1400,1400)$m, respectively, in the velocity \old{models}\new{model}. \new{The peak frequency of the Ricker wavelet is 10 Hz. The ignition times of the three sources are 0.2 s, 0.35 s, and 0.5 s, respectively. We add some Gaussian white noise (which can be easily substituted by band-limited random noise in the Python script) to the simulated passive dataset. During wavefield backward propagation, the data are simultaneously propagated, without a first deblending step.} \old{To}\new{We} compare the proposed method with the state-of-the-art method, i.e., the time-reversal imaging method based on picking the focused location and time \cite[]{2005Reverse}. For simplicity, we refer to the method in \cite{2005Reverse} as the traditional method. Since we use \old{four times of time-reversal modeling}\new{four receiver groups}, the computational cost of the proposed method is about four times that of the traditional method. The three source locations are highlighted by the red dots in Figures \ref{fig:vel1}, \ref{fig:vel2}, and \ref{fig:vel3}, respectively. \wen{The middle column shows the three imaged source locations using the traditional time-reversal imaging method.} The right column shows the three imaged source locations using the presented program. Although the imaging results using the traditional method are generally correct, they have an obviously lower resolution, tend to cause imaging artifacts, and are more \old{more }sensitive to random noise. The consistency of each location between the left and right \dlo{figures}\wen{columns} confirm the validity of the presented passive seismic imaging program. Figure \ref{fig:data_mask0,data_mask1,data_mask2,data_mask3} shows the four grouped passive seismic records, which are backward propagated to generate the grouped receiver wavefields. The backward propagated grouped receiver wavefields are then cross-correlated with each other to obtain the source-location images shown on the right column of Figure \ref{fig:vel1,location-tr1,location1,vel2,location-tr2,location2,vel3,location-tr3,location3}.
+
+\subsection{Field data example}
+We also apply the presented imaging program to a microseismic dataset recorded during the hydraulic fracturing of the Marcellus gas shale in Washington Country, Pennsylvania, USA. The Marcellus gas shale (with a roughly 30m thickness) is approximately 1.9 km below the surface \cite[]{tan2016further,huang2019passive}. The microseismic data have been binned onto regular grids and are plotted in Figure \ref{fig:rsf_real}. The surface monitoring system has 10 `arms', as revealed from the top slice in Figure \ref{fig:rsf_real}. There are a total of 1082 single-component geophones. We test the imaging performance for only one event. According to the published material \cite[]{tan2016further,huang2019passive}, we construct a 3D velocity model as shown in Figure \ref{fig:sov}. \new{We construct the velocity model based on some published models in the literature (e.g., the one in \cite{anikiev2014joint}). We extract the minimum and maximum velocities from the published models of the same dataset and construct a model that has a linearly increasing velocity with a constant velocity gradient. However, inputing a more accurate velocity model is straightforward, and hopefully will generate a more accurate source-location image.} \new{The 3D source-location images using the traditional and the proposed methods are plotted in Figures \ref{fig:f-location-tr} and \ref{fig:f-location1}, respectively.} It is clear that the \new{traditional method obtains a lower resolution and causes significantly more artifacts than the proposed method. } \new{The image from the proposed method} focuses well in around $(1824,2712,2256)$m, which is consistent with many published results \cite[]{anikiev2014joint,tan2016further,huang2019passive}. \new{One special thing of this example is that we do not apply any preprocessing to the field dataset. We just input the raw data (after binning onto the regular grids) into the imaging framework and output the result.}
+
+\section{Discussion}
+\subsection{Effect of group number}
+The presented program can be used to study various factors that could affect the imaging performance via synthetic tests. For example, we first conduct several numerical tests to investigate the effect of the group number on the source-location images. We vary the number of groups $N_g$ and compare the corresponding images. Note that parameter $N_g$ can be easily set in the python script within the code package. The tests are based on the aforementioned synthetic example, where $N_g=4$ is used to generate the results shown in Figure \ref{fig:vel1,location-tr1,location1,vel2,location-tr2,location2,vel3,location-tr3,location3}. For simplicity, we only compare the imaging result of the first source location. We choose $N_g=2,6,8,10$ and show the first group in Figure \ref{fig:data_mask0_ng2,data_mask0_ng6,data_mask0_ng8,data_mask0_ng10}. Figure \ref{fig:location1-ng2,location1-ng6,location1-ng8,location1-ng10} shows the images corresponding to different $N_g$. The comparison shows that the number of group number has a small effect on the imaging result. Observing carefully, one can find that the imaging result corresponding to $N_g=10$ has a slightly higher resolution than that corresponding to $N_g=2$. However, when using a larger group number, the disk storage required for the imaging will be much higher due to a larger number of wavefields needed to be stored. \new{In practise, we normally choose $N_g=4$ or $N_g=6$. A larger number of $N_g$ will significantly increase the computational and storage cost but will not get obviously higher resolution. In practical situations, where the receiver distribution is highly irregular, how the receivers are grouped, however, plays an important role. For relatively dense receivers, a simple even grouping strategy is sufficient to obtain a good result, e.g., as shown in the field data example.  For relatively sparse receiver distribution, each group should contain a comparable number of nearby receivers, so that the wavefields in each group can be enhanced (and more anti-noising) by stacking the backward wavefields from each receiver. For very noisy data (e.g., in Figure \ref{fig:data-8}), a large group number (e.g., $N_g=10$) could result in instability issue due to the insufficient number of receivers in each group to mitigate the influence of strong noise.}
+
+\subsection{Effect of noise}
+Next, we study the effect of noise to the imaging performance. We increase noise variance $\sigma^2$ from 0.01 to 50 to deteriorate the data quality and then compare the imaging performance. We show four recorded data cubes corresponding to $\sigma^2=0.01,0.5,10,50$ in Figure \ref{fig:data-2,data-4,data-6,data-8}. The S/N of the data shown Figures \ref{fig:data-2}-\ref{fig:data-8} are -4.97 dB, -21.96 dB, -34.97 dB, and -41.96 dB, respectively. We calculate the S/N based on the following equation \cite[]{yangkang2015ortho}: 
+\begin{equation}
+\label{eq:diff}
+\text{S/N}=10\log_{10}\frac{\Arrowvert \mathbf{s}_{clean} \Arrowvert_2^2}{\Arrowvert \mathbf{s}_{clean} -\mathbf{s}_{noisy}\Arrowvert_2^2},
+\end{equation}
+where $\mathbf{s}_{clean}$ and $\mathbf{s}_{noisy}$ are vectorized clean and noise data. Figure \ref{fig:location1-noise2,location1-noise4,location1-noise6,location1-noise8} shows the imaged first source location corresponding to the noisy data plotted in Figure \ref{fig:data-2,data-4,data-6,data-8}.  It is clear from Figures \ref{fig:data-2,data-4,data-6,data-8} and \ref{fig:location1-noise2,location1-noise4,location1-noise6,location1-noise8} that when the microseismic signal is observable, the source location is imaged accurately. Even when the signal is barely observable, the source location can still be imaged accurately, as shown in Figures \ref{fig:data-6} and \ref{fig:location1-noise6}. Only when the noise is extremely strong, e.g., $\sigma^2=50$, the presented program does not work properly, i.e., creating some spurious locations in the image (Figure \ref{fig:location1-noise8}). Note that the anti-noise ability is related with the distribution of the receivers on the surface. Here, we use a very dense receiver geometry ($81\times 81$ evenly distributed receivers), so the anti-noise performance is ultrahigh. A more realistic numerical tests should follow the geometry of a pratical application.
+
+\subsection{Effect of receiver density}
+Then, we investigate the effect of receiver density, i.e., number of traces in a given working area, on the imaging performance. We vary the number of recorded traces and compare their corresponding imaging results. Figure \ref{fig:data-d6,data-d8,data-d9,data-d10} shows four datasets with different number of recorded traces, i.e.,  121, 81, 16, and 8 recorded traces for (a)-(d), respectively. Figure \ref{fig:location1-density6,location1-density8,location1-density9,location1-density10} shows the imaging results corresponding to the data in Figure \ref{fig:data-d6,data-d8,data-d9,data-d10}. It is clear that the presented program is robust when there are only 16 recorded traces. When the number of recorded traces becomes fewer, the imaging result \old{becomes unable}\new{fails} to reveal the true source location. Note that the effect of receiver density is also related with the working area. The velocity model, grid size, receiver distribution could all affect the minimum number of receivers that warrants an accurate imaging of the source location. In any practical situation, the presented program can be helpful on designing the optimal receiver geometry via synthetic tests.
+
+\subsection{Other applications}
+Although the presented code is based on acoustic wave propagation, it could have some other applications in addition to microseismic imaging if organized properly. For example, the same grouped cross-correlation imaging method can also be applied to diffraction imaging \cite[]{yin2017diffraction}. When the diffraction energy is separated from pre-stack gathers, it can also be viewed as the passive seismic energy that is emitted from the subsurface diffractors. Thus, the same methodology and imaging framework also work for the purpose of migrating the diffraction energy to depict the underground discontinuities. Besides, the presented program could also be used to image the subsurface fracture network \cite[]{huang2019passive}. The principle is that the P wave and converted S wave should coincide with each other when they are both backward propagated onto the factures. Thus, by propagating the separated P and converted S waves using the presented acoustic propagator, and applying the cross-correlation imaging condition, it is possible to image the fractures or other discontinuous interfaces.  \new{More complicated P-to-S scattering pattern is possible to be considered because the simulation code is a two-way propagator. The effect of scattering pattern, however, highly depends on the resolution of the given velocity model.} \new{It is also possible to extend the present code to invert velocity models from passive seismic data.  A similar work about the source imaging and velocity inversion using a source-focusing objective function has been introduced in \cite{song2019microseismic}.} Further applications of the presented program are worth investigating, but are beyond the scope of this manuscript.
+
+%\subsection{Motivation of the program}
+%\wen{There are very few open-source packages that are easy and standalone to use for 3D passive seismic imaging in the
+%seismology community. There are no resources (i.e., in the form of a reproducible article) in the Madagascar
+%platform. We try our best to simplify the package of this work to include only one Python script and one C program. This ``simple" and compact program is useful for educational purposes and for future algorithm improvement. One can substitute those subroutines in the C program with his own versions. Except for these necessary components for forward wave propagation, there are several other important components for a 3D passive imaging goal, i.e., the geometry, imaging condition, I/O, visualization, concatenation, which are the focus of this manuscript.} 
+
+\section{Conclusions}
+We have presented a compact program for locating passive (e.g., including but not limited \new{to} microseismic experiments arising from fluid injections) seismic sources in 3D subsurface media. The C program can be compiled and run using a python script, where the input velocity model and recorded passive seismic data can be specified. The imaging program uses a grouped cross-correlation method to locate the seismic sources, which has a robust, high-resolution, and high-fidelity performance. The imaging program can be used not only to migrate available passive seismic data, but also to forward model the data for synthetic tests. Both synthetic and real data examples demonstrate the successful applications of the presented program to realistic problems. Due to the compact and relatively simple format of the presented imaging program, it has the potential to be beneficial to a broad range of passive seismic studies. 
+
+\section{Data and Resources}
+All datasets and source codes associated with this research are hosted via the Madagascar platform (www.ahay.org) in the form of reproducible research \cite[]{mada2013}.
+
+%All datasets and source codes associated with this research are hosted via the Madagascar platform www.ahay.org in the format of reproducible research \cite[]{mada2013}.
+\section{Acknowledgements}
+The research is supported by the starting funds from Zhejiang University. We thank Microseismic, Inc. and Newfield Exploration Company for releasing the data set. We thank J. Sun from Texas Consortium for Computational Seismology (TCCS) for constructive discussions. %The presented passive seismic imaging program is based on the initial work by J. Sun \cite[]{Junzhe2015}. % and Y. Shi and S. Fomel from Texas Consortium for Computational Seismology (TCCS) for sharing the microseismic dataset of one event. 
+
+\inputdir{mod3d_geo}
+\plot{data}{width=0.6\textwidth}{Recorded passive seismic data in the synthetic example.}
+\multiplot{9}{vel1,location-tr1,location1,vel2,location-tr2,location2,vel3,location-tr3,location3}{width=0.3\textwidth}{\wen{Velocity model and the highlighted first source location (a), its time-reversal imaging result using the traditional (b) and proposed (c) methods. Velocity model and the highlighted second source location (d), its time-reversal imaging result using the traditional (e) and proposed (f) methods. Velocity model and the highlighted third source location (g), its time-reversal imaging result using the traditional (h) and proposed (i) methods.}}
+\multiplot{4}{data_mask0,data_mask1,data_mask2,data_mask3}{width=0.45\textwidth}{Four grouped recorded passive seismic data. }
+
+\inputdir{field3d_geo}
+%\plot{test1}{width=\textwidth}{Separated x-component of the S1 elastic wavefield in the orthorhombic media.}
+\multiplot{4}{rsf_real,sov,f-location-tr,f-location1}{width=0.45\textwidth}{Field data example. (a) Recorded microseismic data. (b) Constructed velocity model. \dlo{(c) 3D source location image.}\wen{(c) 3D source location image using the traditional method. (d) 3D source location image using the proposed method.}}
+
+\inputdir{mod3d_geo_ng}
+\multiplot{4}{data_mask0_ng2,data_mask0_ng6,data_mask0_ng8,data_mask0_ng10}{width=0.45\textwidth}{The first group of recorded data when $N_g=2,6,8,10$, respectively. }
+
+\multiplot{4}{location1-ng2,location1-ng6,location1-ng8,location1-ng10}{width=0.45\textwidth}{The images of the first source location when $N_g=2,6,8,10$, respectively. }
+
+\inputdir{mod3d_geo_noise}
+\multiplot{4}{data-2,data-4,data-6,data-8}{width=0.45\textwidth}{Recorded data when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. The corresponding S/Ns of (a)-(d) are -4.97 dB, -21.96 dB, -34.97 dB, and -41.96 dB, respectively. }
+
+\multiplot{4}{location1-noise2,location1-noise4,location1-noise6,location1-noise8}{width=0.45\textwidth}{The images of the first source location when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. }
+
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr1.rsf 
+%   0:        -1.957
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr2.rsf 
+%   0:        -4.967
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr3.rsf 
+%   0:        -14.98
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr4.rsf 
+%   0:        -21.96
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr5.rsf 
+%   0:        -31.96
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr6.rsf 
+%   0:        -34.97
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr7.rsf 
+%   0:        -37.98
+%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr8.rsf 
+%   0:        -41.96
+%  
+
+\inputdir{mod3d_geo_density}
+\multiplot{4}{data-d6,data-d8,data-d9,data-d10}{width=0.45\textwidth}{The observed data with 121, 81, 16, and 8 recorded traces, respectively.  }
+
+\multiplot{4}{location1-density6,location1-density8,location1-density9,location1-density10}{width=0.45\textwidth}{The images of the first source location when there are 121, 81, 16, and 8 recorded traces, respectively. }
+ 
+\bibliographystyle{seg}
+\bibliography{micro}
+
+\clearpage
+Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[1]\footnotemark[2], Min Bai\footnotemark[3],  Xingye Liu\footnotemark[4], Sergey Fomel\footnotemark[5]  \\
+\footnotemark[1]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+chenyk2016@gmail.com\\
+%yangkang.chen@zju.edu.cn \\
+\footnotemark[2]
+ENSN Lab \\
+Seismology Department \\
+National Research Institute of Astronomy and Geophysics (NRIAG)\\
+Helwan 11731, Egypt\\
+engomar91@ gmail.com\\
+\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+Yangtze University\\
+Daxue Road No.111\\
+Caidian District\\
+Wuhan, China, 430100 \\
+\footnotemark[4]
+College of Geology and Environment\\
+Xi’an University of Science and Technology\\
+Xi’an, Shaanxi Province, China, 710054 \\
+lwxwyh506673@126.com\\
+\footnotemark[5]Bureau of Economic Geology \\
+John A. and Katherine G. Jackson School of Geosciences \\
+The University of Texas at Austin \\
+University Station, Box X \\
+Austin, TX 78713-8924 \\
+sergey.fomel@beg.utexas.edu\\
+
+
+%\AtEndDocument{}
+
+%\newpage
+%\listoffigures
+
+
+
+%\begin{figure}[htb!]
+%	\centering
+%	\subfloat[]{\includegraphics[width=0.8\textwidth]{Fig/fig}}
+%	\caption{Caption.}
+%	\label{fig:fig}
+%\end{figure}
+
+%\begin{figure}[htb!]
+%	\centering
+%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig1}
+%    \label{fig:fig1}}\\
+%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig2}
+%    \label{fig:fig2}}\\
+%	\caption{(a) Caption a. (b) Caption b.}
+%	\label{fig:fig1,fig2}
+%\end{figure}
+
+%\begin{figure*}[ht!]
+%	\centering
+%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig1}
+%    \label{fig:fig1}}\\
+%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig2}
+%    \label{fig:fig2}}\\
+%	\caption{(a) Caption a. (b) Caption b.}
+%	\label{fig:fig1,fig2}
+%\end{figure*}
+
+%\begin{table}[h]
+%\caption{Table caption}
+%\begin{center}
+%     \begin{tabular}{|c|c|c|c|c|c|} 
+%	  \hline Column1 (unit)  & Column2 (unit) & Column3 (unit) \\ 
+%	  \hline 1 & 2  & 3 \\
+%       \hline
+%    \end{tabular} 
+%\end{center}
+%\label{tbl:table1}
+%\end{table}
+
