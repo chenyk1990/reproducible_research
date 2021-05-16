@@ -1,4 +1,4 @@
-This is the open-source package for 2D/3D local slope estimation and structural filtering
+This is the open-source Matlab package for 2D/3D local slope estimation and structural filtering
 
 To the best of our knowledge, this is the first (ever) open-source Matlab package for calculating the seismic slope of an input seismic gather/cube/image and performing structure-oriented filtering.
 
