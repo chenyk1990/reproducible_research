@@ -18,7 +18,10 @@ function [dip_i,dip_x] = str_dip3d(din,niter,liter,order,eps_dv, eps_cg, tol_cg,
 % OUTPUT
 % dipi:  inline 3D slope
 % dipx:  xline 3D slope
-%
+% 
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
+
 if nargin==1
     niter = 5;
     liter = 10;

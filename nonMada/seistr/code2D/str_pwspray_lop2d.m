@@ -14,7 +14,9 @@ function [u] = str_pwspray_lop2d(u1,dip,nr,order,eps)
 % OUTPUT:
 %
 % u: smooth data
-
+%  
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
 
 n1=size(u1,1);
 n2=size(u1,2);      

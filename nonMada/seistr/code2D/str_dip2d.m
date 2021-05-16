@@ -17,7 +17,10 @@ function [dip] = str_dip2d(din,niter,liter,order,eps_dv, eps_cg, tol_cg,rect,ver
 %
 % OUTPUT
 % dip:  2D slope
-% 
+%  
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
+
 if nargin==1
     niter = 5;
     liter = 20;

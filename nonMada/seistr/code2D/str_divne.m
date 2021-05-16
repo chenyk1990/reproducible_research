@@ -13,6 +13,13 @@ function [ rat ] = str_divne(num, den, Niter, rect, ndat, eps_dv, eps_cg, tol_cg
 % eps_cg: eps for CG    (default: 1)
 % tol_cg: tolerence for CG (default: 0.000001)
 % verb: verbosity flag
+% 
+% OUTPUT
+% rat: output ratio
+%  
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
+
 t1divne=clock;
 
 n=length(num(:));

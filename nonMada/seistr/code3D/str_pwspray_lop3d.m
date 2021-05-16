@@ -14,7 +14,10 @@ function [dout] = str_pwspray_lop3d(din,dipi,dipx,ns2,ns3,order,eps)
 % OUTPUT:
 % 
 % dout: result
-%
+% 
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
+
 
 % %
 [n1,n2,n3]=size(din);

@@ -13,6 +13,13 @@ function [ rat ] = str_divne(num, den, Niter, rect, ndat, eps_dv, eps_cg, tol_cg
 % eps_cg: eps for CG    (default: 1)
 % tol_cg: tolerence for CG (default: 0.000001)
 % verb: verbosity flag
+% 
+% OUTPUT
+% rat: output ratio
+%  
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
+
 t1divne=clock;
 
 n=length(num(:));
@@ -71,7 +78,7 @@ return
 
 function [dout] = str_weight_lop(din,par,adj,add )
 % str_weight_lop: Weighting operator (verified)
-% 
+%
 % BY Yangkang Chen, Hang Wang, and co-authors, 2019
 %
 % INPUT
@@ -123,9 +130,9 @@ return
 
 function [dout] = str_trianglen_lop(din,par,adj,add )
 % str_trianglen_lop: N-D triangle smoothing operator (verified)
-% 
+%
 % BY Yangkang Chen, Hang Wang, and co-authors, 2019
-% 
+%
 % INPUT
 % din: model/data
 % par: parameter
@@ -214,7 +221,7 @@ return
 
 function [ i0 ] = str_first_index( i, j, dim, n, s )
 %% str_first_index: Find first index for multidimensional transforms
-% 
+%
 % BY Yangkang Chen, Hang Wang, and co-authors, 2019
 %
 % INPUT
@@ -242,7 +249,7 @@ return
 
 function [ x , tr ] = str_smooth2( tr, o, d, der, x)
 %% str_smooth2: apply triangle smoothing
-% 
+%
 % BY Yangkang Chen, Hang Wang, and co-authors, 2019
 %
 % INPUT
@@ -265,9 +272,7 @@ return
 
 
 function [ tmp ] = triple2( o, d, nx, nb, x, tmp, box, wt )
-% 
-% BY Yangkang Chen, Hang Wang, and co-authors, 2019
-%
+% BY Yangkang Chen, Nov, 04, 2019
 
 t1trp=clock;
 
@@ -287,9 +292,7 @@ t2trp=clock;
 return
 
 function [ xx ] = doubint2( nx, xx, der )
-% 
-% BY Yangkang Chen, Hang Wang, and co-authors, 2019
-%
+% Modified by Yangkang Chen, Nov, 04, 2019
 % integrate forward
 t = 0.0;
 for i = 0 : nx-1
@@ -316,9 +319,7 @@ return
 
 function [y] = cblas_saxpy( n, a, x, sx, y, sy )
 %% y += a*x
-% 
-% BY Yangkang Chen, Hang Wang, and co-authors, 2019
-%
+% Modified by Yangkang Chen, Nov, 04, 2019
 
 for i = 0 : n-1
     ix = i * sx;
@@ -330,9 +331,7 @@ end
 return
 
 function [ x ] = fold2(o, d, nx, nb, np, x, tmp)
-% 
-% BY Yangkang Chen, Hang Wang, and co-authors, 2019
-%
+% Modified by Yangkang Chen, Nov, 04, 2019
 
 % copy middle
 for i = 0 : nx-1

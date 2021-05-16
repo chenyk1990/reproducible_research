@@ -14,6 +14,9 @@ function [u1,u2] = str_conv_allpass_x(din,dip,order)
 % OUTPUT:
 % u1: C'(\sigma)d (denominator)
 % u2: C(\sigma)d  (numerator)
+% 
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
 
 u1=zeros(size(din));
 u2=zeros(size(din));

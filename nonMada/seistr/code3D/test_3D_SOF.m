@@ -3,6 +3,8 @@
 %  Copyright (C) 2019 
 %  Hang Wang, Yangkang Chen, and co-authors, 2019
 %  
+%  Reference
+%  H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
 
 %% load 3D data
 clear;clc;close;

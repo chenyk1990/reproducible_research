@@ -1,14 +1,22 @@
 function [u1,u2] = str_conv_allpass(din,dip,order)
-% Convolutional operator implemented by an allpass filter
-%
-% BY Yangkang Chen, Hang Wang, and co-authors, 2019
-%
+% str_conv_allpass: Convolutional operator implemented by an allpass filter
+% 
 % Linearized inverse problem
 % C'(\sigma)d\Delta \sigma =  C(\sigma)d
 %
+% BY Yangkang Chen, Hang Wang, and co-authors, 2019
+% 
+% IPNUT:
+% din: input data
+% dip: 3D dip
+% order: accuracy order
+%
 % OUTPUT:
-% u1: C'(\sigma)d (denominator)   
-% u2: C(\sigma)d  (numerator)   
+% u1: C'(\sigma)d (denominator)
+% u2: C(\sigma)d  (numerator)
+% 
+% Reference
+% H. Wang, Y. Chen, O. Saad, W. Chen, Y. Oboue, L. Yang, S. Fomel, and Y. Chen, 2021, A Matlab code package for 2D/3D local slope estimation and structural filtering: in press.
 
 u1=zeros(size(din));
 u2=zeros(size(din));
