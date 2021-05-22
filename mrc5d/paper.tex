@@ -1,0 +1,448 @@
+\DeclareRobustCommand{\old}[1]{}
+\DeclareRobustCommand{\new}[1]{#1}
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+\makeatletter
+\newcommand\fs@norules{\def\@fs@cfont{\bfseries}\let\@fs@capt\floatc@ruled
+	\def\@fs@pre{}%
+	\def\@fs@post{}%
+	\def\@fs@mid{\kern3pt}%
+	\let\@fs@iftopcapt\iftrue}
+\makeatother
+\floatstyle{norules}
+\restylefloat{algorithm}
+\title{Mixed rank-constrained model for simultaneous denoising and reconstruction of 5-D seismic data}
+	
+\author{Yapo Abol{\'e} Serge Innocent Obou{\'e} and Yangkang Chen}
+
+\address{Y.A.S.I. Obou{\'e} and Y. Chen are with School of Earth Sciences, Key Laboratory of Geoscience Big Data and Deep Resource of Zhejiang Province, Zhejiang University, Hangzhou, Zhejiang Province, China, 310027, obouesonofgod1@gmail.com\&chenyk2016@gmail.com.}
+
+\thanks{This research is supported by the Starting Funds from Zhejiang University. (Corresponding author: Y. Chen.)}
+
+\lefthead{TGRS - Obou{\'e} and Chen}
+\righthead{Mixed rank-constrained model}
+
+\maketitle
+
+\begin{abstract}
+Recently, researches on multidimensional seismic data interpolation through rank-constrained matrix or tensor completion have led to many effective methods, with satisfactory results. Despite the success of the rank-constrained matrix completion methods, e.g., damped rank-reduction (DRR), and the rank-constrained tensor completion methods, e.g., higher-order orthogonal iteration (HOOI), strong noise and highly decimated traces could still make the reconstruction results not acceptable. In this paper, we find that implementing only one rank constraint to solve the multidimensional seismic data recovery problem is not sufficient. Therefore, we consider a hybrid method to reconstruct the noisy and incomplete traces based on a new mixed rank-constrained (MRC) algorithm. The proposed MRC algorithm aims to take advantages of the merits of both the rank-constrained matrix and tensor completion models to restore the missing data. We first apply the unfolding and folding operator to the four-dimensional spatial hypercube data. Then, for each iteration, we connect the DRR and the HOOI approaches in the same framework to solve the proposed MRC model. The proposed MRC model aims to provide an enhanced level of rank constraint to improve the signal-to-noise ratio (SNR) of the recovered data. Synthetic and field 5-D seismic data are used to compare the performance of the new method with the HOOI and DRR methods. The comparison via visual inspection and numerical analysis reveal the better performance of the proposed MRC algorithm.
+\end{abstract}
+
+\section{Introduction}
+Multidimensional recovery of seismic data is a significant processing stage in the seismological exploration in order to provide complete data for the subsequent procedures, e.g., multiple removal, time-lapse investigations, high-resolution processing \citep{chiu2014multidimensional}. 
+
+Recovery of seismic data is performed by several approaches like linear prediction-error filters (PEFs) \citep{porsani1999seismic,curry2003interpolation,gulunay2003seismic,liu2015adaptive,fomel2016streaming,li2017multidimensional}. In the group of PEFs approaches, first, the low-frequency non-aliased elements of the decimated seismic data volume are selected to form the anti-aliasing PEF. Then, the high-frequency aliased data elements are replaced by using the filters. Seismic data interpolation can also be achieved via approaches based on the wave-equation theory \citep{fomel2003seismic}. These methods require a fairly reliable subsurface velocity model. Over the years, several researchers applied sparsity-promoting transforms methods to restore the missing data from noisy and incomplete seismic observations. These methods are based on sparse transforms like Fourier, Random, curvelet, seislet, shearlet, sparse wavelet  \citep{gan2015seismic,gan2015dealiased,liu2015seismic,zhong2015irregularly,gan2016compressive,kong2016seismic,li2016unconventional,liu2016effective,liu2016one,liu2016seismic,sun2016constraints,zu2016periodically,xue2017amplitude}, and the learning-based approaches \citep{yangkang2020sgk,wanghang2020tgrs3}. Based on $L_1$-norm minimization techniques, approaches that promote sparsity have successfully overcome seismic interpolation problems with the aid of shearlet transform and curvelet transform \citep{shahidi2013application}. To achieve the goal of missing traces interpolation, the coefficients in the transform domain are constrained by the broadly used $L_0$ or $L_1$ norm. However, this standard strategy cannot achieve good results for seismic data interpolation problem, because of the difficulties of NP-hard when using the $L_0$-norm, and the non-sparsest solution of $L_1$-norm. Accordingly, \cite{zhong2015irregularly} proposed a new $L_1/_2$ norm strategy to reconstruct incomplete seismic traces. The high-order Radon transform approach \citep{xue2017amplitude} has been introduced to attenuate random noise accurately. Low-rank methods for seismic data interpolation have emerged and become more relevant for which two sub-groups can be distinguished. The first that includes methods like the conventional rank-reduction (RR), and the damped rank-reduction (DRR), incorporates all the seismic data components in a matrix called Hankel or Toeplitz matrix, and then uses the iterative low-rank algorithm to interpolate the missing traces \citep{oropeza2011simultaneous,chen2016simultaneous,huang2017double,siahsar2017simultaneous,zhang2017hybrid,huang2018damped,chen2019five,oboue2020geo1}.
+Besides, some researchers \citep{yang2012seismic,kumar2015efficient} have introduced matrix completion (MC) approaches to further reduce the rank of the incomplete data matrices. To solve the MC optimization problem efficiently, \cite{kumar2012fast} introduced the matrix factorization via max-norm\dlo{known as MFMN}. The DRR algorithm \citep{chen2016simultaneous} has been proposed to increase the quality of the useful signal even though the seismic data are influenced by strong noise and missing traces. More recently, \cite{yangkang2020odrr} introduced an optimally DRR strategy to reconstruct 5-D seismic data. In the second sub-group of low-rank methods, tensor decomposition techniques like higher-order singular value decomposition (HO-SVD) proposed by \cite{de2000multilinear}, and parallel matrix factorization (PMF) introduced by \cite{gao2015parallel} are usually applied to the multidimensional array to reduce the rank of the noisy observation \citep{ely20135d,kreimer2013tensor,ely20155d,gao2015parallel,carozzi2019robust}. \cite{kreimer2012tensor} applied HO-SVD for 5-D seismic tensor completion. In this approach, the rank-reduced tensor is achieved iteratively via the high-order orthogonal iteration (HOOI) algorithm \citep{sheehan2007higher}, and then, the iterative weighted POCS-like algorithm based on low-rank methods is utilized to fill in the tensor. \cite{carozzi2019robust} proposed a novel PMF tensor completion approach to solve erratic noise problems. Both sub-groups of low-rank methods are focused on the seismic low-rank structure theory. Low-rank methods have promoted the improvement of approaches, which simultaneously remove noise and reconstruct the missing traces from the noisy observation \citep{elad2005simultaneous,kreimer2013tensor,benfeng2015pocs,chen2016simultaneous,zhang2017hybrid}. The groups of the methods mentioned above have their merits and shortcomings, which motivated some researchers to develop hybrid approaches by coupling sparsity-promoting transforms and low-rank approaches \citep{sternfels2015multidimensional,zhang2017hybrid}. Hybrid methods take benefit from the proper performance of each method to remove random noise and minimize the running time. 
+
+Although approaches based on matrix rank constraint, such as the DRR, and methods based on tensor rank constraint like HOOI have achieved some results, residual noise restricts their performance\dlo{s} and consequently their effectiveness when the observed 5-D seismic data is severely decimated and contains \dlo{notable}\wen{significant} random noise. In other words, when the observed data is extremely noisy and highly decimated, both rank-constrained models \dlo{become weak to provide}\wen{will not provide} acceptable recovery quality. Hence, we assume that implementing only one rank constraint to reach the goal of multidimensional seismic data interpolation is not sufficient. Therefore, in this paper, both sub-groups of low-rank methods are of interest to us. We consider double rank-reduction operators for multidimensional seismic data interpolation via a new mixed rank-constrained (MRC) method, which intends to mix the interests of both matrix and tensor rank constraints. We elaborate on the proposed MRC algorithm first, by applying the unfolding and folding operator to the four-dimensional spatial hypercube. Then, inside the loop for each iteration, we combine the DRR and the HOOI operators in the same framework to obtain an excellent recovery of the missing data. \dlo{At last}\wen{Finally}, we apply the iterative weighted POCS-like algorithm based on the low-rank methods to complete the tensor. The proposed MRC model aims at providing an enhanced level of rank constraint and increasing the SNR of the recovered data. 
+
+In the theory section, first, we present the damped rank-constrained matrix completion model and a brief review of the DRR approach for solving it. Then\dlo{,} \wen{the} rank-constrained tensor completion model and the approach based on HOOI to solve it are briefly introduced. Next, we construct the mixed rank-constrained model, and we propose the MRC algorithm to solve it. Tests are conducted on two synthetics and a field 5-D seismic data\wen{set} to compare the performance of the proposed method to both the HOOI and DRR methods. The comparison is done qualitatively via visual inspection and quantitatively in terms of SNR. The results demonstrate the better performance of the proposed MRC approach. 
+
+\section{Theory}
+
+We use boldface capital letters, for instance, $\mathbf{D}$, and calligraphy letters such as $\mathcal{D}$, to symbolize matrices and tensors, respectively. Boldface lowercase letters ($\mathbf{a}$) and lowercase letters (${a}$)\dlo{,} will indicate vectors and scalars, respectively.
+
+\subsection{Model 1: Rank-constrained matrix completion}
+
+Consider a clean data matrix denoted by $\mathbf{C}$. The \dlo{observed}\wen{missing} data can be recovered using the matrix completion theory based on a rank-minimizing strategy:
+\begin{equation}
+\min_{\mathbf{C}}rank_d(M\mathbf{C}),\quad s.t.\quad  {Q}_\Phi(\mathbf{C}-\mathbf{D})=0, 
+\end{equation}
+where the number of non-zero singular values of $M\mathbf{C}$ obtained by applying the damped rank-constrained function ($rank_d(\cdot)$) corresponds to $rank_d(M\mathbf{C})$ for $(j_1,j_2,j_3,j_4)\in\Phi$. $M$ indicates the Hankelization operator (see eq.(10)). $\mathbf{D}$ and $\Phi$ correspond to the observed data and the subset of observed indices, respectively. \wen{$ Q_\Phi$ indicates the linear operator}.
+
+The DRR algorithm proposed by \cite{chen2016simultaneous} is succinctly outlined as follows:
+
+\begin{enumerate}
+	\item Apply the 1-D forward FFT to transform the 5-D seismic data $\mathbf{D}_{time}(t, hx, hy, x, y)$ defined in time domain into $\mathbf{D}_{freq}(f, hx, hy, x, y)$ in the frequency-space domain. The components $ hx, hy, x, y $ indicate $ hx $ and $ hy $ offsets and $ x $ and $ y $ midpoints.
+	\item Apply the Hankelization operator to embed the 4-D spatial hypercube in a level-4 block Hankel matrix \wen{at a given frequency $f_0$}.
+	\item Apply the damped rank constraint to the level-4 block Hankel matrix to minimize the rank of the observed data. 
+	\item Apply the averaging operator to the approximation signal to recover the filtered data.
+	\item Apply the weighted POCS-like algorithm to interpolate the noisy decimated traces.
+	\item Apply the 1-D inverse FFT to convert the result into the time domain.
+\end{enumerate}
+
+A full description of the DRR method is given by Algorithm \ref{alg:alg1}.
+
+\begin{algorithm}[H] \caption{Damped rank-reduction algorithm (DRR) ({${H}$}, {${f}_{d}$}, $\mathbf{D}_{obsd}$, $a_{u}$, $tol$, $u_{max}$, ${F}$)}
+	\label{alg:alg1}
+	\begin{algorithmic}[1] 
+\Require An input 5-D seismic data.\\
+
+$\mathbf{D}_{obsd}(f, hx, hy, x, y)\leftarrow \mathbf{D}_{obsd}(t, hx, hy, x, y)$ via 1-D forward FFT\\		    
+$\mathbf{D}_0\leftarrow\mathbf{D}_{obsd}$\;
+
+\For{$f\leftarrow 1,2,\dots,{F}$}{ 
+	\For{$u\leftarrow 1,2,\dots,u_{max}$}\\
+	    {\wen{$\tilde{\mathbf{D}}\leftarrow{M}(\mathring{\mathbf{D}})$\\
+${{\mathbf{X}}}\leftarrow rank_{d}(\tilde{\mathbf{D}})$\\
+${\mathbf{D}^f_{u-1}}\leftarrow {W}{\mathbf{X}}$}\\
+$\mathbf{D}^f_u \leftarrow a_u\mathbf{D}^f_{obsd} + (1 - a_u){Hf}_{d}\mathbf{D}^f_{u-1} + (1 - {H}){f}_{d}\mathbf{D}^f_{u-1}$\;
+		\If{$\left\|\mathbf{D}^f_u - \mathbf{D}^f_{u-1}\right\|_F^2\leq tol$}\\
+		{\textbf{return} $\mathbf{D}^f_u$\;
+		}
+	   \EndIf\\
+		\textbf{return} $\mathbf{D}^f_{u_{max}}$\;
+	}\EndFor\\
+	\textbf{return} $\mathbf{D}_{recovered}$\;
+}
+\EndFor\\
+$\mathbf{D}_{recovered}(t,hx, hy, x, y)\leftarrow \mathbf{D}_{recovered}(f,hx, hy, x, y)$ via 1-D inverse FFT\;
+	\end{algorithmic}
+\end{algorithm}
+
+\wen{In Algorithm \ref{alg:alg1}}, ${H}$, ${f}_{d}$ and $a_{u}$ correspond to the sampling operator, the damped rank-reduction filter, and an iteration scalar, respectively. \wen{$\mathring{\mathbf{D}}$, $\tilde{\mathbf{D}}$ and ${\mathbf{X}}$ denote the 4-D spatial hypercube, the level-4 block Hankel matrix and the approximation low-rank matrix, respectively. ${W}$ denotes the averaging operator used to recover the filtered data after the $rank_d(\cdot)$ process.}
+
+\subsection{Model 2: Rank-constrained tensor completion}
+
+Incomplete seismic tensor $\mathcal{C} \in R^{I_1 \times I_2,...,\times I_N}$ is filled in via tensor completion model given by:
+\begin{equation}
+\min_{\mathcal{C}}rank_t(\mathcal{C}),\quad s.t.\quad Q_\Phi(\mathcal{C}-\mathcal{D}) = 0,  
+\end{equation}
+where $\Phi$ corresponds to the observed entries. Precisely, if $\mathcal{D}_{j_1,j_2,j_3,j_4}$ is an observed data, then $ (j_1,j_2,j_3,j_4) \in \Phi $. $ Q_\Phi $ denotes the linear operator. The term $rank_t\left(\cdot\right)$  is the tensor rank-constrained function.
+
+\cite{kreimer2012tensor} proposed to solve model 2 via an iterative tensor completion outlined as follows: 
+
+\begin{enumerate}
+	\item Convert the 5-D seismic data $\mathcal{D}_{time}(t, hx, hy, x, y)$ defined in time domain into $\mathcal{D}_{freq}(f, hx, hy, x, y)$ of complex values in the frequency-space domain via the 1-D forward FFT.
+	\item \wen{Apply the tensor operator $T$ to the 4-D spatial data hypercube at a given frequency $f_0$ to model the level-four tensor.} 
+	\item Apply the tensor rank constraint known as HOOI to the \dlo{4D spatial data hypercube}\wen{seismic tensor}. 
+	\item Apply the double operator to recover the target filtered approximation tensor.
+	\item Apply the iterative weighted POCS-like algorithm to complete the low-rank tensor.
+	\item Transform the restored data into the time domain by using the 1-D forward FFT.
+\end{enumerate}
+
+The tensor completion approach using the HOOI operator to solve the model 2 is detailed in Algorithm \ref{alg:alg2}.
+
+\begin{algorithm}[H] \caption{Tensor completion via Higher Order Orthogonal Iteration (HOOI)(${H}$, ${f_t}$, $\mathcal{D}_{obsd}$, {$a_{u}$}, $tol$, $u_{max}$, ${F}$)}
+	\label{alg:alg2}
+	\begin{algorithmic}[1] 
+\Require An input 5-D seismic data.\\
+
+$\mathcal{D}_{obsd}(f, hx, hy, x, y)\leftarrow \mathcal{D}_{obsd}(t, hx, hy, x, y)$ via 1-D forward FFT\\
+$\mathcal{D}_0\leftarrow\mathcal{D}_{obsd}$\;
+		\For{$f\leftarrow 1,2,\dots,{F}$}{
+			\For{$u\leftarrow 1,2,\dots,u_{max}$}\\
+\wen{$\tilde{\mathcal{D}}\leftarrow{T}(\mathring{\mathcal{D}})$\\
+${\hat{\mathcal{D}}}\leftarrow rank_{t}(\tilde{\mathcal{D}})$\\
+${\mathcal{D}^f_{u-1}}\leftarrow {d_l}(\hat{\mathcal{D}})$}\\
+			{$\mathcal{D}^f_u \leftarrow a_u\mathcal{D}^f_{obsd} + (1 - a_u){Hf}_{t}\mathcal{D}^f_{u-1} + (1 - {H}){f}_{t}\mathcal{D}^f_{u-1}$\;
+				\If{$\left\|\mathcal{D}^f_u - \mathcal{D}^f_{u-1}\right\|_F^2\leq tol$}\\
+				{\textbf{return} $\mathcal{D}^f_u$\;
+				}
+				\EndIf\\
+				\textbf{return} $\mathcal{D}^f_{u_{max}}$\;
+			}\EndFor\\			
+			\textbf{return} $\mathcal{D}_{recovered}$\;
+		}
+		\EndFor\\
+		$\mathcal{D}_{recovered}(t,hx, hy, x, y)\leftarrow\mathcal{D}_{recovered}(f,hx, hy, x, y)$ via 1-D inverse FFT\;
+	\end{algorithmic}
+\end{algorithm}
+	
+\wen{In Algorithm \ref{alg:alg2}}, ${H}$ and ${f}_{t}$ correspond to the sampling operator and the tensor rank-reduction filter, respectively. The tensor operator \wen{${T}$ is applied to the 4-D spatial data hypercube $\mathring{\mathcal{D}}$. $\tilde{\mathcal{D}}$ is the resulting 4-D tensor. $\hat{\mathcal{D}}$ denotes the approximation of low-rank tensor. The notation ${d_l(\cdot)}$ denotes the double operator used to recover the filtered data after the $rank_t(\cdot)$ process.}
+
+\subsection{Model 3: Mixed rank-constrained model}
+
+Based on models 1 and 2, \dlo{we introduce a novel model that intends to combine}\wen{we introduce a model that combines} the damped and tensor rank-constrained models. The proposed model applies double rank constraints to solve the seismic data recovery problem. The noisy and incomplete data can be reconstructed by implementing the proposed mixed rank-constrained model: 
+\begin{equation}
+\min_{\mathbf{C},\mathcal{C}}rank_{dt}(M\mathbf{C},\mathcal{C}),\; s.t.\; \left( \mathbf{C},\mathcal{C}\right)_{j_1,j_2,j_3,j_4} =\left(\mathbf{D},\mathcal{D}\right)_{j_1,j_2,j_3,j_4}, 
+\end{equation}
+where $rank_{dt}\left(\cdot,\cdot\right)$ corresponds to the mixed rank-constrained function for $ (j_1,j_2,j_3,j_4) \in\Phi $.
+
+By applying the unfolding operator, an Nth-order tensor $\mathcal{D}_{j_1,j_2,j_3,...,j_N}$ where $j_n$ = 1···$J_n$, $n = 1,...,N $ along each mode can be molded into $ N $ matrices. Also, the folding operator can be applied to convert a matrix into a tensor \cite{kolda2009tensor}. Therefore, we propose to solve the new model 3 by applying first the unfolding and folding operators to factorize the four-dimensional spatial hypercube $\mathcal{D}_{J_1, J_2,J_3,J_4}$ defined in frequency-space domain outside the loop for each iteration numbers. For simplification, we drop the components {$J_1,J_2,J_3,J_4$} of $\mathcal{D}_{J_1,J_2,J_3,J_4}$ where $J_n$ = 1···$J_n$ with $n = 1,2,3,4$. So, $\mathcal{D}_{J_1,J_2,J_3,J_4}$ can be seen as $\mathcal{D}$. The operation of unfolding and folding for a mode $ k $ is given by:   
+\begin{equation}
+\textbf{D}_{(k)}= unfold_{k}[\mathcal{D}],\quad k=1,...,N,
+\label{eq:eq4}
+\end{equation}
+\begin{equation}
+\mathcal{D}  = \sum_{k=1}^{N} fold_{k}\left[\textbf{D}_{(k)}\right], 
+\label{eq:eq5}
+\end{equation}
+where $\mathcal{D}$ denotes our target folded 4-D spatial hypercube.  
+
+Such operation for a third-order tensor ($N = 3$) is summarized in \dlo{Fig. 1}\wen{Figs. \ref{fig:UNFOLDING_FOLDING-a}-\ref{fig:UNFOLDING_FOLDING-c}}
+\inputdir{./}
+\multiplot{3}{UNFOLDING_FOLDING-a,UNFOLDING_FOLDING-b,UNFOLDING_FOLDING-c}{width=0.2\textwidth}{Schematic representation of the unfolding and folding for a third-order tensor $(I_1\times I_2\times I_3)-$tensor $\mathcal{D}$. \wen{(a) Unfolding and folding mode-1. (b) Unfolding and folding mode-2. (c) Unfolding and folding mode-3.}}
+
+Then, all components of the folded 4-D spatial hypercube data $\mathcal{D}$ are inserted into a level-one block Hankel matrix:
+\begin{equation}
+\textbf{G}^{(h_1)}=\begin{pmatrix}
+\mathcal{D}_{1} & \mathcal{D}_{2} & ... & \mathcal{D}_{Y_{1}-U_{1}+1}\\ 
+\mathcal{D}_{2} & \mathcal{D}_{3} & ... & \mathcal{D}_{Y_{1}-U_{1}+2}\\ 
+\vdots & \vdots & \ddots & \vdots\\
+\mathcal{D}_{{U_{1}}{}} & \mathcal{D}_{{U_{1}+1},}  & ... & \mathcal{D}_{Y_{1}}
+\end{pmatrix}.
+\end{equation}
+The matrices in eq.(6) are then included in a second-level block Hankel matrix:
+\begin{equation}
+\textbf{G}^{(h_2)}=\begin{pmatrix}
+\textbf{G}^{(h_1)}_{1} & \textbf{G}^{(h_1)}_{2} & ... & \textbf{G}^{(h_1)}_{Y_{2}-U_{2}+1}\\ 
+\textbf{G}^{(h_1)}_{2} & \textbf{G}^{(h_1)}_{3} & ... & \textbf{G}^{(h_1)}_{Y_{2}-U_{2}+2}\\
+\vdots & \vdots & \ddots & \vdots\\
+\textbf{G}^{(h_1)}_{U_{3}} & \textbf{G}^{(h_1)}_{U_{2}{+1}} & ... & \textbf{G}^{(h_1)}_{Y_{2}}\\ 
+\end{pmatrix}.
+\end{equation}
+The Hankelization operator follows the same process to construct the third level of the target block Hankel matrix:
+\begin{equation}
+\textbf{G}^{(h_3)}=\begin{pmatrix}
+\textbf{G}^{(h_2)}_{1} & \textbf{G}^{(h_2)}_{2} & ... & \textbf{G}^{(h_2)}_{Y_{3}-U_{3}+1}\\ 
+\textbf{G}^{(h_2)}_{2} & \textbf{G}^{(h_2)}_{3} & ... & \textbf{G}^{(h_2)}_{Y_{3}-U_{3}+2}\\ 	
+\vdots & \vdots & \ddots & \vdots\\
+\textbf{G}^{(h_2)}_{U_{3}} & \textbf{G}^{(h_2)}_{U_{3}+1} & ... & \textbf{G}^{(h_2)}_{Y_{3}}
+\end{pmatrix}.
+\end{equation}
+At last, all level-three matrices are inserted to construct the expected level-four block Hankel matrix:
+\begin{equation}
+\textbf{G}^{(h_4)}=\begin{pmatrix}
+\textbf{G}^{(h_3)}_1 & \textbf{G}^{(h_3)}_2 & ... & \textbf{G}^{(h_3)}_{Y_4-U_4+1}\\ 
+\textbf{G}^{(h_3)}_2 & \textbf{G}^{(h_3)}_3 & ... & \textbf{G}^{(h_3)}_{Y_4-U_4+2}\\ 
+\vdots & \vdots & \ddots & \vdots\\
+\textbf{G}^{(h_3)}_{U_{4}} & \textbf{G}^{(h_3)}_{U_{4} +1} & ... & \textbf{G}^{(h_3)}_{Y_{4}}
+\end{pmatrix},
+\end{equation}
+where $\textbf{G}$ is the desired block Hankel matrix containing the folded four-dimensional spatial hypercube data. $h_i$ corresponds to the reached level.
+If $Y_n$ is an odd integer, the size of 
+$\textbf{G}^{(h_4)}$ can be written as $(U_1U_2U_3U_4)\times(U_1U_2U_3U_4)$.
+
+If we ignore the argument $h_4$ of the target matrix, the Hankelization operation can be expressed by: 
+\begin{equation}
+\mathbf{G}={M}\mathcal{D},              
+\end{equation}
+where ${M}$ is the Hankelization operator. 
+
+\cite{chen2016simultaneous} concluded the DRR formula for the low-rank signal matrix approximation as follows:
+\begin{align}
+\mathbf{X}=\mathbf{U}^{\mathbf{G}}_1{\Sigma^{\mathbf{G}}_1}\eta\left(\mathbf{V}^{\mathbf{G}}_1\right)^{{T}},
+\end{align}
+where $\mathbf{X}$ and ${\Sigma^{\mathbf{G}}_1}$ correspond to the approximation signal and the diagonal matrix that contains larger singular values. The matrices having singular vectors are denoted by $\mathbf{U}^{\mathbf{G}}_1$ and $\mathbf{V}^{\mathbf{G}}_1$. $\left(\cdot\right) ^{T}$ indicates the conjugate transpose. The symbol $\eta$, which is formulated as follows is the damping operator:
+\begin{align}
+\eta= I - (\Sigma^{\mathbf{G}}_1 )^{-{z}}{{\ell}^{z}},
+\end{align} 
+where ${\ell}$ represents the maximum element of the smaller singular values, and $z$ corresponds to the damping factor. 
+
+The process of obtaining the approximation signal matrix $\mathbf{X}$ is given as follows:
+\begin{equation}
+\mathbf{X}=R_\eta{\mathbf{{G}}}, 
+\end{equation}
+where $R_\eta$ denotes the DRR operator (eq.(1)).
+
+The process of the averaging function, which is applied along the anti-diagonals of $\mathbf{X}$ can be expressed as
+\begin{equation}
+\mathbf{P}={W}\mathbf{X},
+\end{equation}
+where ${W}$ denotes the averaging operator. 
+
+Then, the 4-D data matrix $\mathbf{P}$ is transformed into a tensor $\mathcal{D}$ to estimate its best rank via the HOOI \citep{sheehan2007higher} decomposition technique. At this step, a connection between the damped and the tensor rank constraints is created. 
+
+Consider the Nth-order tensor $\mathcal{D}\in R^{I_1 \times I_2,...,\times I_N}$ and its corresponding low-rank tensor $\mathcal{\hat D} \in R^{I_1 \times I_2,...,\times I_N}$, which is constrained by 
+$rank_{t1}(\mathcal{\hat D})= R_1$, $rank_{t2}(\mathcal{\hat D})= R_2,...,rank_{tN}(\mathcal{\hat D})=R_N$. The following least-squares problem
+\begin{equation}
+f(\mathcal{\hat D})=\left\|\mathcal{D}-\mathcal{\hat D}\right\|^2, 
+\end{equation}
+estimates $ \mathcal{\hat D} $ by computing a tensor $\mathcal{A}$ that optimizes the least-squares cost function $f(\mathcal{\cdot})$ in eq.(15). The tensor $\mathcal{A}$ is given by:
+\begin{equation}
+\mathcal{A}=\mathcal{D}\times_1\mathbf{S}^{(1)^{T}}\times_2\mathbf{S}^{(2)^{T}}...\times_N\mathbf{S}^{(N)^{T}}.
+\end{equation}
+The alternating least-squares (ALS) approach used to solve the $ Rank_t-({R_1,R_2,...,R_N}) $ problem in this paper is the HOOI. By using the MATLAB Tensor Toolbox proposed by \cite{bader2010matlab}, HOOI operator successively solves the restricted optimization problems \citep{sheehan2007higher}:
+\begin{equation}
+\min_{\mathbf{S}^P}\left\|\mathcal{D} - \mathcal{A} \times_1\mathbf{S}^{(1)}\times_2\mathbf{S}^{(2)}...\times_N\mathbf{S}^{(N)} \right\|_F^2.
+\end{equation}
+Optimization is achieved over the matrix $\mathbf{S}^P$ with the latest available values of other $\mathbf{S}^i$.
+
+Based on the N-rank requirements, $\mathcal{\hat D}$ is decomposed in the following ways:
+\begin{equation}
+\mathcal{\hat{D}}=\mathcal{A}\times_1\mathbf{S}^{(1)}\times_2\mathbf{S}^{(2)}...\times_N\mathbf{S}^{(N)},
+\end{equation}
+in which $ \mathbf{S}^{(1)} \in R^{I_1 \times R_1} $, $ \mathbf{S}^{(1)} \in R^{I_2 \times R_2}$,..., $ \mathbf{S}^{(N)} \in R^{I_N \times R_N}$, and have orthonormal columns.  $ \mathcal{A} \in R^{R_1\times R_2 \times...\times R_N}$. 
+
+The tensor rank-reduction operator is given as follows:
+\begin{equation}
+\mathcal{\hat D} = {R_t}{\mathcal{D}}, 
+\end{equation}
+where ${R_t}$ denotes the HOOI operator. 
+
+Afterward, the filtered data is recovered by applying the double function to the target low-rank tensor $\mathcal{\hat D}$. 
+From this operation, we can formulate an improved rank-reduction filter based on the mixed rank-constrained model:
+\begin{equation}
+\mathcal{\breve{D}}= d_l\left(\mathcal{\hat D}\right)=d_l\left( {R_t}{\mathcal{D}}\right)=d_l\left({R_t}T{W}{R_\eta}{M}\mathcal{D}\right)=f_{dt}\mathcal{D},
+\end{equation}
+\dlo{where $d_l\left(\cdot\right)$ and $T$ correspond to the double and tensor functions, respectively.}\wen{where} $f_{dt}$ denotes the mixed rank-constrained filter. 
+
+At last, we apply the following iterative algorithm to complete the low-rank tensor adequately:
+\begin{equation}
+\mathcal{D}_u = a_u\mathcal{D}_{obsd} + (1 - a_u){H}f_{dt}\mathcal{D}_{u-1} + (1 - {H})f_{dt}\mathcal{D}_{u-1},
+\end{equation}  
+where $\mathcal{D}_0=\mathcal{D}_{obsd}$ indicates the observed data. $u=1,2,3,...,u_{max}$ is an iteration number. $a_{u}$ corresponds to a given iteration dependent scalar, which diminish from $a_1=1$ to $a_{u_{max}}=0$. ${H}$ is the sampling operator. The elements of ${H}$ correspond to $ 1 $ when the observation is non-zero, otherwise $0$ for the incomplete values. 
+
+A comprehensive description of the MRC method to solve model 3 is given by Algorithm \ref{alg:alg3}.
+
+\begin{algorithm}[H] \caption{Mixed rank constraints algorithm (MRC)(${H}$, ${f_{dt}}$, $\mathcal{D}_{obsd}$, $ r_1,_{\cdot\cdot\cdot},r_N $, {$a_{u}$}, $tol$, $u_{max}$, ${F}$)}
+	\label{alg:alg3}
+	\begin{algorithmic}[1] 
+\Require An input 5-D seismic data.\\
+$\mathcal{D}_{obsd}(f, hx, hy, x, y)\leftarrow \mathcal{D}_{obsd}(t, hx, hy, x, y)$ via 1-D forward FFT\\		    
+$\mathcal{D}_0\leftarrow\mathcal{D}_{obsd}$\;
+		\For{$f\leftarrow 1,2,\dots,{F}$}{
+			\For{$k=1,\dots,N$}\\{$\mathcal{D}=\sum_{k=1}^{N} fold_{k}\left[{D}_{(k)}\right]$}
+			\EndFor
+			\For{$u\leftarrow 1,2,\dots,u_{max}$}\\
+\wen{${\mathbf{G}}\leftarrow{M}({\mathcal{D}})$\\
+${{\mathbf{X}}}\leftarrow rank_{d}({\mathbf{G}})$\\
+${{\mathbf{P}}}\leftarrow {W}{\mathbf{X}}$\\
+${\mathcal{\check{D}}}\leftarrow{T}({\mathbf{P}})$\\
+${\hat{\mathcal{D}}}\leftarrow rank_{t}({\mathcal{\check{D}}})$\\
+${\mathcal{D}^f_{u-1}}\leftarrow {d_l}(\hat{\mathcal{D}})$}\\
+			{$\mathcal{D}^f_u \leftarrow a_u\mathcal{D}^f_{obsd} + (1 - a_u){Hf}_{d}\mathcal{D}^f_{u-1} + (1 - {H}){f}_{d}\mathcal{D}^f_{u-1}$\;
+				\If{$\left\|\mathcal{D}^f_u - \mathcal{D}^f_{u-1}\right\|_F^2\leq tol$}\\
+				{\textbf{return} $\mathcal{D}^f_u$\;
+				}
+				\EndIf\\
+				\textbf{return} $\mathcal{D}^f_{u_{max}}$\;
+			}\EndFor\\			
+			\textbf{return} $\mathcal{D}_{recovered}$\;
+		}
+		\EndFor\\		
+		$\mathcal{D}_{recovered}(t,hx, hy, x, y)\leftarrow \mathcal{D}_{recovered}(f,hx, hy, x, y)$ via 1-D inverse FFT\;
+	\end{algorithmic}
+\end{algorithm}
+	
+\wen{Noisy and severely decimated 4-D spatial hypercube data that the level-4 block Hankel matrix contains weakens the performances of the $rank_{d}(\cdot)$ process. To tackle this difficulty, \wen{we apply low-rank matrix factorization \citep{gao2015parallel} to each mode unfolding (eq. (\ref{eq:eq4})) of the 4-D spatial hypercube data to enforce low rank and update the matrix factors alternatively in eq. (\ref{eq:eq5}).}\dlo{we impose a low-rankness to the observed data by applying the unfolding and folding operator to the 4-D spatial hypercube.} This operation minimizes the contribution of noise in the resulting folded 4-D spatial hypercube $\mathcal{D}$. By including the components of $\mathcal{D}$ (\wen{eq. (\ref{eq:eq5})}) into $\mathbf{G}$, we improve the $rank_{d}(\cdot)$ process. Indeed, contrary to the DRR method, our target block Hankel matrix ${\mathbf{G}}$ is composed of the improved 4-D spatial hypercube data $\mathcal{D}$.}
+
+\wen{The mixed rank-constrained function is a combination of the damped rank-constrained function ($rank_{d}(\cdot)$) and the tensor rank-constrained function ($rank_{t}(\cdot)$). After applying the function $rank_{d}(\cdot)$ to $\mathbf{G}$, the averaging operator ${W}$ is applied to transform the approximation signal ${\mathbf{X}}$ into the filtered data ${\mathbf{P}}$ having the physical components $hx, hy, x$ and $y$ as spatial size. Then, the tensor function is applied to convert ${\mathbf{P}}$ into the tensor ${\mathcal{\check{D}}}$ having the same spatial size. To perform this step, the tensor operator should match the physical components of ${\mathbf{P}}$. Next, the function $rank_{t}(\cdot)$ is applied to the resulting 4-D tensor ${\mathcal{\check{D}}}$ to further reduce the rank. Afterward, the filtered low-rank tensor ${\mathcal{\hat{D}}}$ got after applying the double function is filled in via the weighted POCS-like algorithm.} 
+
+\wen{By applying the mixed rank-constrained, we can further improve the quality of the useful signal even when the observed data is highly decimated. The proposed MRC method is relatively cheaper than the DRR approach in terms of computation time because of the low-rankness of the level-4 block Hankel matrix $\mathbf{G}$.} 
+
+In the three algorithms, the process of iteration ceases \dlo{when the frequencies ${F}$ are achieved}\wen{when all the frequencies ${F}$ are processed}. Two independent conditions induce the algorithm to stop running: first, when {$u_{max}$} that corresponds to the maximum number of iteration is finished. Then, if {$\left\|\mathcal{D}^f_u- \mathcal{D}^f_{u-1}\right\|_F^2\leq tol$} for each ${F}$ band\dlo{$tol$ and {$\left\|\cdot\right\|_F$} are the given small tolerance and the Frobenuis norm, respectively}. \wen{$tol$ is a given small tolerance. {$\left\|\cdot\right\|_F$} denotes the Frobenuis norm.} 
+
+
+\section{Examples}
+
+\subsection{Synthetic data examples}
+
+We show the simultaneous denoising and reconstruction performance of the proposed approach on 5-D synthetic data. The first and second synthetic data used in this paper contain linear and curved events, respectively. For each test, the effectiveness of the proposed \wen{MRC} approach is compared with the HOOI and the DRR approaches. The recovery quality is assessed through the SNR of the final results in decibels \citep{chen2016simultaneous}: 
+\begin{equation}
+SNR=10\log_{10}\frac{\Vert X^{o} \Vert^2_2}{\Vert X^{o}-X^{r}\Vert^2_2},
+\end{equation}
+where $X^{o}$ and $X^{r}$ are the vectorized original data (ground truth) and the vectorized recovered signal, respectively. The higher values of SNR will denote the more reliable recovery quality.
+
+For the case of synthetic data containing linear events, we generate noisy data by adding a noise variance of $0.1$ to the original data. We create the observed data by removing $80\%$ of traces from the noisy data. The SNRs of the noisy and observed data are $ -0.66 $ dB and $ -0.14 $ dB, respectively. To recover the useful signal, we apply the HOOI algorithm with rank \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$}. We run the DRR algorithm with rank $r=3$ and damping factor $z=3$. For the proposed \wen{MRC} algorithm, we select $r=3$, $z=3$, and \dlo{$r_{k}=10$}\wen{$r_{k}=(10,10,10,10)$}. We perform the three algorithms using a band of frequencies $5-100$ Hz and $15$ weighted POCS-like iterations. \dlo{Figs. \ref{fig:synth-original-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-hooi-hxhy,synth-drr-hxhy,synth-mrc-hxhy} and \ref{fig:synth-original-xy,synth-noisy-xy,synth-obs-xy,synth-hooi-xy,synth-drr-xy,synth-mrc-xy} display the comparison in one common midpoint and offset gathers, respectively}\wen{Fig. \ref{fig:synth-original-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-hooi-hxhy,synth-drr-hxhy,synth-mrc-hxhy} displays the comparison in one common midpoint gather. The comparison in one common offset gather is plotted in Fig.  \ref{fig:synth-original-xy,synth-noisy-xy,synth-obs-xy,synth-hooi-xy,synth-drr-xy,synth-mrc-xy}.} Figs. \ref{fig:synth-original-hxhy} and \ref{fig:synth-original-xy} show the original data. The noisy data is plotted in Figs. \ref{fig:synth-noisy-hxhy} and \ref{fig:synth-noisy-xy}. Figs. \ref{fig:synth-obs-hxhy} and \ref{fig:synth-obs-xy} display the observed data. Figs. \ref{fig:synth-hooi-hxhy} and \ref{fig:synth-hooi-xy} represent the recovered data using the HOOI algorithm. Figs. \ref{fig:synth-drr-hxhy} and \ref{fig:synth-drr-xy} correspond to the DRR approach. The recovered data using the proposed \wen{MRC} approach is displayed in Figs. \ref{fig:synth-mrc-hxhy} and \ref{fig:synth-mrc-xy}. From the comparison of each sub-figure, we find that our algorithm provides much better results than the other two algorithms since the useful signal is accurately restored and contains the least residual noise. This comparison also shows that the DRR approach can achieve a more satisfactory result than the HOOI approach.
+
+\inputdir{synth}
+\multiplot{6}{synth-original-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-hooi-hxhy,synth-drr-hxhy,synth-mrc-hxhy}{width=0.3\textwidth}{Common midpoint 3-D figures comparison ($x$ = 5, $y$ = 5) of synthetic data, including linear events. (a) shows the original data. (b) displays the noisy data. (c) is from the observed data. (d) corresponds to the recovered data using the HOOI approach. (e) denotes the recovered data using the DRR approach. (f) plots the recovered data using the proposed MRC approach.}
+
+\inputdir{synth}
+\multiplot{6}{synth-original-xy,synth-noisy-xy,synth-obs-xy,synth-hooi-xy,synth-drr-xy,synth-mrc-xy}{width=0.3\textwidth}{Common offset 3-D figures comparison ($hx$ = 5, $hy$ = 5) of synthetic data, including linear events. (a) displays the original data. (b) shows the noisy data. (c) is from the observed data. (d) denotes the recovered data using the HOOI approach. (e) designates the recovered data using the DRR approach. (f) corresponds to the recovered data using the proposed MRC approach.}
+
+We illustrate the recovery error of each approach in Figs. \ref{fig:synth-hooi-hxhy-e,synth-drr-hxhy-e,synth-mrc-hxhy-e,synth-hooi-xy-e,synth-drr-xy-e,synth-mrc-xy-e}. Figs. \ref{fig:synth-hooi-hxhy-e}-\ref{fig:synth-mrc-hxhy-e} denote the error of the HOOI, the DRR and the proposed \wen{MRC} methods in one common midpoint gather, respectively. Figs. \ref{fig:synth-hooi-xy-e}-\ref{fig:synth-mrc-xy-e} display, respectively, the error of the HOOI, the DRR, and the proposed \wen{MRC} methods in one common offset gather. Because of \dlo{the less reconstruction error}\wen{a small reconstruction error}, we deduce that the proposed \wen{MRC} algorithm restores the useful events better than the DRR and the HOOI approaches. The reconstruction error comparison highlights the superiority of the proposed \wen{MRC} approach.
+
+\inputdir{synth}
+\multiplot{6}{synth-hooi-hxhy-e,synth-drr-hxhy-e,synth-mrc-hxhy-e,synth-hooi-xy-e,synth-drr-xy-e,synth-mrc-xy-e}{width=0.3\textwidth}{Simultaneous denoising and reconstruction error comparison. (a)-(c) correspond to the errors obtained by the HOOI, the DRR, and the proposed approaches in one common midpoint gather ($x$ = 5, $y$ = 5), respectively. (d)-(f) denote the errors obtained via the HOOI, the DRR, and the proposed MRC approaches in one common offset gather ($hx$ = 5, $hy$ = 5), respectively.}
+
+The SNRs for this example are $8.12$ dB, $13.78$ dB, and $17.73$ dB for the HOOI, the DRR, and the proposed approaches, respectively. The quantitative analysis confirms the better recovery quality of our MRC approach.
+
+To investigate the effectiveness of the proposed \wen{MRC} method in another representation, we compare the frequency-space (f-x) spectra of each data plotted in Fig. \ref{fig:synth-original-xy,synth-noisy-xy,synth-obs-xy,synth-hooi-xy,synth-drr-xy,synth-mrc-xy}. Figs. \ref{fig:fx_original_linear}-\ref{fig:fx_observed_linear} display the f-x spectra of the original, noisy, and observed data, respectively. Figs. \ref{fig:fx_HOOI_linear}-\ref{fig:fx_proposed_linear}, are, respectively, from the HOOI, the DRR, and the proposed approaches. The analysis of each result reveals that the DRR and the proposed \wen{MRC} approaches can remove the more residual noise in a large frequency band than the HOOI algorithm. However, when we focus on the small temporal frequencies band (from $10$ to $60$ Hz), we find that the proposed \wen{MRC} approach recovers the significant features of the signal better than the DRR method. The f-x representation distinctly proves that our algorithm provides similar recovered data to the original data. 
+
+\inputdir{./}
+\multiplot{6}{fx_original_linear,fx_Noisy_linear,fx_observed_linear,fx_HOOI_linear,fx_DRR_linear,fx_proposed_linear}{width=0.3\textwidth}{Frequency-space (f-x) spectra comparison of each data shown in Fig. \ref{fig:synth-original-xy,synth-noisy-xy,synth-obs-xy,synth-hooi-xy,synth-drr-xy,synth-mrc-xy}. (a)-(c) correspond to the original, noisy, and observed synthetic data, respectively. (d)-(f) denote the HOOI, the DRR, and the proposed MRC approaches, respectively.}
+
+We also compare the single trace amplitude of each data from Fig. \ref{fig:synth-original-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-hooi-hxhy,synth-drr-hxhy,synth-mrc-hxhy} in Fig. \ref{fig:synth-ss}. The red, black, and magenta lines are, respectively, from the original, the noisy, and the observed data. \dlo{The yellow and blue lines are, respectively, from the HOOI, and the DRR approaches}\wen{The yellow line is from HOOI method. The blue line corresponds to the single trace amplitude of the DRR method}. The green line is from the proposed \wen{MRC} method. As seen, because of the large percentage of incomplete traces, the amplitude of the observed data is degraded. A detailed comparison reveals that the red and the green lines are almost the same. We can, therefore, affirm that the proposed MRC algorithm can better restore the significant features of the useful signal than the HOOI and the DRR approaches.
+
+\inputdir{synth}
+\plot{synth-ss}{width=1\columnwidth}{Comparison of a single trace amplitude of each corresponding data shown in Fig. \ref{fig:synth-original-hxhy,synth-noisy-hxhy,synth-obs-hxhy,synth-hooi-hxhy,synth-drr-hxhy,synth-mrc-hxhy}. The red line is from the original synthetic data. The black line denotes the noisy synthetic data. The magenta line is from the observed data. The yellow and blue lines are from the HOOI and the DRR methods, respectively. The amplitude provided by the proposed MRC method is denoted by the green line.}
+
+We then conduct another experiment to show the effectiveness of the proposed MRC approach on synthetic data that is constituted of curved events. We compare the performance of the proposed \wen{MRC} algorithm with that of the HOOI and the DRR algorithms. By adding a noise level of $0.1$ to the original data and removing $80\%$ of traces, we generate the observed data with an SNR of about $0.86$ dB. For this experiment, we adopt rank \dlo{$r_{k}=1$}\wen{$r_{k}=(1,1,1,1)$} for the HOOI method, rank $r=12$, and damping factor $z=3$ for the DRR method. We select $r=14$, $z=3$ and \dlo{$r_{k}=2$}\wen{$r_{k}=(2,2,2,2)$}, for the proposed \wen{MRC} method. We implement the three algorithms in temporal frequencies band $5-100$ Hz with $15$ weight POCS-like iterations. We conduct the one common midpoint gather comparison in Fig. \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-hooi2d-0,hyper-drr2d-0,hyper-mrc2d-0}. The original data and the observed data are, respectively, displayed in Figs. \ref{fig:hyper-clean2d-0} and \ref{fig:hyper-obs2d-0}. \dlo{Figs. \ref{fig:hyper-hooi2d-0}, \ref{fig:hyper-drr2d-0}, and \ref{fig:hyper-mrc2d-0} show the results obtained by using the HOOI, the DRR, and the proposed \wen{MRC} algorithms, respectively.}\wen{Fig. \ref{fig:hyper-hooi2d-0} shows the result obtained by using the HOOI method. Fig. \ref{fig:hyper-drr2d-0} is from the DRR method. The restored data from the proposed MRC method is plotted in Fig. \ref{fig:hyper-mrc2d-0}}. From the visual inspection of each sub-figure, different methods can successfully reconstruct the noisy and missing traces. However, the results of the HOOI and the DRR approaches seem to contain serious artifacts because of the remaining noise.
+
+\inputdir{hyper}
+\multiplot{6}{hyper-clean2d-0,hyper-obs2d-0,hyper-hooi2d-0,hyper-drr2d-0,hyper-mrc2d-0}{width=0.9\textwidth}{Common midpoint 2-D figures comparison of synthetic data having curved events. (a) Original data. (b) Observed data. (c) Recovered data using the HOOI approach. (d) Recovered data using the DRR approach. (e) Recovered data using the proposed MRC approach.}
+		
+To precisely see the difference, we display in Fig. \ref{fig:hyper-z-clean,hyper-z-obs,hyper-z-hooi,hyper-z-drr,hyper-z-mrc} the zoomed data highlighted by each blue frame boxes in Fig. \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-hooi2d-0,hyper-drr2d-0,hyper-mrc2d-0}. \dlo{Figs. \ref{fig:hyper-z-clean} and \ref{fig:hyper-z-obs} are from the original and the observed data, respectively}\wen{Fig. \ref{fig:hyper-z-clean} corresponds to the original data. The noisy data is displayed in Fig. \ref{fig:hyper-z-obs}.} Figs. \ref{fig:hyper-z-hooi}-\ref{fig:hyper-z-mrc} correspond, respectively, to the HOOI, the DRR, and the proposed approaches. Compared to the HOOI, and the DRR approaches, the zoomed data using our approach contains the least residual noise.
+
+\inputdir{hyper}
+\multiplot{6}{hyper-z-clean,hyper-z-obs,hyper-z-hooi,hyper-z-drr,hyper-z-mrc}{width=0.3\textwidth}{Comparison of the zoomed sections from Figs. \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-hooi2d-0,hyper-drr2d-0,hyper-mrc2d-0} (the blue frame boxes). (a) displays the original data. (b) shows the observed data. (b), (c) and (d) denote the simultaneously denoised and reconstructed data using the HOOI, the DRR, and the proposed approaches, respectively.}
+
+To make a valid comparison based on visual analysis, we display in Fig. \ref{fig:hyper-hooi2d-e,hyper-drr2d-e,hyper-mrc2d-e} the recovery error that uses each approach for the zoomed data\dlo{Fig. \ref{fig:hyper-hooi2d-e}, \ref{fig:hyper-drr2d-e} and \ref{fig:hyper-mrc2d-e} show the errors of the HOOI, the DRR, and the proposed methods, respectively}. \wen{Fig. \ref{fig:hyper-hooi2d-e} is from the HOOI method. Fig. \ref{fig:hyper-drr2d-e} plots the reconstruction error obtained using the DRR method. That of the proposed MRC method is displayed in Fig. \ref{fig:hyper-mrc2d-e}.} The comparison of the recovery error confirms that the proposed \wen{MRC} algorithm performs better with the least error. However, the error of the other two algorithms is significant because of the level of the residual noise. 
+
+\inputdir{hyper}
+\multiplot{6}{hyper-hooi2d-e,hyper-drr2d-e,hyper-mrc2d-e}{width=0.3\textwidth}{Simultaneous denoising and reconstruction error comparison of the zoomed section. (a) shows the error using the HOOI approach. (b) displays the error using the DRR approach. (c) presents the error using the proposed MRC approach.}
+
+Another perspective that requires a comprehensive examination to further demonstrate the performance of our \wen{MRC} algorithm is the frequency-space (f-x) domain representation of each curved data. Fig.  \ref{fig:fx_original_curved,fx_Observed_curved,fx_HOOI_curved,fx_DRR_curved,fx_proposed_curved} displays the comparison between each data for a band of frequency of $0 - 60$ Hz. \dlo{Figs. \ref{fig:fx_original_curved} and \ref{fig:fx_Observed_curved} are from the original and the observed data, respectively}\wen{Fig. \ref{fig:fx_original_curved} shows the corresponding spectrum of the original data. Fig. \ref{fig:fx_Observed_curved} is from the observed data.} \dlo{The f-x spectra using the HOOI, the DRR, and the proposed \wen{MRC} methods are displayed in Figs. \ref{fig:fx_HOOI_curved}, \ref{fig:fx_DRR_curved}, and \ref{fig:fx_proposed_curved}, respectively.} \wen{The f-x spectrum using the HOOI method is displayed in Fig. \ref{fig:fx_HOOI_curved}. Fig. \ref{fig:fx_DRR_curved} is from the DRR method. We display the f-x spectrum of the proposed MRC method in Fig. \ref{fig:fx_proposed_curved}}. The comparison of each spectrum still shows the better performance of our \wen{MRC} approach. The proposed \wen{MRC} approach can provide good results that are very close to the original data. All significant features of the useful signal using our \wen{MRC} approach are restored with the least residual noise in the whole frequency band.
+
+\inputdir{./}
+\multiplot{6}{fx_original_curved,fx_Observed_curved,fx_HOOI_curved,fx_DRR_curved,fx_proposed_curved}{width=0.3\textwidth}{Frequency-space (f-x) spectra comparison of each data displayed in Fig. \ref{fig:hyper-clean2d-0,hyper-obs2d-0,hyper-hooi2d-0,hyper-drr2d-0,hyper-mrc2d-0}. (a) displays the f-x spectrum of the original data. (b) shows the f-x spectrum of the decimated data. (c), (d) and (e) correspond to the f-x spectra obtained after using the HOOI, the DRR, and the proposed MRC methods, respectively.}
+
+The SNRs in this example are $14.83$ dB, $15.04$ dB, and $23.73$ dB for the HOOI, the DRR, and the proposed MRC approaches, respectively. This numerical analysis confirms the superiority of our approach and its adaptability to data, including curved events.
+
+To estimate the computation time, we add a noise variance of $0.1$ to the original data including linear events, and we randomly remove $20\%$, $40\%$, $60\%$, and $80\%$ traces from the noisy data. We fix the number of iterations at $15$, and the temporal frequencies band $5 - 100$ Hz. For each decimated data, we run the codes $7$ times for each method and record the running time. The average computation time corresponding to each method is displayed in Table \ref{tbl:table1}, which shows the best performance in terms of the computational cost of the HOOI algorithm compared to the DRR and the proposed \wen{MRC} algorithms. The proposed \wen{MRC} approach is relatively faster than the DRR method because of our target block Hankel matrix containing the folded four-dimensional spatial hypercube data that improves the computation time of SVD. This comparison shows that the proposed \wen{MRC} method decreases the computational cost compared to the DRR approach.
+
+%\AtEndDocument{
+\begin{table}[h]
+	\caption{Comparison of computation time \wen{in seconds (s)} of the HOOI, the DRR and the proposed MRC approaches for different decimated data after 15 iterations and temporal frequencies band $5 - 100$ Hz based on an Intel Core i7 7th Gen.}
+	\begin{center}
+		\begin{tabular}{c c c c c c} 
+			\hline observed data &$20\%$& $40\%$&$60\%$&$80\%$&\\ 
+			\hline HOOI (s) & 35.85 & 36.70 & 38.57 & 38.76\\
+			DRR (s) & 823.34 & 800.75 & 780.69 & 775.96\\
+			Proposed (s) & 748 & 753.05 & 757.09& 759.09\\
+			\hline
+		\end{tabular} 
+	\end{center}
+	\label{tbl:table1}
+\end{table}
+%}
+
+%\AtEndDocument{
+
+\subsection{Field data examples}
+
+In this section, a real field of seismic data is considered to show the effectiveness of our \wen{MRC} method. About $75\%$ of the traces are missing in the observed data. Only visual examination is considered for comparison since there are no original field data to conduct quantitative analysis like the SNR measurement. Here, we apply the HOOI approach with \dlo{$r_{k}=1$}\wen{$r_{k}=(1,1,1,1)$} \wen{because of the best representation of the restored data compared with the results obtained using larger values than ${k}=1$. For $k > 1$, the signal leaks even more than when $k = 1$, and contains significant residual noise.}. For the DRR approach, we use rank $r=6$ and damping factor $z=2$. To reconstruct the noisy and incomplete traces, we apply our \wen{MRC} algorithm with the following parameters: $r=6$, $z=2$, and \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$}. We perform the three algorithms for frequencies band $5 - 100$ Hz and $15$ iterations. Fig. \ref{fig:Field-Observed-hxhy,Field-hooi-hxhy,Field-drr-hxhy,Field-mrc-hxhy} shows the comparison in one common midpoint gather. Fig. \ref{fig:Field-Observed-xy,Field-hooi-xy,Field-drr-xy,Field-mrc-xy} displays the results in one common offset gather. The observed data is displayed in Figs. \ref{fig:Field-Observed-hxhy} and \ref{fig:Field-Observed-xy}. The result obtained with the HOOI approach is shown in Figs. \ref{fig:Field-hooi-hxhy} and \ref{fig:Field-hooi-xy}. Figs. \ref{fig:Field-drr-hxhy} and \ref{fig:Field-drr-xy} present the recovered data using the DRR approach. Compared to the HOOI approach, the DRR can obtain better simultaneous denoising and reconstruction performance. However, the data recovered via the DRR approach contains significant residual noise as highlighted by the upper face of the 3-D cube (Figs. \ref{fig:Field-drr-hxhy} and \ref{fig:Field-drr-xy}). As presented in Figs. \ref{fig:Field-mrc-hxhy} and \ref{fig:Field-mrc-xy}, the proposed \wen{MRC} algorithm provides more coherent and cleaner events than the other two approaches. Compared to the DRR approach, the upper faces of the 3-D cubes of our \wen{MRC} approach are smoother and more regular.
+
+\inputdir{./}
+\multiplot{4}{Field-Observed-hxhy,Field-hooi-hxhy,Field-drr-hxhy,Field-mrc-hxhy}{width=0.4\textwidth}{Common midpoint 3-D figures comparison of the field data. (a) Observed data. (b)-(d) Simultaneously denoised and reconstructed data using the HOOI approach, the DRR approach, and the proposed MRC approach, respectively.}
+
+\multiplot{4}{Field-Observed-xy,Field-hooi-xy,Field-drr-xy,Field-mrc-xy}{width=0.4\textwidth}{Common offset 3-D figures comparison of the field data. (a) Observed data. (b)-(d) Simultaneously denoised and reconstructed data using the HOOI approach, the DRR approach and the proposed approach, respectively.}
+
+We also demonstrate the success of the proposed MRC algorithm by conducting a single shot gather comparison. We display in Fig. \ref{fig:Zoomed_Field_2D_ONE_SHOT_Observed,Zoomed_Field_2D_ONE_SHOT_HOOI,Zoomed_Field_2D_ONE_SHOT_DRR,Zoomed_Field_2D_ONE_SHOT_Proposed}, the zoomed section of each data shown through the red side boxes in Fig. \ref{fig:Field_2D_ONE_SHOT_observed,Field_2D_ONE_SHOT_HOOI,Field_2D_ONE_SHOT_DRR,Field_2D_ONE_SHOT_Proposed}. The observed data is shown in Fig. \ref{fig:Zoomed_Field_2D_ONE_SHOT_Observed}. From Fig. \ref{fig:Zoomed_Field_2D_ONE_SHOT_HOOI} to \ref{fig:Zoomed_Field_2D_ONE_SHOT_Proposed}, we show the results of the HOOI, the DRR, and the proposed MRC algorithms. The zoomed data comparison shows that the proposed MRC approach can provide better simultaneous denoising and reconstruction performance with less residual noise than the HOOI and the DRR approaches. 
+
+\inputdir{./}
+\multiplot{4}{Field_2D_ONE_SHOT_observed,Field_2D_ONE_SHOT_HOOI,Field_2D_ONE_SHOT_DRR,Field_2D_ONE_SHOT_Proposed}{width=0.4\textwidth}{Single shot gather comparison of the field data. (a) Observed data. (b)-(d) Simultaneously denoised and reconstructed data using the HOOI approach, the DRR approach and the proposed MRC approach, respectively.}
+
+\inputdir{./}
+\multiplot{4}{Zoomed_Field_2D_ONE_SHOT_Observed,Zoomed_Field_2D_ONE_SHOT_HOOI,Zoomed_Field_2D_ONE_SHOT_DRR,Zoomed_Field_2D_ONE_SHOT_Proposed}{width=0.4\textwidth}{Zoomed section from Fig. \ref{fig:Field_2D_ONE_SHOT_observed,Field_2D_ONE_SHOT_HOOI,Field_2D_ONE_SHOT_DRR,Field_2D_ONE_SHOT_Proposed}. (a) Observed data. (b)-(d) Simultaneously denoised and reconstructed data using the HOOI approach, the DRR approach and the proposed MRC approach, respectively.}
+
+\section{Discussion}
+
+Despite the achievement of both the DRR and HOOI approaches, the properties of the reconstructed data are still influenced by \dlo{important}\wen{significant} residual noise, mainly when the input data is seriously decimated or contaminated by significant random noise. In this paper, we assume that only applying the damped rank constraint or the tensor rank constraint is not sufficient to suppress noise while reconstructing the missing traces. This work proposes a new mixed rank constraint model by combining matrix and tensor rank constraints to solve the seismic data interpolation problem adequately. The proposed \wen{MRC} algorithm, which starts by applying the unfolding and folding operation and then connects the DRR and the HOOI operators inside the loop of each iteration number, can be regarded as applying multiple operators to further reduce the rank of the observed data.  
+
+In this section, first, the ability of each rank constraint pays our attention. By using the synthetic data containing linear events, we considered the SNRs first, as a function of iteration numbers, then as a function of the percentage of missing values. As seen in Fig. \ref{fig:SNR_with_IterationNumbersok2}, we carried out the simultaneous denoising and reconstruction performance by evaluating the SNRs for the iteration numbers. We applied each rank constraint on an observed data corrupted by a noise level of $0.1$ missing $80\%$ of traces. Also, under the same noise variance, we compare the SNR diagram obtained after $15$ iterations for the sampling ratio percentage, as shown in Fig. \ref{fig:SNR_with_missingTracesok}. In both cases, we run the codes within a band of the frequency of $5-100$ Hz. 
+
+\wen{To conduct these tests, we first adopted \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$} when recovering the useful signal via the HOOI method for missing traces percentage and iteration numbers. From 10\% to 70\% of missing traces, we have applied the DRR method with $r = 3$ and ${z}=2$ to restore the seismic events. For data seriously decimated (80\% and 90\% of missing traces), we selected $r = 3$ and ${z}=3$ to further enhance the SNR. We have adopted the same values of rank and damping factor ($r = 3$ and ${z}=3$) to restore the useful signal from the observed data missing 80\% of traces for each iteration number.} From the comparison of the SNR diagram using the DRR approach (blue line) and the HOOI approach (black line), we find that the DRR operator generates higher SNRs than the HOOI operator. When we remove the DRR operator from the proposed \wen{MRC} approach, the method can be regarded as applying the unfolding and folding operator, and the HOOI operator. \wen{Here, we have applied the resulting method (unfolding and folding + HOOI operators) with \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$} for each missing trace percentage and iteration number}. The gray line corresponds to this approach. Similarly, the proposed MRC algorithm without the HOOI operator corresponds to apply the unfolding and folding operator and the DRR operator. \wen{For this case we have adopted \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$}, $r = 3$ and $z = 2$ for the restoration of data missing 10\% to 70\% of traces. For each iteration number, we set $z = 2$ to reconstruct the useful signal from the observed data missing over 70\% of traces}. The SNR diagram for such a method is denoted by the magenta line. The comparison of both last cases shows the contribution of the unfolding and folding operation. Then, \dlo{to know the performance of the proposed MRC algorithm without the unfolding and folding operator,}we analyzed the recovery performance by connecting both the DRR and the HOOI operators. \wen{For this test, we have applied both the DRR and the HOOI (DRR + HOOI) operators to restore the signal matrix from 10\% to 70\% of decimated data with \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$}, $r = 3$ and ${z}=2$. From 80\% to 90\% of missing traces, we have chosen \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$}, $r = 3$ and ${z}=3$ to restore the seismic events for all iteration numbers.} The SNR diagram for this case is displayed in the dashed red line. This experiment shows that the connection of both rank-reduction methods can be helpful for iteration numbers higher than $20$. \wen{For the proposed MRC approach, we have adopted \dlo{$r_{k}=3$}\wen{$r_{k}=(3,3,3,3)$}, $r = 3$ and ${z}=2$ for the reconstruction of the seismic signal from the observed data missing 10\% to 60\% of traces. We selected the same value of rank and damping factor with $r_k = (4,4,4,4)$ for 70\% of missing traces. Above 70\% (80\% and 90\%) of missing traces, we have chosen \dlo{$r_{k}=10$}\wen{$r_{k}=(10,10,10,10)$}, $r = 3$ and ${z}=3$ to restore the useful signal for each iteration numbers}. The green line corresponds to the proposed \wen{MRC} approach, which applies first, unfolding and folding operator, and then connects the DRR and HOOI operators to recover the useful signal. From these figures, we find that as the number of iteration increases, the SNR diagram of the proposed \wen{MRC} approach still outperforms those of each approach mentioned. Even though the SNRs using our \wen{MRC} approach are still superior, let mention that for each method, the quality of the result becomes less reliable when the ratio of sampling data increases. 
+\wen{From the different tests, we find that for all aforementioned DRR based methods; we need to select a damping factor ${z}=2$ to recover an observed data missing less than 80\% of traces. However, from 80\% to 90\%, a valid combination of parameters including ${z}=3$ can be defined. In this condition of a high percentage of missing traces, the rank $r_k$ should be large to get a better recovery performance when applying the proposed MRC approach on data containing linear events.}
+
+\wen{The operation of unfolding and folding operator, and DRR operators (proposed without HOOI) denoted by the magenta line can improve the quality of the level-4 block Hankel matrix containing the 4-D spatial hypercube data specially for small iteration numbers (Fig. \ref{fig:SNR_with_IterationNumbersok2}) and when the noisy data is highly decimated (Fig. \ref{fig:SNR_with_missingTracesok}). From our experience, we find that this first step of the proposed approach can further help to reduce the rank of the noisy and incomplete seismic in case of highly decimated traces.}
+
+\inputdir{./}
+\plot{SNR_with_IterationNumbersok2}{width=0.35\textwidth}{Comparison of SNR values as a function of iteration. The black, blue, gray, magenta, dashed red and green lines correspond to the HOOI, the DRR, the proposed MRC approach without the DRR operator, the proposed MRC approach without the HOOI operator, the DRR operator with the HOOI operator, and the proposed MRC approaches, respectively. The green line always presents higher SNRs.}
+
+\inputdir{./}
+\plot{SNR_with_missingTracesok}{width=0.35\textwidth}{Comparison of SNR diagram for the percentage of missing data after 15 iterations. The black, blue, gray, magenta, dashed red and green lines correspond to the HOOI, the DRR, the proposed MRC approach without the DRR operator, the proposed MRC approach without the HOOI operator, the DRR operator with the HOOI operator, and the proposed MRC approaches, respectively. The green line always presents higher SNRs.}
+
+In implementing the proposed MRC algorithm, we applied two main rank constraints: the damped rank constraint $(rank_{d})$ used by the DRR approach, and tensor rank constraint $(rank_{t})$ used for the unfolding and folding operation, and the HOOI approach. Based on the MRC model denoted by $rank_{dt}$, the proposed \wen{MRC} approach requires three keys parameters: the rank ${r}$, the damping factor ${z}$, and the rank $r_{k}$ to recover the useful signal more accurately. 
+To show the effectiveness of the proposed MRC algorithm, we conducted examples of synthetic and field data. It is, therefore, necessary to understand the contribution of each parameter in the results of the proposed \wen{MRC} approach. By using an observed data missing $80\%$ of traces and corrupted with a noise level of $0.1$, we analyze the weight of each parameter. For the case of linear events, we selected ${z}=3$ and $r_k=(10,10,10,10)$, respectively, and we analyze the recovery quality for different values of the parameter $r$. Fig. \ref{fig:snr_rank_r_linear} displays the SNRs for rank $r$. From this figure, based on the lower SNRs, we find that the smaller value of ${r}$, for instance, $1$ and $2$ cannot restore the useful signal well. The result contains a large amount of noise. However, for $r =3$ the proposed \wen{MRC} approach performs better. As shown, all values of $r$ greater than $3$ can create extra noise in the result. Based on the Cadzow filtering method, $r$ can be set according to the number of dip elements for reaching perfect results. In Fig. \ref{fig:snr_dampingFactor_linear}, we show the effect of the parameter $z$ for ${r}=3$ and $r_k=(10,10,10,10)$. The SNRs reveal that $z=1$ is not appropriate\dlo{d} to produce a satisfactory result. The proposed \wen{MRC} approach can be implemented with $z=2$ and $z=3$. For $z$ selected above $3$, the quality of the restored data can be degraded. From Fig. \ref{fig:snr_rank_r_k_linear}, which displays the effect of $r_k$, we find that $r_k=(1,1,1,1)$ and $r_k=(2,2,2,2)$ are not adequate to provide acceptable simultaneous denoising and reconstruction performance. The best quality of the recovered data can be produced with $k$ values ranging from $3$ to $10$. From the analysis of Figs. \ref{fig:snr_rank_r_linear}, \ref{fig:snr_dampingFactor_linear} and \ref{fig:snr_rank_r_k_linear}, we have adopted the valid combination of $r=3$, $z=3$ and $r_k=(10,10,10,10)$ for the recovery of this observed data sample.
+
+\inputdir{./}
+\multiplot{4}{snr_rank_r_linear,snr_dampingFactor_linear,snr_rank_r_k_linear}{width=0.3\textwidth}{Influence of each parameter used in the proposed MRC method for 5-D synthetic data having linear events. (a) corresponds to the rank constraint ($r$). (b) corresponds to the damping factor ($z$). (c) corresponds to the rank constraint ($r_k$).}
+
+Fig. \ref{fig:snr_rank_r_curved,snr_dampingFactor_curved,snr_rank_r_k_curved} displays the influence of each parameter with curved data. Fig. \ref{fig:snr_rank_r_curved} corresponds to the SNRs as a function of rank ($r$) when we set the parameters $z$ and $r_k$, respectively, at $2$ and $3$. From this result, it is evident that smaller values of $r$ cannot provide satisfactory results. The simultaneous denoising and reconstruction performance can be improved for relatively larger values of $r$. With data containing curved events or complex structures, $r$ needs to be approximately greater than the number of dip components.  
+From Fig. \ref{fig:snr_dampingFactor_curved}, which displays the reconstruction quality for the values of ${z}$, we find that ${z}=3$ corresponds to the best value for this synthetic data sample \wen{(synthetic data containing linear events and missing 80\% of traces) as we have mentioned above}. The weight of the rank ($r_k$) is shown in Fig. \ref{fig:snr_rank_r_k_curved}. As can be seen, for $r_k \in [1,5]$, the proposed \wen{MRC} approach can obtain satisfactory results. However, we adopted $r_k=(2,2,2,2)$ for this example because of the best quality of the result. Based on the results plotted in Figs. \ref{fig:snr_rank_r_curved}, \ref{fig:snr_dampingFactor_curved} and \ref{fig:snr_rank_r_k_curved}, we have chosen $r=14$, $z=3$ and \dlo{$r_k=2$}\wen{$r_k=(2,2,2,2)$} for the restoration of the useful signal containing curved events. 
+These analyses conducted on synthetics data are also verified for real data. \wen{We have restored the useful seismic signal from synthetic data containing curved events and the 5D field seismic data of this paper via the HOOI method with \dlo{$r_k = 1$}\wen{$r_k =(2,2,2,2)$} because of the best quality of the results. We can understand that the tensor rank constraint $rank_{t}$ requires a too small value of $r_k$ when the data to be reconstructed include curved events and/or complex structures. Thus, the lower value of rank ($r_k=(2,2,2,2)$) can be justified by the tensor rank constraint ($rank_{t}$) that our MRC method uses. The relatively smaller values of $r_k$ should also be selected when applying the MRC method for real seismic with complex structures. In contrast, larger values of $r_k$ need to be selected when the data include linear events.} In all cases, the parameter $r_k$ must be a positive integer and $\in [1,10]$. 
+
+\inputdir{./}
+\multiplot{4}{snr_rank_r_curved,snr_dampingFactor_curved,snr_rank_r_k_curved}{width=0.3\textwidth}{Influence of each parameter used in the proposed MRC method for 5-D synthetic data having curved events. (a) corresponds to the rank constraint (r). (b) denotes the damping factor (z). (c) designates the rank constraint ($ r_k $).}
+
+To solve the mixed rank-constrained model based on the proposed MRC algorithm, we need to select the rank constraints accurately. The valid combination of parameters aids in obtaining better recovery performance. \wen{In the current framework, the parameterization of the proposed MRC approach is empirical.}
+
+\section{Conclusions}
+By taking the advantages of the matrix and tensor rank constraints, we introduce a novel mixed rank-constrained (MRC) model for simultaneous denoising and reconstruction of 5-D seismic data. The MRC framework is proposed for solving the novel rank-constrained model effectively. As shown from the detailed analysis, the proposed MRC algorithm solves the multidimensional seismic data interpolation problem with better performance. The recovered data obtained by the proposed MRC method are smoother and more reliable. Compared with the HOOI and the DRR methods, the improvement through the proposed MRC algorithm is confirmed to be highly competitive with 5-D synthetic and real field seismic data.
+
+\bibliographystyle{seg}
+\bibliography{mrc}
