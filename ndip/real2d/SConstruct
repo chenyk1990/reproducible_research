@@ -2,9 +2,9 @@ from rsf.proj import *
 import os
 sys.path.append('../hyper/')
 from radius2 import radius2
-
-#/Volumes/CHENYK2/SeismicDataYangkang/Real/guochangfx/
-
+##################################################
+#data is here https://github.com/chenyk1990/cykd4/blob/master/gc/gc2.bin
+##################################################
 from math import *
 def Grey(data,other): 
 	Result(data,'grey label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n  clip=2  %s  '%other)
@@ -21,8 +21,8 @@ def Greynoise(data,other):
 #----------------------------------------------dat
 
 
-Flow('g',os.getenv('HOME')+'/chenyk.data4/gc/gc2.bin','dd form=native | put d2=1')
-
+#Flow('g',os.getenv('HOME')+'/chenyk.data4/gc/gc2.bin','dd form=native | put d2=1')
+Flow('g','gc2.bin','dd form=native | put d2=1')
 # Flow('g','image2d','dd form=native')
 Flow('mask','g','envelope | causint | math output="input*input" | mask min=40 | dd type=float')
 

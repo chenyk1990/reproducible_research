@@ -1,5 +1,7 @@
 from rsf.proj import *
 
+
+
 def radius2(high, low,               # initial high-resolution and legacy images
             niter,                   # number of corrections
             c,                       # step length for radius corrections. Can be type int or float for constant c 
@@ -83,11 +85,11 @@ def radius2(high, low,               # initial high-resolution and legacy images
     Flow('freqdif-filt0%i'%it,'low-freq%i high-smooth-freq0%i'%(it,it),freqdif) 
     Result('freqdif-filt0%i'%it,freqdifplot(0)) 
 
-    #prog=Program('radius2.c') 
+    prog=Program('radius2.c')
     for i in range(1, niter+1): 
         j = i-1
-        Flow('rect%d%i rect-low%d%i rect-high%d%i'%(i,it,i,it,i,it),'rect%d%i freqdif-filt%d%i'%(j,it,j,it),
-             'radius2 freq=${SOURCES[1]} low=${TARGETS[1]} high=${TARGETS[2]} c=%f'%c[j])
+        Flow('rect%d%i rect-low%d%i rect-high%d%i'%(i,it,i,it,i,it),'rect%d%i freqdif-filt%d%i %s'%(j,it,j,it,prog[0]),
+             './${SOURCES[2]} freq=${SOURCES[1]} low=${TARGETS[1]} high=${TARGETS[2]} c=%f'%(c[j]))
         Result('rect%d%i'%(i,it),rectplot("Smoothing Radius %d")%i)
         Result('rect-low%d%i'%(i,it),rectplot("Smoothing Radius %d low")%i)
         Result('rect-high%d%i'%(i,it),rectplot("Smoothing Radius %d high")%i)

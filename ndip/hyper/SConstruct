@@ -1,7 +1,7 @@
 from rsf.proj import *
 from math import *
 import os
-#sys.path.append('../simple/')
+sys.path.append('../hyper/')
 from radius2 import radius2
 
 ## module defining
