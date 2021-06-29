@@ -1,6 +1,5 @@
 from rsf.proj import *
 import os
-sys.path.append('../hyper/')
 from radius2 import radius2
 ##################################################
 #data is here https://github.com/chenyk1990/cykd4/blob/master/gc/gc2.bin
@@ -129,7 +128,7 @@ wx1=200
 wy1=1.5
 
 Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x1,y1,x1+wx1,y1,x1+wx1,y1+wy1,x1,y1+wy1,x1,y1))))
+	" ".join(map(str,(x1,y1,x1+wx1,y1,x1+wx1,y1+wy1,x1,y1+wy1,x1,y1))))
 Plot('frame1','frame1.asc',
 	'''
 	dd type=complex form=native |
@@ -144,7 +143,7 @@ wx2=200
 wy2=1.0
 
 Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x2,y2,x2+wx2,y2,x2+wx2,y2+wy2,x2,y2+wy2,x2,y2))))
+	" ".join(map(str,(x2,y2,x2+wx2,y2,x2+wx2,y2+wy2,x2,y2+wy2,x2,y2))))
 Plot('frame2','frame2.asc',
 	'''
 	dd type=complex form=native |
