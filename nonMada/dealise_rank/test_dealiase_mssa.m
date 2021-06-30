@@ -1,4 +1,4 @@
-%% This is a demo for De‐aliased and de‐noise Cadzow filtering for seismic data reconstruction
+%% This is a demo for de‐aliased and de‐noised Cadzow filtering for seismic data reconstruction
 % Prepared by Weilin Huang and Yangkang Chen
 % June, 2021
 % 
