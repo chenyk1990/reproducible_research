@@ -1,10 +1,9 @@
 \DeclareRobustCommand{\dlo}[1]{}
 \DeclareRobustCommand{\wen}[1]{#1}
 
-\title{A compact program for 3D passive seismic \\
-source-location imaging}
+\title{A compact program for 3D passive seismic source-location imaging}
 
-\author{Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[1]\footnotemark[2], Min Bai\footnotemark[3],  Xingye Liu\footnotemark[4], Sergey Fomel\footnotemark[5] }
+\author{Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[2]\footnotemark[3], Min Bai\footnotemark[4],  Xingye Liu\footnotemark[5], Sergey Fomel\footnotemark[1] }
 %\author{Authors}
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
@@ -14,11 +13,13 @@ source-location imaging}
 \ms{SRL-2021} %\ms{GJI-2019}
 
 \address{
-\footnotemark[1]
-School of Earth Sciences\\
-Zhejiang University\\
-Hangzhou, Zhejiang Province, China, 310027\\
-chenyk2016@gmail.com\\
+\footnotemark[1]Bureau of Economic Geology \\
+John A. and Katherine G. Jackson School of Geosciences \\
+The University of Texas at Austin \\
+University Station, Box X \\
+Austin, TX 78713-8924 \\
+sergey.fomel@beg.utexas.edu\\
+Corresponding Author: Yangkang Chen (chenyk2016@gmail.com) 
 %yangkang.chen@zju.edu.cn \\
 \footnotemark[2]
 ENSN Lab \\
@@ -26,23 +27,21 @@ Seismology Department \\
 National Research Institute of Astronomy and Geophysics (NRIAG)\\
 Helwan 11731, Egypt\\
 engomar91@ gmail.com\\
-\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+\footnotemark[3]
+School of Earth Sciences\\
+Zhejiang University\\
+Hangzhou, Zhejiang Province, China, 310027\\
+chenyk2016@gmail.com\\
+\footnotemark[4] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
 Yangtze University\\
 Daxue Road No.111\\
 Caidian District\\
 Wuhan, China, 430100 \\
-\footnotemark[4]
+\footnotemark[5]
 College of Geology and Environment\\
 Xi’an University of Science and Technology\\
 Xi’an, Shaanxi Province, China, 710054 \\
 lwxwyh506673@126.com\\
-\footnotemark[5]Bureau of Economic Geology \\
-John A. and Katherine G. Jackson School of Geosciences \\
-The University of Texas at Austin \\
-University Station, Box X \\
-Austin, TX 78713-8924 \\
-sergey.fomel@beg.utexas.edu\\
-Corresponding Author: Yangkang Chen (chenyk2016@gmail.com) 
 }
 
 %\lefthead{Liu et al.}
@@ -212,126 +211,50 @@ $https://github.com/chenyk1990/passive\_imaging$.
 \section{Acknowledgements}
 The research is supported by the starting funds from Zhejiang University. We thank Microseismic, Inc. and Newfield Exploration Company for releasing the data set. We thank J. Sun from Texas Consortium for Computational Seismology (TCCS) for constructive discussions. %The presented passive seismic imaging program is based on the initial work by J. Sun \cite[]{Junzhe2015}. % and Y. Shi and S. Fomel from Texas Consortium for Computational Seismology (TCCS) for sharing the microseismic dataset of one event. 
 
-\inputdir{mod3d_geo}
+\inputdir{mod3d}
 \plot{data}{width=0.6\textwidth}{Recorded passive seismic data in the synthetic example.}
 \multiplot{9}{vel1,location-tr1,location1,vel2,location-tr2,location2,vel3,location-tr3,location3}{width=0.3\textwidth}{\wen{Velocity model and the highlighted first source location (a), its time-reversal imaging result using the traditional (b) and proposed (c) methods. Velocity model and the highlighted second source location (d), its time-reversal imaging result using the traditional (e) and proposed (f) methods. Velocity model and the highlighted third source location (g), its time-reversal imaging result using the traditional (h) and proposed (i) methods.}}
 \multiplot{4}{data_mask0,data_mask1,data_mask2,data_mask3}{width=0.45\textwidth}{Four grouped recorded passive seismic data. }
 
-\inputdir{field3d_geo}
-%\plot{test1}{width=\textwidth}{Separated x-component of the S1 elastic wavefield in the orthorhombic media.}
-\multiplot{4}{rsf_real,sov,f-location-tr,f-location1}{width=0.45\textwidth}{Field data example. (a) Recorded microseismic data. (b) Constructed velocity model. \dlo{(c) 3D source location image.}\wen{(c) 3D source location image using the traditional method. (d) 3D source location image using the proposed method.}}
-
-\inputdir{mod3d_geo_ng}
-\multiplot{4}{data_mask0_ng2,data_mask0_ng6,data_mask0_ng8,data_mask0_ng10}{width=0.45\textwidth}{The first group of recorded data when $N_g=2,6,8,10$, respectively. }
-
-\multiplot{4}{location1-ng2,location1-ng6,location1-ng8,location1-ng10}{width=0.45\textwidth}{The images of the first source location when $N_g=2,6,8,10$, respectively. }
-
-\inputdir{mod3d_geo_noise}
-\multiplot{4}{data-2,data-4,data-6,data-8}{width=0.45\textwidth}{Recorded data when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. The corresponding S/Ns of (a)-(d) are -4.97 dB, -21.96 dB, -34.97 dB, and -41.96 dB, respectively. }
-
-\multiplot{4}{location1-noise2,location1-noise4,location1-noise6,location1-noise8}{width=0.45\textwidth}{The images of the first source location when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. }
-
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr1.rsf 
-%   0:        -1.957
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr2.rsf 
-%   0:        -4.967
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr3.rsf 
-%   0:        -14.98
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr4.rsf 
-%   0:        -21.96
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr5.rsf 
-%   0:        -31.96
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr6.rsf 
-%   0:        -34.97
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr7.rsf 
-%   0:        -37.98
-%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr8.rsf 
-%   0:        -41.96
-%  
-
-\inputdir{mod3d_geo_density}
-\multiplot{4}{data-d6,data-d8,data-d9,data-d10}{width=0.45\textwidth}{The observed data with 121, 81, 16, and 8 recorded traces, respectively.  }
-
-\multiplot{4}{location1-density6,location1-density8,location1-density9,location1-density10}{width=0.45\textwidth}{The images of the first source location when there are 121, 81, 16, and 8 recorded traces, respectively. }
- 
+%\inputdir{field3d_geo}
+%%\plot{test1}{width=\textwidth}{Separated x-component of the S1 elastic wavefield in the orthorhombic media.}
+%\multiplot{4}{rsf_real,sov,f-location-tr,f-location1}{width=0.45\textwidth}{Field data example. (a) Recorded microseismic data. (b) Constructed velocity model. \dlo{(c) 3D source location image.}\wen{(c) 3D source location image using the traditional method. (d) 3D source location image using the proposed method.}}
+%
+%\inputdir{mod3d_geo_ng}
+%\multiplot{4}{data_mask0_ng2,data_mask0_ng6,data_mask0_ng8,data_mask0_ng10}{width=0.45\textwidth}{The first group of recorded data when $N_g=2,6,8,10$, respectively. }
+%
+%\multiplot{4}{location1-ng2,location1-ng6,location1-ng8,location1-ng10}{width=0.45\textwidth}{The images of the first source location when $N_g=2,6,8,10$, respectively. }
+%
+%\inputdir{mod3d_geo_noise}
+%\multiplot{4}{data-2,data-4,data-6,data-8}{width=0.45\textwidth}{Recorded data when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. The corresponding S/Ns of (a)-(d) are -4.97 dB, -21.96 dB, -34.97 dB, and -41.96 dB, respectively. }
+%
+%\multiplot{4}{location1-noise2,location1-noise4,location1-noise6,location1-noise8}{width=0.45\textwidth}{The images of the first source location when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. }
+%
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr1.rsf 
+%%   0:        -1.957
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr2.rsf 
+%%   0:        -4.967
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr3.rsf 
+%%   0:        -14.98
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr4.rsf 
+%%   0:        -21.96
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr5.rsf 
+%%   0:        -31.96
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr6.rsf 
+%%   0:        -34.97
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr7.rsf 
+%%   0:        -37.98
+%%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr8.rsf 
+%%   0:        -41.96
+%%  
+%
+%\inputdir{mod3d_geo_density}
+%\multiplot{4}{data-d6,data-d8,data-d9,data-d10}{width=0.45\textwidth}{The observed data with 121, 81, 16, and 8 recorded traces, respectively.  }
+%
+%\multiplot{4}{location1-density6,location1-density8,location1-density9,location1-density10}{width=0.45\textwidth}{The images of the first source location when there are 121, 81, 16, and 8 recorded traces, respectively. }
+% 
 \bibliographystyle{seg}
 \bibliography{micro}
 
-%\clearpage
-%Yangkang Chen\footnotemark[1], Omar M. Saad\footnotemark[1]\footnotemark[2], Min Bai\footnotemark[3],  Xingye Liu\footnotemark[4], Sergey Fomel\footnotemark[5]  \\
-%\footnotemark[1]
-%School of Earth Sciences\\
-%Zhejiang University\\
-%Hangzhou, Zhejiang Province, China, 310027\\
-%chenyk2016@gmail.com\\
-%%yangkang.chen@zju.edu.cn \\
-%\footnotemark[2]
-%ENSN Lab \\
-%Seismology Department \\
-%National Research Institute of Astronomy and Geophysics (NRIAG)\\
-%Helwan 11731, Egypt\\
-%engomar91@ gmail.com\\
-%\footnotemark[3] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
-%Yangtze University\\
-%Daxue Road No.111\\
-%Caidian District\\
-%Wuhan, China, 430100 \\
-%\footnotemark[4]
-%College of Geology and Environment\\
-%Xi’an University of Science and Technology\\
-%Xi’an, Shaanxi Province, China, 710054 \\
-%lwxwyh506673@126.com\\
-%\footnotemark[5]Bureau of Economic Geology \\
-%John A. and Katherine G. Jackson School of Geosciences \\
-%The University of Texas at Austin \\
-%University Station, Box X \\
-%Austin, TX 78713-8924 \\
-%sergey.fomel@beg.utexas.edu\\
-%
 
-%\AtEndDocument{}
-
-%\newpage
-%\listoffigures
-
-
-
-%\begin{figure}[htb!]
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.8\textwidth]{Fig/fig}}
-%	\caption{Caption.}
-%	\label{fig:fig}
-%\end{figure}
-
-%\begin{figure}[htb!]
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig1}
-%    \label{fig:fig1}}\\
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig2}
-%    \label{fig:fig2}}\\
-%	\caption{(a) Caption a. (b) Caption b.}
-%	\label{fig:fig1,fig2}
-%\end{figure}
-
-%\begin{figure*}[ht!]
-%	\centering
-%	\subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig1}
-%    \label{fig:fig1}}\\
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{Fig/fig2}
-%    \label{fig:fig2}}\\
-%	\caption{(a) Caption a. (b) Caption b.}
-%	\label{fig:fig1,fig2}
-%\end{figure*}
-
-%\begin{table}[h]
-%\caption{Table caption}
-%\begin{center}
-%     \begin{tabular}{|c|c|c|c|c|c|} 
-%	  \hline Column1 (unit)  & Column2 (unit) & Column3 (unit) \\ 
-%	  \hline 1 & 2  & 3 \\
-%       \hline
-%    \end{tabular} 
-%\end{center}
-%\label{tbl:table1}
-%\end{table}
 

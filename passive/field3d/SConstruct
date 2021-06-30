@@ -1,0 +1,77 @@
+from rsf.proj import *
+#take at least 120G disk space, maybe 6hours
+
+exe=Program('../mod3d/mod3d.c')
+
+def Graph(data,other):
+	Plot(data,
+		'''
+		graph title= allpos=y  yreverse=y wantaxis=n
+		scalebar=n bartype=v barlabel="V"  barunit="m/s" clip=4500 
+		%s wheretitle=t wherexlabel=b'''%other)
+
+## velocity
+Flow('vel',None,'spike n1=161 n2=281 n3=281 d1=24 d2=24 d3=24 mag=4600 | math output="1500+1.5*x1"')
+Result('sov','vel','window f1=40 f2=40 n1=81 n2=201 n3=201| put o3=0 o2=0 o1=0 |byte bar=bar.rsf mean=y|grey3 flat=n allpos=y bias=1500 color=j scalebar=n title="Velocity Model" barlabel="V" barunit="m/s" label1=Depth label2="Distance in X" label3="Distance in Y" unit1=m unit2=m unit3=m pclip=100 frame1=59 frame2=59 frame3=59 scalebar=y point1=0.7 point2=0.6')
+
+
+nt=2001
+nt=2001
+dt=0.001
+
+## load field data
+Flow('rsf_real','rsf_real.bin','bin2rsf bfile=${SOURCES[0]} n1=1001 n2=40401 d1=0.002 d2=24 d3=24 | put n2=201 n3=201 d3=24 o3=0 | remap1 d1=0.001 o1=0 n1=%d'%nt)
+Result('rsf_real','rsf_real','byte pclip=99.9 |grey3 flat=n frame1=600 frame2=101 frame3=122 clip=0.5 title="Recorded data" label1=Time unit1=s label2="Distance in X" label3="Distance in Y" unit2=m unit3=m point1=0.7 point2=0.6' )
+
+## Imaging
+tmp = 4
+snaps_list1 = []
+src_list = ''
+for i in range(tmp):
+    mask = 'mask%d' %i
+    data = 'data_mask%d' %i
+    img = 'img%d' %i
+    snaps = 'snaps%d' %i
+    
+    Flow(mask,None,'spike n1=201 n2=201 mag=1 k1=%d l1=%d k2=%d l2=%d | sfdd type=int' %(50*i+1,50*i+50,1,201))
+    Flow(data,['rsf_real',mask],'headercut mask=${SOURCES[1]}')
+    Flow([img,snaps],['vel',data,'%s'%exe[0]],
+         '''
+         ${SOURCES[2]} tri=y snaps=${TARGETS[1]} verb=y cmplx=n vref=1500 ps=y snap=1 abc=y nbt=40 ct=0.01 mig=y dat=${SOURCES[1]} snap=4
+         ''')
+    Result(snaps,'window j3=10 | grey gainpanel=a')
+    Result(img,'grey')
+    snaps_list1 += [snaps]
+    src_list += ' ${SOURCES[%d]}' %(i+1)
+
+Result('data_mask0','byte |grey3 flat=n frame1=300 frame2=30 frame3=0 movie=3 clip=0.5 title="Noisy" unit2=m point1=0.7 point2=0.6')
+Result('data_mask1','byte |grey3 flat=n frame1=300 frame2=30 frame3=0 movie=3 clip=0.5 title="Noisy" unit2=m point1=0.7 point2=0.6')
+Result('data_mask2','byte |grey3 flat=n frame1=300 frame2=30 frame3=10 clip=0.5 title="Noisy" unit2=m point1=0.7 point2=0.6')
+Result('data_mask3','byte |grey3 flat=n frame1=300 frame2=30 frame3=10 clip=0.5 title="Noisy" unit2=m point1=0.7 point2=0.6')
+
+Flow('ccr0',snaps_list1,'math a=${SOURCES[1]} b=${SOURCES[2]} c=${SOURCES[3]} output="input^2*a^2*b^2*c^2" ')
+Result('ccr0','window j3=10 | grey gainpanel=a pclip=99.9 point1=0.7 point2=0.6')
+
+Flow('location0','ccr0','stack axis=4 ')
+
+Result('location0','location0','byte |grey3 flat=n frame1=30 frame2=30 frame3=30 pclip=99.99 title="Source Location Image" unit2=m unit3=m point1=0.7 point2=0.6')
+
+Result('f-location1','location0','threshold1 thr=0.105 |byte |grey3 flat=n frame1=75 frame2=116 frame3=93 pclip=99.99 label1=Depth label2="Distance in X" label3="Distance in Y" unit1=m unit2=m unit3=m title="Source Location Image" point1=0.7 point2=0.6') 
+
+
+### for traditional time-reversal imaging method (picking the time slice with the maximal focusing energy)  
+Flow(['img-tr','snaps-tr'],['vel','rsf_real','%s'%exe[0]],
+         '''
+         ${SOURCES[2]} snaps=${TARGETS[1]} verb=y cmplx=n vref=1500 ps=y snap=1 abc=y nbt=40 ct=0.01 mig=y dat=${SOURCES[1]} snap=4
+         ''')
+#23 is chosen by finding the maximal focusing energy
+Flow('location-tr','snaps-tr','add mode=p ${SOURCES[0]}| cut n1=20 | window n4=1 f4=23 ')
+Result('location-tr0','location-tr','byte |grey3 flat=n frame1=30 frame2=30 frame3=30 pclip=99.99 title="Source Location Image" unit2=m unit3=m point1=0.7 point2=0.6')
+Result('f-location-tr','location-tr.rsf','threshold1 thr=1 |byte |grey3 flat=n frame1=75 frame2=116 frame3=93 pclip=99.99 label1=Depth label2="Distance in X" label3="Distance in Y" unit1=m unit2=m unit3=m title="Source Location Image" point1=0.7 point2=0.6') 
+
+#using the existing one
+# Result('f-location-tr','../field3d_geo2/location-tr','threshold1 thr=1 |byte |grey3 flat=n frame1=75 frame2=116 frame3=93 pclip=99.99 label1=Depth label2="Distance in X" label3="Distance in Y" unit1=m unit2=m unit3=m title="Source Location Image" point1=0.7 point2=0.6') 
+
+
+
+End()
