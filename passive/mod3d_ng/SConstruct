@@ -62,12 +62,13 @@ Flow('data0','vel %s'%exe[0],
 Flow('data','data0','noise var=0.001 type=y seed=12005|window j2=1 j3=1')
 
 #### Part V: Backward propagating of the grouped receiver wavefield ####
-dg=(int)(nx-nb*2)/ng
-print('Group interval is',dg)
-snaps_list = []
-src_list = ''
+
 
 for ng in [2,6,8,10]:
+  snaps_list = []
+  src_list = ''
+  dg=(int)(nx-nb*2)/ng
+  print('Group interval is',dg)
   name='ng%d'%ng
   print(name)
   for i in range(ng):

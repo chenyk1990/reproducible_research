@@ -219,16 +219,16 @@ The research is supported by the starting funds from Zhejiang University. We tha
 \inputdir{field3d}
 %\plot{test1}{width=\textwidth}{Separated x-component of the S1 elastic wavefield in the orthorhombic media.}
 \multiplot{4}{rsf_real,sov,f-location-tr,f-location1}{width=0.45\textwidth}{Field data example. (a) Recorded microseismic data. (b) Constructed velocity model. \dlo{(c) 3D source location image.}\wen{(c) 3D source location image using the traditional method. (d) 3D source location image using the proposed method.}}
-%
-%\inputdir{mod3d_geo_ng}
-%\multiplot{4}{data_mask0_ng2,data_mask0_ng6,data_mask0_ng8,data_mask0_ng10}{width=0.45\textwidth}{The first group of recorded data when $N_g=2,6,8,10$, respectively. }
-%
-%\multiplot{4}{location1-ng2,location1-ng6,location1-ng8,location1-ng10}{width=0.45\textwidth}{The images of the first source location when $N_g=2,6,8,10$, respectively. }
-%
-%\inputdir{mod3d_geo_noise}
-%\multiplot{4}{data-2,data-4,data-6,data-8}{width=0.45\textwidth}{Recorded data when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. The corresponding S/Ns of (a)-(d) are -4.97 dB, -21.96 dB, -34.97 dB, and -41.96 dB, respectively. }
-%
-%\multiplot{4}{location1-noise2,location1-noise4,location1-noise6,location1-noise8}{width=0.45\textwidth}{The images of the first source location when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. }
+
+\inputdir{mod3d_ng}
+\multiplot{4}{data_mask0_ng2,data_mask0_ng6,data_mask0_ng8,data_mask0_ng10}{width=0.45\textwidth}{The first group of recorded data when $N_g=2,6,8,10$, respectively. }
+
+\multiplot{4}{location1-ng2,location1-ng6,location1-ng8,location1-ng10}{width=0.45\textwidth}{The images of the first source location when $N_g=2,6,8,10$, respectively. }
+
+\inputdir{mod3d_noise}
+\multiplot{4}{data-2,data-4,data-6,data-8}{width=0.45\textwidth}{Recorded data when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. The corresponding S/Ns of (a)-(d) are -4.97 dB, -21.96 dB, -34.97 dB, and -41.96 dB, respectively. }
+
+\multiplot{4}{location1-noise2,location1-noise4,location1-noise6,location1-noise8}{width=0.45\textwidth}{The images of the first source location when noise variation $\sigma^2=0.01,0.5,10,50$, respectively. }
 %
 %%Yangkangs-MacBook-Pro:mod3d_geo_noise chenyk$ sfdisfil <snr1.rsf 
 %%   0:        -1.957
@@ -248,10 +248,10 @@ The research is supported by the starting funds from Zhejiang University. We tha
 %%   0:        -41.96
 %%  
 %
-%\inputdir{mod3d_geo_density}
-%\multiplot{4}{data-d6,data-d8,data-d9,data-d10}{width=0.45\textwidth}{The observed data with 121, 81, 16, and 8 recorded traces, respectively.  }
-%
-%\multiplot{4}{location1-density6,location1-density8,location1-density9,location1-density10}{width=0.45\textwidth}{The images of the first source location when there are 121, 81, 16, and 8 recorded traces, respectively. }
+\inputdir{mod3d_density}
+\multiplot{4}{data-d6,data-d8,data-d9,data-d10}{width=0.45\textwidth}{The observed data with 121, 81, 16, and 8 recorded traces, respectively.  }
+
+\multiplot{4}{location1-density6,location1-density8,location1-density9,location1-density10}{width=0.45\textwidth}{The images of the first source location when there are 121, 81, 16, and 8 recorded traces, respectively. }
 % 
 \bibliographystyle{seg}
 \bibliography{micro}

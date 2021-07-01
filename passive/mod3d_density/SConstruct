@@ -82,11 +82,11 @@ Flow('den10-data','data0','noise var=0.001 type=y seed=12005|cut f2=0 n2=9 | cut
 #### Part V: Backward propagating of the grouped receiver wavefield ####
 dg=(int)(nx-nb*2)/ng
 print('Group interval is',dg)
-snaps_list = []
-src_list = ''
 
 for name in ['den6','den8','den9','den10']:
   print(name)
+  snaps_list = []
+  src_list = ''
   for i in range(ng):
     mask = name+'-'+'mask%d' %i
     data = name+'-'+'data_mask%d' %i
