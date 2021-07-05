@@ -1083,7 +1083,7 @@ int main(int argc, char* argv[])
     if (!sf_getbool("ps",&ps)) ps=false; /* use pseudo-spectral */
     if (ps) sf_warning("Using pseudo-spectral...");
     else sf_warning("Using pseudo-analytical...");
-    if (!sf_getbool("tri",&tri)) tri=false; /* use pseudo-spectral */
+    if (!sf_getbool("tri",&tri)) tri=false; /* if choose time reversal imaging */
     if (tri) sf_warning("Time-reversal imaging");
     else sf_warning("Forward modeling");
     if (!sf_getfloat("vref",&vref)) vref=1500; /* reference velocity (default using water) */
