@@ -1,6 +1,9 @@
 from rsf.proj import *
-#### COPYRIGHT: Authors 
-#### XXXX University (need to be updated because of blind review process)
+#### COPYRIGHT: Chen et al. (2021)
+#### The University of Texas at Austin
+#### Chen, Y., O.M. Saad, M. Bai, X. Liu, and S. Fomel, 2021, A compact program for 3D passive seismic source-location imaging, Seismological Research Letters, doi: 10.1785/0220210050.
+
+  
 
 #### Part I: Specifying parameters ####
 nt=1501		#number of samples
