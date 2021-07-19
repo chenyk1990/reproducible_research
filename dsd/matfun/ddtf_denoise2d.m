@@ -57,7 +57,7 @@ d = ddtf_dec_p(din, H);
 if thrtype=='e'
     dthr = ani_thresh(d, sh, thr);
 else
-    dthr = ani_thresh_cyk(d, sh, thr, thrtype);
+    dthr = yc_ani_thresh(d, sh, thr, thrtype);
 end
 
 dout=ddtf_rec_p(dthr,H);
