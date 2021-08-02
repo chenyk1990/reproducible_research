@@ -4,7 +4,7 @@
 %
 % References
 % Huang, G., M. Bai, Q. Zhao, W. Chen, and Y. Chen, 2021, Erratic noise suppression using iterative structure-oriented space-varying median filtering with sparsity constraint, Geophysical Prospecting, 69, 101-121.
-% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2020, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 222, 1805Ð1823.
+% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2020, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 222, 1805„1¤723.
 % Zhao, Q., Q. Du, X. Gong, and Y. Chen, 2018, Signal-preserving erratic noise attenuation via iterative robust sparsity-promoting filter, IEEE Transactions on Geoscience and Remote Sensing, 56, 1558-0644.
 
 clc;clear;close all;
@@ -90,7 +90,7 @@ for i=1:niter
 end
 
 %% SOSVMF
-dipn=dip2d_shan(d1,5,20,2,0.01,[20,5,1]);
+dipn=str_dip2d(d1,5,20,2,0.01,1,0.000001,[20,5,1],1);
 figure;imagesc([dipn,dipn]);colorbar;colormap(jet);caxis([-1,2]);
 
 dt=0.004;
@@ -128,7 +128,7 @@ sigma=[Sigma,linspace(Sigma,0.1*Sigma,niter)];%very good performance
 % snrs4=zeros(niter+1,1);
 snrs4=[];
 
-% dipn=dip2d_shan(dn,5,20,2,0.01,[20,5,1]);
+% dipn=str_dip2d(dn,5,20,2,0.01,1,0.000001,[20,5,1],1);
 
 for i=1:niter-2
     P=(dn-d4);
@@ -154,7 +154,7 @@ for i=1:niter-2
     end
     
     
-%     dipn=dip2d_shan(d4,5,20,2,0.01,[20,5,1]);
+%     dipn=str_dip2d(d4,5,20,2,0.01,1,0.000001,[20,5,1],1);
     d4=real(ifdct_wrapping(Ct,is_real,n1,n2));
 
 
@@ -271,10 +271,10 @@ print(gcf,'-depsc','-r200','f_sosvmfi_n.eps');
 
 
 rect=[10,5,1];niter=20;eps=0;verb=0;
-[simi11]=yc_localsimi(dn-d1,d1,rect,niter,eps,verb);
-[simi22]=yc_localsimi(dn-d2,d2,rect,niter,eps,verb);
-[simi33]=yc_localsimi(dn-d3,d3,rect,niter,eps,verb);
-[simi44]=yc_localsimi(dn-d4,d4,rect,niter,eps,verb);
+[simi11]=localsimi(dn-d1,d1,rect,niter,eps,verb);
+[simi22]=localsimi(dn-d2,d2,rect,niter,eps,verb);
+[simi33]=localsimi(dn-d3,d3,rect,niter,eps,verb);
+[simi44]=localsimi(dn-d4,d4,rect,niter,eps,verb);
 
 figure('units','normalized','Position',[0.0 0.0 0.6 1.0],'color','w');
 imagesc(x,t,simi11);colormap(jet);
