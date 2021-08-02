@@ -4,7 +4,7 @@
 %
 % References
 % Huang, G., M. Bai, Q. Zhao, W. Chen, and Y. Chen, 2021, Erratic noise suppression using iterative structure-oriented space-varying median filtering with sparsity constraint, Geophysical Prospecting, 69, 101-121.
-% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2020, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 222, 1805Ð1823.
+% Chen, Y., S. Zu, Y. Wang, and X. Chen, 2020, Deblending of simultaneous-source data using a structure-oriented space varying median filter, Geophysical Journal International, 222, 1805„1¤723.
 % Zhao, Q., Q. Du, X. Gong, and Y. Chen, 2018, Signal-preserving erratic noise attenuation via iterative robust sparsity-promoting filter, IEEE Transactions on Geoscience and Remote Sensing, 56, 1558-0644.
 
 
@@ -100,8 +100,8 @@ sigma=[Sigma,linspace(2.5*Sigma,0.5*Sigma,niter)];
 
 
 %% SOSVMF
-dipc=dip2d_shan(dc);
-dipn=dip2d_shan(dn,5,20,2,0.01,[20,5,1]);
+dipc=str_dip2d(dc);
+dipn=str_dip2d(dn,5,20,2,0.01,1,0.000001,[20,5,1],1);
 % figure;imagesc([dipc,dipn]);colorbar;colormap(jet);caxis([-1,2]);
 
 % figure('units','normalized','Position',[0.0 0.0 0.6, 1.0],'color','w');
@@ -147,7 +147,7 @@ sigma=[Sigma,linspace(Sigma,0.1*Sigma,niter)];%very good performance
 % snrs4=zeros(niter+1,1);
 snrs4=[];
 snrs4(1)=yc_snr(dc,d4);
-dipn=dip2d_shan(dn,5,20,2,0.01,[20,5,1]);
+dipn=str_dip2d(dn,5,20,2,0.01,1,0.000001,[20,5,1],1);
 [0,yc_snr(dc,d4)]
 for i=1:niter-2
     P=(dn-d4);
@@ -173,7 +173,7 @@ for i=1:niter-2
     end
     
     
-    dipn=dip2d_shan(d4,5,20,2,0.01,[20,5,1]);
+    dipn=str_dip2d(d4,5,20,2,0.01,1,0.000001,[20,5,1],1);
     d4=real(ifdct_wrapping(Ct,is_real,n1,n2));
     [i,yc_snr(dc,d4)]
     snrs4=[snrs4;yc_snr(dc,d4)];
