@@ -43,19 +43,15 @@ Flow([slocname],[os.path.join(matROOT,matfun+'.m')],
      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun0)s('${TARGETS[0]}',%(nevents)d);quit"
      '''%vars(),stdin=0,stdout=-1)
 
-# generate training data
-Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf'],
-     '''MATLABPATH=%(matlabpath)s %(matlab)s 
-     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}','${TARGETS[1]}','%(slocname)s',%(nevents)d,%(nstations)d);quit"
-     '''%vars(),stdin=0,stdout=-1)
-Flow('data','data-0','put n1=3 n2=%d n3=%d d1=1 d2=1 d3=1|transp plane=23|transp plane=12 | transp plane=23'%(nstations,nevents))
-Flow('label','label-0','put n1=3 n2=%d d1=1 d2=1|transp plane=12 '%(nevents))
-
 # 3D ray tracing to generate times.rsf
-with open(slocname) as file:
+def open_locations(target=None,source=None,env=None):
+  with open(str(source[0])) as file:
      lines=file.readlines()  
      print('lines=',lines) 
-
+     
+with open(slocname) as file:
+     lines=file.readlines()  
+     print('lines=',lines)  
 #looping all traveltime calculations (on the surface)
 times=[]
 times2=[]
@@ -63,38 +59,49 @@ times3=[]
 times4=[]
 times5=[]
 for i,xyz in enumerate(lines):
-#      print('line NO=',i,'xyz=',xyz)
-     print('line NO=',i,'xyz.split()',xyz.split())
-     xyz=xyz.split()
-     x=float(xyz[0])
-     y=float(xyz[1])
-     z=float(xyz[2])
-     print(x,y,z)
-     if i<=19999:
-     	times.append('time-'+str(i))
-     elif i<=39999:
-     	times2.append('time-'+str(i))
-     elif i<=59999:
-     	times3.append('time-'+str(i))
-     elif i<=79999:
-     	times4.append('time-'+str(i))
-     else:
-     	times5.append('time-'+str(i))
-     
-     Flow('time-'+str(i),'mod',
-     '''
-     eikonal xshot=%g yshot=%g zshot=%g order=1 | 
-     window n1=1 f1=0 |transp
-     '''%(x,y,z))#to x,y coordinates
+#print('line NO=',i,'xyz=',xyz)
+ print('line NO=',i,'xyz.split()',xyz.split())
+ xyz=xyz.split()
+ x=float(xyz[0])
+ y=float(xyz[1])
+ z=float(xyz[2])
+ print(x,y,z)
+ if i<=19999:
+ 	times.append('time-'+str(i))
+ elif i<=39999:
+ 	times2.append('time-'+str(i))
+ elif i<=59999:
+ 	times3.append('time-'+str(i))
+ elif i<=79999:
+ 	times4.append('time-'+str(i))
+ else:
+ 	times5.append('time-'+str(i))
+ 
+ Flow('time-'+str(i),'mod',
+ '''
+ eikonal xshot=%g yshot=%g zshot=%g order=1 | 
+ window n1=1 f1=0 |transp
+ '''%(x,y,z))#to x,y coordinates
 if nevents ==100000: #two options: nevents=10000 or 100000
-	Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
-	Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
-	Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
-	Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
-	Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
-	Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
+ Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
+ Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
+ Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
+ Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
+ Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
+ Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
 else:
-	Flow('times','times-1','cp')
+ Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
+ Flow('times','times-1','cp')
+Command('temp.txt',[slocname],action=Action(open_locations))
+
+# generate training data
+Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf','temp.txt'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}','${TARGETS[1]}','%(slocname)s',%(nevents)d,%(nstations)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('data','data-0','put n1=3 n2=%d n3=%d d1=1 d2=1 d3=1|transp plane=23|transp plane=12 | transp plane=23'%(nstations,nevents))
+Flow('label','label-0','put n1=3 n2=%d d1=1 d2=1|transp plane=12 '%(nevents))
+
 
 # prepare the data format for RF
 def prepare_rf(target=None,source=None,env=None):

@@ -55,7 +55,6 @@ z=z(floor(rand(Nevents,1)*nz)+1);
 % y=y*0+2.5;
 % z=z*0+2.5;
 %% create locations
-%fid=fopen('locations_100000.txt','w')
 fid=fopen(slocname,'w');
 fprintf(fid,'%3.4f %3.4f %3.4f\n',[x,y,z]');
 
