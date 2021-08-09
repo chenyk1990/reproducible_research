@@ -81,14 +81,14 @@ if isExist:
    eikonal xshot=%g yshot=%g zshot=%g order=1 | 
    window n1=1 f1=0 |transp
    '''%(x,y,z))#to x,y coordinates
-if nevents ==100000: #two options: nevents=10000 or 100000
+  if nevents ==100000: #two options: nevents=10000 or 100000
     Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
     Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
     Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
     Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
     Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
     Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
-else:
+  else:
     Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
     Flow('times','times-1','cp')
 
