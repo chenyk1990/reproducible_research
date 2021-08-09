@@ -437,8 +437,8 @@ n1=256;                 # the training volumn size   nz
 n2=128;                # the training volumn sie    nt
 patch_rows = 32        # patch size
 patch_cols= 32         # patch size
-tslide=4               # time stride
-xslide=4              # space stride
+tslide2=4               # time stride
+xslide2=4              # space stride
 
 
 
@@ -458,7 +458,7 @@ def predict(target=None,source=None,env=None):
 	test = test.reshape(nx,nt).T
 	true = true.reshape(nx,nt).T
 	
-	X_test = myimtocol(test, patch_rows, patch_rows,  n1, n2, tslide,xslide,1);
+	X_test = myimtocol(test, patch_rows, patch_rows,  n1, n2, tslide2,xslide2,1);
 
 	test_datasize= X_test.shape[0]
 	X_test = X_test.reshape(test_datasize, patch_rows, patch_cols, 1)
@@ -486,7 +486,7 @@ def predict(target=None,source=None,env=None):
 
 
 	Y_test = np.squeeze(Y_test)
-	d1de = myimtocol(Y_test, patch_rows, patch_cols, n1, n2, tslide, xslide, 0)
+	d1de = myimtocol(Y_test, patch_rows, patch_cols, n1, n2, tslide2, xslide2, 0)
 
 	########################visualize layers #################################
 	layer_names = [layer.name for layer in model.layers]
@@ -722,7 +722,7 @@ def train_and_predict(target=None,source=None,env=None):
 	test = test.reshape(nx,nt).T
 	true = true.reshape(nx,nt).T
 	
-	X_test = myimtocol(test, patch_rows, patch_rows,  n1, n2, tslide,xslide,1);
+	X_test = myimtocol(test, patch_rows, patch_rows,  n1, n2, tslide2,xslide2,1);
 
 	test_datasize= X_test.shape[0]
 	X_test = X_test.reshape(test_datasize, patch_rows, patch_cols, 1)
