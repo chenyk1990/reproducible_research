@@ -1,0 +1,810 @@
+# conda create -n dip
+# install keras,pynvml,matplotlib
+# conda activate dip
+#Written on Aug, 9, 2021
+#Yangkang Chen
+from rsf.proj import*
+import time
+import random
+import numpy as np
+import m8r
+
+###################### display definition#######################
+def Grey (data,other):
+    Result (data,
+            '''
+            grey title=%s label1=Time unit1="s" label2=Trace unit2=""
+            color=g screenratio=1.5 wanttitle=n clip=1
+            %s
+            '''%(data,other))
+def Greyt (data,other):
+    Result (data,
+            '''
+            transp|grey title=%s label1=Time unit1="s" label2=Trace unit2=""
+            color=g screenratio=1.5 wanttitle=n clip=1
+            %s
+            '''%(data,other))
+def Grey3 (data, other):
+    Result (data,
+            '''
+            byte pclip=100  | grey3 frame1=100 frame2=20 frame3=2
+            title="" label1="Time" unit1="s" label2="X" unit2="km" label3="Y" unit3="km"
+            flat=n wantaxis=y wanttitle=n color=g point1=0.75 point2=0.74 screenratio=1.5
+            %s
+            '''%other)
+
+###################### self-defined functions #######################
+# convert 2D matrix to patches or invert
+def myimtocol(input1,rn1,rn2,n1,n2,tslide,xslide,f):
+    if f == 1:
+        [n1, n2] = input1.shape
+        if ((n1-rn1)%tslide) != 0 :
+            print ('Error size in n1 and rn1')
+        elif ((n2-rn2)%xslide) != 0:
+            print ('Error size in n2 and rn2')
+            
+        num1 = int((n1-rn1)/tslide)+1
+        num2 = int((n2-rn2)/xslide)+1
+
+        datasize = num1*num2
+        output1 =np.zeros((datasize,rn1,rn2), dtype='float')
+        for i in range(num2):
+            for j in range(num1):
+                output1[i*num1+j,:,:] = input1[j*tslide:j*tslide+rn1,i*xslide:i*xslide+rn2];
+    else:
+        [datasize, rn1, rn2] = input1.shape
+        num1 = int((n1-rn1)/tslide)+1
+        num2 = int((n2-rn2)/xslide)+1
+        output1 = np.zeros((n1,n2), dtype='float')
+        weight = np.zeros((n1,n2), dtype='float')
+        one = np.ones((rn1,rn2), dtype='float')
+        for i in range(num2):
+            for j in range(num1):
+                output1[j*tslide:j*tslide+rn1,i*xslide:i*xslide+rn2] =output1[j*tslide:j*tslide+rn1,i*xslide:i*xslide+rn2] +np.squeeze(input1[i*num1+j,:,:]);
+                weight[j*tslide:j*tslide+rn1,i*xslide:i*xslide+rn2] =weight[j*tslide:j*tslide+rn1,i*xslide:i*xslide+rn2] +one;
+        output1 = output1/weight
+    return output1
+
+
+# dither time  time/unit
+def dither(input1, time):
+    [n1, n2] = input1.shape
+    out1 = np.zeros((n1,n2), dtype='float')
+    n22 = len(time)
+    if n2 != n22:
+        print ('Error in size of delay time')
+    for ix in range(n2):
+        for it in range(n1):
+            itt = it + int(time[ix])
+            if itt >= 0 and itt < n1 :
+                out1[itt,ix] = input1[it,ix]
+    return out1
+
+
+
+
+# calculate signal-to-noise ratio
+def calculate_snr(signal,noisy):
+    error = signal - noisy
+    temp1 = np.sum(np.sum(signal*signal))
+    temp2 = np.sum(np.sum(error*error))
+    snr = 10*np.log10(temp1/temp2)
+    return snr
+    
+## snr is to evaluate the training process
+def snr(y_true, y_pred):
+    loss1 = K.sum(K.sum(K.square(y_pred - y_true),axis=0),axis=1)
+    loss2 = K.sum(K.sum(K.square(y_true),axis=0),axis=1)
+    snr = 10*K.log(loss2/loss1)
+    return snr
+###################### self-defined functions #######################
+
+###################### display definition#######################10par = {'nt':201, 'nx':61, 'num':200}
+par = {'nt':256, 'nx':128, 'num':20}
+
+## read field noise
+Flow ('noise', 'realnoise.dat', 'bin2rsf n1=256 n2=2560|put n1=256 n2=128 n3=20')
+Grey3 ('noise', 'clip=3e+3')
+
+hypers = []
+hyperns= []
+dips = []
+dipns = []
+
+hypers2 = []
+hyperns2= []
+dips2 = []
+dipns2 = []
+
+for i in range (par['num']):
+
+    # print (i)
+    vrms = 'vrms%d'%(i+1)
+    synt = 'synt%d'%(i+1)
+    hyper = 'hyper%d'%(i+1)
+    hyper2 = 'hyper2%d'%(i+1)
+    hypern = 'hypern%d'%(i+1)
+    hypern2 = 'hypern2%d'%(i+1)
+    dip = 'dip%d'%(i+1)
+    dip2 = 'dip2%d'%(i+1)
+    dipn = 'dipn%d'%(i+1)
+    dipn2 = 'dipn2%d'%(i+1)
+
+    random.seed(2021+i)
+    apex = random.randint(-1000,500)
+    random.seed(2021+i)
+    seed = random.randint (1, 20)
+    random.seed(2021+i)
+    vel = random.randint(3000,7000)
+    Flow (vrms, None, 'math d1=0.004 n1=1000 o1=0 output="%d"'%vel)
+
+    Flow (synt, None,
+          '''
+          spike  d1=0.004 n1=1000|
+          noise rep=y seed=%d|
+          cut n1=50|
+          spray axis=2 n=%d  d=15 o=%d label=Offset unit=m
+          '''%(seed, par['nx'], -50 *(i+1)))
+    Flow (hyper, [synt, vrms],
+          '''
+          inmo velocity=${SOURCES[1]} half=y|
+          put o2=0 d2=1 d1=0.004 |
+          window n1=%(nt)d|
+          ricker1 frequency=30|
+          bandpass flo=3 fhi=40|
+          cut f1=0 n1=10|
+          scale dscale=2
+          '''%par)
+    # result (hyper, '')
+    random.seed(2021+i)
+    seed  = random.randint(i,i+1)
+
+    Flow (hyper2, hyper, 'matlr')
+    Flow (dip, hyper, 'dip rect1=2 rect2=2')
+    Flow (dip2, hyper2, 'dip rect1=2 rect2=2')
+    Flow (hypern, ['noise', hyper],
+          '''
+          window f3=%d n3=1
+          |add scale=1,1 ${SOURCES[1]}
+          |noise mean=0 range=1.2 seed=%d
+          '''%(i,100*i))
+    # Flow (hypern, hyper, 'noise mean=0 range=2.5 seed=%d'%seed)
+    Flow (hypern2, hypern, 'matlr')
+    Flow (dipn, hypern, 'dip rect1=1 rect2=1 ')
+    Flow (dipn2, hypern2, 'dip rect1=1 rect2=2')
+    hypers.append(hyper)
+    hyperns.append(hypern)
+    dips.append(dip)
+    dipns.append(dipn)
+    hypers2.append(hyper2)
+    hyperns2.append(hypern2)
+    dips2.append(dip2)
+    dipns2.append(dipn2)
+
+
+
+Flow ('hypers', hypers, 'cat axis=3 ${SOURCES[1:%d]}'%len(hypers))
+Flow ('hyperns', hyperns, 'cat axis=3 ${SOURCES[1:%d]}|scale dscale=0.5'%len(hyperns))
+Flow ('dips', dips, 'cat axis=3 ${SOURCES[1:%d]}|scale dscale=0.5'%len(dips))
+Flow ('dipns', dipns, 'cat axis=3 ${SOURCES[1:%d]}'%len(dipns))
+
+
+Flow ('hypers2', hypers2, 'cat axis=3 ${SOURCES[1:%d]}'%len(hypers2))
+Flow ('hyperns2', hyperns2, 'cat axis=3 ${SOURCES[1:%d]}|scale dscale=0.5'%len(hyperns2))
+Flow ('dips2', dips2, 'cat axis=3 ${SOURCES[1:%d]}|scale dscale=0.5'%len(dips2))
+Flow ('dipns2', dipns2, 'cat axis=3 ${SOURCES[1:%d]}'%len(dipns2))
+
+Grey('hyper1','')
+Grey('hyper4','')
+Grey('hyper10','')
+Grey('hyper20','')
+
+Grey('hypern1','')
+Grey('hypern4','')
+Grey('hypern10','')
+Grey('hypern20','')
+
+Grey('dipn1','')
+Grey('dipn4','')
+Grey('dipn10','')
+Grey('dipn20','')
+
+
+##### The following are training
+
+import keras
+from keras.models import Sequential, load_model, save_model, Model
+from keras.layers import Dense, Dropout, Flatten, BatchNormalization
+from keras.layers import Conv2D, Conv2DTranspose, MaxPooling2D
+from keras.layers import Input
+from scipy import io
+from keras.utils import plot_model
+import time
+import random
+from sklearn.model_selection import train_test_split
+import numpy as np
+from  tensorflow.python.client import device_lib
+from keras import backend as K
+import numpy as np
+import time
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import time
+import os
+import argparse
+from pynvml import *
+from keras.callbacks import Callback
+
+os.environ['KERAS_BACKEND']='tensorflow'
+########################obtain parameters#################################
+# parser = argparse.ArgumentParser(description='read parameters')
+# parser.add_argument ('--model', default=9, type=int,help='Setting model')
+# parser.add_argument ('--epoch', default=100, type=int,help='Training epoch')
+# args = parser.parse_args()
+# kk = args.model
+# epochs = args.epoch
+kk=9
+epochs=10
+########################set gpu information#################################
+# nvmlInit()
+# GpuCount = nvmlDeviceGetCount()
+GpuCount=1
+os.environ["CUDA_VISIBLE_DEVICES"] = "%d"%((kk-1)%GpuCount)
+
+
+# config = tf.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.8
+# gpu_options = tf.GPUOptions(allow_growth=True)
+# sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+# KTF.set_session(sess )
+
+
+########################set data parameters ###############################
+batch_size = 100       #batch size for training in each step
+ns=20;                 # the training volumn size   nz
+
+nt=256;                # the training volumn sie    nt
+nx=128;                # the training volumn size   nx
+patch_rows = 32        # patch size
+patch_cols= 32         # patch size
+tslide=2               # time stride
+xslide=32              # space stride
+
+def train(target=None,source=None,env=None):
+
+	inp1 = m8r.File(str(source[0]))[:]
+	inp2 = m8r.File(str(source[1]))[:]
+	
+	oup1 = m8r.File(str(source[2]))[:]
+	oup2 = m8r.File(str(source[3]))[:]
+	
+	print('shape of inp1',inp1.shape) #[ns,nx,nt]
+	print('shape of inp2',inp2.shape) #[ns,nx,nt]
+	print('shape of oup1',oup1.shape) #[ns,nx,nt]
+	print('shape of oup2',oup2.shape) #[ns,nx,nt]
+	
+	inp1 = inp1.reshape(ns*nx,nt).T
+	inp2 = inp2.reshape(ns*nx,nt).T
+	oup1 = oup1.reshape(ns*nx,nt).T
+	oup2 = oup2.reshape(ns*nx,nt).T
+	
+	inputs = np.concatenate((inp1,inp2), axis=1)
+	outputs = np.concatenate((oup1,oup2), axis=1)
+
+	plt.figure()
+	plt.imshow(inp1)
+	plt.show()
+
+	train1 = myimtocol(inputs, patch_rows, patch_rows,  nt, ns*nx, tslide,xslide,1);
+	dev1 = myimtocol(outputs, patch_rows, patch_rows,  nt, ns*nx, tslide,xslide,1);
+
+	m8r.File(train1,name=str(target[0]))
+	m8r.File(dev1,name=str(target[1]))
+
+	########################splite the training data into two part #################################
+	######################## one is for training, the other is for testing#################################
+
+	trainsize = 0.9
+	seed = 20191110
+	X_train, X_dev, Y_train, Y_dev = train_test_split(train1, dev1, train_size=trainsize, 	random_state=seed)
+
+	train_datasize = int(trainsize*train1.shape[0])
+	dev_datasize =  train1.shape[0] - train_datasize
+
+	X_train = X_train.reshape(train_datasize, patch_rows, patch_cols, 1)
+	X_dev = X_dev.reshape(dev_datasize, patch_rows, patch_cols, 1)
+	Y_train = Y_train.reshape(train_datasize, patch_rows, patch_cols, 1)
+	Y_dev = Y_dev.reshape(dev_datasize, patch_rows, patch_cols, 1)
+
+########################create the model#################################
+	model = Sequential()
+	input_data = Input(shape=(patch_rows, patch_cols, 1))
+	conv2dlayers= 8
+	deconv2dlayers= 3
+	for i in range(conv2dlayers):
+		if i==0:
+		       conlayer = Conv2D(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(input_data)
+		else:
+		       conlayer = Conv2D(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(conlayer)
+		conlayer = BatchNormalization()(conlayer)
+
+
+	for j in range(deconv2dlayers):
+		if j ==0:
+		       delayer = Conv2DTranspose(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(conlayer)
+		else:
+		       delayer = Conv2DTranspose(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(delayer)
+		delayer = BatchNormalization()(delayer)
+
+	output_data = Conv2DTranspose(1,
+		       kernel_size=(1, 1),
+		       padding='same',
+		       activation='tanh',
+		       kernel_initializer='glorot_uniform')(delayer)
+
+	model = Model(inputs=input_data, outputs=output_data)
+
+	print(model.summary())
+	print ('##################################################################################\n')
+	print ('########################Training model is {}######################################\n'.format(kk))
+	print ('##################################################################################\n')
+# class LossHistory(keras.callbacks.Callback):
+    # def on_train_begin(self, logs={}):
+        # self.losses = []
+        # # self.snrs = []
+    # def on_batch_end(self, batch, logs={}):
+        # self.losses.append(logs.get('loss'))
+#         # self.snrs.append(logs.get('snr'))
+
+	loss = keras.losses.mean_squared_error    # loss function
+	optimizers = keras.optimizers.Adadelta()  # optimization algorithm,
+                                          # an Adaptive Learning Rate Method is used here, so no need to set training rate ;-)
+	metrics=['mean_squared_error']            # metrics:    a function that is used to judge the performance of your model,
+                                          # mean squared error is used here
+######## specify the inversion algorithm ########
+	model.compile(loss=loss,
+              optimizer=optimizers,
+              metrics= ['accuracy'])
+
+
+	########################training the model#################################
+	# history = LossHistory()
+	history = Callback()
+	start = time.time()
+	history=model.fit(X_train, Y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          verbose=1,
+          validation_data=(X_dev, Y_dev),
+          callbacks=[history])
+	end = time.time()
+
+	########################save the trained model and error#################################
+	# plot_model(model, to_file='modelccn%d.png'%kk, show_shapes=True)
+# 	model.save(str(target[2]))
+	save_model(model,str(target[2]))
+	print("Total time=", end-start)
+
+	print (history.history)
+	io.savemat(str(target[3]), {'loss':history.history['loss']})
+	io.savemat(str(target[4]), {'val_loss':history.history['val_loss']})
+
+# Command(['train1.rsf','dev1.rsf','model.h5','loss.mat','val_loss.mat'],['hyperns.rsf','hyperns2.rsf','dips.rsf','dips2.rsf'],action=Action(train))
+
+
+
+
+
+### following is testing
+
+# config = tf.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.8
+# gpu_options = tf.GPUOptions(allow_growth=True)
+# session = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+# KTF.set_session(session )
+
+
+def plot_feature_maps(feature_maps, num):
+    height, width, depth = feature_maps.shape
+    plt.figure(num=num)
+    for i in range(depth):
+        plt.subplot(2, np.ceil(depth/2), i+1)
+        plt.axis('off')
+        plt.imshow(feature_maps[:,:,i], cmap='gray')
+    plt.subplots_adjust(left=0.01, bottom=0.01, right=0.9, top=0.9, wspace=0.01, hspace=0.01)
+
+
+
+########################set data parameters ###############################
+batch_size = 100       #batch size for training in each step
+n1=256;                 # the training volumn size   nz
+n2=128;                # the training volumn sie    nt
+patch_rows = 32        # patch size
+patch_cols= 32         # patch size
+tslide=4               # time stride
+xslide=4              # space stride
+
+
+
+def predict(target=None,source=None,env=None):
+# 	filename1 = './dip.dat';
+# 	true = np.fromfile(filename1, dtype='float32')
+# 	true = true.reshape(n2,n1).T
+# 	filename1 = './nohyper.dat';
+# 	test = np.fromfile(filename1, dtype='float32')
+# 	test = test.reshape(n2,n1).T
+	
+	test = m8r.File(str(source[1]))[:]
+	true = m8r.File(str(source[2]))[:]
+	print('shape of test',test.shape) #[nx,nt]
+	print('shape of true',true.shape) #[nx,nt]
+	
+	test = test.reshape(nx,nt).T
+	true = true.reshape(nx,nt).T
+	
+	X_test = myimtocol(test, patch_rows, patch_rows,  n1, n2, tslide,xslide,1);
+
+	test_datasize= X_test.shape[0]
+	X_test = X_test.reshape(test_datasize, patch_rows, patch_cols, 1)
+
+	X_test = 0.45 *X_test
+
+########################load the trained model#################################
+	def snr(y_true, y_pred):
+		return y_pred
+	print('source[0]=',str(source[0]))
+# 	model = load_model('model.h5',custom_objects={'snr':snr})
+	
+# 	load_model(model,str(target[0]),save_format='h5')
+	model = load_model(str(source[0]))
+	print ('##################################################################################\n')
+	print ('#########################Loading model is {}######################################\n'.format(kk))
+	print ('##################################################################################\n')
+
+	########################predicion#################################
+	start = time.time()
+	Y_test = model.predict(X_test, batch_size=batch_size, verbose=1)
+	end = time.time()
+
+	print ("Prediction taks ", end-start)
+
+
+	Y_test = np.squeeze(Y_test)
+	d1de = myimtocol(Y_test, patch_rows, patch_cols, n1, n2, tslide, xslide, 0)
+
+	########################visualize layers #################################
+	layer_names = [layer.name for layer in model.layers]
+	print(layer_names)
+
+	########################test the scale of predicted data#################################
+	iterations = 200
+	snr = np.zeros((iterations,1), dtype='float32')
+	for i in  range(iterations):
+		snr[i] = calculate_snr(0.02*(i+1)*d1de, true)
+
+	i1,i2 = np.where(snr==snr.max())
+	print ('Max SNR is {}, scale is {}'.format(snr.max(),int(i1)))
+
+	plt.figure(1)
+	plt.subplot(141)
+	plt.imshow(true, cmap='gray')
+
+	plt.subplot(142)
+	plt.imshow(test, cmap='gray')
+	
+	plt.subplot(143)
+	plt.imshow(d1de, cmap='gray')
+	
+	plt.subplot(144)
+	plt.imshow(true-d1de, cmap='gray')
+	plt.show()
+
+
+	d1de=0.02*(i1)*d1de
+
+	plt.figure(2)
+	plt.subplot(131)
+	plt.imshow(true, cmap='gray')
+
+	plt.subplot(132)
+	plt.imshow(test, cmap='gray')
+
+	plt.subplot(133)
+	plt.imshow(0.1*(float(i1)+1)*d1de, cmap='gray')
+
+	########################save the predicted data with best scale#################################
+	# d1de = 0.02*(i+1)*d1de
+# 	d1de = d1de.astype(np.float32)
+# 	filename = 'predicted%d.dat'%kk
+# 	d1de.T.tofile(filename, format='%f')
+	m8r.File(d1de,name=str(target[0]))
+
+## generate the testing shot gather
+apex = 320
+seed = 2021
+vel = 3500
+Flow ('testv', None, 'math d1=0.004 n1=1000 o1=0 output="%d"'%vel)
+
+Flow ('test', None,
+          '''
+          spike  d1=0.004 n1=1000|
+          noise rep=y seed=%d|
+          cut n1=50|
+          spray axis=2 n=%d  d=15 o=%d label=Offset unit=m
+          '''%(seed, par['nx'], -50 *(i+1)))
+Flow ('shot-c', ['test', 'testv'],
+          '''
+          inmo velocity=${SOURCES[1]} half=y|
+          put o2=0 d2=1 d1=0.004 |
+          window n1=%(nt)d|
+          ricker1 frequency=30|
+          bandpass flo=3 fhi=40|
+          cut f1=0 n1=10|
+          scale dscale=2
+          '''%par)
+Flow('shot','shot-c','noise var=0.05 seed=202122')     
+Grey('shot-c','')    
+Grey('shot','')
+
+Flow ('dip-true', 'shot-c', 'dip rect1=2 rect2=2')
+Flow ('dip-pwd', 'shot', 'dip rect1=2 rect2=2')
+ 
+# Command(['dip-pre.rsf'],['model.h5','shot.rsf','dip-true.rsf'],action=Action(predict))
+
+def train_and_predict(target=None,source=None,env=None):
+	batch_size = 100       #batch size for training in each step
+	ns=20;                 # the training volumn size   nz
+	nt=256;                # the training volumn sie    nt
+	nx=128;                # the training volumn size   nx
+	patch_rows = 32        # patch size
+	patch_cols= 32         # patch size
+
+	tslide=2               # time stride
+	xslide=32              # space stride
+	tslide2=4               # time stride
+	xslide2=4              # space stride
+
+	inp1 = m8r.File(str(source[0]))[:]
+	inp2 = m8r.File(str(source[1]))[:]
+	
+	oup1 = m8r.File(str(source[2]))[:]
+	oup2 = m8r.File(str(source[3]))[:]
+	
+	print('shape of inp1',inp1.shape) #[ns,nx,nt]
+	print('shape of inp2',inp2.shape) #[ns,nx,nt]
+	print('shape of oup1',oup1.shape) #[ns,nx,nt]
+	print('shape of oup2',oup2.shape) #[ns,nx,nt]
+	
+	inp1 = inp1.reshape(ns*nx,nt).T
+	inp2 = inp2.reshape(ns*nx,nt).T
+	oup1 = oup1.reshape(ns*nx,nt).T
+	oup2 = oup2.reshape(ns*nx,nt).T
+	
+	inputs = np.concatenate((inp1,inp2), axis=1)
+	outputs = np.concatenate((oup1,oup2), axis=1)
+
+# 	plt.figure()
+# 	plt.imshow(inp1)
+# 	plt.show()
+
+	train1 = myimtocol(inputs, patch_rows, patch_rows,  nt, ns*nx, tslide,xslide,1);
+	dev1 = myimtocol(outputs, patch_rows, patch_rows,  nt, ns*nx, tslide,xslide,1);
+
+	m8r.File(train1,name=str(target[0]))
+	m8r.File(dev1,name=str(target[1]))
+
+	########################splite the training data into two part #################################
+	######################## one is for training, the other is for testing#################################
+
+	trainsize = 0.9
+	seed = 20191110
+	X_train, X_dev, Y_train, Y_dev = train_test_split(train1, dev1, train_size=trainsize, 	random_state=seed)
+
+	train_datasize = int(trainsize*train1.shape[0])
+	dev_datasize =  train1.shape[0] - train_datasize
+
+	X_train = X_train.reshape(train_datasize, patch_rows, patch_cols, 1)
+	X_dev = X_dev.reshape(dev_datasize, patch_rows, patch_cols, 1)
+	Y_train = Y_train.reshape(train_datasize, patch_rows, patch_cols, 1)
+	Y_dev = Y_dev.reshape(dev_datasize, patch_rows, patch_cols, 1)
+
+########################create the model#################################
+	model = Sequential()
+	input_data = Input(shape=(patch_rows, patch_cols, 1))
+	conv2dlayers= 8
+	deconv2dlayers= 3
+	for i in range(conv2dlayers):
+		if i==0:
+		       conlayer = Conv2D(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(input_data)
+		else:
+		       conlayer = Conv2D(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(conlayer)
+		conlayer = BatchNormalization()(conlayer)
+
+
+	for j in range(deconv2dlayers):
+		if j ==0:
+		       delayer = Conv2DTranspose(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(conlayer)
+		else:
+		       delayer = Conv2DTranspose(32,
+		       kernel_size=(3, 3),
+		       padding='same',
+		       activation='relu',
+		       kernel_initializer='glorot_uniform')(delayer)
+		delayer = BatchNormalization()(delayer)
+
+	output_data = Conv2DTranspose(1,
+		       kernel_size=(1, 1),
+		       padding='same',
+		       activation='tanh',
+		       kernel_initializer='glorot_uniform')(delayer)
+
+	model = Model(inputs=input_data, outputs=output_data)
+
+	print(model.summary())
+	print ('##################################################################################\n')
+	print ('########################Training model is {}######################################\n'.format(kk))
+	print ('##################################################################################\n')
+# class LossHistory(keras.callbacks.Callback):
+    # def on_train_begin(self, logs={}):
+        # self.losses = []
+        # # self.snrs = []
+    # def on_batch_end(self, batch, logs={}):
+        # self.losses.append(logs.get('loss'))
+#         # self.snrs.append(logs.get('snr'))
+
+	loss = keras.losses.mean_squared_error    # loss function
+	optimizers = keras.optimizers.Adadelta()  # optimization algorithm,
+                                          # an Adaptive Learning Rate Method is used here, so no need to set training rate ;-)
+	metrics=['mean_squared_error']            # metrics:    a function that is used to judge the performance of your model,
+                                          # mean squared error is used here
+######## specify the inversion algorithm ########
+	model.compile(loss=loss,
+              optimizer=optimizers,
+              metrics= ['accuracy'])
+
+
+	########################training the model#################################
+	# history = LossHistory()
+	history = Callback()
+	start = time.time()
+	history=model.fit(X_train, Y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          verbose=1,
+          validation_data=(X_dev, Y_dev),
+          callbacks=[history])
+	end = time.time()
+
+	########################save the trained model and error#################################
+	# plot_model(model, to_file='modelccn%d.png'%kk, show_shapes=True)
+# 	model.save(str(target[2]))
+	save_model(model,str(target[2]))
+	print("Total time=", end-start)
+
+	print (history.history)
+	io.savemat(str(target[3]), {'loss':history.history['loss']})
+	io.savemat(str(target[4]), {'val_loss':history.history['val_loss']})
+
+	
+	test = m8r.File(str(source[4]))[:]
+	true = m8r.File(str(source[5]))[:]
+	print('shape of test',test.shape) #[nx,nt]
+	print('shape of true',true.shape) #[nx,nt]
+	
+	test = test.reshape(nx,nt).T
+	true = true.reshape(nx,nt).T
+	
+	X_test = myimtocol(test, patch_rows, patch_rows,  n1, n2, tslide,xslide,1);
+
+	test_datasize= X_test.shape[0]
+	X_test = X_test.reshape(test_datasize, patch_rows, patch_cols, 1)
+
+	X_test = 0.45 *X_test
+
+########################load the trained model#################################
+	def snr(y_true, y_pred):
+		return y_pred
+# 	print('source[0]=',str(source[0]))
+# 	model = load_model('model.h5',custom_objects={'snr':snr})
+	
+# 	load_model(model,str(target[0]),save_format='h5')
+# 	model = load_model(str(source[0]))
+	print ('##################################################################################\n')
+	print ('#########################Loading model is {}######################################\n'.format(kk))
+	print ('##################################################################################\n')
+
+	########################predicion#################################
+	start = time.time()
+	Y_test = model.predict(X_test, batch_size=batch_size, verbose=1)
+	end = time.time()
+
+	print ("Prediction taks ", end-start)
+
+
+	Y_test = np.squeeze(Y_test)
+	d1de = myimtocol(Y_test, patch_rows, patch_cols, n1, n2, tslide2, xslide2, 0)
+
+	########################visualize layers #################################
+	layer_names = [layer.name for layer in model.layers]
+	print(layer_names)
+
+	########################test the scale of predicted data#################################
+	iterations = 200
+	snr = np.zeros((iterations,1), dtype='float32')
+	for i in  range(iterations):
+		snr[i] = calculate_snr(0.02*(i+1)*d1de, true)
+
+	i1,i2 = np.where(snr==snr.max())
+	print ('Max SNR is {}, scale is {}'.format(snr.max(),int(i1)))
+
+# 	plt.figure(1)
+# 	plt.subplot(141)
+# 	plt.imshow(true, cmap='gray')
+# 
+# 	plt.subplot(142)
+# 	plt.imshow(test, cmap='gray')
+# 	
+# 	plt.subplot(143)
+# 	plt.imshow(d1de, cmap='gray')
+# 	
+# 	plt.subplot(144)
+# 	plt.imshow(true-d1de, cmap='gray')
+# 	plt.show()
+
+
+	d1de=0.02*(i1)*d1de
+
+# 	plt.figure(2)
+# 	plt.subplot(131)
+# 	plt.imshow(true, cmap='gray')
+# 
+# 	plt.subplot(132)
+# 	plt.imshow(test, cmap='gray')
+# 
+# 	plt.subplot(133)
+# 	plt.imshow(0.1*(float(i1)+1)*d1de, cmap='gray')
+# 	plt.show()
+	########################save the predicted data with best scale#################################
+	# d1de = 0.02*(i+1)*d1de
+# 	d1de = d1de.astype(np.float32)
+# 	filename = 'predicted%d.dat'%kk
+# 	d1de.T.tofile(filename, format='%f')
+	m8r.File(d1de,name=str(target[5]))
+
+
+Command(['train1.rsf','dev1.rsf','model.h5','loss.mat','val_loss.mat','dip-pre.rsf'],['hyperns.rsf','hyperns2.rsf','dips.rsf','dips2.rsf','shot.rsf','dip-true.rsf'],action=Action(train_and_predict))
+
+
+Grey('dip-true','color=j clip=2')    
+Grey('dip-pwd','color=j clip=2')  
+Greyt('dip-pre','color=j clip=2')  
+
+End()
