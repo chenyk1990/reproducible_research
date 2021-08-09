@@ -1,3 +1,6 @@
+#first run: scons locations_10000.txt #or scons locations_100000.txt
+#then run: scons comp_abs.view
+
 from rsf.proj import *
 from rsf.prog import RSFROOT
 from sklearn.ensemble import RandomForestRegressor
@@ -44,58 +47,53 @@ Flow([slocname],[os.path.join(matROOT,matfun+'.m')],
      '''%vars(),stdin=0,stdout=-1)
 
 # 3D ray tracing to generate times.rsf
-def open_locations(target=None,source=None,env=None):
-  with open(str(source[0])) as file:
+isExist = os.path.exists(slocname)
+if isExist:
+  with open(slocname) as file:
      lines=file.readlines()  
      print('lines=',lines) 
-     
-with open(slocname) as file:
-     lines=file.readlines()  
-     print('lines=',lines)  
-#looping all traveltime calculations (on the surface)
-times=[]
-times2=[]
-times3=[]
-times4=[]
-times5=[]
-for i,xyz in enumerate(lines):
-#print('line NO=',i,'xyz=',xyz)
- print('line NO=',i,'xyz.split()',xyz.split())
- xyz=xyz.split()
- x=float(xyz[0])
- y=float(xyz[1])
- z=float(xyz[2])
- print(x,y,z)
- if i<=19999:
- 	times.append('time-'+str(i))
- elif i<=39999:
- 	times2.append('time-'+str(i))
- elif i<=59999:
- 	times3.append('time-'+str(i))
- elif i<=79999:
- 	times4.append('time-'+str(i))
- else:
- 	times5.append('time-'+str(i))
+  times=[]
+  times2=[]
+  times3=[]
+  times4=[]
+  times5=[]
+  for i,xyz in enumerate(lines):
+  #print('line NO=',i,'xyz=',xyz)
+   print('line NO=',i,'xyz.split()',xyz.split())
+   xyz=xyz.split()
+   x=float(xyz[0])
+   y=float(xyz[1])
+   z=float(xyz[2])
+   print(x,y,z)
+   if i<=19999:
+   	times.append('time-'+str(i))
+   elif i<=39999:
+   	times2.append('time-'+str(i))
+   elif i<=59999:
+   	times3.append('time-'+str(i))
+   elif i<=79999:
+   	times4.append('time-'+str(i))
+   else:
+   	times5.append('time-'+str(i))
  
- Flow('time-'+str(i),'mod',
- '''
- eikonal xshot=%g yshot=%g zshot=%g order=1 | 
- window n1=1 f1=0 |transp
- '''%(x,y,z))#to x,y coordinates
+   Flow('time-'+str(i),'mod',
+   '''
+   eikonal xshot=%g yshot=%g zshot=%g order=1 | 
+   window n1=1 f1=0 |transp
+   '''%(x,y,z))#to x,y coordinates
 if nevents ==100000: #two options: nevents=10000 or 100000
- Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
- Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
- Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
- Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
- Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
- Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
+    Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
+    Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
+    Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
+    Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
+    Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
+    Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
 else:
- Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
- Flow('times','times-1','cp')
-Command('temp.txt',[slocname],action=Action(open_locations))
+    Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
+    Flow('times','times-1','cp')
 
 # generate training data
-Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf','temp.txt'],
+Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf',slocname],
      '''MATLABPATH=%(matlabpath)s %(matlab)s 
      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}','${TARGETS[1]}','%(slocname)s',%(nevents)d,%(nstations)d);quit"
      '''%vars(),stdin=0,stdout=-1)
