@@ -2,10 +2,31 @@
 #conda activate ddae
 #conda install ipython
 #pip install tensorflow
+# Completely reproducible DEMO script (based on Madagascar) of the method introduced in "Deep Denoising Autoencoder for Seismic Random Noise Attenuation"
+# Prepared by Yangkang Chen
+# Aug, 10, 2021
+#
+# NOTE: 
+# 1. datapath of DDAE_SYN.mat and NEWREAL3_1.mat
+# @
+# https://github.com/chenyk1990/reproducible_research/tree/master/nonMada/mada_ml/ddae/demo/
+#
+# 2. Please remember to cite the paper below if you find it useful
+# @Article{omar2020geo1,
+#   author={Omar Saad and Yangkang Chen},
+#   title = {Deep Denoising Autoencoder for Seismic Random Noise Attenuation},
+#   journal={Geophysics},
+#   year=2020,
+#   volume=85,
+#   issue=4,
+#   number=4,
+#   pages={V367–V376},
+#   doi={10.1190/geo2019-0468.1},
+# }
+#
+# 3. A simple jupyter-notebook-based implementation can be found at 
+# https://github.com/omarmohamed15/Deep-Denoising-Autoencoder-for-Seismic-Random-Noise-Attenuation
 
-#datapath of DDAE_SYN.mat and NEWREAL3_1.mat
-#@
-#https://github.com/chenyk1990/reproducible_research/tree/master/nonMada/mada_ml/ddae/demo/
 from rsf.proj import*
 import m8r
 def Grey (data,other):
