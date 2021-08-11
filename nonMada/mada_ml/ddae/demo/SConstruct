@@ -4,7 +4,8 @@
 #pip install tensorflow
 
 #datapath of DDAE_SYN.mat and NEWREAL3_1.mat
-#
+#@
+#https://github.com/chenyk1990/reproducible_research/tree/master/nonMada/mada_ml/ddae/demo/
 from rsf.proj import*
 import m8r
 def Grey (data,other):
@@ -222,19 +223,19 @@ def train_real(target=None,source=None,env=None):
   # Final Layer
   decoded = Dense(INPUT_SIZE2, activation='linear')(decoded3)
 
-  def correlation_coefficient_loss(y_true, y_pred):
-    #optional
-    #x = y_true - y_pred
-    #y = y_pred
-    #mx = K.mean(x)
-    #my = K.mean(y)
-    #xm, ym = x-mx, y-my
-    #r_num = K.sum(tf.multiply(xm,ym))
-    #r_den = K.sqrt(tf.multiply(K.sum(K.square(xm)), K.sum(K.square(ym))))
-    #r = r_num / r_den
-    #r =  corr1 - (K.maximum(K.minimum(r, 1.0), -1.0))
+  def correlation_coefficient_loss(y_true, y_pred): #see the attached derivation figure in https://github.com/chenyk1990/reproducible_research/tree/master/nonMada/mada_ml/ddae/demo
+    #optional 1 (minimize the correlation between denoised data and removed noise)
+    x = y_true - y_pred
+    y = y_pred
+    mx = K.mean(x)
+    my = K.mean(y)
+    xm, ym = x-mx, y-my
+    r_num = K.sum(tf.multiply(xm,ym))
+    r_den = K.sqrt(tf.multiply(K.sum(K.square(xm)), K.sum(K.square(ym))))
+    r = r_num / r_den
+    r =  corr1 - (K.maximum(K.minimum(r, 1.0), -1.0))
     
-    #1
+    #optional 2 (maximize the correlation between denoised data and noisy data)
     x1 = y_true
     y1 = y_pred
     mx1 = K.mean(x1)
@@ -243,22 +244,9 @@ def train_real(target=None,source=None,env=None):
     r_num1 = K.sum(tf.multiply(xm1,ym1))
     r_den1 = K.sqrt(tf.multiply(K.sum(K.square(xm1)), K.sum(K.square(ym1))))
     r1 = r_num1 / r_den1
-    r1 = corr2 -  (K.maximum(K.minimum(r1, 1.0), -1.0))
+    r1 = 1 -  (K.maximum(K.minimum(r1, 1.0), -1.0))
     
-    # Optional
-    '''  
-    x2 = y_true-y_pred
-    y2 = y_true
-    mx2 = K.mean(x2)
-    my2 = K.mean(y2)
-    xm2, ym2 = x2-mx2, y2-my2
-    r_num2 = K.sum(tf.multiply(xm2,ym2))
-    r_den2 = K.sqrt(tf.multiply(K.sum(K.square(xm2)), K.sum(K.square(ym2))))
-    r2 = r_num2 / r_den2
-    r2 =    corr3 - (K.maximum(K.minimum(r2, 1.0), -1.0))
-    '''
-    return   K.mean(K.square(y_true - y_pred)) + r1
-    
+    return   K.square(r) + K.square(r1) #this combination ensures the denoised data is not zero
     
   autoencoder = Model(input_img, decoded)
   # sgd = tf.keras.optimizers.Adam(learning_rate=0.001)
@@ -278,7 +266,7 @@ def train_real(target=None,source=None,env=None):
     autoencoder.layers[i].set_weights(w)
     
   tic()
-  history = autoencoder.fit(dataNoise,dataNoise, epochs=75, batch_size=batch, shuffle=True)
+  history = autoencoder.fit(dataNoise,dataNoise, epochs=500, batch_size=batch, shuffle=True)
   toc()
 
   out = autoencoder.predict(dataNoise)
