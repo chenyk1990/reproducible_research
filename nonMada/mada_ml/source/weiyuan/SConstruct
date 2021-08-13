@@ -65,13 +65,13 @@ if isExist:
    y=float(xyz[1])
    z=float(xyz[2])
    print(x,y,z)
-   if i<=19999:
+   if i<=1999:
    	times.append('time-'+str(i))
-   elif i<=39999:
+   elif i<=3999:
    	times2.append('time-'+str(i))
-   elif i<=59999:
+   elif i<=5999:
    	times3.append('time-'+str(i))
-   elif i<=79999:
+   elif i<=7999:
    	times4.append('time-'+str(i))
    else:
    	times5.append('time-'+str(i))
@@ -81,7 +81,7 @@ if isExist:
    eikonal xshot=%g yshot=%g zshot=%g order=1 | 
    window n1=1 f1=0 |transp
    '''%(x,y,z))#to x,y coordinates
-  if nevents ==100000: #two options: nevents=10000 or 100000
+  if nevents ==10000: #two options: nevents=10000 or 100000
     Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
     Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
     Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
