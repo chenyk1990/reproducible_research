@@ -1,0 +1,318 @@
+#first run: scons locations_10000.txt #or scons locations_100000.txt
+#then run: scons comp_abs.view
+
+from rsf.proj import *
+from rsf.prog import RSFROOT
+from sklearn.ensemble import RandomForestRegressor
+# import platform
+import numpy as np
+# from tensorflow import keras
+import m8r
+##########################################################################################
+####### Added on Aug 8, 2021
+##########################################################################################
+
+# create the velocity model
+nz=101
+nx=101
+ny=101
+dz=0.04
+dx=0.03310 #0.0662*50/100
+dy=0.03835 #0.0767*50/100
+
+spike = '''
+spike 
+n1=101 d1=0.05 label1=x unit1=km
+n2=101 d2=0.05 label2=y unit2=km
+n3=101 d3=0.05 label3=z unit3=km
+'''
+
+Flow('mod',None,spike+'|math output="1.5+0.5*x1"')
+Result('mod','mod','byte bar=bar.rsf mean=y|grey3  flat=n allpos=y bias=1.5 color=j scalebar=n maxval=5.0 title="Velocity Model" barlabel="V" barunit="km/s" label1=Depth label2="Distance in X" label3="Distance in Y" unit1=km unit2=km unit3=km frame1=49 frame2=49 frame3=49 scalebar=y point1=0.7 point2=0.6')
+
+nevents=10000
+nstations=38
+nz=101
+slocname='locations_%d.txt'%nevents #source location file 
+
+# Matlab interface
+matlab  = WhereIs('matlab')
+if not matlab:
+        sys.stderr.write('\nCannot find Matlab.\n')
+        sys.exit(1)
+matROOT = './matfun'
+matfun0 = 'Weiyuan_source'
+matfun = 'Weiyuan'
+matfunv = 'Create_deltav'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+# create label file (slocname)
+Flow([slocname],[os.path.join(matROOT,matfun+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun0)s('${TARGETS[0]}',%(nevents)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+Flow(['deltav-0'],[os.path.join(matROOT,matfunv+'.m')],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfunv)s('${TARGETS[0]}',%(nevents)d,%(nz)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('deltav','deltav-0','put n1=%d n2=%d d1=1 d2=1 o1=1 o2=1'%(nz,nevents))
+# 3D ray tracing to generate times.rsf
+isExist = os.path.exists(slocname)
+# if isExist:
+#   with open(slocname) as file:
+#      lines=file.readlines()  
+#      print('lines=',lines) 
+#   times=[]
+#   times2=[]
+#   times3=[]
+#   times4=[]
+#   times5=[]
+#   for i,xyz in enumerate(lines):
+#   #print('line NO=',i,'xyz=',xyz)
+#    print('line NO=',i,'xyz.split()',xyz.split())
+#    xyz=xyz.split()
+#    x=float(xyz[0])
+#    y=float(xyz[1])
+#    z=float(xyz[2])
+#    print(x,y,z)
+#    if i<=1999:
+#    	times.append('time-'+str(i))
+#    elif i<=3999:
+#    	times2.append('time-'+str(i))
+#    elif i<=5999:
+#    	times3.append('time-'+str(i))
+#    elif i<=7999:
+#    	times4.append('time-'+str(i))
+#    else:
+#    	times5.append('time-'+str(i))
+#  
+#    Flow('time-'+str(i),'deltav mod',
+#    '''
+#    window n2=1 f2=%d | spray axis=2 n=101 d=0.05 o=0|spray axis=3 n=101 d=0.05 o=0| add scale=1,1 ${SOURCES[1]}| eikonal xshot=%g yshot=%g zshot=%g order=1 | 
+#    window n1=1 f1=0 |transp
+#    '''%(i,x,y,z))#to x,y coordinates
+#   if nevents ==10000: #two options: nevents=10000 or 100000
+#     Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
+#     Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
+#     Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
+#     Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
+#     Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
+#     Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
+#   else:
+#     Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
+#     Flow('times','times-1','cp')
+# 
+# # generate training data
+Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf','deltav',slocname],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}','${TARGETS[1]}','%(slocname)s',%(nevents)d,%(nstations)d,%(nz)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('data','data-0','put n1=3 n2=%d n3=%d d1=1 d2=1 d3=1|transp plane=23|transp plane=12 | transp plane=23'%(nstations,nevents))
+Flow('label','label-0','put n1=%d n2=%d d1=1 d2=1|transp plane=12 '%(3+nz,nevents))
+
+
+# prepare the data format for RF
+def prepare_rf(target=None,source=None,env=None):
+    import h5py
+    import scipy.io
+    import numpy as np
+    data = m8r.File(str(source[0]))[:]
+    lab = m8r.File(str(source[1]))[:]
+    print(np.shape(data))
+    print(np.shape(lab))
+    # Reading Input Lat and Long for the Stations and Events.
+    lat=[]
+    long=[]
+    timdif=[]
+    laball=[]
+    loc=[]
+    depall=[]
+    lad = []
+    lod = []
+    vall= []
+    for i in range(0,np.shape(data)[-1]):
+        # Time difference betweeen the first arrival time and the 9 stations.
+        t = data[2,:,i] - data[2,0,i] 
+        t = t[1:]
+        timdif.append(t)
+    
+        # The target is the difference between the lat/long of the first station 
+        # and the excat lat/long of the event. The depth is the excat value.
+        lad.append(lab[0,i] - data[0,0,i])
+        lod.append(lab[1,i] - data[1,0,i])
+    
+        # The lat/long of the 10 stations
+        lat.append(data[0,:,i])
+        long.append(data[1,:,i])
+    
+    
+        # The lat/long and depth of the events.
+        laball.append(lab[:,i])
+        depall.append(lab[2,i])
+        vall.append(lab[3:,i])
+    	
+    lat    = np.array(lat)
+    long   = np.array(long)
+    timdif = np.array(timdif)
+    laball = np.array(laball)
+    depall = np.array(depall)
+    vall = np.array(vall)
+    lad = np.array(lad)
+    lod = np.array(lod)
+
+    lad    = np.reshape(lad,(lad.shape[0],1))
+    lod   = np.reshape(lod,(lod.shape[0],1))
+    depall = np.reshape(depall,(depall.shape[0],1))
+#     vall = np.reshape(vall,(vall.shape[0],1))
+
+    # Concatenating the input features.
+    p_all = np.concatenate([lat,long,timdif],axis=-1)
+    
+    # We randomly split the data, so I fix the random index (by np.random.seed) for reproducing and comparing.
+    np.random.seed(2021)
+    indrand=np.random.permutation(nevents)
+    print(indrand)
+    # Reorder according to the randomaization.
+    p_all = p_all[indrand]
+    print('p_all size is',p_all.shape)
+    print('lad size is',lad.shape)
+    print('lod size is',lod.shape)
+    print('depall size is',depall.shape)
+    print('lab[3:,:] size is',lab[3:,:].shape)
+    print('lab[3:,:].T size is',lab[3:,:].transpose().shape)
+    d = np.concatenate([lad,lod,depall,lab[3:,:].transpose()],axis=-1) 
+    print('d size is',d.shape)
+    d = d[indrand]
+
+    ix = int(len(p_all)*0.9)
+    x_train=p_all[0:ix]
+    y_train=d[0:ix]
+    x_test=p_all[ix:]
+    y_test=d[ix:]
+
+    m8r.File(x_train,name=str(target[0]))
+    m8r.File(y_train,name=str(target[1]))
+    m8r.File(x_test,name=str(target[2]))
+    m8r.File(y_test,name=str(target[3]))
+
+Command(['xtrain.rsf','ytrain.rsf','xtest.rsf','ytest.rsf'],['data.rsf','label.rsf'],action=Action(prepare_rf))
+
+def train_model(target=None,source=None,env=None):
+   regr = RandomForestRegressor(max_depth=env.get('max_depth'),max_features=env.get('max_features'),n_estimators=1000,oob_score=False,random_state=43,verbose=1,criterion='mse',n_jobs=-1)
+
+   x_train = m8r.File(str(source[0]))[:]
+   y_train = m8r.File(str(source[1]))[:]
+   print(np.shape(x_train))
+   print(np.shape(y_train))
+   regr.fit(x_train, y_train) 
+   # save model
+   print(regr)
+   print(type(regr))
+   import joblib
+   joblib.dump(regr, str(target[0])) 
+
+Command('model.joblib',['xtrain.rsf','ytrain.rsf'],action=Action(train_model),max_depth=1000,max_features=110)
+
+def predict(target=None,source=None,env=None):
+	import joblib
+	regr = joblib.load(str(source[0]))
+	x_test = m8r.File(str(source[1]))[:]
+	print('x_test')
+	print(type(x_test))
+	print(type(x_test.shape))
+	print(x_test.shape)
+	y_pred = regr.predict(x_test)
+	m8r.File(y_pred,name=str(target[0]))
+    
+Command('ypred.rsf',['model.joblib','xtest.rsf'],action=Action(predict))
+
+#plotting the results
+def Graphplot(data,other):
+	Plot(data,'graph label1="X" label2="Y" unit2=km unit1=km labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 title="" wherexlabel=b wheretitle=t plotfat=10 %s' %other)
+
+#plot label and predicted
+Flow('xy1','ytest','window n1=2 n2=100 | dd type=complex')
+Flow('xy2','ypred','window n1=2 n2=100 | dd type=complex')
+Graphplot('xy1',' symbol="o" min1=-0.75 max1=1.25 min2=-1.25 max2=0.5 symbolsz=10 plotcol=3 ')
+Graphplot('xy2',' symbol="*" min1=-0.75 max1=1.25 min2=-1.25 max2=0.5 symbolsz=10 plotcol=4 ')
+Result('xys','xy1 xy2','Overlay')
+
+#more fancy plot
+points=[]
+for i in range(100):
+	Flow('point1-%d'%i,'xy1','window n2=1 f2=%d'%i)
+	Flow('point2-%d'%i,'xy2','window n2=1 f2=%d'%i)
+	Flow('point12-%d'%i,['point1-%d'%i,'point2-%d'%i],'cat axis=1 ${SOURCES[1]}')
+	Graphplot('point12-%d'%i,'min1=-0.75 max1=1.25 min2=-1.25 max2=0.5 symbolsz=10 plotcol=5')
+	points.append('point12-%d'%i)
+Result('comp',['xy1','xy2']+points,'Overlay')
+	
+#output the true location coordinates
+
+def output_xyz(target=None,source=None,env=None):
+	import numpy as np
+	import joblib
+	regr = joblib.load(str(source[0]))
+	x_test = m8r.File(str(source[1]))[:]
+	y_test = m8r.File(str(source[2]))[:]
+	print('x_test')
+	print(type(x_test))
+	print(type(x_test.shape))
+	print(x_test.shape)
+	y_pred = regr.predict(x_test)
+	print('y_pred shape is',y_pred.shape)
+	
+	np.random.seed(2021)
+	indrand=np.random.permutation(nevents)
+	ix = int(len(indrand)*0.9)
+	print('ix is',ix)
+	data = m8r.File(str(source[3]))[:]
+	y_pred_abs=y_pred
+	y_test_abs=y_test
+	
+	y_pred_abs[:,0]=data[0,0,indrand][ix:]+y_pred[:,0]
+	y_pred_abs[:,1]=data[1,0,indrand][ix:]+y_pred[:,1]
+	
+	y_test_abs[:,0]=data[0,0,indrand][ix:]+y_test[:,0]
+	y_test_abs[:,1]=data[1,0,indrand][ix:]+y_test[:,1]
+
+	# Error estimatin (MAE)
+	errx  = np.mean(np.abs( (y_pred_abs[:,0]) - (y_test_abs[:,0]) ))
+	erry = np.mean(np.abs( (y_pred_abs[:,1]) - (y_test_abs[:,1]) ))
+	errz = np.mean(np.abs( (y_pred_abs[:,2]) - (y_test_abs[:,2]) ))
+	
+	m8r.File(y_pred_abs,name=str(target[0]))
+	m8r.File(y_test_abs,name=str(target[1]))
+	
+	print("MAE of X, Y, Z are",errx,erry,errz)
+
+Command(['ypred_abs.rsf','ytest_abs.rsf'],['model.joblib','xtest.rsf','ytest.rsf','data.rsf'],action=Action(output_xyz))
+
+#plot label and predicted
+Flow('xy1_abs','ytest_abs','window n1=2 n2=100 | dd type=complex')
+Flow('xy2_abs','ypred_abs','window n1=2 n2=100 | dd type=complex')
+Graphplot('xy1_abs',' symbol="o" min1=0 max1=4 min2=0 max2=4 symbolsz=10 plotcol=3 ')
+Graphplot('xy2_abs',' symbol="*" min1=0 max1=4 min2=0 max2=4 symbolsz=10 plotcol=4 ')
+Result('xys_abs','xy1_abs xy2_abs','Overlay')
+
+#more fancy plot
+points=[]
+for i in range(100):
+	Flow('point1_abs-%d'%i,'xy1_abs','window n2=1 f2=%d'%i)
+	Flow('point2_abs-%d'%i,'xy2_abs','window n2=1 f2=%d'%i)
+	Flow('point12_abs-%d'%i,['point1_abs-%d'%i,'point2_abs-%d'%i],'cat axis=1 ${SOURCES[1]}')
+	Graphplot('point12_abs-%d'%i,'min1=0 max1=4 min2=0 max2=4 symbolsz=10 plotcol=5')
+	points.append('point12_abs-%d'%i)
+Result('comp_abs',['xy1_abs','xy2_abs']+points,'Overlay')
+
+##########################################################################################
+####### Added on Aug 8, 2021
+##########################################################################################
+
+Flow('deltav_pred1','ypred_abs','window n2=1 f2=0 f1=3')
+Flow('deltav_test1','ytest_abs','window n2=1 f2=0 f1=3')
+Graphplot('deltav_pred1','min1=0 max1=100 min2=-0.5 max2=0.5 symbolsz=10 plotcol=5')
+Graphplot('deltav_test1','min1=0 max1=100 min2=-0.5 max2=0.5 symbolsz=10 plotcol=6')
+Result('deltav_comp1',['deltav_pred1','deltav_test1'],'Overlay')
+End()
