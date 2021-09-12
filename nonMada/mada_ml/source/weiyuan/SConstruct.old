@@ -92,8 +92,6 @@ if isExist:
     Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
     Flow('times','times-1','cp')
 
-# Flow('times','mod location','eikonal_surf location=${SOURCES[1]} order=1 | transp plane=12')
-
 # generate training data
 Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf',slocname],
      '''MATLABPATH=%(matlabpath)s %(matlab)s 
