@@ -20,7 +20,7 @@ NOTES
 
 * These compact reproducible packages only include the python (named as "SConstruct") scripts that wrap up all the Linux/Madagascar commands, and necessary datasets. Most synthetic data are generated automatically from either "python or matlab scripts". Small field datasets are also attached with these packages.
 
-* All C programs that are used to compile the Madagascar commands can be found at "~/RSFSRC/user/chenyk", "~/RSFSRC/user", "~/RSFSRC/system". All Madagascar Application programming interface (API) (written in C programs) can be found at "~/RSFSRC/api/c". 
+* All C programs that are used to compile the Madagascar commands can be found at "~/RSFSRC/user/chenyk" (https://github.com/ahay/src/tree/master/user/chenyk), "~/RSFSRC/user" (https://github.com/ahay/src/tree/master/user), "~/RSFSRC/system" (https://github.com/ahay/src/tree/master/system). All Madagascar Application programming interface (API) (written in C programs) can be found at "~/RSFSRC/api/c". 
 
  
 
