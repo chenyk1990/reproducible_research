@@ -26,7 +26,7 @@ Flow('vp','weiyuan_vp0.bin','bin2rsf bfile=${SOURCES[0]} n1=41 d1=0.1 o1=0 n2=1 
 Flow('mod','vp','cp')
 Result('mod','mod','byte bar=bar.rsf mean=y|grey3  flat=n allpos=y bias=1.5 color=j scalebar=n maxval=5.0 title="Velocity Model" barlabel="V" barunit="km/s" label1=Depth label2="Distance in X" label3="Distance in Y" unit1=km unit2=km unit3=km frame1=49 frame2=49 frame3=49 scalebar=y point1=0.7 point2=0.6')
 
-nevents=10000
+nevents=100000
 nstations=38
 slocname='locations_%d.txt'%nevents #source location file 
 
@@ -46,53 +46,9 @@ Flow([slocname],[os.path.join(matROOT,matfun+'.m')],
      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun0)s('${TARGETS[0]}',%(nevents)d);quit"
      '''%vars(),stdin=0,stdout=-1)
 
-# 3D ray tracing to generate times.rsf
-isExist = os.path.exists(slocname)
-if isExist:
-  with open(slocname) as file:
-     lines=file.readlines()  
-     print('lines=',lines) 
-  times=[]
-  times2=[]
-  times3=[]
-  times4=[]
-  times5=[]
-  for i,xyz in enumerate(lines):
-  #print('line NO=',i,'xyz=',xyz)
-   print('line NO=',i,'xyz.split()',xyz.split())
-   xyz=xyz.split()
-   x=float(xyz[0])
-   y=float(xyz[1])
-   z=float(xyz[2])
-   print(x,y,z)
-   if i<=1999:
-   	times.append('time-'+str(i))
-   elif i<=3999:
-   	times2.append('time-'+str(i))
-   elif i<=5999:
-   	times3.append('time-'+str(i))
-   elif i<=7999:
-   	times4.append('time-'+str(i))
-   else:
-   	times5.append('time-'+str(i))
- 
-   Flow('time-'+str(i),'mod',
-   '''
-   eikonal xshot=%g yshot=%g zshot=%g order=1 | 
-   window n1=1 f1=0 |transp
-   '''%(x,y,z))#to x,y coordinates
-  if nevents ==10000: #two options: nevents=10000 or 100000
-    Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
-    Flow('times-2',times2,'cat axis=3 ${SOURCES[1:%d]}'%len(times2))
-    Flow('times-3',times3,'cat axis=3 ${SOURCES[1:%d]}'%len(times3))
-    Flow('times-4',times4,'cat axis=3 ${SOURCES[1:%d]}'%len(times4))
-    Flow('times-5',times5,'cat axis=3 ${SOURCES[1:%d]}'%len(times5))
-    Flow('times','times-1 times-2 times-3 times-4 times-5','cat axis=3 ${SOURCES[1:5]}')
-  else:
-    Flow('times-1',times,'cat axis=3 ${SOURCES[1:%d]}'%len(times))
-    Flow('times','times-1','cp')
-
-# Flow('times','mod location','eikonal_surf location=${SOURCES[1]} order=1 | transp plane=12')
+# 3D ray tracing to generate times.rsf (more compact version, computed in C)
+Flow('location',slocname,'txt2rsf d1=1 d2=1 o1=1 o2=1 n1=%d n2=3'%nevents)
+Flow('times','mod location','eikonal_surf shotfile=${SOURCES[1]} order=1 | transp plane=12')
 
 # generate training data
 Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf',slocname],
