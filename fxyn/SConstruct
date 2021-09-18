@@ -44,7 +44,13 @@ Paper('slides',lclass='beamer',use='subfigure,amsmath,amsbsy,listings,overpic,co
       ''' % os.environ.get('HOME'))
 
 ## IEEE first submission
-Paper('ieee',lclass='IEEEtran',options='10pt',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,newalg,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath')
+Paper('ieee',lclass='IEEEtran',options='10pt',use='ulem,cite,ifthen,seg,color,graphicx,subfigure,amsmath,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath',include=r'''
+\DeclareRobustCommand{\old}[1]{\color{blue}{\sout{#1}}\color{black}{}}
+\DeclareRobustCommand{\new}[1]{\color{red}{\textit{#1}}\color{black}{}} 
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+''')
+
 Command('one.tex','ieee.tex','cp $SOURCE $TARGET')
 Paper('one',lclass='IEEEtran',options='12pt,journal,draftclsnofoot,onecolumn',use='cite,ifthen,seg,color,graphicx,subfigure,amsmath,epstopdf,newalg,subfigure,amsmath,newalg,amssymb,algorithm,algpseudocode,morefloats,subfigure,amsmath')
 
