@@ -1,4 +1,18 @@
 from rsf.proj import *
+#NOTE
+#on Oct, 5, 2021, we found that in different machines, this 2D real data example could be unstable using the default parameter setting (e.g., it seems to be always stable on Mac Pro, but could be unstable on Centos and RedHat machines). 
+#We have tried hard to debug the code to make it run properly but the issue seems to be still exist. 
+#
+#It could be caused by 
+#1) the data itself (in which case you can try a different dataset of your own)
+#2) in appropriate parameterization (in which case you can increase the smoothing radius in different directions (frequency, X, and Y)
+#3) variable precision based on a specific machine or a specific compilers (in which case some modification of the code could be useful)
+#4) a bug in the code (it is less likely and we have checked the code very carefully, and it is indeed working well on Mac Pro machines)
+#If you find the real problem causing this issue, please let us know (chenyk2016@gmail.com) Thanks!
+#
+#The easiest way to bypass the issue is to simply remove the problematic file (e.g., rm test1.rsf), and then generate that file again (e.g., by scons test1.rsf)
+
+
 def Grey(data1,data,other):
 	Result(data1,data,'put d2=1 d1=0.002 |grey label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t scalebar=n  clip=2  %s  '%other)
  
