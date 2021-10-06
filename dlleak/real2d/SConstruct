@@ -1,0 +1,415 @@
+from rsf.proj import *
+from rsf.prog import RSFROOT
+from rsf.recipes.beg import server as private
+
+#google drive: https://drive.google.com/file/d/1hmLi3m7Q5XUvUOUJn9T5itNt0vI-1lWc/view?usp=sharing
+#baidu: link:https://pan.baidu.com/s/1i2yvC6LneekxGTCjSQmMzw  pass:p6tr
+#Or
+#Fetch('bend_l1_pmig_enhanc.sgy','vecta',private)
+#Fetch('bend_l1_smig_enhanc.sgy','vecta',private)
+
+def Wiggle(data,other): 
+	Result(data,'''
+				window j2=2 | wiggle transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=b wherexlabel=b %s clip=0.38 '''%other)
+
+def Grey(data,other): 
+	Result(data,'''
+				grey transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y color=g
+				wheretitle=b wanttitle=n wherexlabel=b %s clip=0.38 '''%other)
+
+
+
+Flow('pp','bend_l1_pmig_enhanc.sgy',
+         'segyread tape=$SOURCE read=data | window n2=471 | scale axis=2 | put label2=Trace',
+         stdin=0)
+
+## fxdecon
+Flow('pp-fx','pp','fxdecon n2w=471')
+Flow('pp-fx-n','pp-fx pp','add scale=-1,1 ${SOURCES[1]}')
+
+## Similarity
+Flow('pp-fx-s','pp-fx-n pp-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('pp-fxsim','pp-fx-n pp-fx-s pp-fx','simidenoise1 similarity=${SOURCES[1]} s1=0.15 s2=0.2 | add scale=1,1 ${SOURCES[2]}')
+Flow('pp-fxsim-n','pp-fxsim pp','add scale=-1,1 ${SOURCES[1]}')
+Flow('pp-fxsim-s','pp-fxsim-n pp-fxsim','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+# ortho
+Flow('pp-ortho-n pp-ortho','pp-fx-n pp-fx','ortho rect1=2 rect2=2 sig=${SOURCES[1]} sig2=${TARGETS[1]}')
+Flow('pp-ortho-s','pp-ortho-n pp-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Real'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=3
+niter=12
+K=64
+n1=1024
+n2=471
+n3=1
+ll1=8
+ll2=8
+ll3=1
+ss1=2
+ss2=2
+ss3=1
+perc=2
+
+put='n1=1024 d1=0.002 o1=0 n2=471 d2=1 o2=0 n3=1 d3=1 o3=1'
+############################################################
+## with parameter
+############################################################
+
+Flow(['pp-dl-0'],[os.path.join(matROOT,matfun+'.m'),'pp','pp-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('pp-dl','pp-dl-0','put %s'%put)
+Flow('pp-dl-n','pp-dl pp','add scale=-1,1 ${SOURCES[1]}')
+Flow('pp-dl-s','pp-dl-n pp-dl','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+perc=0.2
+Flow(['pp-dl2-0'],[os.path.join(matROOT,matfun+'.m'),'pp','pp-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('pp-dl2','pp-dl2-0','put %s'%put)
+Flow('pp-dl2-n','pp-dl2 pp','add scale=-1,1 ${SOURCES[1]}')
+
+Flow('pp-dl2-s','pp-dl2-n pp-dl2','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+Grey('pp-dl','')
+Grey('pp-dl-n','')
+Grey('pp-dl2','')
+Grey('pp-dl2-n','max1=1.0')
+Grey('pp-dl-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-dl2-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8') #metric is not everything (right?)
+
+## ploting
+Grey('pp','')
+Grey('pp-fx','')
+Grey('pp-ortho','')
+Grey('pp-fx-n','max1=1.0')
+Grey('pp-ortho-n','max1=1.0')
+Grey('pp-fxsim','')
+Grey('pp-fxsim-n','')
+Grey('pp-fx-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-fxsim-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-ortho-s','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+
+
+Flow('pp-re','pp-dl pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-re','')
+
+Flow('pp-re2','pp-dl2 pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-re2','clip=0.2 max1=1.01')
+
+Flow('pp-reo','pp-ortho pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-reo','clip=0.2 max1=1.01')
+
+Flow('pp-comp','pp-fx pp-fx-n pp-re pp-dl pp-dl-n','cat axis=2 ${SOURCES[1:5]}')
+Grey('pp-comp','screenratio=0.6')
+Flow('pp-comp2','pp-fx pp-fx-n pp-re2 pp-dl2 pp-dl2-n','cat axis=2 ${SOURCES[1:5]}')
+Grey('pp-comp2','screenratio=0.6')
+
+Flow('pp-compo','pp-fx pp-fx-n pp-reo pp-ortho pp-ortho-n','cat axis=2 ${SOURCES[1:5]}')
+Grey('pp-compo','screenratio=0.6')
+
+
+Plot('ln1',None,
+	'''
+	box x0=4.2 y0=6.4 label="" xt=0 yt=0.5 length=0.5
+	''')
+Plot('ln2',None,
+	'''
+	box x0=6.2 y0=6.4 label="More retrieved noise" xt=0 yt=0.5 length=1
+	''')
+Plot('ln22',None,
+	'''
+	box x0=6.2 y0=6.4 label="" xt=0 yt=0.5 length=0.5
+	''')
+Plot('ln3',None,
+	'''
+	box x0=8.2 y0=6.4 label="" xt=0 yt=0.5 length=0.5
+	''')
+Plot('ln4',None,
+	'''
+	box x0=10.2 y0=6.4 label="" xt=0 yt=0.5 length=0.5
+	''')
+Plot('ln44',None,
+	'''
+	box x0=10.2 y0=6.4 label="More noise" xt=0 yt=0.5 length=1
+	''')
+Plot('ln5',None,
+	'''
+	box x0=9.3 y0=3.0 label="Retrieved signal" xt=0 yt=0.5 length=1
+	''')
+Result('pp-re2-0','Fig/pp-re2.vpl ln1 ln22 ln3 ln4 ln5','Overlay')
+Result('pp-reo-0','Fig/pp-reo.vpl ln1 ln2 ln3 ln4 ln5','Overlay')
+
+
+
+
+## Creating framebox
+x=1300
+y=1.7
+w=250
+w1=0.5
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=2000 min2=0 max2=5 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+
+x=1300
+y=3.4
+w=250
+w1=1.0
+Flow('frame1m.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1m','frame1m.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=2000 min2=0 max2=5 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+
+x=150
+y=0.5
+w=100
+w1=1.0
+Flow('frame2m.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2m','frame2m.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=470 min2=0 max2=2.046 pad=n plotfat=15 plotcol=2 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+# Result('pp-fx-n0','Fig/pp-fx-n.vpl frame1','Overlay')
+# Result('pp-ortho-n0','Fig/pp-ortho-n.vpl frame1','Overlay')
+# Result('pp-dl2-n0','Fig/pp-dl2-n.vpl frame1','Overlay')
+Result('pp-fx-n0','Fig/pp-fx-n.vpl frame1m frame2m','Overlay')
+Result('pp-ortho-n0','Fig/pp-ortho-n.vpl frame1m frame2m','Overlay')
+Result('pp-dl2-n0','Fig/pp-dl2-n.vpl frame1m frame2m','Overlay')
+
+## Creating framebox B
+x=150
+y=0.25
+w=100
+w1=0.5
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=470 min2=0 max2=2.046 pad=n plotfat=15 plotcol=2 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+
+Flow('pp-z','pp','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-fx-z','pp-fx','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-z','pp-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-dl2-z','pp-dl2','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('pp-z','')
+Grey('pp-fx-z','')
+Grey('pp-ortho-z','')
+Grey('pp-dl2-z','')
+
+Flow('pp-fx-n-z','pp-fx-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-n-z','pp-ortho-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-dl2-n-z','pp-dl2-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('pp-fx-n-z','clip=0.5')
+Grey('pp-ortho-n-z','clip=0.5')
+Grey('pp-dl2-n-z','clip=0.5')
+
+
+## Creating framebox C
+x=275
+y=1.2
+w=100
+w1=0.5
+
+Flow('frame3.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame3','frame3.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=470 min2=0 max2=2.046 pad=n plotfat=15 plotcol=3 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+Flow('pp-z1','pp','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-fx-z1','pp-fx','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-z1','pp-ortho','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-dl2-z1','pp-dl2','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Grey('pp-z1','')
+Grey('pp-fx-z1','')
+Grey('pp-ortho-z1','')
+Grey('pp-dl2-z1','')
+
+Result('pp-0','Fig/pp.vpl frame2','Overlay')
+Result('pp-fx-0','Fig/pp-fx.vpl frame1 frame2','Overlay')
+Result('pp-ortho-0','Fig/pp-ortho.vpl frame1 frame2','Overlay')
+Result('pp-dl2-0','Fig/pp-dl2.vpl frame1 frame2','Overlay')	
+
+Flow('pp-fx-n-z1','pp-fx-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-ortho-n-z1','pp-ortho-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+Flow('pp-dl2-n-z1','pp-dl2-n','window min1=%g max1=%g min2=%g max2=%g'%(y,y+w1,x,x+w))
+
+Grey('pp-fx-n-z1','clip=0.2')
+Grey('pp-ortho-n-z1','clip=0.2')
+Grey('pp-dl2-n-z1','clip=0.2')
+
+
+
+#labelnew
+Plot('labelnew0',None,
+	'''
+	box x0=7.2 y0=3.8 label="" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew00',None,
+	'''
+	box x0=4.2 y0=3.8 label="" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew000',None,
+	'''
+	box x0=10.2 y0=3.8 label="" xt=0 yt=-0.5 length=1.5 
+	''')
+
+Plot('labelnew2',None,
+	'''
+	box x0=7.2 y0=3.8 label="Weaker" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew22',None,
+	'''
+	box x0=4.2 y0=3.8 label="Weaker" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew222',None,
+	'''
+	box x0=10.2 y0=3.8 label="Weaker" xt=0 yt=-0.5 length=1.5 
+	''')
+
+Plot('labelnew3',None,
+	'''
+	box x0=7.2 y0=3.8 label="Stronger" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew33',None,
+	'''
+	box x0=4.2 y0=3.8 label="Stronger" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew333',None,
+	'''
+	box x0=10.2 y0=3.8 label="Stronger" xt=0 yt=-0.5 length=1.5 
+	''')
+		
+	
+Plot('labelnew1',None,
+	'''
+	box x0=7.2 y0=3.8 label="Noisier" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew10',None,
+	'''
+	box x0=4.2 y0=3.8 label="Noisier" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew100',None,
+	'''
+	box x0=10.2 y0=3.8 label="Noisier" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew11',None,
+	'''
+	box x0=7.2 y0=3.8 label="Cleaner" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew110',None,
+	'''
+	box x0=4.2 y0=3.8 label="Cleaner" xt=0 yt=-0.5 length=1.5 
+	''')
+Plot('labelnew1100',None,
+	'''
+	box x0=10.2 y0=3.8 label="Cleaner" xt=0 yt=-0.5 length=1.5 
+	''')
+
+# Plot('labelnew2',None,
+# 	'''
+# 	box x0=6.2 y0=6.8 label="Noisier" xt=-0.5 yt=-0.5 length=2.5 
+# 	''')
+# Plot('labelnew2',None,
+# 	'''
+# 	box x0=6.2 y0=6.8 label="Cleaner" xt=-0.5 yt=-0.5 length=2.5 
+# 	''')	
+
+Result('pp-fx-z10','Fig/pp-fx-z1.vpl labelnew2 labelnew22 labelnew222','Overlay')
+Result('pp-ortho-z10','Fig/pp-ortho-z1.vpl labelnew0 labelnew00 labelnew000','Overlay')
+Result('pp-dl2-z10','Fig/pp-dl2-z1.vpl labelnew3 labelnew33 labelnew333','Overlay')
+
+Result('pp-fx-z0','Fig/pp-fx-z.vpl labelnew0 labelnew00 labelnew000','Overlay')
+Result('pp-ortho-z0','Fig/pp-ortho-z.vpl labelnew1 labelnew10 labelnew100','Overlay')
+Result('pp-dl2-z0','Fig/pp-dl2-z.vpl labelnew11 labelnew110 labelnew1100','Overlay')
+
+
+
+### influence of percentage
+perc=0.3
+Flow(['pp-dl-p1-0'],[os.path.join(matROOT,matfun+'.m'),'pp','pp-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('pp-dl-p1','pp-dl-p1-0','put %s'%put)
+Flow('pp-re-p1','pp-dl-p1 pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-re-p1','clip=0.2 max1=1.01 title="p=0.3%" wanttitle=y wheretitle=t')
+
+perc=0.6
+Flow(['pp-dl-p2-0'],[os.path.join(matROOT,matfun+'.m'),'pp','pp-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('pp-dl-p2','pp-dl-p2-0','put %s'%put)
+Flow('pp-re-p2','pp-dl-p2 pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-re-p2','clip=0.2 max1=1.01 title="p=0.6%" wanttitle=y wheretitle=t')
+
+perc=1
+Flow(['pp-dl-p3-0'],[os.path.join(matROOT,matfun+'.m'),'pp','pp-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('pp-dl-p3','pp-dl-p3-0','put %s'%put)
+Flow('pp-re-p3','pp-dl-p3 pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-re-p3','clip=0.2 max1=1.01 title="p=1%" wanttitle=y wheretitle=t')
+
+perc=2
+Flow(['pp-dl-p4-0'],[os.path.join(matROOT,matfun+'.m'),'pp','pp-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)g);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('pp-dl-p4','pp-dl-p4-0','put %s'%put)
+Flow('pp-re-p4','pp-dl-p4 pp-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('pp-re-p4','clip=0.2 max1=1.01 title="p=2%" wanttitle=y wheretitle=t')
+
+
+Result('pp-re-p1-0','Fig/pp-re-p1.vpl ln1 ln22 ln3 ln4 ln5','Overlay')
+Result('pp-re-p2-0','Fig/pp-re-p2.vpl ln1 ln22 ln3 ln4 ln5','Overlay')
+Result('pp-re-p3-0','Fig/pp-re-p3.vpl ln1 ln22 ln3 ln4 ln5','Overlay')
+Result('pp-re-p4-0','Fig/pp-re-p4.vpl ln1 ln22 ln3 ln44 ln5','Overlay')
+
+
+End()

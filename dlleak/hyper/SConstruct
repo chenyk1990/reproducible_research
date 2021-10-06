@@ -1,0 +1,244 @@
+from rsf.proj import *
+from rsf.prog import RSFROOT
+from math import *
+import os
+# sys.path.append('../simple/')
+# from radius2 import radius2
+
+## module defining
+def Grey(data,other): 
+	Result(data,'grey label2="Trace" label1="Time" unit1=s unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t clip=0.2 screenratio=1.2 labelfat=4 font=2 color=g %s'%other)
+
+def Greyfk(data,data0,other): 
+	Result(data,data0,'put d2=1 |fft1 | fft3 axis=2 pad=1 |window max1=50 |cabs|grey label2="Normalized wavenumber" label1="Frequency" unit1=Hz unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t clip=0.2 screenratio=1.2 labelfat=4 font=2 color=g %s'%other)
+	
+def Greyr(data,data1,other): 
+	Result(data,data1,'grey label2="Trace" label1="Time" unit1=s unit2="" labelsz=10 title="" wherexlabel=b wheretitle=t screenratio=1.2 labelfat=4 font=2  mean=y scalebar=y barlabel=Radius barunit=samples %s'%other)
+
+
+
+wf = 2*pi
+nt = 501
+dt = 0.004
+ot = 0
+nx = 501
+dx = 0.01
+ox = 0
+nw = 200
+dw = 0.0005
+ow = 0
+
+
+for eve in (1,2,3,4):
+    spike='spike%d' % eve
+    tpara='tpara%d'   % eve
+    para='para%d'     % eve
+    Flow(spike,None,
+        '''
+        spike n1=%d d1=%g o1=%g n2=%d d2=%g o2=%g nsp=1 k1=%d mag=1  p2=0| 
+        ricker1 frequency=15 | put unit2=km label2=Distance
+        ''' % (nt,dt,ot,nx,dx,ox,eve*80-30))
+
+    Flow(tpara,spike,
+        '''
+        window n1=1 | math output="-sqrt(%g*%g+(x1-2.5)*(x1-2.5)/%g/%g)+%g"
+        ''' % (0.004*(eve*80-30),0.004*(eve*80-30),2,2,0.004*(eve*80-30)))
+
+    Flow(para,[spike, tpara],
+        'datstretch datum=${SOURCES[1]} ')
+
+Flow('hyper','para1 para2 para3 para4','add ${SOURCES[1]} ${SOURCES[2]} ${SOURCES[3]} | window f2=128 n2=256 |put d2=1 o2=1 | scale axis=2 | window n1=400 | window j2=2')
+
+Flow('n','hyper','noise seed=202021 var=0.1 rep=y | bandpass fhi=50')
+Flow('hyper-n','hyper n','add scale=1,1 ${SOURCES[1]}')
+
+Grey('hyper','')
+Grey('n','')
+Grey('hyper-n','')
+
+## Stationary (Traditional way)
+Flow('hyper-smo','hyper-n','smooth rect1=5 ')
+Flow('hyper-smo-n','hyper-smo hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-smo','')
+Grey('hyper-smo-n','')
+
+
+## Stationary and Non-stationary (sfnsmooth)
+Flow('rect1-c','hyper-n','math output=5')
+Flow('rect2-c','hyper-n','math output=1')
+Flow('hyper-sm','hyper-n rect1-c rect2-c','smoothn rect1=${SOURCES[1]} rect2=${SOURCES[2]}')
+Flow('hyper-sm-n','hyper-sm hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-sm','')
+Grey('hyper-sm-n','')
+
+#
+Flow('rect1-n','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float  |math output="5-input*4"')
+#Flow('rect1-n','hyper','scale axis=2 | math output="abs(input)" |mask min=0.0001 | dd type=float |math output="1"')
+Flow('rect2-n','hyper','math output=1')
+
+Flow('hyper-nsm','hyper-n rect1-n rect2-n','smoothn rect1=${SOURCES[1]} rect2=${SOURCES[2]}')
+Flow('hyper-nsm-1','hyper-n rect1-n rect2-n','nsmooth1 rect=${SOURCES[1]} rect2=${SOURCES[2]}')
+
+Flow('hyper-nsm-n','hyper-nsm hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-nsm','')
+Grey('hyper-nsm-1','')
+Grey('hyper-nsm-n','')
+
+Grey('rect1-n','color=j scalebar=y clip=6')
+
+
+## Orthogonalization
+Flow('hyper-fx','hyper-n','fxdecon lenf=6 n2w=128')
+Flow('hyper-fx-n','hyper-fx hyper-n','add scale=-1,1 ${SOURCES[1]}')
+
+Grey('hyper-fx','')
+Grey('hyper-fx-n','')
+
+Flow('hyper-ortho-n hyper-ortho','hyper-fx-n hyper-fx','ortho niter=100 rect1=30 rect2=30 sig=${SOURCES[1]} sig2=${TARGETS[1]} eps=0.00')
+Grey('hyper-ortho','')
+Grey('hyper-ortho-n','')
+
+
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Synth'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+    
+T=3
+niter=12
+K=64
+n1=400
+n2=128
+n3=1
+ll1=8
+ll2=8
+ll3=1
+ss1=2
+ss2=2
+ss3=1
+perc=1
+
+put='n1=400 d1=0.004 o1=0 n2=128 d2=2 o2=1 n3=1 d3=1 o3=1'
+############################################################
+## with parameter
+############################################################
+
+Flow(['hyper-dl-0'],[os.path.join(matROOT,matfun+'.m'),'hyper','hyper-n','hyper-fx'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${SOURCES[3]}','${TARGETS[0]}',%(n1)d,%(n2)d,%(n3)d,%(T)d,%(niter)d,%(K)d,%(ll1)d,%(ll2)d,%(ll3)d,%(ss1)d,%(ss2)d,%(ss3)d,%(perc)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+
+## Load data
+Flow('hyper-dl','hyper-dl-0','put %s'%put)
+Flow('hyper-dl-n','hyper-dl hyper-n','add scale=-1,1 ${SOURCES[1]}')
+Grey('hyper-dl','')
+Grey('hyper-dl-n','')
+
+
+Flow('hyper-re','hyper-dl hyper-fx','add scale=1,-1 ${SOURCES[1]}')
+Grey('hyper-re','')
+
+Flow('hyper-comp','hyper-fx hyper-fx-n hyper-re hyper-dl hyper-dl-n','cat axis=2 ${SOURCES[1:5]}')
+Grey('hyper-comp','screenratio=0.6')
+
+#local similarity
+Flow('hyper-fx-s','hyper-fx-n hyper-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('hyper-ortho-s','hyper-ortho-n hyper-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('hyper-dl-s','hyper-dl-n hyper-dl','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Grey('hyper-fx-s','clip=1 maxval=1 minval=0 color=j scalebar=y')
+Grey('hyper-ortho-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+Grey('hyper-dl-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+
+
+
+
+# 
+# ## Constant radius, benchmark with stationary ortho (exactly the same)
+# #Flow('rect1','hyper','math output="10"')
+# #Flow('rect2','hyper','math output="10"')
+# 
+# # Flow('rect1','rect1-n','cp | math output="input*3"')
+# # Flow('rect2','rect1-n','cp | math output="input*3"')
+# # Grey('rect1','color=j scalebar=y clip=6')
+# # Grey('rect2','color=j scalebar=y clip=6')
+# 
+# 
+# Flow('high','hyper-n','cp')
+# Flow('low','hyper-n','bandpass fhi=10')
+# #Flow('low','hyper-fx','cp')
+# Grey('high','')
+# Grey('low','')
+# 
+# # Flow('high','hyper-fx','cp | noise var=0.05 seed=202021')
+# # Flow('low','high','bandpass fhi=20')
+# # Grey('high','')
+# # Grey('low','')
+# #sfpen Fig/high-smooth-spec00.vpl Fig/high-smooth-spec10.vpl Fig/high-smooth-spec20.vpl Fig/high-smooth-spec30.vpl Fig/high-smooth-spec40.vpl Fig/high-smooth-spec50.vpl
+# 
+# radius2('high','low', 
+#                 niter=5, 
+# #                 c=[0.7,0.45,0.35,0.35,0.5], #works fine
+#                 c=[0.7,0.4,0.2,0.1,0.05], #works fine
+#                 bias=-20, clip=30, 
+#                 rect1=30, rect2=20, 
+#                 theor=False, initial=1, 
+#                 minval=-20, maxval=20, 
+#                 titlehigh='High', titlelow='Low',
+#                 it=0 )
+#                 
+# Flow('rect1','rect50','math output="input"')
+# Flow('rect2','rect50','math output="input"')
+# Greyr('hyper-rect10','rect10','color=j scalebar=y')
+# Greyr('hyper-rect20','rect20','color=j scalebar=y')
+# Greyr('hyper-rect30','rect30','color=j scalebar=y')
+# Greyr('hyper-rect40','rect40','color=j scalebar=y')
+# Greyr('hyper-rect50','rect50','color=j scalebar=y')
+# 
+# Flow('hyper-orthon-n hyper-orthon','hyper-fx-n hyper-fx rect1 rect2','orthon niter=100 sig=${SOURCES[1]} sig2=${TARGETS[1]} rect1=${SOURCES[2]} rect2=${SOURCES[3]} eps=0.00')
+# Grey('hyper-orthon','')
+# Grey('hyper-orthon-n','')
+# 
+# 
+# #local similarity
+# Flow('hyper-fx-s','hyper-fx-n hyper-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+# Flow('hyper-ortho-s','hyper-ortho-n hyper-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+# Flow('hyper-orthon-s','hyper-orthon-n hyper-orthon','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+# Grey('hyper-fx-s','clip=1 maxval=1 minval=0 color=j scalebar=y')
+# Grey('hyper-ortho-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+# Grey('hyper-orthon-s','clip=1 maxval=1 minval=0 color=j  scalebar=y')
+# 
+# Greyfk('hyper-f','hyper','color=j allpos=y clip=100')
+# Greyfk('hyper-nf','hyper-n','color=j allpos=y clip=100')
+# Greyfk('hyper-fxf','hyper-fx','color=j allpos=y clip=100')
+# Greyfk('hyper-orthof','hyper-ortho','color=j allpos=y clip=100')
+# Greyfk('hyper-orthonf','hyper-orthon','color=j allpos=y clip=100')
+# 
+# 
+# # compute SNR (may differ in different computers)
+Flow('h-diff1','hyper hyper-n','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr1','hyper h-diff1','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff2','hyper hyper-fx','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr2','hyper h-diff2','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff3','hyper hyper-ortho','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr3','hyper h-diff3','snr2 noise=${SOURCES[1]}')
+
+Flow('h-diff4','hyper hyper-dl','add scale=1,-1 ${SOURCES[1]} ')
+Flow('h-snr4','hyper h-diff4','snr2 noise=${SOURCES[1]}')
+
+# Flow('h-diff4','hyper hyper-orthon','add scale=1,-1 ${SOURCES[1]} ')
+# Flow('h-snr4','hyper h-diff4','snr2 noise=${SOURCES[1]}')
+
+End()
