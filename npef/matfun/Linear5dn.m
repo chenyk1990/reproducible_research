@@ -60,24 +60,23 @@ d0=dn.*mask;
 %% reconstruct
 flow=1;fhigh=100;dt=0.004;N=3;Niter=10;mode=0;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-% d1=rr5d_lb_recon(d0c,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,iflb,a);
-d1=d0c;
+d1=rr5d_lb_recon(d0c,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,iflb,a);
+
 
 flow=1;fhigh=100;dt=0.004;N=3;NN=3;Niter=10;mode=0;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-% d2=drr5d_lb_recon(d0c,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
-d2=d1;
+d2=drr5d_lb_recon(d0c,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
+
 
 %% recon and denoise
 flow=1;fhigh=100;dt=0.004;N=3;Niter=10;mode=1;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-% d1n=rr5d_lb_recon(d0,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,iflb,a);
-d1n=d0;
+d1n=rr5d_lb_recon(d0,mask,flow,fhigh,dt,N,Niter,eps,verb,mode,iflb,a);
+
 
 flow=1;fhigh=100;dt=0.004;N=3;NN=3;Niter=10;mode=1;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-% d2n=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
-d2n=d0;
+d2n=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
 
 yc_snr(d(:),dn(:))
 yc_snr(d(:),d0c(:))
