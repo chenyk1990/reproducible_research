@@ -1,0 +1,208 @@
+from rsf.proj import *
+from rsf.prog import RSFROOT
+from math import pi
+#from rsf.recipes.beg import server as private
+
+
+
+def Grey(data,other):
+	Result(data,
+	'''
+    window n4=1 n5=1 | 
+    byte allpos=n clip=0.5 |
+    grey3 title=  label2=Hx label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.8 frame1=50 frame2=5 frame3=5
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.2
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)
+
+def Greyfk(data,data0,other):
+	Result(data,data0,
+	'''
+    window n4=1 n5=1 | fft1 | fft3 axis=2 | fft3 axis=3|cabs|window min1=2 max1=70|
+    byte allpos=y clip=10 |
+    grey3 title=  label2="KHx" label3="KHy" label1="Frequency" unit1=s 
+    point1=0.8 point2=0.8 frame1=20 frame2=5 frame3=6
+    parallel2=n screenratio=1.2 color=j 
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)
+    
+def Greyf1(data,data0,k,other):
+	Result(data,data0,
+	'''
+    window n1=1 n2=1 n3=1 f1=%d f2=1 f3=1 n9=1 f9=0 | put d1=0.004 d2=1 d3=1|
+    byte allpos=n  mean=y bar=bar.rsf |
+    grey3 title=  label2=Hx label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.8 frame1=50 frame2=5 frame3=5 color=j
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.
+    font=2 labelfat=2 titlefat=2 scalebar=y bartype=h barmove=y wherebar=b barlabel="NPEF coefficients" screenwd=10 screenht=15 %s
+    '''%(k,other))
+
+def Greyf12(data,data0,other):
+	Result(data,data0,
+	'''
+    window n1=1 n2=1 n3=1 f1=3 f2=1 f3=1 n7=1 n8=1 f7=5 f8=5 | put n2=10 n3=10 |
+    byte allpos=n  mean=y |
+    grey3 title=  label2=Hx label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.8 frame1=50 frame2=3 frame3=5 color=j
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.2
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)
+
+def Greyf(data,other):
+	Result(data,
+	'''
+    window n1=1 n2=1 n3=1 f1=1 f2=1 f3=1 n9=1 f9=0 | put n2=100 n3=1 |
+    grey title=  label2=Hx label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.8 frame1=50 frame2=5 frame3=5 color=j
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.2 mean=y
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)
+
+def Greyf2(data,data0,other):
+	Result(data,data0,
+	'''
+    window n1=1 n2=1 n3=1 f1=1 f2=1 f3=1 n7=1 n8=1 f7=5 f8=5 | put n2=100 n3=1 |
+    grey title=  label2=Hx label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.8 frame1=50 frame2=5 frame3=5 color=j
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.2 mean=y
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)
+
+def Greym(data,other):
+	Result(data,
+	'''
+    window n4=1 n5=1 | 
+    byte allpos=n clip=1.1 bar=bar.rsf |
+    grey3 title=  label2=Hx label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.8 frame1=50 frame2=5 frame3=5
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.2
+    font=2 labelfat=2 titlefat=2 scalebar=y %s
+    '''%other)
+
+def Grey2(data,data0,other):
+	Result(data,data0,
+	'''
+    window n2=1 f2=5 n3=1 f3=5 | 
+    byte allpos=n clip=0.5 |
+    grey3 title=  label2=X label3=Y label1="Time" unit1=s 
+    point1=0.8 point2=0.7 frame1=50 frame2=3 frame3=5
+    parallel2=n o2num=0 d2num=0.1 n2tic=4 screenratio=1.2
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)
+def Grey2fk(data,data0,other):
+	Result(data,data0,
+	'''
+    window n2=1 f2=5 n3=1 f3=5 | fft1 | fft3 axis=2 | fft3 axis=3|cabs|
+    byte allpos=y clip=0.5 |
+    grey3 title=  label2=KX label3=KY label1="Frequency" unit1=s 
+    point1=0.8 point2=0.7 frame1=50 frame2=3 frame3=5
+    parallel2=n  screenratio=1.2 color=j 
+    font=2 labelfat=2 titlefat=2 %s
+    '''%other)    
+#################
+# 3D test
+#################
+
+## Load data
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Linear5dn'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+   sys.stderr.write('\nCannot find Matlab.\n')
+   sys.exit(1)
+
+put="n2=10 n3=10 n4=10 n5=10 d1=0.004 d2=1 d3=1 d4=1 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1"
+############################################################
+## generate and process synthetic data
+############################################################
+Flow('synth_clean5d-0 synth_noisy5d-0 synth_obs5d-0 nsynth_obs5d-0 synth_mask5d-0 synth_rr5d-0 synth_drr5d-0 nsynth_rr5d-0 nsynth_drr5d-0',[os.path.join(matROOT,matfun+'.m')],
+    '''MATLABPATH=%(matlabpath)s %(matlab)s 
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}','${TARGETS[6]}','${TARGETS[7]}','${TARGETS[8]}');quit"
+    '''%vars(),stdin=0,stdout=-1)
+
+Flow('synth_clean5d','synth_clean5d-0',' put %s'%put)
+Flow('synth_noisy5d','synth_noisy5d-0',' put %s'%put)
+Flow('synth_obs5d','synth_obs5d-0',' put %s'%put)
+Flow('nsynth_obs5d','nsynth_obs5d-0',' put %s'%put)
+Flow('synth_mask5d','synth_mask5d-0',' put %s'%put)
+Flow('synth_rr5d','synth_rr5d-0',' put %s'%put)
+Flow('synth_drr5d','synth_drr5d-0',' put %s'%put)
+Flow('nsynth_rr5d','nsynth_rr5d-0',' put %s'%put)
+Flow('nsynth_drr5d','nsynth_drr5d-0',' put %s'%put)
+
+# 5D APEF
+Flow('synth_apef5 synth_mask5d2','synth_obs5d synth_mask5d',
+     '''
+     npef5 maskin=${SOURCES[1]} maskout=${TARGETS[1]} jump=1
+     a=4,2,2,1,1 niter=100 rect1=20 rect2=5 rect3=5 rect4=5 rect5=5 verb=y
+     ''')
+     
+Flow('synth_recon5d','synth_obs5d synth_apef5 synth_mask5d',
+     '''
+     npef5_recon filt=${SOURCES[1]} mask=${SOURCES[2]} niter=100 verb=y 
+     ''')
+Flow('synth_diff5d','synth_clean5d synth_recon5d','add scale=1,-1 ${SOURCES[1]}')
+
+Grey('synth_clean5d','')
+Greyfk('synth_clean5d-fk','synth_clean5d','')
+
+Grey('synth_obs5d','')
+Greyfk('synth_obs5d-fk','synth_obs5d','')
+
+Greym('synth_mask5d','color=j')
+Greym('synth_mask5d2','color=j')
+Grey('synth_recon5d','')
+Greyfk('synth_recon5d-fk','synth_recon5d','')
+Grey('synth_rr5d','')
+Greyfk('synth_rr5d-fk','synth_rr5d','')
+
+Grey('nsynth_rr5d','')
+Grey('synth_diff5d','')
+
+Grey2('synth_clean5d-2','synth_clean5d','')
+Grey2('synth_obs5d-2','synth_obs5d','')
+Grey2('synth_recon5d-2','synth_recon5d','')
+Grey2('synth_rr5d-2','synth_rr5d','')
+Grey2('nsynth_rr5d-2','nsynth_rr5d','')
+
+Greyf1('synth_apef5-s1','synth_apef5',0,'')
+Greyf1('synth_apef5-s2','synth_apef5',1,'')
+Greyf1('synth_apef5-s3','synth_apef5',2,'')
+Greyf1('synth_apef5-s4','synth_apef5',3,'')
+
+Greyf12('synth_apef5-12','synth_apef5','')
+Greyf('synth_apef5','')
+Greyf2('synth_apef5-2','synth_apef5','')
+
+### Noise case
+# 5D APEF
+Flow('nsynth_apef5 nsynth_mask5d2','nsynth_obs5d synth_mask5d',
+     '''
+     npef5 maskin=${SOURCES[1]} maskout=${TARGETS[1]} jump=1
+     a=4,2,2,1,1 niter=50 rect1=20 rect2=5 rect3=5 rect4=5 rect5=5 verb=y
+     ''')
+     
+Flow('nsynth_recon5d','nsynth_obs5d nsynth_apef5 synth_mask5d',
+     '''
+     npef5_recon filt=${SOURCES[1]} mask=${SOURCES[2]} niter=50 verb=y exact=n 
+     ''')
+
+Flow('nsynth_diff5d','synth_clean5d nsynth_recon5d','add scale=1,-1 ${SOURCES[1]}')
+
+Grey('synth_noisy5d','')
+Grey2('synth_noisy5d-2','synth_noisy5d','')
+Grey('nsynth_obs5d','')
+Grey2('nsynth_obs5d-2','nsynth_obs5d','')
+Grey('nsynth_recon5d','')
+Grey2('nsynth_recon5d-2','nsynth_recon5d','')
+Grey('nsynth_diff5d','')
+
+
+
+End()
