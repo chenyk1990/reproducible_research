@@ -415,12 +415,11 @@ Next, we apply the proposed NPEF method to the second field dataset. We densify 
 \label{fig:la_obs5dfk,la_drr5dfk,la_npef5dfk}
 \end{figure}
 
-
 \begin{figure}[htb!]
    \centering
    \subfloat[]{\includegraphics[width=\textwidth]{hyper5da/Fig/ha_obs5d-3}
    \label{fig:ha_obs5d}}\\
-   \subfloat[]{\includegraphics[width=\textwidth]{hyper5da/Fig/ha_rr5d-3}
+   \subfloat[]{\includegraphics[width=\textwidth]{hyper5da/Fig/ha_drr5d-3}
    \label{fig:ha_drr5d}}\\
    \subfloat[]{\includegraphics[width=\textwidth]{hyper5da/Fig/ha_recon5d-3}
    \label{fig:ha_npef5d}}\\
@@ -429,115 +428,115 @@ Next, we apply the proposed NPEF method to the second field dataset. We densify 
 \end{figure}
 
 
-%\begin{figure}[htb!]
-%    \centering
-%    \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d_smaller/Fig/real_obs5d-3-0}
-%    \label{fig:r_obs5d}}\\
-%    \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d_smaller/Fig/real_drr5d-3-0}
-%    \label{fig:r_drr5d}}\\
-%    \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d_smaller/Fig/real_npef5d-3-0}
-%    \label{fig:r_npef5d}}\\
-%	\caption{Interpolation results of a real 5D seismic data example for $Hx=6$ and $Hy=6$. Each common offset cube has bee reshaped into a 2D matrix. (a) The raw data gridded onto regular grids. Those blank areas denote missing traces. (b) Reconstructed data using the damped rank-reduction method. (c) Reconstructed data using the NPEF method. Note that the damped rank-reduction outperforms the NPEF method in the case of irregularly missing traces.}
-%	\label{fig:r_obs5d,r_drr5d,r_npef5d}
-%\end{figure}
+\begin{figure}[htb!]
+   \centering
+   \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d/Fig/r_obs5d-3-0}
+   \label{fig:r_obs5d}}\\
+   \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d/Fig/r_drr5d-3-0}
+   \label{fig:r_drr5d}}\\
+   \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d/Fig/r_npef5d-3-0}
+   \label{fig:r_npef5d}}\\
+\caption{Interpolation results of a real 5D seismic data example for $Hx=6$ and $Hy=6$. Each common offset cube has bee reshaped into a 2D matrix. (a) The raw data gridded onto regular grids. Those blank areas denote missing traces. (b) Reconstructed data using the damped rank-reduction method. (c) Reconstructed data using the NPEF method. Note that the damped rank-reduction outperforms the NPEF method in the case of irregularly missing traces.}
+\label{fig:r_obs5d,r_drr5d,r_npef5d}
+\end{figure}
+
+\begin{figure}[htb!]
+   \centering
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_obs5d-cog-zA}
+   \label{fig:r_obs5d1a}}
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_obs5d-cog-zB}
+   \label{fig:r_obs5d1b}}\\
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_drr5d-cog-zA}
+   \label{fig:r_drr5d1a}}
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_drr5d-cog-zB}
+   \label{fig:r_drr5d1b}}\\
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_npef5d-cog-zA}
+   \label{fig:r_npef5d1a}}
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_npef5d-cog-zB}
+   \label{fig:r_npef5d1b}}\\
+\caption{Left column: zoomed comparison of frame boxes A in Figure \ref{fig:r_obs5d,r_drr5d,r_npef5d}. Right column: zoomed comparison of frame boxes B in Figure \ref{fig:r_obs5d,r_drr5d,r_npef5d}. Note the strong residual noise seen in (f) caused by the NPEF method. }
+\label{fig:r_obs5d1a,r_obs5d1b,r_drr5d1a,r_drr5d1b,r_npef5d1a,r_npef5d1b}
+\end{figure}
+
+
+
+
+\begin{figure}[htb!]
+   \centering
+   \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d/Fig/r_obs5d-4-0}
+   \label{fig:r_obs5d4}}\\
+   \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d/Fig/r_drr5d-4-0}
+   \label{fig:r_drr5d4}}\\
+   \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d/Fig/r_npef5d-4-0}
+   \label{fig:r_npef5d4}}\\
+\caption{Interpolation results of a real 5D seismic data example for $Hx=6$ and $Hy=6$. Each common offset cube has bee reshaped into a 2D matrix. (a) The raw data gridded onto regular grids. Those blank areas denote missing traces. (b) Reconstructed data using the rank-reduction method. (c) Reconstructed data using the NPEF method. Note that the damped rank-reduction outperforms the NPEF method in the case of irregularly missing traces.}
+\label{fig:r_obs5d4,r_drr5d4,r_npef5d4}
+\end{figure}
+
+
+
+\begin{figure}[htb!]
+   \centering
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_obs5d-cmg-zA}
+   \label{fig:r_obs5d2a}}
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_obs5d-cmg-zB}
+   \label{fig:r_obs5d2b}}\\
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_drr5d-cmg-zA}
+   \label{fig:r_drr5d2a}}
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_drr5d-cmg-zB}
+   \label{fig:r_drr5d2b}}\\
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_npef5d-cmg-zA}
+   \label{fig:r_npef5d2a}}
+   \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d/Fig/r_npef5d-cmg-zB}
+   \label{fig:r_npef5d2b}}\\
+\caption{Left column: zoomed comparison of frame boxes A in Figure \ref{fig:r_obs5d4,r_drr5d4,r_npef5d4}. Right column: zoomed comparison of frame boxes B in Figure \ref{fig:r_obs5d4,r_drr5d4,r_npef5d4}. Note the obviously more discontinuous events in (e) and (f) caused by the NPEF method.}
+\label{fig:r_obs5d2a,r_obs5d2b,r_drr5d2a,r_drr5d2b,r_npef5d2a,r_npef5d2b}
+\end{figure}
+
+
+\begin{figure}[htb!]
+   \centering
+  \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d/Fig/r_obs5d_new-3-0}
+%    \subfloat[]{\includegraphics[width=1.0\textwidth]{Fig/test2} %eps2pdf problem
+   \label{fig:ra_obs5d}}\\
+   \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d/Fig/r_npef5d_new-3-0}
+   \label{fig:ra_npef5d}}\\
+\caption{De-aliased interpolation results of the real 5D seismic data example for $Hx=6$ and $Hy=6$. We treat the reconstructed data using the damped rank-reduction method as the starting data and further interpolate a trace every other traces in the $X$ and $Y$ directions. Each common offset cube has bee reshaped into a 2D matrix. (a) The regularly sampled data. Those blank areas denote missing traces. (b) Reconstructed data using the NPEF method. In this case of regularly missing traces, the rank-reduction method completely fails so we omit its result.}
+\label{fig:ra_obs5d,ra_npef5d}
+\end{figure}
+
+\begin{figure}[htb!]
+   \centering
+%    \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d/Fig/r_obs5d_new-3-0}
+   \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d/Fig/r_obs5d_new-3fk} %eps2pdf problem
+   \label{fig:ra_obs5d_new-3fk}}\\
+   \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d/Fig/r_npef5d_new-3fk}
+   \label{fig:ra_npef5d_new-3fk}}\\
+\caption{\wen{FK spectra of de-aliased interpolation results of the real 5D seismic data example for $Hx=6$ and $Hy=6$. (a) The regularly sampled data before interpolation. (b) Reconstructed data using the NPEF method. }}
+\label{fig:ra_obs5d_new-3fk,ra_npef5d_new-3fk}
+\end{figure}
+
+\begin{figure}[htb!]
+   \centering
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d/Fig/r_obs5d_new-cog-zA}
+   \label{fig:r_obs5da}}
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d/Fig/r_obs5d_new-cog-zB}
+   \label{fig:r_npef5db}}\\
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d/Fig/r_npef5d_new-cog-zA}
+   \label{fig:r_obs5da}}
+   \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d/Fig/r_npef5d_new-cog-zB}
+   \label{fig:r_npef5db}}\\
+\caption{Left column: zoomed comparison of frame boxes A in Figure \ref{fig:ra_obs5d,ra_npef5d}. Right column: zoomed comparison of frame boxes B in Figure \ref{fig:ra_obs5d,ra_npef5d}.}
+\label{fig:ra_obs5da,ra_npef5da,ra_obs5db,ra_npef5db}
+\end{figure}
 %
 %\begin{figure}[htb!]
 %    \centering
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_obs5d-cog-zA}
-%    \label{fig:r_obs5d1a}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_obs5d-cog-zB}
-%    \label{fig:r_obs5d1b}}\\
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_drr5d-cog-zA}
-%    \label{fig:r_drr5d1a}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_drr5d-cog-zB}
-%    \label{fig:r_drr5d1b}}\\
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_npef5d-cog-zA}
-%    \label{fig:r_npef5d1a}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_npef5d-cog-zB}
-%    \label{fig:r_npef5d1b}}\\
-%	\caption{Left column: zoomed comparison of frame boxes A in Figure \ref{fig:r_obs5d,r_drr5d,r_npef5d}. Right column: zoomed comparison of frame boxes B in Figure \ref{fig:r_obs5d,r_drr5d,r_npef5d}. Note the strong residual noise seen in (f) caused by the NPEF method. }
-%	\label{fig:r_obs5d1a,r_obs5d1b,r_drr5d1a,r_drr5d1b,r_npef5d1a,r_npef5d1b}
-%\end{figure}
-%
-%
-%
-%
-%\begin{figure}[htb!]
-%    \centering
-%    \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d_smaller/Fig/real_obs5d-4-0}
-%    \label{fig:r_obs5d4}}\\
-%    \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d_smaller/Fig/real_drr5d-4-0}
-%    \label{fig:r_drr5d4}}\\
-%    \subfloat[]{\includegraphics[width=0.9\textwidth]{real5d_smaller/Fig/real_npef5d-4-0}
-%    \label{fig:r_npef5d4}}\\
-%	\caption{Interpolation results of a real 5D seismic data example for $Hx=6$ and $Hy=6$. Each common offset cube has bee reshaped into a 2D matrix. (a) The raw data gridded onto regular grids. Those blank areas denote missing traces. (b) Reconstructed data using the rank-reduction method. (c) Reconstructed data using the NPEF method. Note that the damped rank-reduction outperforms the NPEF method in the case of irregularly missing traces.}
-%	\label{fig:r_obs5d4,r_drr5d4,r_npef5d4}
-%\end{figure}
-%
-%
-%
-%\begin{figure}[htb!]
-%    \centering
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_obs5d-cmg-zA}
-%    \label{fig:r_obs5d2a}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_obs5d-cmg-zB}
-%    \label{fig:r_obs5d2b}}\\
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_drr5d-cmg-zA}
-%    \label{fig:r_drr5d2a}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_drr5d-cmg-zB}
-%    \label{fig:r_drr5d2b}}\\
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_npef5d-cmg-zA}
-%    \label{fig:r_npef5d2a}}
-%    \subfloat[]{\includegraphics[width=0.4\textwidth]{real5d_smaller/Fig/real_npef5d-cmg-zB}
-%    \label{fig:r_npef5d2b}}\\
-%	\caption{Left column: zoomed comparison of frame boxes A in Figure \ref{fig:r_obs5d4,r_drr5d4,r_npef5d4}. Right column: zoomed comparison of frame boxes B in Figure \ref{fig:r_obs5d4,r_drr5d4,r_npef5d4}. Note the obviously more discontinuous events in (e) and (f) caused by the NPEF method.}
-%	\label{fig:r_obs5d2a,r_obs5d2b,r_drr5d2a,r_drr5d2b,r_npef5d2a,r_npef5d2b}
-%\end{figure}
-%
-%
-%\begin{figure}[htb!]
-%    \centering
-%   \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d_smaller/Fig/real_obs5d_new-3-0}
-%%    \subfloat[]{\includegraphics[width=1.0\textwidth]{Fig/test2} %eps2pdf problem
-%    \label{fig:ra_obs5d}}\\
-%    \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d_smaller/Fig/real_npef5d_new-3-0}
-%    \label{fig:ra_npef5d}}\\
-%	\caption{De-aliased interpolation results of the real 5D seismic data example for $Hx=6$ and $Hy=6$. We treat the reconstructed data using the damped rank-reduction method as the starting data and further interpolate a trace every other traces in the $X$ and $Y$ directions. Each common offset cube has bee reshaped into a 2D matrix. (a) The regularly sampled data. Those blank areas denote missing traces. (b) Reconstructed data using the NPEF method. In this case of regularly missing traces, the rank-reduction method completely fails so we omit its result.}
-%	\label{fig:ra_obs5d,ra_npef5d}
-%\end{figure}
-%
-%\begin{figure}[htb!]
-%    \centering
-%%    \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d_smaller/Fig/real_obs5d_new-3-0}
-%    \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d_smaller/Fig/real_obs5d_new-3fk} %eps2pdf problem
-%    \label{fig:ra_obs5d_new-3fk}}\\
-%    \subfloat[]{\includegraphics[width=1.0\textwidth]{real5d_smaller/Fig/real_npef5d_new-3fk}
-%    \label{fig:ra_npef5d_new-3fk}}\\
-%	\caption{\wen{FK spectra of de-aliased interpolation results of the real 5D seismic data example for $Hx=6$ and $Hy=6$. (a) The regularly sampled data before interpolation. (b) Reconstructed data using the NPEF method. }}
-%	\label{fig:ra_obs5d_new-3fk,ra_npef5d_new-3fk}
-%\end{figure}
-%
-%\begin{figure}[htb!]
-%    \centering
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d_smaller/Fig/real_obs5d_new-cog-zA}
-%    \label{fig:r_obs5da}}
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d_smaller/Fig/real_obs5d_new-cog-zB}
-%    \label{fig:r_npef5db}}\\
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d_smaller/Fig/real_npef5d_new-cog-zA}
-%    \label{fig:r_obs5da}}
-%    \subfloat[]{\includegraphics[width=0.45\textwidth]{real5d_smaller/Fig/real_npef5d_new-cog-zB}
-%    \label{fig:r_npef5db}}\\
-%	\caption{Left column: zoomed comparison of frame boxes A in Figure \ref{fig:ra_obs5d,ra_npef5d}. Right column: zoomed comparison of frame boxes B in Figure \ref{fig:ra_obs5d,ra_npef5d}.}
-%	\label{fig:ra_obs5da,ra_npef5da,ra_obs5db,ra_npef5db}
-%\end{figure}
-%
-%\begin{figure}[htb!]
-%    \centering
-%    \subfloat[]{\includegraphics[width=\textwidth]{real5d_smaller_onestep/Fig/os_obs}
+%    \subfloat[]{\includegraphics[width=\textwidth]{real5d_onestep/Fig/os_obs}
 %    \label{fig:os_obs}}\\
-%    \subfloat[]{\includegraphics[width=\textwidth]{real5d_smaller_onestep/Fig/os_recon}
+%    \subfloat[]{\includegraphics[width=\textwidth]{real5d_onestep/Fig/os_recon}
 %    \label{fig:os_recon}}\\
-%    \subfloat[]{\includegraphics[width=\textwidth]{real5d_smaller_onestep/Fig/ts_recon}
+%    \subfloat[]{\includegraphics[width=\textwidth]{real5d_onestep/Fig/ts_recon}
 %    \label{fig:ts_recon}}
 %	\caption{\new{Comparison between the two-step and one-step interpolation strategies. (a) Observed data when binned onto the regular grids of two times denser. (b) Reconstructed data by the one-step rank-reduction interpolation strategy. (c) Reconstructed data by the two-step rank-reduction and NPEF interpolation strategy.}  }
 %	\label{fig:os_obs,os_recon,ts_recon}

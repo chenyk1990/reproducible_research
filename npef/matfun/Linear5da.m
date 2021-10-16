@@ -41,8 +41,8 @@ D=D.*mask;
 %% reconstruct
 flow=1;fhigh=100;dt=0.004;N=3;NN=6;Niter=10;mode=0;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-%d1=drr5d_lb_recon(D,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
-d1=D;
+d1=drr5d_lb_recon(D,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
+
 
 %% from Matlab to Madagascar
 rsf_create(obs,size(D)');

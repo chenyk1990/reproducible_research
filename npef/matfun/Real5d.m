@@ -1,4 +1,4 @@
-function Hyper5da(obs,mmask,drr)
+function Real5d(obs,mmask,drr,obs2,mmask2,mmask2t)
 % Author      : Yangkang Chen
 % Date        : Oct, 2021
 % 
@@ -25,40 +25,45 @@ function Hyper5da(obs,mmask,drr)
 %  al., GEO, 2021
 
 %% load data
-load yc_hyper5d.mat
-d=hyper5d;d=d/max(max(max(max(max(d)))));
-[nt,nhx,nhy,nx,ny]=size(d);
-dt=0.004;
+load yc_field.mat;
+load yc_field_mask.mat;
 
-D=zeros(nt,nhx*2,nhy*2,nx,ny);
-mask=zeros(size(D));
-D(:,1:2:end,1:2:end,:,:)=d;
-mask(:,1:2:end,1:2:end,:,:)=ones(size(d));
-mask(:,:,:,1:2:end,:)=zeros(size(mask(:,:,:,1:2:end,:)));
-mask(:,:,:,:,1:2:end)=zeros(size(mask(:,:,:,:,1:2:end)));
-D=D.*mask;
+[nt,n1,n2,n3,n4]=size(Data5D);
+d0=Data5D;d0=yc_scale(d0(:),1);
+d0=reshape(d0,nt,n1,n2,n3,n4);
+mask=Data5Dmask;
 
 %% simultaneous denoising and reconstruction
-randn('state',201314);
-var=0.25;
-var=0;
-dn=d+var*randn(size(d));
-
-% 
-% %% reconstruct
-flow=1;fhigh=100;dt=0.004;N=12;NN=6;Niter=10;mode=0;verb=1;iflb=0;
+%% reconstruct
+flow=1;fhigh=100;dt=0.004;N=20;Niter=10;mode=1;verb=1;iflb=0;
 a=(Niter-(1:Niter))/(Niter-1); %linearly decreasing
-d1=drr5d_lb_recon(D,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
-
+NN=3;
+d1=drr5d_lb_recon(d0,mask,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,iflb,a);
 
 %% from Matlab to Madagascar
-rsf_create(obs,size(D)');
-rsf_write(D,obs);
+rsf_create(obs,size(d0)');
+rsf_write(d0,obs);
 
 rsf_create(mmask,size(mask)');
 rsf_write(mask,mmask);
 
 rsf_create(drr,size(d1)');
 rsf_write(d1,drr);
+
+D=zeros(nt,n1*2,n2*2,n3*2,n4*2);
+mask=zeros(size(D));
+D(:,1:2:end,1:2:end,1:2:end,1:2:end)=d1;
+mask(:,1:2:end,1:2:end,1:2:end,1:2:end)=ones(size(d1));
+norm(D(:)-D(:).*mask(:))
+rsf_create(obs2,size(D)');
+rsf_write(D,obs2);
+
+rsf_create(mmask2,size(mask)');
+rsf_write(mask,mmask2);
+
+mask=zeros(size(D));
+mask(:,:,:,1:2:end,1:2:end)=ones(size(mask(:,:,:,1:2:end,1:2:end)));
+rsf_create(mmask2t,size(mask)');
+rsf_write(mask,mmask2t);
 
 
