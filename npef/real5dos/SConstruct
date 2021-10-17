@@ -35,7 +35,7 @@ Flow('ts_recon','../real5d/r_recon5d_new.rsf','window n5=10')
 
 Grey33('os_obs','os_obs','')
 Grey33('os_mask','os_mask','')
-Grey33('os_recon','os_recon','clip=0.5')
+Grey33('os_recon','os_recon','clip=0.2')
 Grey33('ts_recon','ts_recon','clip=0.2')
 
 
