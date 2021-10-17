@@ -1,0 +1,45 @@
+from rsf.proj import *
+from math import pi
+from rsf.prog import RSFROOT
+
+def Grey33(data,data0,other):
+	Result(data,data0,
+	'''
+    window n4=1 n5=1 f4=10 f5=6 | put n2=400 n3=1 |
+    grey title=  label2=Trace label3=Hy label1="Time" unit1=s 
+    point1=0.8 point2=0.7 frame1=50 frame2=6 frame3=10
+    parallel2=n o2num=0 d2num=0.1 n2tic=10 screenratio=0.3
+    font=2 labelfat=2 titlefat=2 clip=0.3 %s
+    '''%other) 
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Real5dos'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+############################################################
+## with parameter
+############################################################
+Flow('os_obs-0 os_mask-0 os_recon-0',[os.path.join(matROOT,matfun+'.m')],
+    '''MATLABPATH=%(matlabpath)s %(matlab)s 
+    -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}');quit"
+    '''%vars(),stdin=0,stdout=-1)
+
+Flow('os_obs','os_obs-0','put n1=250 n2=20 n3=20 n4=21 n5=20 d1=0.004 d2=1 d3=1 d4=2 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('os_mask','os_mask-0','put n1=250 n2=20 n3=20 n4=21 n5=20 d1=0.004 d2=1 d3=1 d4=2 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('os_recon','os_recon-0','put n1=250 n2=20 n3=20 n4=21 n5=20 d1=0.004 d2=1 d3=1 d4=2 d5=1 o1=0 o2=1 o3=1 o4=1 o5=1')
+Flow('ts_recon','../real5d/real_recon5d_new.rsf','window n5=10')
+
+Grey33('os_obs','os_obs','')
+Grey33('os_mask','os_mask','')
+Grey33('os_recon','os_recon','clip=0.5')
+Grey33('ts_recon','ts_recon','clip=0.2')
+
+
+
+
+
+End()

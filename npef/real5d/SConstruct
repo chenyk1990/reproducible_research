@@ -83,7 +83,7 @@ def Grey33(data,data0,other):
 def Grey33fk(data,data0,other):
 	Result(data,data0,
 	'''
-    window n4=1 n5=1 f4=10 f5=10 | fft1 | fft3 axis=2 |fft3 axis=3 |cabs|put n2=400 n3=1 o2=1 d2=1|window max1=80|
+    window n4=1 n5=1 f4=10 f5=10 | fft1 | fft3 axis=2 |fft3 axis=3 |cabs|put n2=400 n3=1 o2=1 d2=1|window max1=80| scale axis=2|
     grey title=  label2="Wavenumber Trace" label3=Hy label1="Frequency" unit1=Hz 
     point1=0.8 point2=0.7 frame1=50 frame2=6 frame3=10
     parallel2=n  screenratio=0.3
@@ -134,12 +134,7 @@ put="n1=250 o1=0 d1=0.004 n2=10 n3=10 n4=21 n5=10 o2=1 d2=1 o3=1 d3=1 o4=1 d4=1 
 put2="n1=250 o1=0 d1=0.004 n2=20 n3=20 n4=42 n5=20 o2=1 d2=1 o3=1 d3=1 o4=1 d4=1 o5=1 d5=1"
 ############################################################
 ## generate and process synthetic data
-############################################################
-# Flow('r_obs5d-0 r_mask5d-0 r_drr5d-0 r_obs5d2-0 r_mask5d2-0 r_mask5d2t-0',[os.path.join(matROOT,matfun+'.m')],
-#     '''MATLABPATH=%(matlabpath)s %(matlab)s 
-#     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]},'${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}');quit"
-#     '''%vars(),stdin=0,stdout=-1)
-#     
+############################################################   
 Flow('r_obs5d-0 r_mask5d-0 r_drr5d-0 r_obs5d2-0 r_mask5d2-0 r_mask5d2t-0',[os.path.join(matROOT,matfun+'.m')],
     '''MATLABPATH=%(matlabpath)s %(matlab)s 
     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${TARGETS[0]}','${TARGETS[1]}','${TARGETS[2]}','${TARGETS[3]}','${TARGETS[4]}','${TARGETS[5]}');quit"
@@ -174,13 +169,13 @@ Grey2('r_obs5d-2','r_obs5d','')
 Grey2('r_recon5d-2','r_recon5d','')
 Grey2('r_drr5d-2','r_drr5d','')
 
-Grey3('r_obs5d-3','r_obs5d','clip=0.5')#original data has some large-amplitude noise
+Grey3('r_obs5d-3','r_obs5d','clip=0.4')#original data has some large-amplitude noise
 Grey3('r_recon5d-3','r_recon5d','clip=0.4')
-Grey3('r_drr5d-3','r_drr5d','clip=0.2')
+Grey3('r_drr5d-3','r_drr5d','clip=0.4')
 
-Grey4('r_obs5d-4','r_obs5d','clip=0.5')
+Grey4('r_obs5d-4','r_obs5d','clip=0.4')
 Grey4('r_recon5d-4','r_recon5d','clip=0.4')
-Grey4('r_drr5d-4','r_drr5d','clip=0.2')
+Grey4('r_drr5d-4','r_drr5d','clip=0.4')
 
 
 ## zooming
@@ -238,12 +233,12 @@ Flow('r_obs5d-cog-zB','r_obs5d-cog','window  min2=%g max2=%g min1=%g max1=%g'%(x
 Flow('r_drr5d-cog-zB','r_drr5d-cog','window  min2=%g max2=%g min1=%g max1=%g'%(xx,xx+ww,yy,yy+ww1))
 Flow('r_npef5d-cog-zB','r_npef5d-cog','window  min2=%g max2=%g min1=%g max1=%g'%(xx,xx+ww,yy,yy+ww1))
 
-Greyz('r_obs5d-cog-zA','clip=0.5')
+Greyz('r_obs5d-cog-zA','clip=0.2')
 Greyz('r_drr5d-cog-zA','clip=0.2')
-Greyz('r_npef5d-cog-zA','clip=0.4')
-Greyz('r_obs5d-cog-zB','clip=0.5')
+Greyz('r_npef5d-cog-zA','clip=0.2')
+Greyz('r_obs5d-cog-zB','clip=0.2')
 Greyz('r_drr5d-cog-zB','clip=0.2')
-Greyz('r_npef5d-cog-zB','clip=0.4')
+Greyz('r_npef5d-cog-zB','clip=0.2')
 
 #framebox C
 x=30
@@ -293,12 +288,12 @@ Flow('r_obs5d-cmg-zB','r_obs5d-cmg','window  min2=%g max2=%g min1=%g max1=%g'%(x
 Flow('r_drr5d-cmg-zB','r_drr5d-cmg','window  min2=%g max2=%g min1=%g max1=%g'%(xx,xx+ww,yy,yy+ww1))
 Flow('r_npef5d-cmg-zB','r_npef5d-cmg','window  min2=%g max2=%g min1=%g max1=%g'%(xx,xx+ww,yy,yy+ww1))
 
-Greyz('r_obs5d-cmg-zA','clip=0.5')
+Greyz('r_obs5d-cmg-zA','clip=0.2')
 Greyz('r_drr5d-cmg-zA','clip=0.2')
-Greyz('r_npef5d-cmg-zA','clip=0.4')
-Greyz('r_obs5d-cmg-zB','clip=0.5')
+Greyz('r_npef5d-cmg-zA','clip=0.2')
+Greyz('r_obs5d-cmg-zB','clip=0.2')
 Greyz('r_drr5d-cmg-zB','clip=0.2')
-Greyz('r_npef5d-cmg-zB','clip=0.4')
+Greyz('r_npef5d-cmg-zB','clip=0.2')
 
 
 Flow('r_apef5_new r_mask5d2_new','r_obs5d_new r_mask5d_new',
@@ -396,13 +391,13 @@ Flow('r_npef5d_new-cog-zA','r_npef5d_new-cog','window  min2=%g max2=%g min1=%g m
 Flow('r_obs5d_new-cog-zB','r_obs5d_new-cog','window  min2=%g max2=%g min1=%g max1=%g'%(xx,xx+ww,yy,yy+ww1))
 Flow('r_npef5d_new-cog-zB','r_npef5d_new-cog','window  min2=%g max2=%g min1=%g max1=%g'%(xx,xx+ww,yy,yy+ww1))
 
-Greyz('r_obs5d_new-cog-zA','clip=0.5')
-Greyz('r_npef5d_new-cog-zA','clip=0.4')
-Greyz('r_obs5d_new-cog-zB','clip=0.5')
-Greyz('r_npef5d_new-cog-zB','clip=0.4')
+Greyz('r_obs5d_new-cog-zA','clip=0.3')
+Greyz('r_npef5d_new-cog-zA','clip=0.3')
+Greyz('r_obs5d_new-cog-zB','clip=0.3')
+Greyz('r_npef5d_new-cog-zB','clip=0.3')
 
-Grey33fk('r_obs5d_new-3fk','r_obs5d_new','clip=7')
-Grey33fk('r_npef5d_new-3fk','r_recon5d_new','clip=20')
+Grey33fk('r_obs5d_new-3fk','r_obs5d_new','clip=0.05')
+Grey33fk('r_npef5d_new-3fk','r_recon5d_new','clip=0.05')
 
 
 
