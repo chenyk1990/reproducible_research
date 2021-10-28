@@ -146,7 +146,6 @@ def prepare_rf(target=None,source=None,env=None):
         lat.append(data[0,:,i])
         long.append(data[1,:,i])
     
-    
         # The lat/long and depth of the events.
         laball.append(lab[:,i])
         depall.append(lab[2,i])
