@@ -1,5 +1,7 @@
 from rsf.proj import *
-from rsf.recipes.beg import server
+#datapath: google drive: https://drive.google.com/file/d/1bS8dniSP0Lbv567IrkMV65WoVfobsXvZ/view?usp=sharing
+#
+
 def Grey3(data1,data,other):
 	Result(data1,data,
        '''

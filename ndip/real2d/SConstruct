@@ -211,62 +211,6 @@ Plot('labelff',None,
 	box x0=10.8 y0=6.0 label="Filled" xt=0.5 yt=0.5 length=0.75 
 	''')
 			
-# Result('g-0','Fig/g.vpl frame1 frame2 labela labelb','Overlay')
-# Result('g-orthon-0','Fig/g-orthon.vpl frame1 frame2 labela labelb','Overlay')
-# Result('g-ortho-0','Fig/g-ortho.vpl frame1 frame2 labela labelb','Overlay')
-# Result('g-rna-0','Fig/g-rna.vpl frame1 frame2 labela labelb','Overlay')	
-# Result('g-orthon-n0','Fig/g-orthon-n.vpl frame1 frame2 labela labelb','Overlay')
-# Result('g-ortho-n0','Fig/g-ortho-n.vpl frame1 frame2 labela labelb','Overlay')
-# Result('g-rna-n0','Fig/g-rna-n.vpl frame1 frame2 labela labelb','Overlay')
-# 
-# 
-# Grey('g-rna-s','color=j clip=0.4 scalebar=y minval=0 maxval=0.5')
-# Grey('g-ortho-s','color=j clip=0.4 scalebar=y minval=0 maxval=0.5')
-# Grey('g-orthon-s','color=j clip=0.4 scalebar=y minval=0 maxval=0.5')
-# 
-# Flow('g-z-a','g',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-z-b','g',' window n1=400 f1=1200 n2=200 f2=450 ')
-# Flow('g-rna-z-a','g-rna',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-rna-z-b','g-rna',' window n1=400 f1=1200 n2=200 f2=450 ')
-# Flow('g-ortho-z-a','g-ortho',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-ortho-z-b','g-ortho',' window n1=400 f1=1200 n2=200 f2=450')
-# Flow('g-orthon-z-a','g-orthon',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-orthon-z-b','g-orthon',' window n1=400 f1=1200 n2=200 f2=450')
-# Grey('g-z-a','')
-# Grey('g-z-b','')
-# Grey('g-rna-z-a','')
-# Grey('g-rna-z-b','')
-# Grey('g-ortho-z-a','')
-# Grey('g-ortho-z-b','')
-# Grey('g-orthon-z-a','')
-# Grey('g-orthon-z-b','')
-# 
-# Result('g-rna-z-a0','Fig/g-rna-z-a.vpl labelc labeld','Overlay')
-# Result('g-ortho-z-a0','Fig/g-ortho-z-a.vpl labelc labeld','Overlay')
-# Result('g-orthon-z-a0','Fig/g-orthon-z-a.vpl labelcc labeldd','Overlay')
-# 
-# Result('g-rna-z-b0','Fig/g-rna-z-b.vpl labele labelf','Overlay')
-# Result('g-ortho-z-b0','Fig/g-ortho-z-b.vpl labele labelf','Overlay')
-# Result('g-orthon-z-b0','Fig/g-orthon-z-b.vpl labelee labelff','Overlay')
-# 
-# 
-# Flow('g-rna-n-z-a','g-rna-n',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-rna-n-z-b','g-rna-n',' window n1=400 f1=1200 n2=200 f2=450 ')
-# Flow('g-ortho-n-z-a','g-ortho-n',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-ortho-n-z-b','g-ortho-n',' window n1=400 f1=1200 n2=200 f2=450')
-# Flow('g-orthon-n-z-a','g-orthon-n',' window n1=400 f1=1000 n2=175 f2=225')
-# Flow('g-orthon-n-z-b','g-orthon-n',' window n1=400 f1=1200 n2=200 f2=450')
-# 
-# Grey('g-rna-n-z-a','')
-# Grey('g-rna-n-z-b','')
-# Grey('g-ortho-n-z-a','')
-# Grey('g-ortho-n-z-b','')
-# Grey('g-orthon-n-z-a','')
-# Grey('g-orthon-n-z-b','')
-
-#sfpen Fig/g-rna-n-z-a.vpl Fig/g-ortho-n-z-a.vpl Fig/g-orthon-n-z-a.vpl
-#sfpen Fig/g-rna-n-z-b.vpl Fig/g-ortho-n-z-b.vpl Fig/g-orthon-n-z-b.vpl
-
 Greydemo('a','g','title="Noisy data" labelsz=10 labelfat=4')
 Greydemo('b','g-ortho','title="Denoised data" labelsz=10 labelfat=4')
 Greydemo('c','g-ortho-n','title="Removed noise" labelsz=10 labelfat=4' )
@@ -294,9 +238,6 @@ Flow('rectdip1','rect1','math output="(input)*4"')
 Flow('rectdip2','rect2','math output="(input)*4"')
 Greyr('g-rectdip1','rectdip1','color=j scalebar=y')
 Greyr('g-rectdip2','rectdip2','color=j scalebar=y')
-
-# Flow('rectdip1','rect1-n','math output="input"')
-# Flow('rectdip2','rect2-n','math output="input"')
 
 Flow('g-dip3','g rectdip1 rectdip2','dipn rect1=${SOURCES[1]} rect2=${SOURCES[2]} order=2 verb=y')
 Grey('g-dip3','color=j clip=2 scalebar=y')
