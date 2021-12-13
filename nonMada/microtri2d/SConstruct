@@ -62,7 +62,7 @@ Result('snap2','snaps','window n3=1 f3=720|grey label1="Depth" unit1=m title="Ti
 
 
 #uncomment the following to see the synthetic result
-#Flow('data','data0','noise var=0.000 type=y seed=12005')
+Flow('data','data0','noise var=0.000 type=y seed=12005')
 
 tmp = 5
 snaps_list1 = []
