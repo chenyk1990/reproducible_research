@@ -221,32 +221,6 @@ Greynk('k-lrr-n','title=LRR')
 Greynk('k-lrra-n','title=LRRA')
 Greynk('k-pwd-n','title=PWD')
 
-############################################################
-## with parameter
-############################################################
-# Flow('k-lrr00 k-lrra00',[os.path.join(matROOT,matfun+'.m'),'k'],
-#      '''MATLABPATH=%(matlabpath)s %(matlab)s 
-#      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}','${TARGETS[1]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,0,%(lf)g,200,%(NN)d,%(n1win)d,%(n2win)d,%(n3win)d,%(r1)g,%(r2)g,%(r3)g,%(ifdamp)d,%(verb)d);quit"
-#      '''%vars(),stdin=0,stdout=-1)
-#      
-# Flow('k-lrr','k-lrr0 k-lrr2','put %s|add scale=1,1 ${SOURCES[1]}'%put)
-# Flow('k-lrra','k-lrra0 k-lrra2','put %s|add scale=1,1 ${SOURCES[1]}'%put)
-# Flow('k-lrr2','k-lrr00','put %s'%put)
-# Flow('k-lrra2','k-lrra00','put %s'%put)
-# Flow('k-lrr-n','k k-lrr','add scale=1,-1 ${SOURCES[1]}')
-# Flow('k-lrra-n','k k-lrra','add scale=1,-1 ${SOURCES[1]}')
-# Flow('k-pwd','reflections','window n1=400')
-# Flow('k-pwd-n','k k-pwd','add scale=1,-1 ${SOURCES[1]}')
-# 
-# Grey('k-lrr','')
-# Grey('k-lrra','')
-# Grey('k-lrr2','')
-# Grey('k-lrra2','')
-# Grey('k-pwd','')
-# Greyn('k-lrr-n','')
-# Greyn('k-lrra-n','')
-# Greyn('k-pwd-n','')
-
 # calculate data slope
 # Smoothing Parameters
 nx = 50 
@@ -263,65 +237,43 @@ Flow('slope','zo-ovr',
      '''%(rect1,rect2,rect3,order1))
 slp = ['Inline','Crossline']
 
-# for k in range(2):
-#   slope = 'slope%i'%k
-#   Flow(slope,'slope','window n4=1 f4=%i'%k)
-#   Flow(slope+'bar',slope,'bar gainpanel=a')
-#   Plot(slope,[slope,slope+'bar'],
-#      plot3t+
-#      '''  
-#      title="%s Slope" flat=n color=j bar=${SOURCES[1]}
-#      barlabel=Slope scalebar=y
-#      '''%(slp[k]))
-# Result('slope','slope0 slope1','SideBySideIso')
-# # Enhance Reflections
-#     #spray radii
-# ns2=3
-# ns3=3
-# Flow('reflections','zo-ovr slope',
-#      '''
-#      pwspray2 ns2=%d ns3=%d dip=${SOURCES[1]} order=%i verb=y eps=0.1|
-#      stack axis=2
-#      '''% (ns2,ns3,order1))
-# Result('reflections',
-#     plot3t+
-#     '''
-#      title="Enhanced Reflections" flat=n pclip=99.9
-#     ''')
-# # Difference is diffractions
-# Flow('diffractions','zo-ovr reflections','add scale=1,-1 ${SOURCES[1]}')
-# Result('k-diffractions','diffractions',
-#     plot3t+
-#     '''
-#      title="Separated Diffractions" flat=n pclip=99.9
-#     ''')
+for k in range(2):
+  slope = 'slope%i'%k
+  Flow(slope,'slope','window n4=1 f4=%i'%k)
+  Flow(slope+'bar',slope,'bar gainpanel=a')
+  Plot(slope,[slope,slope+'bar'],
+     plot3t+
+     '''  
+     title="%s Slope" flat=n color=j bar=${SOURCES[1]}
+     barlabel=Slope scalebar=y
+     '''%(slp[k]))
+Result('slope','slope0 slope1','SideBySideIso')
+# Enhance Reflections
+    #spray radii
+ns2=3
+ns3=3
+Flow('reflections','zo-ovr slope',
+     '''
+     pwspray2 ns2=%d ns3=%d dip=${SOURCES[1]} order=%i verb=y eps=0.1|
+     stack axis=2
+     '''% (ns2,ns3,order1))
+Result('reflections',
+    plot3t+
+    '''
+     title="Enhanced Reflections" flat=n pclip=99.9
+    ''')
+# Difference is diffractions
+Flow('diffractions','zo-ovr reflections','add scale=1,-1 ${SOURCES[1]}')
+Result('k-diffractions','diffractions',
+    plot3t+
+    '''
+     title="Separated Diffractions" flat=n pclip=99.9
+    ''')
 # smooth slowness migration
 # smooth out slowness
 for slo in ('slo','ovr-slo'):
     Flow(slo+'-s',slo,'smooth rect1=%i rect2=%i rect3=%i'%(nz/10,rect2,rect3))
 
-# for item in ('diffractions','zo-ovr'):
-# 
-#   Flow(item+'w',item,
-#     '''
-#     fft1 | window n1=%i| transp | transp plane=23
-#     '''%nf)
-# # downward continuation in overburden
-#   Flow(item+'under',[item+'w','ovr-slo-s'],
-#     '''
-#     zomig3  mode=d inv=n
-#     --readwrite=y verb=y nrmax=30
-#      slo=${SOURCES[1]}
-#     ''')
-# # migration of reservoir
-#   Flow(item+'-mig',[item+'under','slo-s'],
-#     '''
-#     zomig3  mode=m inv=n
-#     --readwrite=y verb=y nrmax=30
-#      slo=${SOURCES[1]}|
-#     transp plane=23 |
-#     transp
-#     ''')
     
 for item in ('k-lrr-n','k-lrra-n','k-pwd-n'):
 
@@ -428,50 +380,5 @@ Result('k-lrr-imag-0','Fig/k-lrr-imag.vpl lk44 lk55 lk66','Overlay')
 Result('k-lrra-imag-0','Fig/k-lrra-imag.vpl lk44 lk55 lk66','Overlay')
 
 
-# Result('zo-ovr-mig',
-#    plot3+ 
-#    '''
-#    title="Conventional Image"
-#    ''')
-# 
-# Result('k-diffractions-mig','diffractions-mig',
-#    plot3+ 
-#    '''
-#    title="Diffraction Image" flat=n pclip=99.9
-#    ''')
-# # crossline=150
-# Result('k-diffractions-migI','diffractions-mig',
-#    plotI+ 
-#    '''
-#    title="Diffraction Image" flat=n 
-#    ''')
-# Result('zo-ovr-migI','zo-ovr-mig',
-#    plotI+ 
-#    '''
-#    title="Conventional Image" flat=n 
-#    ''')
-# Result('aiI','ai aibar',
-#    plotI+ 
-#    '''
-#    title="Acoustic Impedance" flat=n bar=${SOURCES[1]} mean=y
-#    color=j scalebar=y barunit="kg / s m\^2\_" barlabel= 
-#    ''')
-# 
-# # inline=250
-# Result('k-diffractions-migX','diffractions-mig',
-#    plotX+ 
-#    '''
-#    title="Diffraction Image" flat=n 
-#    ''')
-# Result('zo-ovr-migX','zo-ovr-mig',
-#    plotX+ 
-#    '''
-#    title="Conventional Image" flat=n 
-#    ''')
-# Result('aiX','ai aibar',
-#    plotX+ 
-#    '''
-#    title="Acoustic Impedance" flat=n bar=${SOURCES[1]} mean=y
-#    color=j scalebar=y barunit="kg / s m\^2\_" barlabel= 
-#    ''')
+
 End()

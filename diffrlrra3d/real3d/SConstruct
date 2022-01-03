@@ -49,7 +49,7 @@ dataasc='data.asc'
 # downloading the data
 
 # segy = os.getenv('HOME')+'/DATA_diffr/snt_barrolka_raw_unmigrated_stk_21_11_2013.segy'
-
+segy='snt_barrolka_raw_unmigrated_stk_21_11_2013.segy'
 Fetch(segy,'barrolka',server)
 
 Flow('data tdata data.asc data.bin',segy,
