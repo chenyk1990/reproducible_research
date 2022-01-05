@@ -1,0 +1,144 @@
+from rsf.proj import*
+from rsf.prog import RSFROOT
+
+def Grey(data,other): 
+	Result(data,'grey label2=Trace unit2="" label1=Time unit1="s" title="" wherexlabel=b wheretitle=t color=b %s scalebar=y labelsz=10'%other)
+
+def Wiggle(data,other): 
+	Result(data,'''
+				window j2=8 | wiggle transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=t wherexlabel=b clip=0.15 labelsz=10  %s '''%other)
+
+
+###########################################################################
+## complex event 
+###########################################################################
+Flow('c',None,
+     '''
+     spike n1=512 n2=256 d2=1 o2=0 label2=Trace unit2=
+     nsp=4 k1=64,300,160,200 p2=1.5,-0.9,0,0.5 mag=1,1,1,1 |
+     ricker1 frequency=20 |
+     noise seed=2008 var=0
+     ''')
+
+Flow('cn','c',
+     '''
+     noise seed=2008 var=0.00125
+     ''')
+
+
+
+########################################################################
+# INITIALIZATION
+########################################################################
+matlab         = WhereIs('matlab')
+matROOT = '../matfun'
+matfun = 'Linear'
+matlabpath = os.environ.get('MATLABPATH',os.path.join(RSFROOT,'lib'))
+
+if not matlab:
+    sys.stderr.write('\nCannot find Matlab.\n')
+    sys.exit(1)
+
+
+put='n1=512 n2=256 d1=0.004 d2=1 o1=0 o2=0'
+
+n1=512
+n2=256
+N=10;
+mu=0.1;
+verb=1;
+############################################################
+## with parameter
+############################################################
+N=2
+Flow(['c-fxp-t','c-fx-t'],[os.path.join(matROOT,matfun+'.m'),'cn'],
+     '''MATLABPATH=%(matlabpath)s %(matlab)s 
+     -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${TARGETS[0]}','${TARGETS[1]}',%(n1)d,%(n2)d,%(N)d,%(mu)g,%(verb)d);quit"
+     '''%vars(),stdin=0,stdout=-1)
+Flow('c-fx','c-fx-t','put %s'%put)
+Flow('c-fxp','c-fxp-t','put %s'%put)
+
+Flow('c-fx-n','c-fx cn','add scale=-1,1 ${SOURCES[1]}')
+Flow('c-fxp-n','c-fxp cn','add scale=-1,1 ${SOURCES[1]}')
+
+
+Flow('c-fxortho-n c-fxortho','c-fx-n c-fx','ortho rect1=25 rect2=25 sig=${SOURCES[1]} sig2=${TARGETS[1]}')
+
+
+Wiggle('c','')
+Wiggle('cn','')
+Wiggle('c-fx','')
+Wiggle('c-fx-n','')
+Wiggle('c-fxp','')
+Wiggle('c-fxp-n','')
+Wiggle('c-fxortho','')
+Wiggle('c-fxortho-n','')
+
+Plot('label1',None,
+	'''
+	box x0=4.0 y0=5.8 label="" xt=0.5 yt=0.5 length=0.75 
+	''')
+Plot('label2',None,
+	'''
+	box x0=10.5 y0=3.5 label="" xt=0.5 yt=0.5 length=0.75 
+	''')
+Plot('label3',None,
+	'''
+	box x0=6.0 y0=6.6 label="" xt=0.5 yt=0.5 length=0.75 
+	''')
+Plot('label4',None,
+	'''
+	box x0=4.0 y0=4.8 label="" xt=0.5 yt=-0.5 length=0.75 
+	''')	
+Result('c-fx-n0',['Fig/c-fx-n.vpl','label1','label2','label3','label4'],'Overlay')
+Result('c-fxp-n0',['Fig/c-fxp-n.vpl','label1','label2','label3','label4'],'Overlay')
+Result('c-fxortho-n0',['Fig/c-fxortho-n.vpl','label1','label2','label3','label4'],'Overlay')
+
+Flow('n','cn c','add scale=1,-1 ${SOURCES[1]}')
+Flow('cn-zero','n','math output=0')
+## fx decon
+# Flow('cfx','cn','fxdecon lenf=10 verb=1 n2w=256 fmin=5 fmax=125')
+
+
+# compute SNR (may differ in different computers)
+# Flow('c-diff1','c cn','add scale=1,-1 ${SOURCES[1]} ')
+# Flow('c-snr1','c c-diff1','snr2 noise=${SOURCES[1]}')
+# 
+# Flow('c-diff2','c cfx','add scale=1,-1 ${SOURCES[1]} ')
+# Flow('c-snr2','c c-diff2','snr2 noise=${SOURCES[1]}')
+# 
+# Flow('c-diff3','c csim-fx','add scale=1,-1 ${SOURCES[1]} ')
+# Flow('c-snr3','c c-diff3','snr2 noise=${SOURCES[1]}')
+# 
+# Flow('c-diff4','c cfx2','add scale=1,-1 ${SOURCES[1]} ')
+# Flow('c-snr4','c c-diff4','snr2 noise=${SOURCES[1]}')
+
+
+#It's interesting to see the comparison with performance increased from fx predicton to fx projection, and to fx prediction and ortho
+#
+# \begin{figure}[htb!]
+# \centering
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c}
+#    \label{fig:c}}
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/cn}
+#    \label{fig:cn}}\\
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c-fx}
+#    \label{fig:c-fx}}
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c-fx-n0}
+#    \label{fig:c-fx-n0}}\\
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c-fxp}
+#    \label{fig:c-fxp}}
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c-fxp-n0}
+#    \label{fig:c-fxp-n0}}\\   
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c-fxortho}
+#    \label{fig:c-fxortho}}
+# \subfigure[]{\includegraphics[width=0.45\columnwidth]{linear/Fig/c-fxortho-n0}
+#    \label{fig:c-fxortho-n0}}\\    
+# \caption{Comparison between the $f-x$ prediction method, $f-x$ projection method, and the hybrid $f-x$ prediction and orthogonalization method. }
+# \label{fig:comp}
+# \end{figure}
+
+End()

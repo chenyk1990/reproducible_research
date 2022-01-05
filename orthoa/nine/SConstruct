@@ -1,0 +1,100 @@
+from rsf.proj import *
+from rsf.recipes.beg import server as private
+
+
+def Wiggle(data,other): 
+	Result(data,'''
+				window j2=2 | wiggle transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y 
+				wheretitle=b wherexlabel=b %s clip=0.38 '''%other)
+
+def Grey(data,other): 
+	Result(data,'''
+				grey transp=y yreverse=y 
+				label2=Trace unit2="" label1=Time unit1="s" 
+				title="" wherexlabel=b wheretitle=t poly=y color=g
+				wheretitle=b wanttitle=n wherexlabel=b clip=0.38  %s '''%other)
+
+Fetch('bend_l1_pmig_enhanc.sgy','vecta',private)
+Fetch('bend_l1_smig_enhanc.sgy','vecta',private)
+
+Flow('pp','bend_l1_pmig_enhanc.sgy',
+         'segyread tape=$SOURCE read=data | window n2=471 | scale axis=2 | put label2=Trace',
+         stdin=0)
+
+
+
+## fxdecon
+Flow('pp-fx','pp','fxdecon n2w=471 lenf=4')
+Flow('ppdiff-fx','pp-fx pp','add scale=-1,1 ${SOURCES[1]}')
+
+## Similarity
+Flow('pp-simi','ppdiff-fx pp-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+Flow('ppsim-fx','ppdiff-fx pp-simi pp-fx','simidenoise1 similarity=${SOURCES[1]} s1=0.15 s2=0.2 | add scale=1,1 ${SOURCES[2]}')
+Flow('ppdiffsim-fx','ppsim-fx pp','add scale=-1,1 ${SOURCES[1]}')
+Flow('pp-simi2','ppdiffsim-fx ppsim-fx','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+# ortho
+Flow('ppdiff-ortho pp-ortho','ppdiff-fx pp-fx','orthol rect1=2 rect2=2 sig=${SOURCES[1]} sig2=${TARGETS[1]}')
+Flow('pp-simi-ortho','ppdiff-ortho pp-ortho','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+
+Flow('ppdiff-ortho2 pp-ortho2 w','ppdiff-fx pp-fx','orthoa ifns=n n1win=1024 n2win=500 alpha=1.0 beta=0 gamma=1.0 rad1=2 rad2=2 rad3=1 nrad=1 sig=${SOURCES[1]} sig2=${TARGETS[1]} w=${TARGETS[2]}')
+Flow('pp-simi-ortho2','ppdiff-ortho2 pp-ortho2','similarity other=${SOURCES[1]} niter=20 rect1=5 rect2=5')
+
+Flow('w0','ppdiff-fx pp-fx','low rect1=2 rect2=2 sig=${SOURCES[1]}')
+
+## ploting
+Grey('pp','')
+Grey('pp-fx','')
+Grey('pp-ortho','')
+Grey('pp-ortho2','')
+Grey('ppdiff-fx','')
+Grey('ppdiff-ortho','')
+Grey('ppdiff-ortho2','')
+Grey('ppsim-fx','')
+Grey('ppdiffsim-fx','')
+Grey('pp-simi','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-simi2','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-simi-ortho','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+Grey('pp-simi-ortho2','color=j scalebar=y clip=0.8 minval=0 maxval=0.8')
+
+Grey('w0','')
+Grey('w','')
+
+## Creating framebox
+x=1300
+y=1.7
+w=250
+w1=0.5
+
+Flow('frame1.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame1','frame1.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=2000 min2=0 max2=5 pad=n plotfat=15 plotcol=4 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+
+x=0
+y=0.5
+w=470
+w1=0.15
+
+Flow('frame2.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
+	" ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+Plot('frame2','frame2.asc',
+	'''
+	dd type=complex form=native |
+	graph min1=0 max1=470 min2=0 max2=2.046 pad=n plotfat=15 plotcol=3 
+	wantaxis=n wanttitle=n yreverse=y scalebar=n
+	''')
+	
+Result('ppdiff-fx0','Fig/ppdiff-fx.vpl frame1 frame2','Overlay')
+Result('ppdiff-ortho0','Fig/ppdiff-ortho.vpl frame1 frame2','Overlay')
+Result('ppdiff-ortho20','Fig/ppdiff-ortho2.vpl frame1 frame2','Overlay')
+
+
+End()
