@@ -257,8 +257,8 @@ Result('ref_slice',cube,
                      ''')
 # downloading velocity
 
-velsegy = os.getenv('HOME')+'/DATA_diffr/snt_barrolka_rms_migration_vels_proc_datum_29_02_2012.segy'
-# Fetch(velsegy,'barrolka',server)
+velsegy = 'snt_barrolka_rms_migration_vels_proc_datum_29_02_2012.segy'
+Fetch(velsegy,'barrolka',server)
 
 Flow('vdata vtdata vdata.asc vdata.bin',velsegy,
      '''
