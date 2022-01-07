@@ -1,0 +1,467 @@
+
+\DeclareRobustCommand{\dlo}[1]{}
+\DeclareRobustCommand{\wen}[1]{#1}
+\DeclareRobustCommand{\old}[1]{}
+\DeclareRobustCommand{\new}[1]{#1}
+
+
+\title{Large dip calculation via robust non-stationary plane-wave destruction}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\author{Wei Chen, Liuqing Yang, Xingye Liu, Hang Wang, and Yangkang Chen}
+%\thanks{W. Chen is with the Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education, Yangtze University, Wuhan 430100, China, and also with the Cooperative Innovation Center of Unconventional Oil and Gas (Ministry of Education, Hubei Province), Yangtze University, Wuhan 430100, China (e-mail: chenwei2014@yangtzeu.edu.cn).}
+%\thanks{L. Yang is with the College of Geophysics, China University of Petroleum, Beijing 102249, China.}
+%\thanks{X. Liu is with the College of Geology and Environment, Shaanxi Provincial Key Laboratory of Geological Support for Coal Green Exploitation, Xi’an University of Science and Technology, Xi’an 710054, China.}
+%\thanks{H. Wang and Y. Chen are with the Key Laboratory of Geoscience Big Data and Deep Resource of Zhejiang Province, School of Earth Sciences, Zhejiang University, Hangzhou 310027, China.}
+%\thanks{This work was supported in part by the National Natural Science Foundation of China (NSFC) under Grant 41804140, and in part by the Open Fund of Cooperative Innovation Center of Unconventional Oil and Gas (Ministry of Education and Hubei Province), Yangtze University, under Grant UOG2020-01. (Corresponding author: Wei Chen.)}}
+\maketitle
+
+%\address{
+%\footnotemark[1] Key Laboratory of Exploration Technology for Oil and Gas Resources of Ministry of Education\\
+%Yangtze University\\
+%Daxue Road No.111\\
+%Caidian District\\
+%Wuhan, China, 430100 \\
+%\footnotemark[2] Hubei Cooperative Innovation Center of Unconventional Oil and Gas\\
+%Daxue Road No.111\\
+%Caidian District\\
+%Wuhan, China, 430100 \\
+%\footnotemark[3]State Key Laboratory of Petroleum Resources and Prospecting \\
+%China University of Petroleum \\
+%Fuxue Road 18th\\
+%Beijing, China, 102200 \\
+%%hellowangyf@163.com \& chenxh@cup.edu.cn \\
+%\footnotemark[4]College of Geology and Environment\\
+%Xi’an University of Science and Technology\\
+%Xi’an, Shaanxi Province, China, 710054 \\
+%lwxwyh506673@126.com\\
+%\footnotemark[5]
+%School of Earth Sciences\\
+%Zhejiang University\\
+%Hangzhou, Zhejiang Province, China, 310027\\
+%yangkang.chen@zju.edu.cn \\
+%%Corresponding Author: Yangkang Chen (chenyk2016@gmail.com) 
+%}
+%
+
+
+\begin{abstract}
+The omnidirectional plane-wave destruction (OPWD) algorithm can estimate the large dip by using a circle-interpolating PWD filter but at the expense of causing potential instabilities due to the small values of the denominator in the regularized division problem. To mitigate the instability, one needs to use a relatively larger smoothing radius for a stronger regularization of the element-wise division, which however significantly decreases the resolution of dip estimation.  We propose a new OPWD method without compromising the dip resolution for the large dip calculation by applying a non-stationary smoothness constraint to the model. We use a larger smoothing radius for areas that tend to cause instabilities and vice versa. The non-stationary smoothing is carried out in a simple and efficient recursion way. The synthetic and real seismic data examples demonstrate the performance of the proposed algorithm.
+\end{abstract}
+
+%\begin{keywords}
+%Large dip, non-stationary regularization, plane-wave destruction, filtering, noise
+%\end{keywords}
+
+
+\section{Introduction}
+Seismic slope/dip is a widely used attribute in seismic processing and interpretation. 
+The estimation of local slope is committed to detect the directionality of coherent events from the raw data. Compared with the global estimation methods, local slope estimation methods can be implemented quickly and rely slightly on a priori information \cite{Schleicher2008}.
+The local slope has been successfully applied in a broad spectrum of geophysical tasks, ranging from velocity-independent imaging \cite{Kevin2004, Sergey2007, Matthew2020} to 
+structural filtering \cite{liuyang2010, 2020Deblending, qushan2019geo, wanghang2020tgrs2}, passive seismic location \cite{Mohammad2015, Khoshnavaz2017}, initial model building \cite{guangtan2020tgrs1}, wavefield separation \cite{pwd}, and inversion-based seismic processing \cite{Sergey2007, Zhiguang2016}. 
+During the past decades, many techniques and methods have been \old{invented}\new{proposed} to extract the local slope attribute.
+
+The local slant stack algorithm is a traditional way of local slope extraction \cite{Ottolini1983}.  At first, the local coherence scanning is carried out at each point of the seismic data along all possible directions. Then, the slope value is determined by the direction with the highest coherence.  However, the calculation cost to find such an optimal direction by local slant stacking is extremely expensive. Besides, it is sensitive to the aperture of the local slant stack \cite{Schleicher2008, Santos2009}. Schleicher et al. (2008) \cite{Schleicher2008} developed an alternative, faster, and more reliable method to estimate local slopes by using \old{modern}\new{advanced} extraction techniques. \new{Besides, the local slope can also be calculated based on the prediction-error filter \cite{1991Earth, 1999Two}.}
+\old{Another conventional method of local slope extraction is based on the prediction-error filter.} 
+
+The structural tensor algorithm is an excellent tool that has been widely used in geophysics applications, such as seismic structural analysis, fault interpretation, and structural-orientated filtering \new[]{\cite{wu2017directional}}.
+It is an effective method to detect the flat region, edge region and corner region of an image.  
+The structure tensor can also be employed to extract the directionality contained in seismic data \cite[]{1995Estimators, 1997A, Fehmers2003Fast}.   
+The basic is that the orientation of seismic data can be represented by the structure vector. Computing the structure tensor contains two steps:  \old{at first}\new{first}, the orientation information is estimated at each point via orientation filtering. Then, \old{we map and average}\new{one maps and averages} the filtering result to the tensor representation \cite{1986Analyzing, 1991Computing, webmaster1992Adaptive}. The process is symmetric and semi-positive definite. In general, the dominant orientation corresponds to the maximum of the weighted average. Averaging the tensor suppresses the rapid changes of orientation in a seismic image caused by noise, and generates a smooth orientation result.
+Nevertheless, the traditional structure tensor is usually second-order, thus only a single dominant slope can be computed. In addition, the maximum is not in agreement with the true orientation of an image when the  histogram of the orientation is multimodal \cite{image2002}.
+\cite{2006An} proposed a multi-directional representation of gradient structure to extract high-order structures. They estimated the tensor via an asymmetric way by deriving parameters of multimodal directional distribution functions from discrete direction constraints. \cite{2007Representing} presented a specific method only for the case of two orientations  in the plane. 
+\cite{2009A} extended the version of the second-order structure tensor to a higher-order one to capture the multiple orientations for more complex 3D data. 
+\cite{2009Representing} developed an approach based on angular separable quadrature filters to estimate the local slope.  For multiple directionality estimation of seismic images, \cite{2013Extended} improved the structure
+tensor by utilizing a one-way equation to deal with the problem of conflicting dips. 
+However, these methods cost expensively in computation.
+\cite{2015Compression} presented a high-efficiency method to detect multiple local slopes by the second-order structure tensor, which is suitable for the case of intersecting events.
+
+Except for the aforementioned methods, \cite{1998Marfurt3} proposed a robust semblance-based coherency algorithm to improve the vertical resolution. 
+The multiple window dip searching method is a more robust local slope estimation approach \cite{Kurt2006}. It uses a series of  multiple windows shifted in both space and time domains which contain each analysis point. As a result, the high-resolution  result of dip and azimuth is generated. \cite{2010Local} used a cross-correlation method to smoothly and locally estimate the slope attribute. The method does not require scanning operators and the cost is inexpensive. \cite{2013Consistent} introduced the single and joint dip constraints to the cross-correlation method to check the reciprocity, causality, consistency, vertical and lateral continuity during  the estimating process, improving the accuracy and fidelity of extracted local slopes. \cite{2015Seismicdip} proposed a structure-oriented polynomial fitting filter method that utilizes the relationship of the frequency response between 2D derivatives and 2D Hilbert transform. It is a non-iterative method for local dip estimation with a strong ability of anti-noise. \cite{Haibin2017} integrated the directions along the most and least apparent variations of the local waveforms to detect the local dip. \cite{2019Accurate} pointed out that the accuracy of the estimated dip attribute by the semblance scanning approach is usually impacted  by the dip of seismic reflectors. Then, they developed a method that combines the advantages of the gradient structure tensor analysis and multiple window Kuwahara scanning.
+
+Nowadays, the plane-wave theory, firstly proposed by \cite{1991Earth}, has been utilized to estimate the local slope and shows promising performance. The finite difference is utilized to discrete the differential equation. Many plane-wave destruction filters are presented for the calculation of finite difference. Fomel (2002) \cite{pwd} used the Thiran’s filter \cite{1971Recursive} to replace the phase-shift operator, and simplified the plane-wave destruction (PWD) equation to a nonlinear form with respect to the slope. Then, he proposed an iterative algorithm to extract the local slope information. 
+Subsequently, \cite{Sergey2007} proposed a shaping regularization method that could be applied to local slope estimation. The stability of extracted slope information is enhanced by the shaping regularization. \cite{dave2007} pointed out that local dip filters should be invertible, and proposed to extract a robust and invertible local dip filter based on directional derivative. \cite{2013Accelerated} confirmed that plane-wave destruction equation is actually polynomial of the slope. The iterative algorithm can be replaced by analytical solutions, which would accelerate the convergence and significantly save the calculation time. \cite{2013Omnidirectional} proved that the accuracy of estimated slope by the plane-wave destruction filter was unsatisfactory when it was applied to handle seismic data with steep structures. They introduced line-interpolating and circle-interpolating operators to avoid directional aliasing issues and boost the performance. 
+However, the plane-wave destruction method is still unsatisfactory when the energy of noise is strong. In this case, a larger smoothing radius is required to eliminate the noise effect, whereas the fidelity will be negatively influenced. \new{Besides, eigenvectors of 3D structure tensor \cite{wu2017directional} can be used to derive the slope without the value range limitation and the instability issue, which is an advantage to the PWD method.}
+
+
+The traditional PWD algorithm fails when the dip becomes very large because of the non-negligible error of the maxflat fractional delay filter in approximating the phase-shift operator in large dips. The omnidirectional plane-wave destruction (OPWD) algorithm can estimate the large dip due to a circle-interpolating PWD filter but at the expense of causing potential instabilities. The instability of the OPWD method is caused by the small values of the denominator in the regularized division problem. A simple way to solve the instability issue is to use a larger smoothing radius for a stronger constraint in the shaping regularization framework, which however significantly decreases the resolution of the estimated slope map. In this paper, we propose an effective way to compromise the stability and resolution of local slope estimation based on the PWD algorithm. We apply spatially non-stationary smoothing to regularize the slope inversion, e.g., applying a stronger smoothing in areas with a larger dip that tends to cause instability and aliasing, and a weaker smoothing in areas with less steep structures. The proposed robust slope estimation method is applied to a synthetic example to demonstrate the stable and high-resolution performance. It is then applied to different seismic processing and interpretation applications to test its wide applicability, including automatic event picking, 2D and 3D seismic structural filtering to enhance the signal-to-noise ratio. 
+
+\begin{figure}[htb!]
+\centering
+\includegraphics[width=0.6\columnwidth]{hyper/Fig/hyper}
+\caption{Synthetic dataset. }
+\label{fig:hyper}
+\end{figure}
+
+
+\begin{figure}[htb!]
+\centering
+\subfloat[]{\includegraphics[width=0.3\columnwidth]{hyper/Fig/hyper-dipl0-0}
+  \label{fig:hyper-dipl0-0}}
+  \subfloat[]{\includegraphics[width=0.3\columnwidth]{hyper/Fig/hyper-dipl1-0}
+  \label{fig:hyper-dipl1-0}}\\
+  \subfloat[]{\includegraphics[width=0.3\columnwidth]{hyper/Fig/hyper-dipl2-0}
+  \label{fig:hyper-dipl2-0}}
+  \subfloat[]{\includegraphics[width=0.3\columnwidth]{hyper/Fig/hyper-dipln2-0}
+  \label{fig:hyper-dipln2-0}}\\
+  \subfloat[]{\includegraphics[width=0.3\columnwidth]{hyper/Fig/rect111}
+  \label{fig:rect111}}
+\caption{\old{Slope estimation results. (a) Traditional method with smoothing radius $R=5$. (b) Traditional method with smoothing radius $R=10$. (c) Traditional method with smoothing radius $R=15$. (d) Proposed method with non-stationary regularization.}\new{Slope estimation results using (a) traditional method with smoothing radius $R=5$, (b) traditional method with smoothing radius $R=10$, (c) traditional method with smoothing radius $R=15$, and (d) proposed method with non-stationary regularization. Note the evident instabilities in Figures \ref{fig:hyper-dipl0-0} and \ref{fig:hyper-dipl1-0}. (e) Non-stationary smoothing radius distribution, which is calculated based on the a priori information from the initial slope estimation of Figure \ref{fig:hyper-dipl2-0}. Note that the large dip areas are assigned an obviously larger smoothing radius. }}
+\label{fig:hyper-dipl0-0,hyper-dipl1-0,hyper-dipl2-0,hyper-dipln2-0,rect111}
+\end{figure}
+
+
+%
+%\begin{figure}[htb!]
+%\centering
+%\includegraphics[width=0.8\columnwidth]{real/Fig/r-data}
+%\caption{Real seismic profile containing complex geological structures like faults and salts. }
+%\label{fig:r-data}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real/Fig/r-dipl1-0}
+%   \label{fig:r-dipl1-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real/Fig/r-dipl11-0}
+%   \label{fig:r-dipl11-0}}\\
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real/Fig/r-dipl2-0}
+%   \label{fig:r-dipl2-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real/Fig/r-dipln1-0}
+%   \label{fig:r-dipln1-0}}   \\
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real/Fig/r-rect1}
+%   \label{fig:r-rect1}}
+%\caption{Slope estimation results. (a) Traditional method with smoothing radius $R=10$. (b) Traditional method with smoothing radius $R=20$. (c) Traditional method with smoothing radius $R=30$. (d) Proposed method with non-stationary regularization. \new{(e) Non-stationary smoothing radius distribution, which is calculated based on the a priori information from the initial slope estimation of Figure \ref{fig:r-dipl2-0}. Note that the large dip areas around the salt flanks are assigned an obviously larger smoothing radius.}}
+%\label{fig:r-dipl1-0,r-dipl11-0,r-dipl2-0,r-dipln1-0,r-rect1}
+%\end{figure}
+%
+%%\begin{figure}[htb!]
+%%\centering
+%%\includegraphics[width=0.5\textwidth]{real/Fig/r-rect1}
+%%\caption{Non-stationary smoothing radius distribution, which is calculated based on the a priori information from the initial slope estimation of Figure \ref{fig:r-dipl2-0}. Note that the large dip areas around the salt flanks are assigned an obviously larger smoothing radius. }
+%%\label{fig:r-rect1}
+%%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real/Fig/pick-r-dipl1-0}
+%   \label{fig:pick-r-dipl1-0}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real/Fig/pick-r-dipl11-0}
+%   \label{fig:pick-r-dipl11-0}}\\
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real/Fig/pick-r-dipl2-0}
+%   \label{fig:pick-r-dipl2-0}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real/Fig/pick-r-dipln1-0}
+%   \label{fig:pick-r-dipln1-0}} 
+%\caption{Comparison of automatically picked events using (a) traditional slope estimation method with smoothing radius $R=10$, (b) traditional slope estimation method with smoothing radius $R=20$, (c) traditional slope estimation method with smoothing radius $R=30$, and (d) proposed slope estimation method with non-stationary regularization. Note the unstable event picking performance in (a) and (b) and obviously better event painting using the proposed method. The black frame boxes are zoomed in Figure \ref{fig:pick-r-dipl2-win1,pick-r-dipln1-win1} for more detailed comparison. }
+%\label{fig:pick-r-dipl1-0,pick-r-dipl11-0,pick-r-dipl2-0,pick-r-dipln1-0}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real/Fig/pick-r-dipl2-win1}
+%   \label{fig:pick-r-dipl2-win1}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real/Fig/pick-r-dipln1-win1}
+%   \label{fig:pick-r-dipln1-win1}} 
+%\caption{Zoomed comparison of the automatically picked events using (a) traditional slope estimation method with smoothing radius $R=30$, and (b) proposed slope estimation method with non-stationary regularization, corresponding to Figures \ref{fig:pick-r-dipl2-0} and \ref{fig:pick-r-dipln1-0}, respectively. It is obvious that the proposed method obtains a better event picking.}
+%\label{fig:pick-r-dipl2-win1,pick-r-dipln1-win1}
+%\end{figure}
+%
+%
+%\begin{figure}[htb!]
+%\centering
+%\includegraphics[width=0.4\textwidth]{real2d3/Fig/g}
+%\caption{Real seismic profile containing complex geological structures like faults and salts. }
+%\label{fig:g}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-dipl1-0}
+%   \label{fig:g-dipl1-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-dipl11-0}
+%   \label{fig:g-dipl11-0}}\\
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-dipl2-0}
+%   \label{fig:g-dipl2-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-dipln1-0}
+%   \label{fig:g-dipln1-0}} \\
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-rect1}
+%   \label{fig:g-rect1}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-rect2}
+%   \label{fig:g-rect2}}\\
+%\caption{Slope estimation results. (a) Traditional method with smoothing radius $R=5$. (b) Traditional method with smoothing radius $R=20$. (c) Traditional method with smoothing radius $R=30$. (d) Proposed method with non-stationary regularization. \new{Non-stationary smoothing radius distribution \new{for the vertical smoothing (e) and the horizontal smoothing (f)}, which is calculated based on the a priori information from the initial slope estimation of Figure \ref{fig:g-dipl2-0}.}}
+%\label{fig:g-dipl1-0,g-dipl11-0,g-dipl2-0,g-dipln1-0,g-rect1,g-rect2}
+%\end{figure}
+%
+%%\begin{figure}[htb!]
+%%\centering
+%%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-rect1}
+%%   \label{fig:g-rect1}}
+%%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-rect2}
+%%   \label{fig:g-rect2}}\\
+%%\caption{Non-stationary smoothing radius distribution \new{for the vertical smoothing (a) and the horizontal smoothing (b)}, which is calculated based on the a priori information from the initial slope estimation of Figure \ref{fig:g-dipl2-0}.  }
+%%\label{fig:g-rect1,g-rect2}
+%%\end{figure}
+%
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm1-0}
+%   \label{fig:g-sm1-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm2-0}
+%   \label{fig:g-sm2-0}}\\
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm3-0}
+%   \label{fig:g-sm3-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm4-0}
+%   \label{fig:g-sm4-0}}
+%\caption{Structure-oriented smoothing comparison. (a) Traditional method with smoothing radius $R=5$. (b) Traditional method with smoothing radius $R=20$. (c) Traditional method with smoothing radius $R=30$. (d) Proposed method with non-stationary regularization.}
+%\label{fig:g-sm1-0,g-sm2-0,g-sm3-0,g-sm4-0}
+%\end{figure}
+%
+%\begin{figure}[ht!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm1-n-0}
+%   \label{fig:g-sm1-n-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm2-n-0}
+%   \label{fig:g-sm2-n-0}}\\
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm3-n-0}
+%   \label{fig:g-sm3-n-0}}
+%\subfloat[]{\includegraphics[width=0.23\textwidth]{real2d3/Fig/g-sm4-n-0}
+%   \label{fig:g-sm4-n-0}}
+%\caption{Removed noise comparison. (a) Traditional method with smoothing radius $R=5$. (b) Traditional method with smoothing radius $R=20$. (c) Traditional method with smoothing radius $R=30$. (d) Proposed method with non-stationary regularization.}
+%\label{fig:g-sm1-n-0,g-sm2-n-0,g-sm3-n-0,g-sm4-n-0}
+%\end{figure}
+%
+%
+%\begin{figure}[htb!]
+%\centering
+%\includegraphics[width=0.40\textwidth]{real3d/Fig/real}
+%\caption{Real seismic profile containing complex geological structure like faults and salts. }
+%\label{fig:real}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.2\textwidth]{real3d/Fig/real-s2dip1}
+%   \label{fig:real-s2dip1}}
+%\subfloat[]{\includegraphics[width=0.2\textwidth]{real3d/Fig/real-s11dip1}
+%   \label{fig:real-s11dip1}}\\
+%\subfloat[]{\includegraphics[width=0.2\textwidth]{real3d/Fig/real-s1dip1}
+%   \label{fig:real-s1dip1}}
+%\subfloat[]{\includegraphics[width=0.2\textwidth]{real3d/Fig/real-ndip1}
+%   \label{fig:real-ndip1}}   
+%\subfloat[]{\includegraphics[width=0.2\textwidth]{real3d/Fig/real-rect1}
+%   \label{fig:real-rect1}}   
+%\caption{Slope estimation results. (a) Traditional method with smoothing radius $R=2$. (b) Traditional method with smoothing radius $R=10$. (c) Traditional method with smoothing radius $R=20$. (d) Proposed method with non-stationary regularization. \new{(e) Non-stationary smoothing radius distribution.}}
+%\label{fig:real-s2dip1,real-s11dip1,real-s1dip1,real-ndip1,real-rect1}
+%\end{figure}
+%
+%%\begin{figure}[htb!]
+%%\centering
+%%\includegraphics[width=0.22\textwidth]{real3d/Fig/real-rect1}
+%%\caption{Non-stationary smoothing radius distribution. }
+%%\label{fig:real-rect1}
+%%\end{figure}
+%
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws2-0}
+%   \label{fig:real-pws2-0}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws11-0}
+%   \label{fig:real-pws11-0}}\\
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws1-0}
+%   \label{fig:real-pws1-0}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws3-0}
+%   \label{fig:real-pws3-0}}
+%\caption{Structure-oriented smoothing comparison. (a) Traditional method with smoothing radius $R=2$. (b) Traditional method with smoothing radius $R=10$. (c) Traditional method with smoothing radius $R=20$. (d) Proposed method with non-stationary regularization.}
+%\label{fig:real-pws2-0,real-pws11-0,real-pws1-0,real-pws3-0}
+%\end{figure}
+%
+%\begin{figure}[htb!]
+%\centering
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws2-n-0}
+%   \label{fig:real-pws2-n-0}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws11-n-0}
+%   \label{fig:real-pws11-n-0}}\\
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws1-n-0}
+%   \label{fig:real-pws1-n-0}}
+%\subfloat[]{\includegraphics[width=0.22\textwidth]{real3d/Fig/real-pws3-n-0}
+%   \label{fig:real-pws3-n-0}}
+%\caption{Removed noise comparison. (a) Traditional method with smoothing radius $R=2$. (b) Traditional method with smoothing radius $R=10$. (c) Traditional method with smoothing radius $R=20$. (d) Proposed method with non-stationary regularization.}
+%\label{fig:real-pws2-n-0,real-pws11-n-0,real-pws1-n-0,real-pws3-n-0}
+%\end{figure}
+%
+
+
+
+\section{Theory}
+\subsection{Dip limitation of plane-wave destruction}
+The plane-wave equation can be expressed analytically as:
+\begin{equation}
+\label{eq:pwe}
+u(t,x)=w(t-\sigma x),
+\end{equation}
+where $u(t,x)$ denotes the plane-wave wavefield at location $(t,x)$. $w(t)$ denotes the wavelet. $\sigma$ is the local slope. The plane-wave equation in the frequency domain takes the form as
+\begin{equation}
+\label{eq:pwe2}
+U(f,x)=W(f)e^{i2\pi f\sigma x},
+\end{equation}
+where $U(f,x)$ and $W(f)$ denote the spectrum of the wavefield and source wavelet, respectively. 
+
+Equation \ref{eq:pwe2} indicates that the plane waves can be predicted via the following phase-shift relation:
+\new{\begin{equation}
+\label{eq:pwe3}
+U(f,x+\Delta x)=U(f,x)e^{i2\pi f\Delta x\sigma},
+\end{equation}}
+\new{where $\Delta x$ denotes the space interval.}
+
+In the Z-transform domain, equation \ref{eq:pwe3} is equivalent to 
+ \begin{equation}
+\label{eq:pwe4}
+U(Z_t,Z_x)(1-Z_t^{-\sigma}Z_x) = 0.
+\end{equation}
+To estimate the local slope $\sigma$ from the plane-wave equation, one needs to design a digital filter to approximate $Z_t^{-\sigma}$. \cite{pwd} used an all-pass (or maxflat fractional delay) filter to approximate the phase-shift operator:
+ \begin{equation}
+\label{eq:pwe5}
+Z_t^{-\sigma} = \frac{A(Z_t)}{A(1/Z_t)}. 
+\end{equation}
+With a different order of accuracy, $A(Z_t)$ has the following form
+
+\begin{equation}
+\label{eq:3order}
+Z_t^{-\sigma} \approx \frac{(1-\sigma)(2-\sigma)}{12} Z_t^{-1} + \frac{(2+\sigma)(2-\sigma)}{6} +  \frac{(1+\sigma)(2+\sigma)}{12} Z_t, 
+\end{equation}
+or
+\begin{equation}
+\label{eq:5order}
+\begin{split}
+Z_t^{-\sigma} \approx &\frac{(1-\sigma)(2-\sigma)(3-\sigma)(4-\sigma)}{1680} Z_t^{-2} + \\
+&\frac{(4-\sigma)(2-\sigma)(3-\sigma)(4+\sigma)}{420} Z_t^{-1}+ \\
+&\frac{(4-\sigma)(3-\sigma)(3+\sigma)(4+\sigma)}{280} + \\
+&\frac{(4-\sigma)(2+\sigma)(3+\sigma)(4+\sigma)}{420} Z_t + \\
+&\frac{(1+\sigma)(2+\sigma)(3+\sigma)(4+\sigma)}{1680} Z_t^{2}. 
+\end{split}
+\end{equation}
+The third-order approximation in equation \ref{eq:3order} or the fifth-order approximation in equation \ref{eq:5order} is accurate only for small slopes. The approximation accuracy is very low for large slopes. Thus, the traditional PWD method suffers from the aliasing issue for large seismic slopes.
+\subsection{Large dip calculation}
+To solve the dip limitation issue of the traditional PWD method, the single phase-shift approximation is replaced by the double phase-shift approximation:
+ \begin{equation}
+\label{eq:pwe44}
+U(Z_t,Z_x)(1-Z_t^{-\sigma_t}Z_x^{-\sigma_x}) = 0,
+\end{equation}
+where $\sigma_t$ and $\sigma_x$ denote the local slopes in the $t$ and $x$ directions, respectively. The PWD method based on the double phase-shift approximation strategy is called as the OPWD algorithm. The phase-shift approximations in both $t$ and $x$ directions take the same form as that in the traditional PWD method:
+\begin{equation}
+\label{eq:pwe55}
+\begin{split}
+Z_t^{-\sigma_t} &= \frac{A(Z_t)}{A(1/Z_t)},\\
+Z_x^{-\sigma_x} &= \frac{A(Z_x)}{A(1/Z_x)}. 
+\end{split}
+\end{equation}
+Inserting equation \ref{eq:pwe55} into equation \ref{eq:pwe44}, we obtain
+ \begin{equation}
+\label{eq:pwe442}
+U(Z_t,Z_x)(1-\frac{A(Z_t)}{A(1/Z_t)}\frac{A(Z_x)}{A(1/Z_x)}) = 0,
+\end{equation}
+which can be further simplified as
+ \begin{equation}
+\label{eq:pwe442}
+U(Z_t,Z_x)(A(1/Z_t)A(1/Z_x)-A(Z_t)A(Z_x)) = 0.
+\end{equation}
+Let $H(\sigma_t,\sigma_x)=A(1/Z_t)A(1/Z_x)-A(Z_t)A(Z_x)$, the target of the large dip calculation becomes
+ \begin{equation}
+\label{eq:pwe443}
+H(\sigma_t,\sigma_x)U= 0,
+\end{equation}
+where $\sigma_t^2+\sigma_x^2=1$.
+
+\subsection{Dip pre-conditioned inversion}
+Instead of calculating $\sigma_t$ and $\sigma_x$ directly, the inverse problem can be better solved by pre-conditioning $\sigma_t$ and $\sigma_x$ via the dip angle $\theta$:
+ \begin{equation}
+\label{eq:pwe444}
+H(\sigma_t(\theta),\sigma_x(\theta))U= 0,
+\end{equation}
+where $\sigma_t(\theta)=\sin(\theta)$ and $\sigma_x(\theta)=\cos(\theta)$. 
+
+Note that range of $\sigma_t$ is $\sigma_t\in[-\infty,+\infty]$, but the range of $\theta$ is $\theta\in[-90,+90]$, so equation \ref{eq:pwe444} is better pre-conditioned.
+
+The non-linear inverse problem in Equation \ref{eq:pwe444} can be solved via the Gauss-Newton method. 
+First, equation \ref{eq:pwe444} needs to be linearized as follows:
+ \begin{equation}
+\label{eq:pwe445}
+H(\sigma_t(\theta_0),\sigma_x(\theta_0))U \approx \frac{\partial H}{\partial \sigma_t}U\sigma_t'(\theta_0)\Delta \theta + \frac{\partial H}{\partial \sigma_x}U\sigma_x'(\theta_0)\Delta \theta.
+\end{equation}
+Inserting equations $\sigma_t(\theta)=\sin(\theta)$ and $\sigma_x(\theta)=\cos(\theta)$ into \ref{eq:pwe445}, we obtain
+\begin{equation}
+\label{eq:pwe446}
+H(\sigma_t(\theta_0),\sigma_x(\theta_0))U \approx \frac{\partial H}{\partial \sigma_t}U\cos(\theta_0)\Delta \theta - \frac{\partial H}{\partial \sigma_x}U\sin(\theta_0)\Delta \theta.
+\end{equation}
+$\theta_0$ in equations \ref{eq:pwe445} and \ref{eq:pwe446} denotes a fixed dip angle. $\Delta \theta$ denotes the dip angle perturbation during the linear inversion. 
+
+Secondly, the final local dip angle field is obtained via the non-linear iteration:
+\begin{equation}
+\label{eq:niter}
+\theta_{n+1} = \theta_{n} + \Delta \theta. 
+\end{equation}
+
+
+
+
+\subsection{Non-stationary regularization}
+Equation \ref{eq:pwe446} can be formulated as a matrix-vector linear inverse problem as
+\begin{equation}
+\label{eq:inv}
+\mathbf{H}\Delta \boldsymbol{\theta}=\mathbf{u},
+\end{equation}
+where $\Delta \boldsymbol{\theta}$ denotes the vector form of the dip angle perturbation $\Delta \theta$, $\mathbf{H}$ is constructed from $\frac{\partial H}{\partial \sigma_t}U\cos(\theta_0) - \frac{\partial H}{\partial \sigma_x}U\sin(\theta_0)$, and $\mathbf{u}$ corresponds to $H(\sigma_t(\theta_0),\sigma_x(\theta_0))U$. It is worth noting that the forward operator $\mathbf{H}$ is a diagonal matrix. Thus, the nulls in the diagonal of $\mathbf{H}$ greatly affect the stability when solving equation \ref{eq:inv}. The traditional PWD method \cite{pwd} uses the shaping regularization method to solve equation \ref{eq:inv}:
+\begin{equation}
+\label{eq:inv}
+\Delta \boldsymbol{\theta}_{n+1} = \mathbf{S}[\Delta \boldsymbol{\theta}+\mathbf{H}^T(\mathbf{u}-\mathbf{H}\Delta \boldsymbol{\theta}_n)],
+\end{equation}
+where $\mathbf{S}$ denotes a smoothing operator, used to contrain the slope update $\Delta \boldsymbol{\theta}$. Because of the singularity of the diagonal matrix $\mathbf{H}$, especially in the areas corresponding to the large dip angles, we need to use a strong smoothing (e.g., with a large smoothing radius) to ensure the stability. However, a strong smoothing will deteriorate the resolution of the estimated dip angle field. Here, we propose to apply a spatially non-stationary smoothing to constrain the linear inversion.  Considering that the Z-transform of a rectangle smoothing operator can be expressed as:
+\begin{equation}
+\label{eq:rec}
+B(Z)=1+Z+Z^2+\cdots+Z^N = \frac{1-Z^N}{1-Z},
+\end{equation}
+the non-stationary smoothing can be implemented conveniently following equation \ref{eq:rec}, where the Z-transform of the smoothing filter is a function of smoothing radius $N$. The right side of equation \ref{eq:rec} can be understood as two independent steps, i.e., a simple recursion corresponding to $1-Z^N$ and a causal integration corresponding to $1/(1-Z)$. 
+
+To balance the stability requiring a large smoothing radius and the resolution requiring a small smoothing radius, we propose to design the non-stationary smoothing radius as a large value for large dip angle areas and as a small value for small dip angle areas. In this way, we can best compromise the inversion stability and resolution of the dip estimation result.
+
+
+
+\section{Synthetic example}
+We first apply the proposed method onto a synthetic seismic shot gather. The simple shot gather is plotted in Figure \ref{fig:hyper}. There are four hyperbolic events in this shot gather. Because of the large dips on the left and right sides of the shot gather, the traditional PWD algorithm cannot obtain a robust performance when a small smoothing radius is used. For example, when the smoothing radius $R=5$ (as shown in Figure \ref{fig:hyper-dipl0-0}), there are strong aliasing effects on the left and right sides of the data. When we increase the smoothing radius to $R=10$ (as shown in Figure \ref{fig:hyper-dipl1-0}), the aliasing effect becomes less serious, but the right flank of the first hyperbolic event still shows obvious aliasing and instability. In the traditional PWD method, only when increasing the smoothing radius to $R=15$ (as shown in Figure \ref{fig:hyper-dipl2-0}), the aliasing and unstable performance does not show up. However, as the smoothing radius increases, the resolution of the estimated slope map becomes lower. When $R=15$, although there is no stability issue, the resolution becomes unsatisfactory. Using the proposed robust PWD method, we obtain a high-resolution and stable slope estimation, as presented in Figure \ref{fig:hyper-dipln2-0}. The non-stationary smoothing radius used to regularize slope estimation is plotted in Figure \ref{fig:rect111}. This non-stationary smoothing radius map is calculated using the initial slope estimation with a relatively large smoothing radius $R=15$, based on the criterion that a higher slope value corresponds to a larger smoothing radius. As can be seen from Figure \ref{fig:rect111}, the smoothing radius varies from the minimum one point to the maximum 15 points. \new{Here, we consider the vertical and horizontal dimensions as the same length, so we do not use distinct radius value for the two directions. However, in practice, the size of the two dimensions may vary greatly. In that case, the smoothing radius should be adjusted correspondingly to match the relative size of different dimensions. }
+
+%\section{Discussions}
+
+
+\section{Real data applications}
+To demonstrate the effectiveness of the proposed robust PWD method to slope-based applications, we use several real seismic data to show the performance of different applications, including automatic tracking, 2D and 3D seismic structural filterings.  
+
+We first apply the proposed method to a real seismic profile to demonstrate its application in automatic seismic event picking. The event picking is a necessary step in seismic interpretation. Traditionally, the event picking is done manually, which is time consuming and tedious. An automatic event picking method was proposed in Fomel (2010) \cite{fomel2010painting}, where the local slope of seismic data is first calculated and then used to predict the picking trajectory of the seismic events based on a reference trace. In the automatic event picking method, the seismic slope is the most important factor that affects the picking performance. The real seismic profile is plotted in Figure \ref{fig:r-data}, which contains several typical geological structures like faults, salts, and buried hills. Picking the events from this data is challenging because of the complicated structures. Due to the large dip of the faults and steeply dipping salt flanks, the traditional PWD method is not stable when using a relatively small smoothing radius. The seismic slopes estimated using different smoothing radii are plotted in Figure \ref{fig:r-dipl1-0,r-dipl11-0,r-dipl2-0,r-dipln1-0,r-rect1}. It is clear that when the constant smoothing radius $R=10$, there exists serious stability issues, as pointed out by the labeled arrow. The stability issue exists mostly on the steeper salt flank that is more aliasing. When increasing the smoothing radius  $R=20$, the stability issues becomes less serious, but it still suffers from the instability, as indicated by the arrow. When we increase the smoothing radius to $R=30$, the instability disappears, but the resolution of the slope map is seriously deteriorated.  The lower resolution of the local slope map will decrease the automatic event picker's ability to correctly track the seismic events in small-scale features. The proposed method, however, obtains a stable and high-resolution slope estimation result. The non-stationary smoothing radius is plotted in Figure \ref{fig:r-rect1}. From the scalebar of the smoothing radius map, it is clear that the smoothing radius varies from the minimum 10 points to the maximum 30 points. The large smoothing radius is mostly around the two flanks of the salt body, and the faults. We apply the automatic  event picking method \cite{fomel2010painting} to the seismic profile based on the estimated slope maps in Figure \ref{fig:r-dipl1-0,r-dipl11-0,r-dipl2-0,r-dipln1-0,r-rect1}, and obtain different event picking results shown in Figure \ref{fig:pick-r-dipl1-0,pick-r-dipl11-0,pick-r-dipl2-0,pick-r-dipln1-0}. The colorful curves in Figure \ref{fig:pick-r-dipl1-0,pick-r-dipl11-0,pick-r-dipl2-0,pick-r-dipln1-0} denote the automatically tracked seismic events. Note that the \old{resulted}\new{resulting} slopes contain ultra-high values because of the instability when estimating the local slopes shown in Figures \ref{fig:r-dipl1-0} and \ref{fig:r-dipl11-0}, which makes the automatic event picking method \cite{fomel2010painting} completely fail in Figures \ref{fig:pick-r-dipl1-0} and \ref{fig:pick-r-dipl11-0}. Figures \ref{fig:pick-r-dipl2-0} and \ref{fig:pick-r-dipln1-0}, however, show reasonable event tracking results. \new{In this example, as a quantitative comparison, the slopes shown in Figures \ref{fig:r-dipl1-0} and \ref{fig:r-dipl11-0} help pick zero events. The slopes shown in Figures \ref{fig:r-dipl2-0} and \ref{fig:r-dipln1-0} however help to pick 15 events.} To compare the event picking in detail, we magnify two areas in Figures \ref{fig:pick-r-dipl2-0} and \ref{fig:pick-r-dipln1-0}, and show the zoomed results in Figure \ref{fig:pick-r-dipl2-win1,pick-r-dipln1-win1}. It is clear that the event tracking result in Figure \ref{fig:pick-r-dipln1-win1} is more consistent with the actual seismic event and thus more accurate. This indicates that the proposed method helps obtain better event picking performance because of the higher resolution of the estimated slope map. 
+
+Then, we apply the proposed method to 2D structural filtering problem. The structural filtering method uses the local slope field to create a flattened dimension where a simple smoothing operator can be directly applied to remove the noise and make the seismic events more spatially coherent. The details of the structural filtering algorithm are introduced in \cite{liuyang2010}. The 2D real seismic data is plotted in Figure \ref{fig:g}. There are some steeply dipping events in the deep part of this profile. We first calculate different slope maps based on different smoothing options. 
+The slope map using a small smoothing radius $R=10$ is plotted in Figure \ref{fig:g-dipl1-0}, where strong aliasing effect issues exist. An area of instability is indicated by the labeled arrow. Increasing the smoothing radius to $R=20$ (as shown in Figure \ref{fig:g-dipl11-0}) mitigates the effect but cannot solve the problem completely. The remaining instability effect is highlighted by the arrow. Increasing the smoothing radius further to $R=30$ will suffer from the instability issue, as indicated by the arrow in Figure \ref{fig:g-dipl2-0}. The proposed robust PWD method, however, solves this problem and make the slope estimation stable. In addition, it does not compromise the resolution of the slope map and maintains a comparable resolution as that of Figure \ref{fig:g-dipl1-0}. The \new{vertical} smoothing radius of this example is plotted in Figure \ref{fig:g-rect1}, where we can see clearly that the bottom half of the seismic profile is taken as the large-dip object and is assigned a large smoothing radius $R=35$, the other areas are mosty assigned a smaller radius $R=5$. \new{The horizontal smoothing radius of this example is plotted in Figure \ref{fig:g-rect2}. As we can see, the horizontal smoothing radius varies from 6 to 10 samples, which explains the higher resolution in Figure \ref{fig:g-dipln1-0} than \ref{fig:g-dipl2-0}. However, using small constant smoothing radius like 6 or 10 samples for Figure \ref{fig:g-dipl2-0}, the instability will be more serious.} The structural filtering results using these slope maps are plotted in Figure \ref{fig:g-sm1-0,g-sm2-0,g-sm3-0,g-sm4-0}. Figure \ref{fig:g-sm1-0} shows three distinct black traces, indicating the instability of the structural filtering due to the ultra high value of the slope estimation result in Figure \ref{fig:g-dipl1-0}. Figures \ref{fig:g-sm2-0}-\ref{fig:g-sm4-0} are more acceptable, but Figures \ref{fig:g-sm2-0}-\ref{fig:g-sm3-0} contain more or less distortion of the seismic events due to the over smoothing. It is clearer to compare the removed noise profiles presented in Figure \ref{fig:g-sm1-n-0,g-sm2-n-0,g-sm3-n-0,g-sm4-n-0}. From the noise comparison, it becomes clear that both Figures \ref{fig:g-sm2-n-0} and \ref{fig:g-sm3-n-0} show strong signal leakages \cite{yangkang2015ortho} in areas with a large dip. The noise of the proposed method, seems to be more random and contains negligible signal leakage. This example shows that although a larger smoothing radius will help mitigate the instability issue, the resulted low resolution will make the structural filtering result suffer from more serious signal leakage. 
+
+
+Finally, we apply the proposed method to a 3D structural filtering example. The 3D dataset is plotted in Figure \ref{fig:real}, which contains complicated structures. The principle of the 3D structural filtering is same as the 2D filtering. They differ in that the 3D structural filtering predicts the traces from both inline and cross line sections while the 2D structural filtering predicts the traces only from a 2D section. The estimated inline slope cubes using different smoothing radius options are plotted in Figure \new{\ref{fig:real-s2dip1,real-s11dip1,real-s1dip1,real-ndip1,real-rect1}}. Because of the small radius, the slope estimation is highly unstable. Figure \ref{fig:real-s2dip1} shows the result based on a small constant smoothing radius $R=2$. Figures \ref{fig:real-s11dip1} and \ref{fig:real-s1dip1} show the results corresponding to $R=10$ and $R=20$, respectively. 
+As the smoothing radius increases, the slope estimation becomes more stable but has lower resolution. The proposed method, however, obtains a better compromise in resolution and stability. The resulted well-behaved slope result is plotted in Figure \ref{fig:real-ndip1}. We use a non-stationary smoothing radius cube as plotted in Figure \ref{fig:real-rect1}, which varies from the smallest two points to the largest 20 points. Figure \ref{fig:real-pws2-0,real-pws11-0,real-pws1-0,real-pws3-0} plots the structural filtering results using different slopes. As indicated by the arrows, as the smoothing radius increases, more noise is removed but more signals are damaged. The proposed method helps better compromise the noise removal and signal preservation, and obtains a good filtering result in Figure \ref{fig:real-pws3-0}. The removed noise cubes using different smoothing radii are plotted in Figure \ref{fig:real-pws2-n-0,real-pws11-n-0,real-pws1-n-0,real-pws3-n-0} to show a clearer comparison. It is obvious that the noise level in Figure \ref{fig:real-pws2-n-0} is a little weaker. As indicated by the arrows, all Figures \ref{fig:real-pws2-n-0}-\ref{fig:real-pws1-n-0} contain more or less signal leakage, showing some spatially coherent energy. The proposed method, however, removes a significant amount of noise without causing observable signal leakage. 
+
+
+\section{Discussion}
+\new{Local dip estimation plays a crucial role in many geophysical applications when structural a priori information is needed. Due to the non-negligible error of the maxflat fractional delay filter in approximating the phase-shift operator, the traditional plane-wave destruction (PWD) algorithm fails when the dip becomes very large. The omnidirectional plane-wave destruction (OPWD) algorithm can estimate the large dip by using a circle-interpolating PWD filter but at the cost of causing potential instabilities. The instabilities can be mitigated by increasing the smoothing radius, which however will significantly decrease the resolution of the resulting slope.  So, there is an obvious contradiction between the resolution and instability. The new method is used to overcome this contradiction by designing non-stationary smoothing to constrain the slope.}
+
+\new{The advantage of the adaptively smoothing approach is that it can use adaptive smoothing strength to adapt to the structural complexity thus is able to overcome the contradiction between resolution and stability. The disadvantage is that it may require some effort to design an appropriate spatial distribution of smoothing radius. However, the proposed method is better or equal to the traditional method, because the worst case of the proposed method will be equal to the traditional method (e.g., when the radius is spatially constant). One way to adjust the smoothing radius is completely based on the initial slope estimation. For example, we can define a threshold of slope values, above which we use a larger radius and under which we use a smaller radius. Another way is based on the instability effect in the initial slope estimation results. For example, for areas showing strong instability, we use a large smoothing radius.}
+
+\new{The computational cost of the proposed method is almost equivalent to the traditional method. The difference between the two methods lays in the regularization step when inverting the slope map. In the new method, a non-stationary smoothing is applied instead of a constant-radius smoothing. In both traditional and new methods, we apply an efficient smoothing algorithm following equation \ref{eq:rec}. This smoothing method has been used extensively in the seismic community, e.g., recently by \cite{orthon2021}. Equation \ref{eq:rec} corresponds to a recursion formula in the time domain, which is a function of the smoothing radius $N$. So, implementing the stationary and non-stationary smoothing radius almost has no difference in the computational cost.}
+
+
+\section{Conclusions}
+The traditional PWD algorithm is not able to accurately estimate the large dips (e.g., slope larger than one) in the seismic section because of the phase-wrapping effect of the maxflat fractional delay filter. The OPWD algorithm could solve this problem by substituting the linear interpolation strategy with the circle interpolation scheme in the plane-wave construction filter. The OPWD algorithm, however, is less stable than the PWD algorithm since it tends to create extremely high values in the estimated local dip maps. To stabilize the inversion when calculating the local slope, a very large smoothing radius needs to be used, which however results in a low resolution and reversely decreases the accuracy of large dip estimation. The contradiction between stability and resolution makes the OPWD algorithm not differ from the traditional PWD algorithm too much. The non-stationary smoothness constrained slope estimation, however, only sacrifices the resolution of those areas that are easy to cause stability but preserves the accuracy and high resolution of other areas. Several examples have shown that the new PWD algorithm is able to estimate large dips with a high-resolution performance. Furthermore, the proposed method has a profound influence on a variety of seismic interpretation and processing applications.
+
+
+\section{Acknowledgements}
+The research in this article is partially supported by the National Natural Science Foundation of China (grant no. 41804140) and the Open Fund of Key Laboratory of Exploration Technologies for Oil and Gas Resources (Yangtze University), Ministry of Education (grant no. PI2018-02).
+
+
+\bibliographystyle{seg}
+\bibliography{dip}
+
