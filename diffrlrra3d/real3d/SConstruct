@@ -849,9 +849,9 @@ Result('pwd-dpi-ts','pwd-dpi_ts','grey wanttitle=n transp=n yreverse=n screenrat
 
 
 Flow('b-pwd-rimag','refl-image-ts','cp')
-Flow('b-pwd-imag','pwd-dpi-ts','cp')
-Flow('b-lrr-imag','lr-dpi-ts','cp')
-Flow('b-lrra-imag','lra-dpi-ts','cp')
+Flow('b-pwd-imag','pwd-dpi_ts','cp')
+Flow('b-lrr-imag','lr-dpi_ts','cp')
+Flow('b-lrra-imag','lra-dpi_ts','cp')
 
 
 Greyb('b','title="3D field data"')
