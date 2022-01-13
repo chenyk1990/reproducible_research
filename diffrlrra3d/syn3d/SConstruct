@@ -5,72 +5,12 @@ import sys
 # sys.path.append('../barrolka/')
 # import velcon3d
 
-proj = Project()
-prog = proj.Program('rtm3d.c')
-prog2 = proj.Program('rtm3d2.c')
-
-def Grey(data,other):
-    Result(data,'''
-    window |grey
-    label1=Time unit1=s color=g label2=Distance unit2=km clip=0.3 wanttitle=n title= screenratio=1.0 
-    %s ''' % (other))
-
 def Grey3(data,clip,other):
     Result(data,'''
     window |byte clip=%g| grey3 flat=n frame1=100 frame2=20 frame3=20
     label1=Time unit1=s color=g label2=Inline unit2=km label3=Crossline unit3=km clip=0.3 wanttitle=y title= screenratio=1.0 point1=0.7 point2=0.6 label
     %s ''' % (clip,other))
  
-def Greyi(data,clip,other):
-    Result(data,'''
-    threshold2 pclip=2|window |byte clip=%g | grey3 flat=n frame1=50 frame2=50 frame3=50
-    label1=Time unit1=s color=g label2=Distance unit2=km clip=0.3 wanttitle=n title= screenratio=1.0 
-    %s ''' % (clip,other))
-    
-def Greyii(data,datain,clip,other):
-    Result(data,datain,'''
-    threshold2 pclip=2|window |byte clip=%g | grey3 flat=n frame1=50 frame2=50 frame3=50
-    label1=Time unit1=s color=g label2=Distance unit2=km clip=0.3 wanttitle=n title= screenratio=1.0 
-    %s ''' % (clip,other))
-    
-## plot one image from the image sets
-def Greyis(data,datain,i2,clip,other):
-    Result(data,datain,'''
-    threshold2 pclip=2|window n2=1 f2=%d|byte clip=%g | grey3 flat=n frame1=50 frame2=50 frame3=50
-    label1=Time unit1=s color=g label2=Distance unit2=km clip=0.3 wanttitle=n title= screenratio=1.0 
-    %s ''' % (i2,clip,other))
-       
-def Grey4(data,other):
-    Result(data,'''
-    window |byte clip=10| window max1=1.0| grey3 flat=n frame1=100 frame2=100 frame3=100
-    label1=Time unit1=s color=g label2=Distance unit2=km clip=0.3 wanttitle=n title= screenratio=1.0 
-    %s ''' % (other))
-
-def Greyv(data,other):
-    Result(data,'''
-    window |byte allpos=y bias=1.0 clip=1.2 bar=bar.rsf| grey3 flat=n frame1=20 frame2=20 frame3=20
-    label1=Time unit1=s color=g label2=Distance unit2=km clip=0.3 wanttitle=n title= screenratio=1.0 
-    scalebar=y %s ''' % (other))
-     
-## The simplest 3D
-Flow('r2',None,'spike n1=101 n2=101 n3=101 d1=0.01 d2=0.01 d3=0.01 o1=0 o2=0 o3=0| window n1=1 | math output=0.15')
-Flow('a2','r2','math output=100|cut n1=50 | cut f1=51|cut n2=50 | cut f2=51')
-# Flow('a2','r2','math output=100|cut n1=10 | cut f1=11|cut n2=10 | cut f2=11')
-
-Flow('diffr2','r2 a2',
-     '''
-     	 kirmod3 nt=400 dt=0.002 freq=20 refl=${SOURCES[1]}
-         nhx=1 h0x=0 dhx=0.05
-         nhy=1 h0y=0 dhy=0.05 
-         s0x=0 dsx=0.01 nsx=101 
-         s0y=0 dsy=0.01 nsy=101 
-         vel=2 gradz=1 type=v verb=n
-     ''')
-Grey3('diffr2',1,'')
-
-Flow('diffr','diffr2','window|window n2=100 n3=100 n1=400')
-
-
 ## The more complicated 3D
 #r3,a3: reflectors in 3D
 Flow('r3',None,'spike n1=201 n2=201 n3=201 d1=0.01 d2=0.01 d3=0.01 o1=0 o2=0 o3=0| window n1=5 j1=10| math output="(0.5*x2+0.5*x3)*x1 + 0.2" | transp plane=12 | transp plane=23')
@@ -82,7 +22,7 @@ Flow('a3','r3','math output=100|math output="input*(1-(x1-1)*(x1-1))*(1-(x2-1)*(
 Result('a3-0','a3','window n3=1 f3=0|grey pclip=100 title="First layer of diffractors" scalebar=y')
 Result('a3-1','a3','window n3=1 f3=1|grey pclip=100 title="First layer of diffractors" scalebar=y')
 
-## the following works
+## Generating reflections
 Flow('diffr3','r3 a3',
      '''
      	 kirmod3 nt=500 dt=0.004 freq=20 refl=${SOURCES[1]}
@@ -94,13 +34,12 @@ Flow('diffr3','r3 a3',
      ''')
 
 
-Flow('refl','diffr3','window|window j2=2 j3=2 | window n1=400|math output="input*0.4" | window n2=100 n3=100 n1=400')
-Grey3('refl',1,'')
-Grey3('diffr',1,'')
+Flow('refll','diffr3','window|window j2=2 j3=2 | window n1=400|math output="input*0.4" | window n2=100 n3=100 n1=400')
+Grey3('refll',1,'')
 
 Flow('syn3d','diffr refl','add scale=1,1 ${SOURCES[1]}')
 Grey3('syn3d',1,'')
-     
+
 ########################################################################
 # INITIALIZATION
 ########################################################################
@@ -168,7 +107,7 @@ Flow('aa2','aa2-1 aa2-2 aa2-3 aa2-4 aa2-11 aa2-22 aa2-33 aa2-44 aa2-111 aa2-222 
 
 # Flow('a2','r2','math output=100|cut n1=10 | cut f1=11|cut n2=10 | cut f2=11')
 
-Flow('diffr22','rr2 aa2',
+Flow('diffr2','rr2 aa2',
      '''
      	 kirmod3 nt=400 dt=0.002 freq=80 refl=${SOURCES[1]}
          nhx=1 h0x=0 dhx=0.05
@@ -177,32 +116,26 @@ Flow('diffr22','rr2 aa2',
          s0y=0 dsy=0.01 nsy=101 
          vel=2 gradz=1 type=v verb=n
      ''')
-Grey3('diffr22',1,'')
+Grey3('diffr2',1,'')
 
-Flow('diffrr','diffr22','window|window n2=100 n3=100 n1=200 --out=stdout')
-Flow('refll','refl','window|window n2=100 n3=100 n1=200 --out=stdout')
-Flow('syn3d2','refll diffrr','add scale=1,1 ${SOURCES[1]} --out=stdout')
-# Grey3('diffrr',2,'') 	## This is the correct version
-# Grey3('refll',2,'') 	## This is the correct version
-# Grey3('syn3d2',2,'')	## This is the correct version
+Flow('diffr','diffr2','window|window n2=100 n3=100 n1=200 --out=stdout')
+Flow('refl','refll','window|window n2=100 n3=100 n1=200 --out=stdout')
+Flow('syn','refl diffr','add scale=1,1 ${SOURCES[1]} --out=stdout')
 
 ### PWD
-Flow('slope','syn3d2',
+Flow('slope','syn',
      '''
      dip rect1=20 rect2=20 rect3=20 order=2 verb=y
      ''')
 #spray radii
 ns2=2
 ns3=2
-Flow('s-pwd','syn3d2 slope',
+Flow('s-pwd','syn slope',
      '''
      pwspray2 ns2=%d ns3=%d dip=${SOURCES[1]} order=2 verb=y eps=0.1|
      stack axis=2
      '''% (ns2,ns3))
-Flow('s-pwd-nn','syn3d2 s-pwd','add scale=1,-1 ${SOURCES[1]}')
-Flow('s-pwd-n','s-pwd-nn','cp')
-# Grey3('s-pwd',2,'')
-# Grey3('s-pwd-nn',2,'') ## This is the correct version
+Flow('s-pwd-n','syn s-pwd','add scale=1,-1 ${SOURCES[1]}')
 
 n1=200
 n2=100
@@ -274,15 +207,15 @@ put='n1=%d n2=%d n3=%d d1=%g d2=%g d3=%g o1=%g o2=%g o3=%g'%(n1,n2,n3,d1,d2,d3,o
 ############################################################
 ## LRR
 ############################################################
-Flow('s-lrr0 s-lrra0',[os.path.join(matROOT,matfun+'.m'),'s-pwd-nn','diffrr','refll'],
+Flow('s-lrr0 s-lrra0',[os.path.join(matROOT,matfun+'.m'),'s-pwd-n','diffr','refl'],
      '''MATLABPATH=%(matlabpath)s %(matlab)s 
      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${SOURCES[3]}','${TARGETS[0]}','${TARGETS[1]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(lf)g,%(hf)g,%(N)d,%(N2)d,%(NN)d,%(n1win)d,%(n2win)d,%(n3win)d,%(r1)g,%(r2)g,%(r3)g,%(ifdamp)d,%(verb)d);quit"
      '''%vars(),stdin=0,stdout=-1)
 
 Flow('s-lrr','s-lrr0','put %s'%put)
 Flow('s-lrra','s-lrra0','put %s'%put)
-Flow('s-lrr-n','syn3d2 s-lrr','add scale=1,-1 ${SOURCES[1]}')
-Flow('s-lrra-n','syn3d2 s-lrra','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-lrr-n','syn s-lrr','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-lrra-n','syn s-lrra','add scale=1,-1 ${SOURCES[1]}')
 
 ############################################################
 ## GRR
@@ -292,15 +225,15 @@ n2win=100
 n3win=100
 N=100
 N2=100
-Flow('s-grr0 s-grra0',[os.path.join(matROOT,matfun+'.m'),'s-pwd-nn','diffrr','refll'],
+Flow('s-grr0 s-grra0',[os.path.join(matROOT,matfun+'.m'),'s-pwd-n','diffrr','refll'],
      '''MATLABPATH=%(matlabpath)s %(matlab)s 
      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${SOURCES[3]}','${TARGETS[0]}','${TARGETS[1]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(lf)g,%(hf)g,%(N)d,%(N2)d,%(NN)d,%(n1win)d,%(n2win)d,%(n3win)d,%(r1)g,%(r2)g,%(r3)g,%(ifdamp)d,%(verb)d);quit"
      '''%vars(),stdin=0,stdout=-1)
 
 Flow('s-grr','s-grr0','put %s'%put)
 Flow('s-grra','s-grra0','put %s'%put)
-Flow('s-grr-n','syn3d2 s-grr','add scale=1,-1 ${SOURCES[1]}')
-Flow('s-grra-n','syn3d2 s-grra','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-grr-n','syn s-grr','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-grra-n','syn s-grra','add scale=1,-1 ${SOURCES[1]}')
 
 # 
 # n1win=200
@@ -319,14 +252,14 @@ Flow('s-grra-n','syn3d2 s-grra','add scale=1,-1 ${SOURCES[1]}')
 # 	  N=80+i*20
 # 	
 # 	N2=N
-# # 	Flow([sgrr0,sgrra0],[os.path.join(matROOT,matfun+'.m'),'s-pwd-nn','diffrr','refll'],
+# # 	Flow([sgrr0,sgrra0],[os.path.join(matROOT,matfun+'.m'),'s-pwd-n','diffr','refl'],
 # #      '''MATLABPATH=%(matlabpath)s %(matlab)s 
 # #      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${SOURCES[3]}','${TARGETS[0]}','${TARGETS[1]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(lf)g,%(hf)g,%(N)d,%(N2)d,%(NN)d,%(n1win)d,%(n2win)d,%(n3win)d,%(r1)g,%(r2)g,%(r3)g,%(ifdamp)d,%(verb)d);quit"
 # #      '''%vars(),stdin=0,stdout=-1)
 # 	Flow(sgrr,sgrr0,'put %s'%put)
 # 	Flow(sgrra,sgrra0,'put %s'%put)
-# 	Flow(sgrrn,['syn3d2',sgrr],'add scale=1,-1 ${SOURCES[1]}')
-# 	Flow(sgrran,['syn3d2',sgrra],'add scale=1,-1 ${SOURCES[1]}')
+# 	Flow(sgrrn,['syn',sgrr],'add scale=1,-1 ${SOURCES[1]}')
+# 	Flow(sgrran,['syn',sgrra],'add scale=1,-1 ${SOURCES[1]}')
 # 
 # 	Grey3(sgrr,2,'')
 # 	Grey3(sgrra,2,'')
@@ -339,9 +272,9 @@ Flow('s-grra-n','syn3d2 s-grra','add scale=1,-1 ${SOURCES[1]}')
 
 
 
-Grey3('refll',2,'title=Reflections')
-Grey3('diffrr',2,'title=Diffractions')
-Grey3('syn3d2',2,'title="Synthetic data"')
+Grey3('refl',2,'title=Reflections')
+Grey3('diffr',2,'title=Diffractions')
+Grey3('syn',2,'title="Synthetic data"')
  
 Grey3('s-pwd',2,'title="PWD"')
 Grey3('s-grr',2,'title="GRR"')
