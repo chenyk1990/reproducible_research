@@ -33,7 +33,7 @@ Flow('diffr3','r3 a3',
          vel=2 gradz=1 type=v verb=n
      ''')
 
-
+# Larger version of reflection (refl)
 Flow('refll','diffr3','window|window j2=2 j3=2 | window n1=400|math output="input*0.4" | window n2=100 n3=100 n1=400')
 Grey3('refll',1,'')
 
@@ -225,7 +225,7 @@ n2win=100
 n3win=100
 N=100
 N2=100
-Flow('s-grr0 s-grra0',[os.path.join(matROOT,matfun+'.m'),'s-pwd-n','diffrr','refll'],
+Flow('s-grr0 s-grra0',[os.path.join(matROOT,matfun+'.m'),'s-pwd-n','diffr','refl'],
      '''MATLABPATH=%(matlabpath)s %(matlab)s 
      -nosplash -nojvm -r "addpath %(matROOT)s;%(matfun)s('${SOURCES[1]}','${SOURCES[2]}','${SOURCES[3]}','${TARGETS[0]}','${TARGETS[1]}',%(n1)d,%(n2)d,%(n3)d,%(d1)g,%(lf)g,%(hf)g,%(N)d,%(N2)d,%(NN)d,%(n1win)d,%(n2win)d,%(n3win)d,%(r1)g,%(r2)g,%(r3)g,%(ifdamp)d,%(verb)d);quit"
      '''%vars(),stdin=0,stdout=-1)
@@ -285,10 +285,10 @@ Grey3('s-grr-n',2,'title="GRR"')
 Grey3('s-lrr-n',2,'title="LRR"')
 Grey3('s-lrra-n',2,'title="LRRA"')  
 
-Flow('s-pwd-e','diffrr s-pwd-n','add scale=1,-1 ${SOURCES[1]}')
-Flow('s-grr-e','diffrr s-grr-n','add scale=1,-1 ${SOURCES[1]}')
-Flow('s-lrr-e','diffrr s-lrr-n','add scale=1,-1 ${SOURCES[1]}')
-Flow('s-lrra-e','diffrr s-lrra-n','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-pwd-e','diffr s-pwd-n','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-grr-e','diffr s-grr-n','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-lrr-e','diffr s-lrr-n','add scale=1,-1 ${SOURCES[1]}')
+Flow('s-lrra-e','diffr s-lrra-n','add scale=1,-1 ${SOURCES[1]}')
 
 Grey3('s-pwd-e',2,'title="PWD"') 
 Grey3('s-grr-e',2,'title="GRR"') 
