@@ -133,7 +133,7 @@ First, we describe the principles of the LRR method for 3D seismic data. Secondl
 %\end{figure}
 
 \inputdir{syn3d}
-\multiplot{3}{refll,diffrr,syn3d2}{width=0.45\columnwidth}{Benchmark dataset with groundtruth reflections and diffractions. (a) Reflection data. (b) Diffraction data. (c) Synthetic data. }
+\multiplot{3}{refl,diffr,syn}{width=0.45\columnwidth}{Benchmark dataset with groundtruth reflections and diffractions. (a) Reflection data. (b) Diffraction data. (c) Synthetic data. }
 \multiplot{3}{s-pwd-0,s-grr-0,s-lrra-0}{width=0.45\columnwidth}{Separated reflections using (a) PWD method, (b) global rank-reduction method, and (c) proposed method.}
 \multiplot{3}{s-pwd-n-0,s-grr-n-0,s-lrra-n-0}{width=0.45\columnwidth}{Separated reflections using (a) PWD method (SNR=6.52 dB), (b) global rank-reduction method (SNR=1.42 dB), and (c) proposed method (SNR=9.14 dB).}
 \multiplot{3}{s-pwd-e-0,s-grr-e-0,s-lrra-e-0}{width=0.45\columnwidth}{Error of separated diffractions using (a) PWD method, (b) global rank-reduction method, and (c) proposed method.}
@@ -156,7 +156,7 @@ Let a 3D seismic data be denoted by $S(x, y, t)$, $x=1,\cdots, N_x$, $y=1,\cdots
 \end{align}
 where, 
 \begin{align} \label{eq:Hif} 
-&\mathbf{\widetilde{H}}_i(f_0)=\\
+&\mathbf{\widetilde{H}}_i(f_0)= \nonumber\\
 &\begin{bmatrix}
 S(i,1,f_0)&S(i,2,f_0)&\cdots&S(i,n_y,f_0)\\
 S(i,2,f_0)&S(i,3,f_0)&\cdots&S(i,n_y+1,f_0)\\
