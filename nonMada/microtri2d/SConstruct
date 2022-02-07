@@ -94,7 +94,52 @@ Flow('ccr0',snaps_list1,'math a=${SOURCES[1]} b=${SOURCES[2]} c=${SOURCES[3]} d=
 Result('ccr0','window j3=10 | grey gainpanel=a pclip=99.9')
 
 Flow('location0','ccr0','stack axis=3 | pad beg1=30 end1=40 beg2=30 end2=50|put o1=0 o2=0|smooth rect1=3 rect2=3') 
-Result('location0','sfgrey pclip=99.95  allpos=y label1=Depth label2=Distance unit1=m unit2=m title="Source Location Image" ')
+Result('location0','sfgrey pclip=99.95  allpos=y label1=Depth label2=Distance unit1=m unit2=m title="Source Location Image (PSP)" ')
+
+## compare with acoustic FD
+
+Flow('fd_data0 fd_snaps fd_data_v0','vel %s'%exe[0],
+     '''
+     ./${SOURCES[1]} snaps=${TARGETS[1]} dat_v=${TARGETS[2]} verb=y cmplx=n vref=1500 fd=y ps=y nt=%d dt=%g snap=1 abc=y nbt=30 ct=0.01 src=0 n_srcs=2
+     spz=50,50
+     spx=50,60
+     f0=30,30
+     t0=0.1,0.21
+     A=1,1
+     '''%(nt,dt))
+Flow('fd_data','fd_data0','noise var=0.000 type=y seed=12005')
+
+Result('data','grey wanttitle=y title="Observed Data (PSP)" ')
+Result('fd_data','grey wanttitle=y title="Observed Data (FD)"')
+
+Result('comp_data','Fig/data.vpl Fig/fd_data.vpl','SideBySideAniso')
 
 
+tmp = 5
+snaps_list1 = []
+src_list = ''
+for i in range(tmp):
+    mask = 'fd_mask%d' %i
+    data = 'fd_data_mask%d' %i
+    img = 'fd_img%d' %i
+    snaps = 'fd_snaps%d' %i
+    
+    Flow(mask,None,'spike n1=55 mag=1 k1=%d l1=%d | sfdd type=int' %(11*i+1,11*i+3))
+    Flow(data,['fd_data',mask],'headercut mask=${SOURCES[1]}')
+    Flow([img,snaps],['vel',data,'%s'%exe[0]],
+         '''
+         ./${SOURCES[2]} snaps=${TARGETS[1]} verb=y cmplx=n vref=1500 ps=y snap=1 abc=y nbt=30 ct=0.01 mig=y dat=${SOURCES[1]}
+         ''')
+    Result(snaps,'window j3=10 | grey gainpanel=a')
+    Result(img,'grey')
+    snaps_list1 += [snaps]
+    src_list += ' ${SOURCES[%d]}' %(i+1)
+
+Flow('fd_ccr0',snaps_list1,'math a=${SOURCES[1]} b=${SOURCES[2]} c=${SOURCES[3]} d=${SOURCES[4]} output="input^2*a^2*b^2*c^2*d^2" ')
+Result('fd_ccr0','window j3=10 | grey gainpanel=a pclip=99.9')
+Flow('fd_location0','fd_ccr0','stack axis=3 | pad beg1=30 end1=40 beg2=30 end2=50|put o1=0 o2=0|smooth rect1=3 rect2=3') 
+Result('fd_location0','sfgrey pclip=99.95  allpos=y label1=Depth label2=Distance unit1=m unit2=m title="Source Location Image (FD)" ')
+Result('comp_location','Fig/location0.vpl Fig/fd_location0.vpl','SideBySideAniso')
+
+Result('comp','Fig/comp_data.vpl Fig/comp_location.vpl','OverUnderAniso')
 End()
