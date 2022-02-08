@@ -979,7 +979,7 @@ int afd(float **wvfld, float **dat, float **dat_v, float *img, float *vel, pspar
         if(verb) sf_warning("it=%d/%d;",it,nt);
 
 	/* matrix multiplication */
-	fft2(curr,cwave);
+/*	fft2(curr,cwave);
 
 	for (ik = 0; ik < nk; ik++) {
 #ifdef SF_HAS_COMPLEX_H
@@ -989,7 +989,7 @@ int afd(float **wvfld, float **dat, float **dat_v, float *img, float *vel, pspar
 #endif
 	}
 	
-	ifft2(wave,cwavem);
+	ifft2(wave,cwavem);*/
 	
 	/*wave   = sf_floatalloc(nzx2);*/
 	/*nzx2 = nz2*nx2;*/
