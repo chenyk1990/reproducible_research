@@ -48,7 +48,7 @@ Flow([slocname],[os.path.join(matROOT,matfun+'.m')],
 
 # 3D ray tracing to generate times.rsf (more compact version, computed in C)
 Flow('location',slocname,'txt2rsf d1=1 d2=1 o1=1 o2=1 n1=%d n2=3'%nevents)
-Flow('times','mod location','eikonal_surf shotfile=${SOURCES[1]} order=1 | transp plane=12')
+#Flow('times','mod location','eikonal_surf shotfile=${SOURCES[1]} order=1 | transp plane=12')
 
 # generate training data
 Flow(['data-0','label-0'],[os.path.join(matROOT,matfun+'.m'),'times.rsf',slocname],
