@@ -15,8 +15,10 @@ function [ D1,H,H0,H1,H2] = drr5d_lb_recon_H(D,D_true,MASK,flow,fhigh,Hf,dt,N,NN
 %       mode:   mode=1: denoising and reconstruction
 %               mode=0: reconstruction only
 %       iflb:   default 0;
-%               1: with LB, MGS orthogonalized
 %               0: traditional
+%               1: with LB, MGS orthogonalized
+%               2: ODRR
+%               3: ORR
 %       a:      scalar
 %
 %  OUT  D1:  	output data
@@ -62,7 +64,12 @@ if mode==0;
     a=ones(1,Niter);
 end
 
+if size(MASK,5)==1 && size(D,5)>1
+mask=MASK;  
+else
 mask=squeeze(MASK(1,:,:,:,:));
+end
+
 
 [nt,nx,ny,nhx,nhy]=size(D);
 D1=zeros(nt,nx,ny,nhx,nhy);

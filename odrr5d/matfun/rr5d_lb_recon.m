@@ -61,7 +61,7 @@ if mode==0;
     a=ones(1,Niter);
 end
 
-if size(MASK,5)==1
+if size(MASK,5)==1 && size(D,5)>1
 mask=MASK;  
 else
 mask=squeeze(MASK(1,:,:,:,:));

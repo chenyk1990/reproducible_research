@@ -15,8 +15,10 @@ function [ D1 ] = drr5d_lb_recon(D,MASK,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,i
 %       mode:   mode=1: denoising and reconstruction
 %               mode=0: reconstruction only
 %       iflb:   default 0;
-%               1: with LB, MGS orthogonalized
 %               0: traditional
+%               1: with LB, MGS orthogonalized
+%               2: ODRR
+%               3: ORR
 %       a:      scalar
 %
 %  OUT  D1:  	output data
@@ -42,6 +44,7 @@ function [ D1 ] = drr5d_lb_recon(D,MASK,flow,fhigh,dt,N,NN,Niter,eps,verb,mode,i
 %  [6] Chen et al., 2017, Preserving the discontinuities in least-squares reverse time migration of simultaneous-source data, Geophysics, 82, S185-S196.
 %  [7] Chen et al., 2019, Obtaining free USArray data by multi-dimensional seismic reconstruction, Nature Communications, 10:4434.
 
+
 if nargin==0
     error('Input data must be provided!');
 end
@@ -62,7 +65,11 @@ if mode==0;
     a=ones(1,Niter);
 end
 
+if size(MASK,5)==1 && size(D,5)>1
+mask=MASK;  
+else
 mask=squeeze(MASK(1,:,:,:,:));
+end
 
 [nt,nx,ny,nhx,nhy]=size(D);
 D1=zeros(nt,nx,ny,nhx,nhy);
