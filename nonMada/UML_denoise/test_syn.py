@@ -26,18 +26,18 @@ Dtest11=Dtest11.reshape(60,1600)
 
 n_samples=len(Dtrain)
 training_epochs =10
-batch_size = 15
+batch_size = 100
 display_step = 1
 
 corruption_level = 0.0
-sparse_reg=1
+sparse_reg=0.1
 #
 n_inputs = 1600
 n_hidden = 3200
 
 ae = Autoencoder(n_layers=[n_inputs, n_hidden],
                           transfer_function = tf.nn.sigmoid,
-                          optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate = 0.001),ae_para = [corruption_level, sparse_reg])
+                          optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate = 0.00001),ae_para = [corruption_level, sparse_reg])
 init = tf.compat.v1.global_variables_initializer()
 sess = tf.compat.v1.Session()
 sess.run(init)

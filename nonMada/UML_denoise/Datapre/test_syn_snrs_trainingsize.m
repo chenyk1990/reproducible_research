@@ -41,8 +41,9 @@ dtmp=yc_patch_inv( tmp',1,452,120,s1,s1,s2,s2);
 d1=(max1-min1)*dtmp+min1;
 
 figure;imagesc([dn,d1,dn-d1]);
+figure;yc_imagesc([dn,d1,dn-d1]);
 
-
+yc_snr(dc,dn)
 yc_snr(dc,d1)
 
 
