@@ -1,5 +1,6 @@
 from rsf.proj import*
 from rsf.recipes.beg import server
+#datapath: https://drive.google.com/drive/folders/1ABDzFBy--6XsaDYP3CxH2bNknSlI0koe?usp=sharing
 
 #######################################################################
 ## parameters definition
@@ -26,22 +27,22 @@ def plot (other):
 ## data format conversion # segy->rsf
 #######################################################################
 for file in [
-         '2-SOURCE-simulated_receiver_gather_SEGY','1-SOURCE-simulated_receiver_gather_SEGY']:
-	 if file == '2-SOURCE-simulated_receiver_gather_SEGY':
+		 '2-SOURCE-simulated_receiver_gather_SEGY','1-SOURCE-simulated_receiver_gather_SEGY']:
+	if file == '2-SOURCE-simulated_receiver_gather_SEGY':
 		file1='fairblended'
-	 elif file == '1-SOURCE-simulated_receiver_gather_SEGY':
+	elif file == '1-SOURCE-simulated_receiver_gather_SEGY':
 		file1='fairunblended'
 
-	 Fetch(file+'.sgy','fairfield',server)
-    	 Flow([file1,'t'+file1,file1+'.asc',file1+'.bin'],
-                file+'.sgy',
-                '''
-                segyread
-                tfile=${TARGETS[1]}
-                hfile=${TARGETS[2]}
-                bfile=${TARGETS[3]}
-                ''')
-    	 #Result(file1,file1,'grey clip=%g'%(clip))
+	Fetch(file+'.sgy','fairfield',server)
+	Flow([file1,'t'+file1,file1+'.asc',file1+'.bin'],
+				file+'.sgy',
+				'''
+				segyread
+				tfile=${TARGETS[1]}
+				hfile=${TARGETS[2]}
+				bfile=${TARGETS[3]}
+				''')
+		#Result(file1,file1,'grey clip=%g'%(clip))
 
 Flow('fairblended1','fairblended','window n2=201 | put o2=0 ')
 Flow('fairblended22','fairblended','window f2=201 | put o2=0 ') # This is what we want to use.
@@ -55,14 +56,14 @@ Flow('fair-zero','fair-noise','math output=0')
 #######################################################################
 Flow('shottime1','tfairblended',
 	'''
-        dd type=float
-      	| headermath output="cdpx" | window n2=201 |transp
+		dd type=float
+	  	| headermath output="cdpx" | window n2=201 |transp
 	''')
 
 Flow('shottime2','tfairblended',
 	'''
-        dd type=float
-      	| headermath output="cdpx" | window f2=201 |transp
+		dd type=float
+	  	| headermath output="cdpx" | window f2=201 |transp
 	''')
 
 #######################################################################
