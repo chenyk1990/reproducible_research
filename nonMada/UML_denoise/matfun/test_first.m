@@ -49,13 +49,13 @@ figure;imagesc(reshape(dc,175,20*20));colormap(seis);
 
 %% adding noise
 randn('state',201617);
-dn=dc+0.02*randn(size(dc));
+dn=dc+0.001*randn(size(dc));
 [n1,n2,n3]=size(dn);
 figure;imagesc([dc(:,:,10),dn(:,:,10)]);colormap(seis);
 
 %% SGK
-l1=16;l2=4;l3=4;c1=16;c2=4;c3=4;
-s1=1;s2=1;s3=1;
+l1=32;l2=4;l3=4;c1=l1;c2=l2;c3=l3;
+s1=2;s2=2;s3=2;
 
 % l1=8;l2=8;l3=8;c1=l1;c2=l2;c3=l3;
 % s1=l1/2;s2=l2/2;s3=l3/2;
@@ -87,10 +87,14 @@ y=X';
 % hold on;
 
 % A NETWORK WITH A HIDDEN LAYER OF SIZE 3
-nn_hdim=128;niter=2000;verb=1;lrate=0.01;nepoch=200;
+nn_hdim=128;niter=1000;verb=1;lrate=0.01;nepoch=100;
 model = nns_build_model(x,y,nn_hdim,niter,lrate,nepoch,verb);
 y1=nns_predict(model,x); %size of x,y1: N_patches x Patch_size
 d2=yc_patch3d_inv(y1',1,n1,n2,n3,l1,l2,l3,s1,s2,s3);
 figure;imagesc([dc(:,:,10),dn(:,:,10),d2(:,:,10)]);colormap(seis);
 yc_snr(dc,d2,2)
+
+
+figure;imagesc([dc(1:50,:,10),dn(1:50,:,10),d2(1:50,:,10)]);colormap(seis);
+
 
