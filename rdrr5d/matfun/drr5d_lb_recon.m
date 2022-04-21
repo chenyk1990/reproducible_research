@@ -99,7 +99,7 @@ lhx=floor(nhx/2)+1;
 lhxx=nhx-lhx+1;
 lhy=floor(nhy/2)+1;
 lhyy=nhy-lhy+1;
-M=zeros(lx*ly*lhx*lhy,lxx*lyy*lhxx,lhyy);
+M=zeros(lx*ly*lhx*lhy,lxx*lyy*lhxx*lhyy);
 
 % main loop
 for k=ilow:ihigh
