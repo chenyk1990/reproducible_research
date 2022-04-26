@@ -58,13 +58,13 @@ end
 plane3d=shot;
 dc=yc_scale(plane3d,3);
 dc=dc(51:225,:,:);
-figure;imagesc(reshape(dc,175,20*20));colormap(seis);
+figure;imagesc(reshape(dc,175,20*20));
 
 %% adding noise
 randn('state',201617);
 d=dc+0.1*randn(size(dc));
 [n1,n2]=size(d);
-figure;imagesc([dc(:,:,10),d(:,:,10)]);colormap(seis);
+figure;imagesc([dc(:,:,10),d(:,:,10)]);
 
 %% denoise using SGK %when K=3, SGK is even better than KSVD (13.23 dB)
 % the computational difference is larger when T is larger
@@ -75,18 +75,14 @@ tic
 toc
 yc_snr(dc,d1,2) %12.89 dB
 
-figure;imagesc([dc(:,:,10),d(:,:,10),d1(:,:,10),d(:,:,10)-d1(:,:,10)]);colormap(seis);
+figure;imagesc([dc(:,:,10),d(:,:,10),d1(:,:,10),d(:,:,10)-d1(:,:,10)]);
 
 %% benchmark with KSVD
 tic
 [d2,D2,G2,D02]=yc_ksvd_denoise(d,mode,[l1,l2,l3],[s1,s2,s3],perc,param);
 toc
-figure;imagesc([dc(:,:,10),d(:,:,10),d2(:,:,10),d(:,:,10)-d2(:,:,10)]);colormap(seis);
+figure;imagesc([dc(:,:,10),d(:,:,10),d2(:,:,10),d(:,:,10)-d2(:,:,10)]);
 
-%% plot atoms (we need a square cube, l1=l2=l3)
-yc_plotatom3d(D0);colormap(jet);
-yc_plotatom3d(D);colormap(jet);
-yc_plotatom3d(D2);colormap(jet);
 %% SNR
 yc_snr(dc,d,2)  %-0.01 dB
 yc_snr(dc,d1,2) %12.89 dB
