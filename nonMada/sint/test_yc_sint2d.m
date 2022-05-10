@@ -21,7 +21,7 @@ dip=yc_dip2dmask(yc_bandpass(hyper0,0.004,0,10),hyperm);
 
 %% sparse data interpolation
 hyper_recon=yc_sint2d(hyper0,hyperm,dip,20,10,1,0.01);
-figure;imagesc([hyper,hyper0,hyper_recon,hyper-hyper_recon]);
+figure;imagesc([hyper0,hyper_recon,hyper0-hyper_recon]);
 
 
 
