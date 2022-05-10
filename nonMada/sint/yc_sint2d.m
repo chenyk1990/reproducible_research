@@ -1,5 +1,5 @@
 function [dout] = yc_sint2d(din,mask,dip,niter,ns,order,eps)
-% yc_sint2: Missing data interpolation in 2-D using plane-wave shaping regularization.
+% yc_sint2: sparse data interpolation in 2-D using shaping regularization and structural filtering.
 %
 % By Yangkang Chen
 % Aug 10, 2021
