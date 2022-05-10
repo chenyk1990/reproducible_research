@@ -12,12 +12,14 @@ clc;clear;close all;
 fid=fopen('hyper_zero.bin');
 hyper0=fread(fid,[501,256],'float');
 
-% Slope estimation, read the reference [2]
-dip=yc_dip2dmask(yc_bandpass(hyper0,0.004,0,10),hyperm);
-
+%% create mask/sampling operator
 hyperm=ones(size(hyper0));
 hyperm(find(hyper0==0))=0;
 
+%% Slope estimation, read the reference [2]
+dip=yc_dip2dmask(yc_bandpass(hyper0,0.004,0,10),hyperm);
+
+%% sparse data interpolation
 hyper_recon=yc_sint2d(hyper0,hyperm,dip,20,10,1,0.01);
 figure;imagesc([hyper,hyper0,hyper_recon,hyper-hyper_recon]);
 

@@ -17,8 +17,11 @@ function [dout] = yc_sint2d(din,mask,dip,niter,ns,order,eps)
 % dout: interpolated data
 % 
 % References
-% Chen, Y., Chen, X., Wang, Y. and Zu, S., 2019. The interpolation of sparse geophysical data. Surveys in Geophysics, 40(1), pp.73-105.
-% 
+% [1] Chen, Y., Chen, X., Wang, Y. and Zu, S., 2019. The interpolation of sparse geophysical data. Surveys in Geophysics, 40(1), pp.73-105.
+% [2] Wang, H., Chen, Y., Saad, O.M., Chen, W., Oboué, Y.A.S.I., Yang, L., Fomel, S. and Chen, Y., 2022. A Matlab code package for 2D/3D local slope estimation and structural filtering. Geophysics, 87(3), pp.F1–F14.
+% [3] Huang, G., Chen, X., Li, J., Saad, O.M., Fomel, S., Luo, C., Wang, H. and Chen, Y., 2021. The slope-attribute-regularized high-resolution prestack seismic inversion. Surveys in Geophysics, 42(3), pp.625-671.
+% [4] Huang, G., Chen, X., Luo, C. and Chen, Y., 2020. Geological structure-guided initial model building for prestack AVO/AVA inversion. IEEE Transactions on Geoscience and Remote Sensing, 59(2), pp.1784-1793.
+
 
 if nargin==5
     order=1;

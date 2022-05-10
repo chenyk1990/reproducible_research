@@ -1,8 +1,6 @@
 function [dip] = yc_dip2dmask(din,mask,niter,liter,order,eps_dv, eps_cg, tol_cg,rect,verb)
-% yc_dip2d_i: dip estimation based on shaping regularized PWD algorithm (verified)
-% (independent implementation)
-% 
-% exactly the same with dip2d_shan_GN.M
+% yc_dip2dmask: dip estimation based on shaping regularized PWD algorithm
+% (verified) with the newly added "mask" function
 % 
 % BY Yangkang Chen, Nov, 05, 2019
 % INPUT
@@ -19,8 +17,9 @@ function [dip] = yc_dip2dmask(din,mask,niter,liter,order,eps_dv, eps_cg, tol_cg,
 % OUTPUT
 % dip:  2D slope
 % 
-% Example:
-% test/test_PWD_yc_dip_i.m
+% Reference
+% Wang, H., Chen, Y., Saad, O.M., Chen, W., Oboué, Y.A.S.I., Yang, L., Fomel, S. and Chen, Y., 2022. A Matlab code package for 2D/3D local slope estimation and structural filtering. Geophysics, 87(3), pp.F1–F14.
+
 if nargin==1
     mask=[];
     niter = 5;
