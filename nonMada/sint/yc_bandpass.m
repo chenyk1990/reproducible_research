@@ -162,7 +162,7 @@ if mod(nn,2)>0
     end
 end
 
-fact=das_ifnot(low,sin(0.5*arg),cos(0.5*arg));
+fact=yc_ifnot(low,sin(0.5*arg),cos(0.5*arg));
 fact=fact*fact;
 
 for j=0:floor(nn/2)-1
@@ -200,7 +200,7 @@ if mod(nn,2)>0
     y1=0;
     for ix=0:nx-1
         x1=x0;x0=x(ix+1);
-        y0=das_ifnot(bw.low,(x0 + x1 - d2 * y1)*d0,(x0 - x1 - d2 * y1)*d0);
+        y0=yc_ifnot(bw.low,(x0 + x1 - d2 * y1)*d0,(x0 - x1 - d2 * y1)*d0);
         x(ix+1)=y0;
         y1=y0;
     end 
@@ -212,7 +212,7 @@ for j=0:floor(nn/2)-1
     x1=0;x0=0;y1=0;y2=0;
     for ix=0:nx-1
         x2=x1;x1=x0;x0=x(ix+1);
-        y0=das_ifnot(bw.low,(x0 + 2*x1 + x2 - d1 * y1 - d2 * y2)*d0,(x0 - 2*x1 + x2 - d1 * y1 - d2 * y2)*d0);
+        y0=yc_ifnot(bw.low,(x0 + 2*x1 + x2 - d1 * y1 - d2 * y2)*d0,(x0 - 2*x1 + x2 - d1 * y1 - d2 * y2)*d0);
         y2=y1;x(ix+1)=y0;y1=y0;
     end
 end
