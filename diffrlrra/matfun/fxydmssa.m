@@ -128,7 +128,7 @@ lyy=ny-ly+1;
     end
 return
 
-function [dout]=P_R(din,N,NN)
+function [dout]=P_R(din,N,K)
 % Rank reduction on the block Hankel matrix
 
 
@@ -137,7 +137,7 @@ function [dout]=P_R(din,N,NN)
 % %      
     [U,D,V]=svd(din);
     for j=1:N
-        D(j,j)=D(j,j)*(1-D(N+1,N+1)^NN/(D(j,j)^NN+0.000000000000001));
+        D(j,j)=D(j,j)*(1-D(N+1,N+1)^K/(D(j,j)^K+0.000000000000001));
     end    
     
     dout=U(:,1:N)*D(1:N,1:N)*(V(:,1:N)');
