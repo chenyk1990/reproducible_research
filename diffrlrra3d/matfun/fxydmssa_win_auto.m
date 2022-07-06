@@ -50,7 +50,7 @@ if nargin==1
     fhigh=124;
     dt=0.004;
     N=1;
-    N=2;
+    NN=2;
     verb=0;
     n1win=nt;
     n2win=nx;
