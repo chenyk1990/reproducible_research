@@ -35,7 +35,7 @@ Flow('test00-n','test00 data','add scale=-1,1 ${SOURCES[1]}')
 Grey('r2test00','test00','title="NPFFS"')
 Grey('r2test00-n','test00-n','title="NPFFS"')
 
-Flow('test1','data','fxynpre n1win=256 n2win=1001 mode=1 nsx=4 nsy=0 rect1=2 rect2=10 niter=20 verb=y')
+Flow('test1','data','fxynpre n1win=256 n2win=1001 mode=1 nsx=4 nsy=0 rect2=10 niter=20 verb=y')
 Flow('test1-n','test1 data','add scale=-1,1 ${SOURCES[1]}')
 Grey('r2test1','test1','title="RNAR"')
 Grey('r2test1-n','test1-n','title="RNAR"')
