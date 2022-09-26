@@ -50,7 +50,7 @@ for l = 1:Niter_out
         gammam = gamma;
         s = g + beta*s;
         if verb
-            fprintf('Iteration = %d Misfit=%0.5g\n',k,misfit(k));
+            fprintf('Iteration = %d Misfit=%0.5g\n',k,misfit(kc));
         end
         k = k + 1;
         kc = kc + 1;
