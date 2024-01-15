@@ -1,6 +1,10 @@
 from rsf.proj import*
 from rsf.prog import RSFROOT
 
+#Download the data from 
+#https://github.com/aaspip/data/blob/main/eseisdsdreal.rsf
+#https://github.com/aaspip/data/blob/main/eseishyper0.rsf
+#Flow('real','eseisdsdreal','cp')
 
 #see the secondary folder for detailed data path
 
