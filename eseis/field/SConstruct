@@ -1,19 +1,27 @@
 from rsf.proj import*
 from rsf.prog import RSFROOT
+from rsf.recipes.beg import server
+Fetch('real.rsf','dsd',server)
+# Fetch('real.rsf','yangkang')
+#Download the data from 
+#https://github.com/aaspip/data/blob/main/eseisdsdreal.rsf
+#https://github.com/aaspip/data/blob/main/eseishyper0.rsf
+#Flow('real','eseisdsdreal','cp')
+
 
 #see the secondary folder for detailed data path
 
 def Grey(data,other): 
-	Result(data,'grey label2=Trace unit2= label1="Time sampling number" unit1= title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenht=10.24 screenratio=1.3 wherexlabel=t wheretitle=b  bartype=v clip=0.1 %s'%other)
+    Result(data,'grey label2=Trace unit2= label1="Time sampling number" unit1= title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenht=10.24 screenratio=1.3 wherexlabel=t wheretitle=b  bartype=v clip=0.1 %s'%other)
 
 def Wig(data1,data2,other): 
-	Result(data1,data2,'window j2=2 | wiggle transp=y yreverse=y poly=y label2=Trace unit2= label1=Time unit1="s" title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenht=10.24 screenratio=1.3 wherexlabel=t wheretitle=b color=g bartype=v clip=0.1 %s'%other)
+    Result(data1,data2,'window j2=2 | wiggle transp=y yreverse=y poly=y label2=Trace unit2= label1=Time unit1="s" title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenht=10.24 screenratio=1.3 wherexlabel=t wheretitle=b color=g bartype=v clip=0.1 %s'%other)
 
 def Grey2(data1,data2,other): 
-	Result(data1,data2,'grey label2=Trace unit2= label1="Time sampling number" unit1= title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenratio=0.6 wherexlabel=t wheretitle=b  bartype=v clip=0.1 %s'%other)
+    Result(data1,data2,'grey label2=Trace unit2= label1="Time sampling number" unit1= title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenratio=0.6 wherexlabel=t wheretitle=b  bartype=v clip=0.1 %s'%other)
 
 def Grey3(data1,clip,other): 
-	Result(data1,'window max1=50 |byte clip=%d allpos=y |grey3 point1=0.8 point2=0.8 flat=n label2=Scale unit2= label1=Frequency unit1="Hz" label3=IMF unit3= title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenht=10.24 wherexlabel=t wheretitle=b color=g bartype=v clip=0.5 %s'%(clip,other))
+    Result(data1,'window max1=50 |byte clip=%d allpos=y |grey3 point1=0.8 point2=0.8 flat=n label2=Scale unit2= label1=Frequency unit1="Hz" label3=IMF unit3= title="" labelsz=10 labelfat=4 font=2 titlesz=10 titlefat=4 screenht=10.24 wherexlabel=t wheretitle=b color=g bartype=v clip=0.5 %s'%(clip,other))
 
 Grey2('real','real','title="Seismic image"')
 
@@ -103,37 +111,37 @@ Flow('real-femdi-hilb-3d','real-femdi-3d','transp | envelope hilb=y ' )
 # transformed to Eseislet domain
 seis=[]
 for j in range(N):
-    for i in range(257):
-	seis1='femdr-seis-%d-%d'%(i,j)
-	freq1='freqr-%d-%d'%(i,j)
-	Flow(freq1,'real-femdr-3d real-femdr-hilb-3d','transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d | cpef nf=%d | roots niter=20' %(i,j,2))
-#	Flow(seis1,'real-femdr-3d real-femdr-hilb-3d %s'%freq1,
-	Flow(seis1,'real-femdr-3d real-femdr-hilb-3d freq',
-	'''
-	transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d | 
-	freqlet freq=${SOURCES[2]} type=b '''%(i,j))
-	seis.append(seis1)
+  for i in range(257):
+    seis1='femdr-seis-%d-%d'%(i,j)
+    freq1='freqr-%d-%d'%(i,j)
+    Flow(freq1,'real-femdr-3d real-femdr-hilb-3d','transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d | cpef nf=%d | roots niter=20' %(i,j,2))
+#    Flow(seis1,'real-femdr-3d real-femdr-hilb-3d %s'%freq1,
+    Flow(seis1,'real-femdr-3d real-femdr-hilb-3d freq',
+    '''
+    transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d | 
+    freqlet freq=${SOURCES[2]} type=b '''%(i,j))
+    seis.append(seis1)
 Flow('real-femdr-seis',seis,'cat axis=2 ${SOURCES[1:%d]}'%len(seis))
 
 seis=[]
 for j in range(N):
-    for i in range(257):
-	seis2='femdi-seis-%d-%d'%(i,j)
-	freq2='freqi-%d-%d'%(i,j)
-	Flow(freq2,'real-femdi-3d real-femdi-hilb-3d','transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d | cpef nf=%d | roots niter=20' %(i,j,2))
-#	Flow(seis2,'real-femdi-3d real-femdi-hilb-3d %s'%freq2,
-	Flow(seis2,'real-femdi-3d real-femdi-hilb-3d freq',
-	'''
-	transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d |  
-	freqlet freq=${SOURCES[2]} type=b  '''%(i,j))
-	seis.append(seis2)
-Flow('real-femdi-seis',seis,'cat axis=2 ${SOURCES[1:%d]}'%len(seis))	
+  for i in range(257):
+    seis2='femdi-seis-%d-%d'%(i,j)
+    freq2='freqi-%d-%d'%(i,j)
+    Flow(freq2,'real-femdi-3d real-femdi-hilb-3d','transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d | cpef nf=%d | roots niter=20' %(i,j,2))
+#    Flow(seis2,'real-femdi-3d real-femdi-hilb-3d %s'%freq2,
+    Flow(seis2,'real-femdi-3d real-femdi-hilb-3d freq',
+    '''
+    transp | cmplx ${SOURCES[1]} | window n2=1 f2=%d n3=1 f3=%d |  
+    freqlet freq=${SOURCES[2]} type=b  '''%(i,j))
+    seis.append(seis2)
+Flow('real-femdi-seis',seis,'cat axis=2 ${SOURCES[1:%d]}'%len(seis))    
 
-Flow('real-femdr-seis0-3d','real-femdr-seis','math output="abs(input)"|real |put %s | transp'%put2)	
+Flow('real-femdr-seis0-3d','real-femdr-seis','math output="abs(input)"|real |put %s | transp'%put2)    
 Flow('real-femdi-seis0-3d','real-femdi-seis','math output="abs(input)"|real | put %s | transp'%put2)
 
-Flow('real-femdr-seis0','real-femdr-seis0-3d','put %s '%put3)	
-Flow('real-femdi-seis0','real-femdi-seis0-3d','put %s '%put3)	
+Flow('real-femdr-seis0','real-femdr-seis0-3d','put %s '%put3)    
+Flow('real-femdi-seis0','real-femdi-seis0-3d','put %s '%put3)    
 
 Grey('real-femdr-seis0','clip=6')
 Grey('real-femdi-seis0','clip=6')
@@ -144,53 +152,53 @@ Grey3('real-femdi-seis0-3d',10,'label1=Frequency unit1=Hz frame1=30 frame2=125 f
 thrs1=[]
 thrs2=[]
 for j in range (N):
-	thr1='real-femdr-seis-thr-%d'%j
-	thr2='real-femdi-seis-thr-%d'%j
-	if j== 0:
-		Flow(thr1,'real-femdr-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
-		Flow(thr2,'real-femdi-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
-	else:
-	     	if j==1:
-			Flow(thr1,'real-femdr-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2'%(put2,j))
-			Flow(thr2,'real-femdi-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
-		else:
-			Flow(thr1,'real-femdr-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
-			Flow(thr2,'real-femdi-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
-		
-	thrs1.append(thr1)
-	thrs2.append(thr2)
+    thr1='real-femdr-seis-thr-%d'%j
+    thr2='real-femdi-seis-thr-%d'%j
+    if j== 0:
+        Flow(thr1,'real-femdr-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
+        Flow(thr2,'real-femdi-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
+    else:
+        if j==1:
+            Flow(thr1,'real-femdr-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2'%(put2,j))
+            Flow(thr2,'real-femdi-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
+        else:
+            Flow(thr1,'real-femdr-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
+            Flow(thr2,'real-femdi-seis','put %s | window n3=1 f3=%g | threshold1 ifperc=1 type=h thr=2 '%(put2,j))
+        
+    thrs1.append(thr1)
+    thrs2.append(thr2)
 Flow('real-femdr-seis-thr',thrs1,'cat axis=2 ${SOURCES[1:%d]} '%len(thrs1))
 Flow('real-femdi-seis-thr',thrs2,'cat axis=2 ${SOURCES[1:%d]} '%len(thrs2))
 
 emds=[]
 for j in range(N):
-    for i in range(257):
-	emds1='femdr-%d-%d'%(i,j)
-	freq1='freqr-%d-%d'%(i,j)	
-#	Flow(emds1,'real-femdr-seis-thr %s'%freq1,
-	Flow(emds1,'real-femdr-seis-thr freq',
-	'''
-	window n2=1 f2=%d | freqlet freq=${SOURCES[1]} type=b inv=y | real'''%(j*257+i))
-	emds.append(emds1)
+  for i in range(257):
+    emds1='femdr-%d-%d'%(i,j)
+    freq1='freqr-%d-%d'%(i,j)    
+#    Flow(emds1,'real-femdr-seis-thr %s'%freq1,
+    Flow(emds1,'real-femdr-seis-thr freq',
+    '''
+    window n2=1 f2=%d | freqlet freq=${SOURCES[1]} type=b inv=y | real'''%(j*257+i))
+    emds.append(emds1)
 Flow('real-femdr-seis-inv',emds,'cat axis=2 ${SOURCES[1:%d]} |put %s | transp | put %s'%(len(emds),put2,put))
 
 
 emds=[]
 for j in range(N):
-    for i in range(257):
-	emds2='femdi-%d-%d'%(i,j)
-	freq2='freqi-%d-%d'%(i,j)
-#	Flow(emds2,'real-femdi-seis-thr %s'%freq2,
-	Flow(emds2,'real-femdi-seis-thr freq',
-	'''
-	window n2=1 f2=%d | freqlet freq=${SOURCES[1]} type=b inv=y   | real'''%(j*257+i))
-	emds.append(emds2)	
+  for i in range(257):
+    emds2='femdi-%d-%d'%(i,j)
+    freq2='freqi-%d-%d'%(i,j)
+#    Flow(emds2,'real-femdi-seis-thr %s'%freq2,
+    Flow(emds2,'real-femdi-seis-thr freq',
+    '''
+    window n2=1 f2=%d | freqlet freq=${SOURCES[1]} type=b inv=y   | real'''%(j*257+i))
+    emds.append(emds2)    
 
 Flow('real-femdi-seis-inv',emds,'cat axis=2 ${SOURCES[1:%d]} | put %s | transp | put %s'%(len(emds),put2,put3))
 
 
-Flow('real-femdr-seis-thr-3d','real-femdr-seis-thr','math output="abs(input)"|real |put %s | transp'%put2)	
-Flow('real-femdi-seis-thr-3d','real-femdi-seis-thr',' math output="abs(input)"|real |put %s | transp'%put2)	
+Flow('real-femdr-seis-thr-3d','real-femdr-seis-thr','math output="abs(input)"|real |put %s | transp'%put2)    
+Flow('real-femdi-seis-thr-3d','real-femdi-seis-thr',' math output="abs(input)"|real |put %s | transp'%put2)    
 
 Grey3('real-femdr-seis-thr-3d',10,'label1=Frequency unit1=Hz frame1=30 frame2=125 frame3=0 color=j screenratio=1.3 movie=3')
 Grey3('real-femdi-seis-thr-3d',10,'label1=Frequency unit1=Hz frame1=30 frame2=125 frame3=0 color=j screenratio=1.3 movie=3')
@@ -215,28 +223,28 @@ Grey('comp','title=Comparison')
 
 # sorting the coefficients
 Flow('fk1','real-femdr',
-	'''
-	put n1=526336 o1=1 d1=1 n2=1 
-	unit1= unit2= | sort''')
+    '''
+    put n1=526336 o1=1 d1=1 n2=1 
+    unit1= unit2= | sort''')
 Flow('fk','real-fk',
-	'''put n1=263168 o1=1 d1=1 n2=1 
-	unit1= unit2= | sort | pad n1=526336''')
+    '''put n1=263168 o1=1 d1=1 n2=1 
+    unit1= unit2= | sort | pad n1=526336''')
 Flow('fkeseis','real-femdr-seis0 real-femdi-seis0',
-	'''cat axis=2 ${SOURCES[1]} | put n1=1052672 o1=1 d1=1 n2=1 
-	unit1= unit2= | sort |window n1=526336''')
+    '''cat axis=2 ${SOURCES[1]} | put n1=1052672 o1=1 d1=1 n2=1 
+    unit1= unit2= | sort |window n1=526336''')
 
 # Non-stationary case
 #Flow('fkeseis2','real-femdr-seis0-n real-femdi-seis0-n',
-#	'''cat axis=2 ${SOURCES[1]} | put n1=131584 o1=1 d1=1 n2=1 
-#	unit1= unit2= | sort |window n1=65792''')
+#    '''cat axis=2 ${SOURCES[1]} | put n1=131584 o1=1 d1=1 n2=1 
+#    unit1= unit2= | sort |window n1=65792''')
 
 Flow('dwt','real-dwt',
-	'''put n1=262144 o1=1 d1=1 n2=1 
-	unit1= unit2= | sort | pad n1=526336''')
+    '''put n1=262144 o1=1 d1=1 n2=1 
+    unit1= unit2= | sort | pad n1=526336''')
 
 Flow('seis','real-seis',
-	'''put n1=262144 o1=1 d1=1 n2=1 
-	unit1= unit2= | sort | pad n1=526336''')
+    '''put n1=262144 o1=1 d1=1 n2=1 
+    unit1= unit2= | sort | pad n1=526336''')
 
 Plot('sigcoef','fkeseis fk dwt seis',
 '''
@@ -248,22 +256,22 @@ unit2="dB" wanttitle=n  labelsz=11''')
 
 
 Plot('label1',None,
-	'''
-	box x0=6.3 y0=3.1 label="Eseislet" xt=0.5 yt=0.5 
-	''') # xt,yt relative position 0.5
+    '''
+    box x0=6.3 y0=3.1 label="Eseislet" xt=0.5 yt=0.5 
+    ''') # xt,yt relative position 0.5
 
 Plot('label2',None,
-	'''
-	box x0=5.8 y0=4.8 label="Seislet" xt=0.5 yt=0.5 
-	''') # xt,yt relative position 0.5
+    '''
+    box x0=5.8 y0=4.8 label="Seislet" xt=0.5 yt=0.5 
+    ''') # xt,yt relative position 0.5
 Plot('label3',None,
-	'''
-	box x0=5.8 y0=6.4 label="Wavelet" xt=0.5 yt=0.5 
-	''') # xt,yt relative position 0.5
+    '''
+    box x0=5.8 y0=6.4 label="Wavelet" xt=0.5 yt=0.5 
+    ''') # xt,yt relative position 0.5
 Plot('label4',None,
-	'''
-	box x0=5.8 y0=7.5 label="Fourier" xt=0.5 yt=0.5 
-	''') # xt,yt relative position 0.5
+    '''
+    box x0=5.8 y0=7.5 label="Fourier" xt=0.5 yt=0.5 
+    ''') # xt,yt relative position 0.5
 
 Result('sigcoef','sigcoef label1 label2 label3 label4','Overlay')
 
@@ -311,13 +319,13 @@ w=150
 w1=150
 
 Flow('frame.asc',None,'echo %s n1=10 data_format=ascii_float in=$TARGET'% \
-	string.join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
+    " ".join(map(str,(x,y,x+w,y,x+w,y+w1,x,y+w1,x,y))))
 Plot('frame','frame.asc',
-	'''
-	dd type=complex form=native |
-	graph min1=0 max1=511 min2=0 max2=511 pad=n plotfat=15 plotcol=2 screenratio=0.6
-	wantaxis=n wanttitle=n yreverse=y 
-	''')
+    '''
+    dd type=complex form=native |
+    graph min1=0 max1=511 min2=0 max2=511 pad=n plotfat=15 plotcol=2 screenratio=0.6
+    wantaxis=n wanttitle=n yreverse=y 
+    ''')
 Result('real-0','Fig/real-g.vpl frame','Overlay')
 Result('real-fx-0','Fig/real-fx-g.vpl frame','Overlay')
 Result('real-eseist-0','Fig/real-eseist-g.vpl frame','Overlay')
