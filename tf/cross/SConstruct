@@ -101,6 +101,16 @@ Greyf('ltft_s4','title="Stationary LTFT  (Rt=7, Rf=3)"')
 Greyf('ltft_n','title="Non-stationary LTFT"') 
 
 
+##Below is for benchmark
+#Flow('cchirps.bin','cchirps','rsf2bin bfile={TARGETS[0]}')
+#Flow('ltft_n_real.bin','ltft_n','real | rsf2bin bfile={TARGETS[0]}')
+#Flow('ltft_n_imag.bin','ltft_n','imag | rsf2bin bfile={TARGETS[0]}')
+#Flow('ltft_s_real.bin','ltft_s','real | rsf2bin bfile={TARGETS[0]}')
+#Flow('ltft_s_imag.bin','ltft_s','imag | rsf2bin bfile={TARGETS[0]}')
+Flow('ltft_n_real','ltft_n','real ')
+Flow('ltft_n_imag','ltft_n','imag ')
+Flow('ltft_s_real','ltft_s','real ')
+Flow('ltft_s_imag','ltft_s','imag ')
 
 
 End()
